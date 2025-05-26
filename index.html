@@ -37,15 +37,15 @@
             <div class="header-top_area">
                 <div class="container">
                     <div class="row align-items-center">
-                        <div class="col-lg-6 col-md-8">
+                        <div class="col-lg-6 col-md-6">
                             <div class="short_contact_list">
-                                <ul class="list-inline">
-                                    <li class="list-inline-item"><a href="#">+880 4664 216</a></li>
-                                    <li class="list-inline-item"><a href="#">Mon - Sat 10:00 - 7:00</a></li>
+                                <ul class="list-inline mb-0">
+                                    <li class="list-inline-item"><a href="#"><i class="fa fa-phone mr-1"></i>+880 4664 216</a></li>
+                                    <li class="list-inline-item"><a href="#"><i class="fa fa-clock-o mr-1"></i>Mon - Sat 10:00 - 7:00</a></li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-4 d-flex justify-content-end align-items-center">
+                        <div class="col-lg-6 col-md-6 d-flex justify-content-end align-items-center">
                             <div class="search-bar mr-3">
                                 <form action="#" method="GET" class="input-group">
                                     <input type="text" class="form-control" placeholder="Tìm kiếm..." aria-label="Search" required>
@@ -77,8 +77,8 @@
                         <div class="col-xl-9 col-lg-9">
                             <div class="main-menu d-none d-lg-block">
                                 <nav class="navbar navbar-expand-lg navbar-light">
-                                    <div class="collapse navbar-collapse justify-content-between">
-                                        <ul class="navbar-nav">
+                                    <div class="collapse navbar-collapse justify-content-end">
+                                        <ul class="navbar-nav align-items-center">
                                             <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
                                             <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                                             <li class="nav-item dropdown">
@@ -100,13 +100,11 @@
                                             </li>
                                             <li class="nav-item"><a class="nav-link" href="service.html">Services</a></li>
                                             <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
-                                        </ul>
-                                        <ul class="navbar-nav">
                                             <li class="nav-item">
-                                                <a class="nav-link btn btn-custom-login" href="login.html">Đăng Nhập</a>
+                                                <a class="nav-link btn-custom-login" href="login.html">Đăng Nhập</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link btn btn-custom-register" href="register.html">Đăng Ký</a>
+                                                <a class="nav-link btn-custom-register" href="register.html">Đăng Ký</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -123,121 +121,163 @@
     <!-- CSS Inline -->
     <style>
         .header-area {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         /* Header Top Area */
         .header-top_area {
-            background: linear-gradient(90deg, #1a1a1a, #333);
-            padding: 10px 0;
+            background: linear-gradient(90deg, #2c2c2c, #1a1a1a);
+            padding: 12px 0;
             color: #fff;
         }
 
             .header-top_area .short_contact_list .list-inline-item {
-                margin-right: 20px;
+                margin-right: 25px;
             }
 
             .header-top_area .short_contact_list a {
-                color: #ddd;
+                color: #e0e0e0;
                 font-size: 0.9rem;
                 text-decoration: none;
+                transition: color 0.3s;
             }
 
                 .header-top_area .short_contact_list a:hover {
-                    color: #fff;
+                    color: #ffffff;
                 }
 
             .header-top_area .search-bar .form-control {
-                border-radius: 5px 0 0 5px;
-                border: 1px solid #555;
-                background-color: #444;
+                border-radius: 20px 0 0 20px;
+                border: 1px solid #666;
+                background-color: #555;
                 color: #fff;
-                padding: 6px 12px;
-                width: 200px;
+                padding: 8px 15px;
+                width: 220px;
+                transition: background-color 0.3s;
             }
 
+                .header-top_area .search-bar .form-control:focus {
+                    background-color: #666;
+                    border-color: #888;
+                }
+
                 .header-top_area .search-bar .form-control::placeholder {
-                    color: #aaa;
+                    color: #bbb;
                 }
 
             .header-top_area .search-bar .btn {
-                border-radius: 0 5px 5px 0;
-                border: 1px solid #555;
+                border-radius: 0 20px 20px 0;
+                border: 1px solid #666;
                 border-left: none;
-                padding: 6px 12px;
+                padding: 8px 15px;
+                background-color: #666;
+                transition: background-color 0.3s;
             }
 
+                .header-top_area .search-bar .btn:hover {
+                    background-color: #777;
+                }
+
             .header-top_area .social_media_links a {
-                color: #ddd;
+                color: #e0e0e0;
                 font-size: 1rem;
+                transition: color 0.3s;
             }
 
                 .header-top_area .social_media_links a:hover {
-                    color: #fff;
+                    color: #ffffff;
                 }
 
         /* Main Header Area */
         .main-header-area {
-            background: linear-gradient(90deg, #f0f4f8, #e0e6f0);
+            background: linear-gradient(90deg, #ffffff, #f5f7fa);
             padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
             .main-header-area .logo img {
                 max-height: 60px;
             }
 
-            .main-header-area .navbar-nav .nav-link {
-                color: #333;
-                font-size: 1rem;
-                font-weight: 500;
-                padding: 8px 15px;
-                text-transform: capitalize;
+            .main-header-area .navbar-nav {
+                align-items: center;
             }
 
-                .main-header-area .navbar-nav .nav-link:hover {
-                    color: #007bff;
+                .main-header-area .navbar-nav .nav-link {
+                    color: #444;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    padding: 10px 15px;
+                    text-transform: capitalize;
+                    transition: color 0.3s;
                 }
 
-            .main-header-area .navbar-nav .dropdown-menu {
-                border: none;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
+                    .main-header-area .navbar-nav .nav-link:hover {
+                        color: #ff6f61;
+                    }
 
-            .main-header-area .navbar-nav .dropdown-item {
-                padding: 8px 15px;
-                font-size: 0.9rem;
-            }
-
-            .main-header-area .navbar-nav .btn-custom-login {
-                background: linear-gradient(45deg, #007bff, #0056b3);
-                color: #fff;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 25px;
-                transition: transform 0.3s, box-shadow 0.3s;
-            }
-
-                .main-header-area .navbar-nav .btn-custom-login:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-                    background: linear-gradient(45deg, #0056b3, #003d80);
+                .main-header-area .navbar-nav .dropdown-toggle::after {
+                    display: none;
                 }
 
-            .main-header-area .navbar-nav .btn-custom-register {
-                background: linear-gradient(45deg, #28a745, #1e7e34);
-                color: #fff;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 25px;
-                transition: transform 0.3s, box-shadow 0.3s;
-            }
-
-                .main-header-area .navbar-nav .btn-custom-register:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-                    background: linear-gradient(45deg, #1e7e34, #145523);
+                .main-header-area .navbar-nav .dropdown-toggle .caret {
+                    margin-left: 5px;
+                    font-size: 0.8rem;
                 }
+
+                .main-header-area .navbar-nav .dropdown-menu {
+                    border: none;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    background-color: #fff;
+                }
+
+                .main-header-area .navbar-nav .dropdown-item {
+                    padding: 8px 20px;
+                    font-size: 0.9rem;
+                    color: #444;
+                }
+
+                    .main-header-area .navbar-nav .dropdown-item:hover {
+                        background-color: #f5f7fa;
+                        color: #ff6f61;
+                    }
+
+                .main-header-area .navbar-nav .btn-custom-login,
+                .main-header-area .navbar-nav .btn-custom-register {
+                    position: relative;
+                    font-size: 0.95rem;
+                    font-weight: 500;
+                    padding: 8px 18px;
+                    border-radius: 20px;
+                    text-decoration: none;
+                    transition: transform 0.3s, box-shadow 0.3s;
+                    margin-left: 10px;
+                }
+
+                .main-header-area .navbar-nav .btn-custom-login {
+                    background: linear-gradient(45deg, #ff6f61, #ff8a80);
+                    color: #fff;
+                    border: none;
+                }
+
+                    .main-header-area .navbar-nav .btn-custom-login:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(255, 111, 97, 0.4);
+                        background: linear-gradient(45deg, #ff8a80, #ff6f61);
+                    }
+
+                .main-header-area .navbar-nav .btn-custom-register {
+                    background: linear-gradient(45deg, #007bff, #00c4ff);
+                    color: #fff;
+                    border: none;
+                }
+
+                    .main-header-area .navbar-nav .btn-custom-register:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+                        background: linear-gradient(45deg, #00c4ff, #007bff);
+                    }
 
         /* Responsive */
         @media (max-width: 991px) {
@@ -251,18 +291,21 @@
                 }
 
             .main-header-area .navbar-collapse {
-                background: #f0f4f8;
-                padding: 10px;
-                border-radius: 5px;
+                background: #ffffff;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             }
 
             .main-header-area .navbar-nav .nav-item {
                 margin: 5px 0;
             }
 
-            .main-header-area .navbar-nav .btn {
+            .main-header-area .navbar-nav .btn-custom-login,
+            .main-header-area .navbar-nav .btn-custom-register {
                 width: 100%;
-                margin: 5px 0;
+                text-align: center;
+                margin-left: 0;
             }
         }
     </style>
