@@ -8,16 +8,17 @@
   <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
   <meta name="author" content="indrijunanda">
   <link href="img/logo/pet-logo.png" rel="icon">
-  <title>petshop - Dashboard</title>
+  <title>petshop - Pet List</title>
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/ruang-admin.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+   <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
   <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
     <div class="sidebar-brand-icon">
       <img src="img/logo/pet-logo.png">
@@ -185,7 +186,7 @@
     <!-- Sidebar -->
     <div id="content-wrapper" class="d-flex flex-column">
       <div id="content">
-        <!-- TopBar -->
+        <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-navbar topbar mb-4 static-top">
           <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
             <i class="fa fa-bars"></i>
@@ -198,17 +199,15 @@
               </a>
               <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
                 aria-labelledby="searchDropdown">
-                <form class="navbar-search">
-                  <div class="input-group">
-                    <input type="text" class="form-control bg-light border-1 small" placeholder="Search for pet products..."
-                      aria-label="Search" aria-describedby="basic-addon2" style="border-color: #3f51b5;">
-                    <div class="input-group-append">
-                      <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search fa-sm"></i>
-                      </button>
-                    </div>
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light border-1 small" placeholder="Search for pets..."
+                    aria-label="Search" aria-describedby="basic-addon2" style="border-color: #3f51b5;">
+                  <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">
+                      <i class="fas fa-search fa-sm"></i>
+                    </button>
                   </div>
-                </form>
+                </div>
               </div>
             </li>
             <li class="nav-item dropdown no-arrow mx-1">
@@ -373,328 +372,88 @@
         <!-- Container Fluid-->
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Pet Shop Dashboard</h1>
+            <h1 class="h3 mb-0 text-gray-800">Pet List</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+              <li class="breadcrumb-item"><a href="pets-list.html">Pet Profiles</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Pet List</li>
             </ol>
           </div>
 
-          <div class="row mb-3">
-            <!-- Monthly Revenue Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <div class="row align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">Monthly Revenue</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">$45,000</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
-                        <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 4.2%</span>
-                        <span>Since last month</span>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-dollar-sign fa-2x text-primary"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Pet Adoptions Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">Pet Adoptions</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">120</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
-                        <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 15%</span>
-                        <span>Since last quarter</span>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-paw fa-2x text-success"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- New Customers Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">New Customers</div>
-                      <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">450</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
-                        <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 18.5%</span>
-                        <span>Since last month</span>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-users fa-2x text-info"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Pending Orders Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">Pending Orders</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">25</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
-                        <span class="text-danger mr-2"><i class="fas fa-arrow-down"></i> 2.5%</span>
-                        <span>Since yesterday</span>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-shopping-cart fa-2x text-warning"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Area Chart -->
-            <div class="col-xl-8 col-lg-7">
-              <div class="card mb-4">
+          <!-- Pet List Content -->
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card shadow">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Monthly Sales Report</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                      aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">View Details</a>
-                      <a class="dropdown-item" href="#">Export Data</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Refresh</a>
-                    </div>
-                  </div>
+                  <h6 class="m-0 font-weight-bold text-primary">Pet Profiles</h6>
+                  <a class="m-0 float-right btn btn-primary btn-sm" href="pets-add.html">Add New Pet <i class="fas fa-plus"></i></a>
                 </div>
                 <div class="card-body">
-                  <div class="chart-area">
-                    <canvas id="myAreaChart"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Products Sold Section -->
-            <div class="col-xl-4 col-lg-5">
-              <div class="card mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Top Pet Products</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle btn btn-primary btn-sm" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Month <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                      aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Select Period</div>
-                      <a class="dropdown-item" href="#">Today</a>
-                      <a class="dropdown-item" href="#">Week</a>
-                      <a class="dropdown-item active" href="#">Month</a>
-                      <a class="dropdown-item" href="#">This Year</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Premium Dog Food
-                      <div class="small float-right"><b>700 of 1000 Units</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Cat Scratching Post
-                      <div class="small float-right"><b>600 of 800 Units</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 75%" aria-valuenow="75"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Pet Grooming Kit
-                      <div class="small float-right"><b>500 of 800 Units</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-danger" role="progressbar" style="width: 62%" aria-valuenow="62"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Dog Leash
-                      <div class="small float-right"><b>450 of 800 Units</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-info" role="progressbar" style="width: 56%" aria-valuenow="56"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Pet Toy Ball
-                      <div class="small float-right"><b>300 of 800 Units</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 37%" aria-valuenow="37"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-footer text-center">
-                  <a class="m-0 small text-primary card-link" href="#">View More <i
-                      class="fas fa-chevron-right"></i></a>
-                </div>
-              </div>
-            </div>
-            <!-- Invoice Example -->
-            <div class="col-xl-8 col-lg-7 mb-4">
-              <div class="card">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
-                  <a class="m-0 float-right btn btn-danger btn-sm" href="#">View More <i
-                      class="fas fa-chevron-right"></i></a>
-                </div>
-                <div class="table-responsive">
-                  <table class="table align-items-center table-flush">
-                    <thead class="thead-light">
-                      <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Item</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><a href="#">PAW001</a></td>
-                        <td>Fluffy Tail</td>
-                        <td>Premium Cat Food</td>
-                        <td><span class="badge badge-success">Delivered</span></td>
-                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                      </tr>
-                      <tr>
-                        <td><a href="#">PAW002</a></td>
-                        <td>Barky McBark</td>
-                        <td>Dog Collar</td>
-                        <td><span class="badge badge-warning">Shipping</span></td>
-                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                      </tr>
-                      <tr>
-                        <td><a href="#">PAW003</a></td>
-                        <td>Meowster Paws</td>
-                        <td>Cat Litter Box</td>
-                        <td><span class="badge badge-danger">Pending</span></td>
-                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                      </tr>
-                      <tr>
-                        <td><a href="#">PAW004</a></td>
-                        <td>Spot Whiskers</td>
-                        <td>Pet Bed</td>
-                        <td><span class="badge badge-info">Processing</span></td>
-                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                      </tr>
-                      <tr>
-                        <td><a href="#">PAW005</a></td>
-                        <td>Puppy Pal</td>
-                        <td>Chew Toy</td>
-                        <td><span class="badge badge-success">Delivered</span></td>
-                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="card-footer"></div>
-              </div>
-            </div>
-            <!-- Message From Customer-->
-            <div class="col-xl-4 col-lg-5">
-              <div class="card">
-                <div class="card-header py-4 bg-primary d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-light">Customer Messages</h6>
-                </div>
-                <div>
-                  <div class="customer-message align-items-center">
-                    <a class="font-weight-bold" href="#">
-                      <div class="text-truncate message-title">Do you have hypoallergenic dog food?</div>
-                      <div class="small text-gray-500 message-time font-weight-bold">Furry Friend · 1h</div>
-                    </a>
-                  </div>
-                  <div class="customer-message align-items-center">
-                    <a href="#">
-                      <div class="text-truncate message-title">Can you schedule a grooming appointment?</div>
-                      <div class="small text-gray-500 message-time">Kitty Paws · 2h</div>
-                    </a>
-                  </div>
-                  <div class="customer-message align-items-center">
-                    <a class="font-weight-bold" href="#">
-                      <div class="text-truncate message-title">What are the adoption requirements?</div>
-                      <div class="small text-gray-500 message-time font-weight-bold">Bouncy Pup · 30m</div>
-                    </a>
-                  </div>
-                  <div class="customer-message align-items-center">
-                    <a class="font-weight-bold" href="#">
-                      <div class="text-truncate message-title">Do you sell fish tanks?</div>
-                      <div class="small text-gray-500 message-time font-weight-bold">Finny Scales · 45m</div>
-                    </a>
-                  </div>
-                  <div class="card-footer text-center">
-                    <a class="m-0 small text-primary card-link" href="#">View More <i
-                        class="fas fa-chevron-right"></i></a>
+                  <div class="table-responsive">
+                    <table class="table align-items-center table-flush">
+                      <thead class="thead-light">
+                        <tr>
+                          <th>Pet ID</th>
+                          <th>Name</th>
+                          <th>Species</th>
+                          <th>Breed</th>
+                          <th>Age</th>
+                          <th>Gender</th>
+                          <th>Owner</th>
+                          <th>Created At</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><a href="pets-edit.html?petID=1">1</a></td>
+                          <td>Fluffy</td>
+                          <td>Cat</td>
+                          <td>Persian</td>
+                          <td>3</td>
+                          <td>Female</td>
+                          <td>John Doe</td>
+                          <td>2025-05-26 08:00:00</td>
+                          <td>
+                            <a href="pets-edit.html?petID=1" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><a href="pets-edit.html?petID=2">2</a></td>
+                          <td>Max</td>
+                          <td>Dog</td>
+                          <td>Golden Retriever</td>
+                          <td>5</td>
+                          <td>Male</td>
+                          <td>Alice Smith</td>
+                          <td>2025-05-25 14:30:00</td>
+                          <td>
+                            <a href="pets-edit.html?petID=2" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <!--Row-->
+          <!-- End Pet List Content -->
 
           <!-- Donate Link -->
-          
+      
           <!-- Donate Link -->
 
           <!-- Modal Logout -->
-          <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelLogout"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabelLogout">Leaving So Soon?</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <p>Are you sure you want to logout?</p>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
-                  <a href="login.html" class="btn btn-primary">Logout</a>
-                </div>
-              </div>
-            </div>
-          </div>
+         
 
         </div>
         <!---Container Fluid-->
       </div>
       <!-- Footer -->
-      
+ 
       <!-- Footer -->
     </div>
   </div>
@@ -708,8 +467,6 @@
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
   <script src="js/ruang-admin.min.js"></script>
-  <script src="vendor/chart.js/Chart.min.js"></script>
-  <script src="js/demo/chart-area-demo.js"></script>
 </body>
 
 </html>
