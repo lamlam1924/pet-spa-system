@@ -100,7 +100,139 @@ h5 a,
 h6 a {
   color: inherit;
 }
+.short_contact_list ul {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
+.short_contact_list li {
+    display: flex;
+    align-items: center;
+}
+
+.short_contact_list li a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+.short_contact_list li a:last-child {
+    margin-right: 0;
+}
+
+.search_bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.search_input {
+    padding: 8px 15px;
+    border: 1px solid #918686;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    width: 300px;
+    font-size: 16px;
+    transition: width 0.3s ease;
+    background: #956f6f;
+}
+
+.search_button {
+    padding: 8px 15px;
+    border: 1px solid #a99999;
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    background: #8d8686;
+    cursor: pointer;
+}
+
+.search_button i {
+    color: #333;
+    font-size: 16px;
+}
+
+.search_button:hover {
+    background: #a28888;
+}
+
+.auth_links {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+}
+
+.auth_links a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.auth_links a:hover {
+    color: #007bff;
+}
+
+.auth_links span {
+    margin: 0 10px;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .search_input {
+        width: 200px; /* Giảm chiều rộng trên tablet */
+        font-size: 14px;
+    }
+
+    .search_button {
+        padding: 8px 12px;
+    }
+
+    .search_button i {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 767px) {
+    .search_bar {
+        justify-content: flex-start; /* Căn trái trên mobile */
+        margin: 10px 0; /* Thêm khoảng cách trên/dưới */
+    }
+
+    .search_input {
+        width: 100%; /* Chiếm toàn bộ chiều rộng trên mobile */
+        max-width: 250px;
+        font-size: 14px;
+    }
+
+    .search_button {
+        padding: 8px 10px;
+    }
+
+    .search_button i {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .search_input {
+        max-width: 200px; /* Giảm thêm chiều rộng trên màn hình rất nhỏ */
+        font-size: 12px;
+    }
+
+    .search_button {
+        padding: 8px 8px;
+    }
+
+    .search_button i {
+        font-size: 12px;
+    }
+}
 /* line 50, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
 ul {
   margin: 0px;
