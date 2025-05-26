@@ -1,5 +1,6 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300i,400,400i,600,700|Poppins:200,200i,300,300i,400,500,500i,600,700,800,900&display=swap");
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300i,400,400i,600,700|Poppins:200,200i,300,300i,400,500,500i,600,700,800,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+
 /* line 1, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_extend.scss */
 .flex-center-start {
   display: -webkit-box;
@@ -35,7 +36,7 @@
 /* 1. Theme default css */
 /* line 4, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
 body {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-weight: normal;
   font-style: normal;
 }
@@ -86,7 +87,7 @@ button {
 
 /* line 37, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
 h1, h2, h3, h4, h5 {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   color: #191d34;
 }
 
@@ -519,7 +520,7 @@ h3 {
   font-weight: 700;
   line-height: 60px;
   color: #191d34;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* line 8, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_section_title.scss */
@@ -1386,7 +1387,7 @@ h3 {
 /* line 30, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_slider.scss */
 .slider_area .single_slider .slider_text h3 {
   color: #ffffff;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 75px;
   font-weight: 200;
   margin-bottom: 4px;
@@ -3008,7 +3009,7 @@ h3 {
   color: #fff;
   font-weight: 900;
   margin-bottom: 0;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   text-transform: capitalize;
 }
 
@@ -3328,7 +3329,7 @@ h3 {
 .adapt_area .adapt_about .single_adapt .adapt_content h3 {
   font-size: 60px;
   font-weight: 700;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   color: #383737;
   display: inline-block;
   margin-bottom: 2px;
