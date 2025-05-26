@@ -1,0 +1,615 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Animal</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <link rel="manifest" href="site.webmanifest"> -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/nice-select.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/booking.css">
+</head>
+
+<body>
+    <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+    <!-- header_start  -->
+    <header>
+        <div class="header-area ">
+            <div class="header-top_area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-8">
+                            <div class="short_contact_list">
+                                <ul>
+                                    <li><a href="#">+880 4664 216</a></li>
+                                    <li><a href="#">Mon - Sat 10:00 - 7:00</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-4 ">
+                            <div class="social_media_links">
+                                <a href="#">
+                                    <i class="fa fa-facebook"></i>
+                                </a>
+                                <a href="#">
+                                    <i class="fa fa-pinterest-p"></i>
+                                </a>
+                                <a href="#">
+                                    <i class="fa fa-google-plus"></i>
+                                </a>
+                                <a href="#">
+                                    <i class="fa fa-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sticky-header" class="main-header-area">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-xl-3 col-lg-3">
+                            <div class="logo">
+                                <a href="index.html">
+                                    <img src="img/logo.png" alt="">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-9 col-lg-9">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a  href="index.html">home</a></li>
+                                        <li><a href="about.html">about</a></li>
+                                        <li><a href="#">blog <i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                <li><a href="blog.html">blog</a></li>
+                                                <li><a href="single-blog.html">single-blog</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a href="#">pages <i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                <li><a href="elements.html">elements</a></li>
+                                                
+                                            </ul>
+                                        </li>
+                                        <li><a href="service.html">services</a></li>
+                                        <li><a href="contact.html">Contact</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mobile_menu d-block d-lg-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header> 
+    <!-- header_start -->
+    <!-- Main Booking Section -->
+    <section class="make_apppointment_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="appoint_ment_form">
+                        <h3 class="mb-3 text-center">Đặt Lịch Dịch Vụ</h3>
+                        
+                        <div class="booking-container">
+                            <!-- Progress Indicator -->
+                            <div class="progress-steps">
+                                <div class="step active" data-step="1">
+                                    <div class="step-icon">
+                                        <i class="fa fa-list"></i>
+                                    </div>
+                                    <span class="step-label">Chọn dịch vụ</span>
+                                </div>
+                                <div class="step" data-step="2">
+                                    <div class="step-icon">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <span class="step-label">Điền thông tin</span>
+                                </div>
+                                <div class="step" data-step="3">
+                                    <div class="step-icon">
+                                        <i class="fa fa-check"></i>
+                                    </div>
+                                    <span class="step-label">Xác nhận</span>
+                                </div>
+                            </div>
+
+                            <!-- Step Content -->
+                            <div class="booking-steps">
+                                <!-- Step 1: Choose Services -->
+                                <div class="booking-step active" data-step="1">
+                                    <!-- Service Type & Category Filters -->
+                                    <div class="service-filters">
+                                        <!-- Service Type Toggle -->
+                                        <div class="service-type-toggle">
+                                            <button class="type-btn active" data-type="single">
+                                                <i class="fa fa-tag"></i>
+                                                <span>Dịch vụ lẻ</span>
+                                            </button>
+                                            <button class="type-btn" data-type="combo">
+                                                <i class="fa fa-gift"></i>
+                                                <span>Combo</span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Category Filter -->
+                                        <div class="filter-container">
+                                            <div class="category-group active" id="singleCategories">
+                                                <button class="filter-btn active" data-category="all-single">
+                                                    <i class="fa fa-th-large"></i> Tất cả
+                                                </button>
+                                                <button class="filter-btn" data-category="bath">
+                                                    <i class="fa fa-bath"></i> Vệ sinh
+                                                </button>
+                                                <button class="filter-btn" data-category="grooming">
+                                                    <i class="fa fa-cut"></i> Làm đẹp
+                                                </button>
+                                                <button class="filter-btn" data-category="care">
+                                                    <i class="fa fa-heart"></i> Chăm sóc
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="filter-container">
+                                            <div class="category-group" id="comboCategories" style="display:none;">
+                                                <button class="filter-btn active" data-category="all-combo">
+                                                    <i class="fa fa-th-large"></i> Tất cả
+                                                </button>
+                                                <button class="filter-btn" data-category="basic">
+                                                    <i class="fa fa-bath"></i> Cơ bản
+                                                </button>
+                                                <button class="filter-btn" data-category="premium">
+                                                    <i class="fa fa-cut"></i> Cao cấp
+                                                </button>
+                                                <button class="filter-btn" data-category="luxury">
+                                                    <i class="fa fa-heart"></i> VIP
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Service Grid -->
+                                    <div class="service-container">
+                                        <!-- Single Services -->
+                                        <div class="service-grid active" id="singleServices">
+
+                                            <!-- Service Card Template -->
+                                            <div class="service-card" data-category="bath">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Tắm dược liệu</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <!-- Repeat for other services -->
+                                             <div class="service-card" data-category="bath">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Vệ sinh tai</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                             <div class="service-card" data-category="grooming">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Chải lông chuyên sâu</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="service-card" data-category="care">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Massage thư giãn</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+                                        <!-- Combo Services -->
+                                        <div class="service-grid active" id="comboServices">
+                                            <!-- Service Card Template -->
+                                            
+                                            <!-- Repeat for other services -->
+                                             <div class="service-card" data-category="basic">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Combo 1</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                             <div class="service-card" data-category="premium">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Combo 2</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="service-card" data-category="luxury">
+                                                <div class="card-header">
+                                                    <div class="service-icon">
+                                                        <i class="fa fa-bath"></i>
+                                                    </div>
+                                                    <div class="service-info">
+                                                        <h4>Combo 3</h4>
+                                                        <div class="meta">
+                                                            <span><i class="fa fa-clock-o"></i> 60 phút</span>
+                                                            <span class="price">150.000đ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="features">
+                                                        <li><i class="fa fa-check"></i> Sữa tắm cao cấp</li>
+                                                        <li><i class="fa fa-check"></i> Massage nhẹ nhàng</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button class="btn-select" data-service="bath">
+                                                        <i class="fa fa-plus"></i> Chọn dịch vụ
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Customer Information -->
+                                <div class="booking-step" data-step="2">
+                                    <div class="customer-form">
+                                        <h3>Thông tin khách hàng</h3>
+                                        <div class="form-grid">
+                                            <div class="form-group">
+                                                <label>Họ và tên</label>
+                                                <input type="text" class="form-control" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Số điện thoại</label>
+                                                <input type="tel" class="form-control" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Email</label>
+                                                <input type="email" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Ngày hẹn</label>
+                                                <input type="date" class="form-control" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Giờ hẹn</label>
+                                                <input type="time" class="form-control" required>
+                                            </div>
+                                            <div class="form-section pet-selection">
+                                            <h4>Chọn thú cưng của bạn</h4>
+                                            <div class="pet-list">
+                                                <div class="pet-item">
+                                                    <input type="checkbox" id="pet-milo" name="pets[]" value="milo" class="pet-checkbox">
+                                                    <label for="pet-milo" class="pet-card">
+                                                        <div class="pet-avatar">
+                                                            <i class="fa fa-paw"></i>
+                                                        </div>
+                                                        <div class="pet-info">
+                                                            <h5>Milo</h5>
+                                                            <span class="pet-breed">Munchkin</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="pet-item">
+                                                    <input type="checkbox" id="pet-alex" name="pets[]" value="alex" class="pet-checkbox">
+                                                    <label for="pet-alex" class="pet-card">
+                                                        <div class="pet-avatar">
+                                                            <i class="fa fa-paw"></i>
+                                                        </div>
+                                                        <div class="pet-info">
+                                                            <h5>Alex</h5>
+                                                            <span class="pet-breed">Golden</span>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="pet-counter">
+                                                <span>Số thú cưng đã chọn:</span>
+                                                <span class="count">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="selected-services-box">
+                                            <h4>Dịch vụ đã chọn:</h4>
+                                            <ul id="selected-services-list"></ul>
+                                        </div>
+                                            <div class="form-group full-width">
+                                                <label>Ghi chú</label>
+                                                <textarea class="form-control" rows="3"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Confirmation -->
+                                <div class="booking-step" data-step="3">
+                                    <div class="confirmation-content">
+                                        <h3 class="mb-3 text-center">Đặt lịch thành công!</h3>
+                                        <div class="confirmation-details">
+                                            <p><strong>Dịch vụ:</strong> <span id="confirm-service"></span></p>
+                                            <p><strong>Thú cưng:</strong> <span id="confirm-pet"></span></p>
+                                            <p><strong>Thời gian:</strong> <span id="confirm-time"></span></p>
+                                            <p>Cảm ơn bạn đã tin tưởng dịch vụ của chúng tôi!</p>
+                                        </div>
+                                        <button class="btn btn-primary" onclick="window.location.reload()">Đặt lịch mới</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation Buttons -->
+                            <div class="booking-navigation">
+                                <button class="btn-prev" disabled>
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </button>
+                                <button class="btn-next">
+                                    Tiếp tục <i class="fa fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <!-- <div class="col-lg-4">
+                    <div class="appointMent_info">
+                        <div class="single_appontment">
+                            <h4>Địa chỉ</h4>
+                            <p><span>123 Pet Street, Quận 1, TP.HCM</span></p>
+                        </div>
+                        <div class="single_appontment">
+                            <h4>Hotline</h4>
+                            <p><span>0909 123 456</span></p>
+                        </div>
+                        <div class="single_appontment">
+                            <h4>Giờ mở cửa</h4>
+                            <p><span>Thứ 2 – Chủ nhật: 8:00 – 20:00</span></p>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </section>
+    <!-- footer_start  -->
+    <footer class="footer">
+        <div class="footer_top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 col-lg-3">
+                        <div class="footer_widget">
+                            <h3 class="footer_title">
+                                Contact Us
+                            </h3>
+                            <ul class="address_line">
+                                <li>+555 0000 565</li>
+                                <li><a href="#">Demomail@gmail.Com</a></li>
+                                <li>700, Green Lane, New York, USA</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-3  col-md-6 col-lg-3">
+                        <div class="footer_widget">
+                            <h3 class="footer_title">
+                                Our Servces
+                            </h3>
+                            <ul class="links">
+                                <li><a href="#">Pet Insurance</a></li>
+                                <li><a href="#">Pet surgeries </a></li>
+                                <li><a href="#">Pet Adoption</a></li>
+                                <li><a href="#">Dog Insurance</a></li>
+                                <li><a href="#">Dog Insurance</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-3  col-md-6 col-lg-3">
+                        <div class="footer_widget">
+                            <h3 class="footer_title">
+                                Quick Link
+                            </h3>
+                            <ul class="links">
+                                <li><a href="#">About Us</a></li>
+                                <li><a href="#">Privacy Policy</a></li>
+                                <li><a href="#">Terms of Service</a></li>
+                                <li><a href="#">Login info</a></li>
+                                <li><a href="#">Knowledge Base</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 col-lg-3 ">
+                        <div class="footer_widget">
+                            <div class="footer_logo">
+                                <a href="#">
+                                    <img src="img/logo.png" alt="">
+                                </a>
+                            </div>
+                            <p class="address_text">239 E 5th St, New York 
+                                NY 10003, USA
+                            </p>
+                            <div class="socail_links">
+                                <ul>
+                                    <li>
+                                        <a href="#">
+                                            <i class="ti-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="ti-pinterest"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-google-plus"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-linkedin"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copy-right_text">
+            <div class="container">
+                <div class="bordered_1px"></div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <p class="copy_right text-center">
+                            <p>
+  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="ti-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer> 
+    <!-- footer_end -->
+
+     <!-- JS here -->
+    <script src="js/vendor/modernizr-3.5.0.min.js"></script>
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/nice-select.min.js"></script>
+    <script src="js/booking.js"></script>
+</body>
+</html>

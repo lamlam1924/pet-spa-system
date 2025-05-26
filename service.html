@@ -25,6 +25,12 @@
     <link rel="stylesheet" href="css/slicknav.css">
     <link rel="stylesheet" href="css/style.css">
     <!-- <link rel="stylesheet" href="css/responsive.css"> -->
+
+    
+
+
+    
+
 </head>
 
 <body>
@@ -71,7 +77,7 @@
                         <div class="col-xl-3 col-lg-3">
                             <div class="logo">
                                 <a href="index.html">
-                                    <img src="img/logo.png" alt="">
+                                    <!-- <img src="img/logo.png" alt=""> -->
                                 </a>
                             </div>
                         </div>
@@ -106,8 +112,9 @@
                 </div>
             </div>
         </div>
-    </header>
-    <!-- header_start  -->
+    </header> 
+    <!-- header_start -->
+
 
     <!-- bradcam_area_start -->
     <div class="bradcam_area breadcam_bg">
@@ -115,7 +122,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="bradcam_text text-center">
-                        <h3>Services</h3>
+                        <h3>Service</h3>
                     </div>
                 </div>
             </div>
@@ -129,8 +136,51 @@
             <div class="row justify-content-center ">
                 <div class="col-lg-7 col-md-10">
                     <div class="section_title text-center mb-95">
-                        <h3>Services for every dog</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.</p>
+                        <h3>Dịch vụ xịn sò cho Boss</h3>
+                        <p>
+                            Tắm thơm – cắt tóc – mát-xa chill chill – gội đầu thả ga.
+                            <br>Dù là "bé cún quậy phá" hay "hoàng thượng mèo lạnh lùng"
+                            <br>Pet Spa luôn có dịch vụ phù hợp chuẩn gu từng boss!
+                            <br>👉 Sen chỉ cần book lịch, còn lại để Pet Spa lo!
+                        </p>
+                        <div class="service_btn" style="position: relative;">
+                            <a href="#" class="boxed-btn3" id="openBookingBtn">Đặt lịch ngay <i class="fa fa-paper-plane"></i></a>
+                                <!-- Form đặt lịch nhanh (ẩn mặc định) -->
+                            <!-- Popup form đặt lịch -->
+  <div id="bookingPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+       background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: #fffaf9; padding: 20px; border-radius: 12px; max-width: 400px; width: 90%; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+      
+      <!-- Nút đóng popup -->
+      <button id="closeBookingBtn" style="position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 30px; cursor: pointer; color: #ED5812;">&times;</button>
+      <h3 style="color: #ED5812;">Booking</h3>
+      
+      <form id="quickBookingForm" onsubmit="handleQuickBooking(event)">
+        <div>
+        <label for="name" style="font-weight: 600;">Tên của bạn <span style="color: red;">*</span></label><br>
+        <input type="text" id="name" name="name" required placeholder="Nhập tên" style="width: 100%; margin-bottom: 12px; padding: 8px; border: 1px solid #ffc5c2; border-radius: 6px;"><br>
+  
+        <label for="phone" style="font-weight: 600;">Số điện thoại <span style="color: red;">*</span></label><br>
+        <input type="tel" id="phone" name="phone" required placeholder="Nhập số điện thoại" pattern="[0-9]{9,12}" style="width: 100%; margin-bottom: 12px; padding: 8px; border: 1px solid #ffc5c2; border-radius: 6px;"><br>
+  
+        <label for="service" style="font-weight: 600;">Dịch vụ <span style="color: red;">*</span></label><br>
+        <select id="service" name="service" required style="width: 100%; margin-bottom: 20px; padding: 8px; border: 1px solid #ffc5c2; border-radius: 6px;">
+          <option value="" disabled selected>Chọn dịch vụ</option>
+          <option value="combo-co-ban">Combo cơ bản</option>
+          <option value="combo-nang-cao">Combo chuyên sâu</option>
+          <option value="combo-nang-cao">Combo VIP</option>
+          <!-- <option value="tam">Tắm</option>
+          <option value="cat-mong">Cắt móng</option>
+          <option value="chai-long">Chải lông</option> -->
+        </select>
+  
+        <button type="submit" style="width: 100%; background-color: #ED5812; color: white; font-weight: 700; padding: 12px; border: none; border-radius: 6px; cursor: pointer;">Xác nhận</button>
+      
+    </form>
+    </div>
+  </div>
+</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -143,9 +193,18 @@
                              </div>
                          </div>
                          <div class="service_content text-center">
-                            <h3>Pet Boarding</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut</p>
-                         </div>
+                            <h3>🛁 Combo "Thơm Tho"</h3>
+                            <p>Cho lần ghé spa đầu tiên hoặc <br>làm sạch định kỳ.</p>
+                            <div class="service_price" style="padding-top: 10px;">
+                                <p style="color: red; font-weight: bold; font-style: italic;">Giá ưu đãi: 300.000đ</p>
+                            </div>
+                            <div>
+                                <p> “Dành cho những boss ưa sạch sẽ, nhưng chưa cần makeover.”</p>
+                            </div>
+                            <div class="service_btn" style="padding-top: 15px;">
+                                <a href="booking.html" class="book_now">Đặt lịch</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
@@ -156,9 +215,23 @@
                              </div>
                          </div>
                          <div class="service_content text-center">
-                            <h3>Healthy Meals</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut</p>
-                         </div>
+                            <h3>💅 Combo "Mịn Mượt"</h3>
+                            <p>
+                                Combo dưỡng da, phục hồi,<br> chăm sóc lông mềm mượt.
+                            </p>
+                            <div class="service_price" style="padding-top: 10px;">
+                                <p style="color: red; font-weight: bold; font-style: italic;">Giá: 450.000đ</p>
+                            </div>
+                            <div>
+                                <p>
+                                     “Hoàng thượng bước ra là phải thơm, mượt và có thần thái.”
+                                </p>
+                            </div>
+                            <div class="service_btn" style="padding-top: 10px;">
+                                <a href="booking.html" class="book_now" >Đặt lịch</a>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
@@ -169,15 +242,28 @@
                              </div>
                          </div>
                          <div class="service_content text-center">
-                            <h3>Pet Spa</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut</p>
-                         </div>
+                            <h3>👑 Combo VIP </h3>
+                            <p>Dành riêng cho những buổi ‘đại tu’ cực chất hoặc boss đi event.</p>
+                            <div class="service_price" style="padding-top: 10px;">
+                                <p style="color: red; font-weight: bold; font-style: italic;">Từ: 600.000đ</p>
+                            </div>
+                            <p>
+                                 “Một khi đã là boss đại gia, thì mọi bước đều xứng tầm.”
+                            </p>
+                            <div class="service_btn" style="padding-top: 10px;">
+                                <a href="booking.html" class="book_now">Đặt lịch</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- service_area_end -->
+
+<!-- Cac goi le -->
+ 
+<!-- End cac goi le -->
 
     <!-- testmonial_area_start  -->
     <div class="testmonial_area">
@@ -188,39 +274,40 @@
                         <div class="testmonial_wrap">
                             <div class="single_testmonial d-flex align-items-center">
                                 <div class="test_thumb">
-                                    <img src="img/testmonial/1.png" alt="">
+                                    <img src="img/service/bath.png" alt="">
                                 </div>
                                 <div class="test_content">
-                                    <h4>Jhon Walker</h4>
-                                    <span>Head of web design</span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exerci.</p>
+                                    <h4>Tắm Bong Bóng</h4>
+                                    <span>Chuyên gia làm sạch Boss</span>
+                                    <p>Giúp bé cưng sạch sẽ thơm tho, loại bỏ bụi bẩn và mùi hôi, để da và lông luôn mềm mượt như lụa.</p>
                                 </div>
                             </div>
                         </div>
                         <div class="testmonial_wrap">
                             <div class="single_testmonial d-flex align-items-center">
                                 <div class="test_thumb">
-                                    <img src="img/testmonial/1.png" alt="">
+                                    <img src="img/service/cut.png" alt="">
                                 </div>
                                 <div class="test_content">
-                                    <h4>Jhon Walker</h4>
-                                    <span>Head of web design</span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exerci.</p>
+                                    <h4>Cắt Móng Xinh</h4>
+                                    <span>Thợ làm đẹp chân cho Boss</span>
+                                    <p>Giữ móng gọn gàng, tránh xước nhà hay “đánh lộn” với chủ, giúp bé tự tin bước từng bước yêu thương.</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="testmonial_wrap">
+                        <!-- <div class="testmonial_wrap">
                             <div class="single_testmonial d-flex align-items-center">
                                 <div class="test_thumb">
                                     <img src="img/testmonial/1.png" alt="">
                                 </div>
                                 <div class="test_content">
-                                    <h4>Jhon Walker</h4>
+                                    <h4>Cắt – mài móng</h4>
                                     <span>Head of web design</span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exerci.</p>
+                                    <p>Cắt gọn móng, mài bo tròn tránh xước và gãy móng</p>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
+                        
                     </div>
                 </div>
             </div>
@@ -230,7 +317,7 @@
     <!-- testmonial_area_end  -->
 
     <!-- team_area_start  -->
-    <div class="team_area">
+    <!-- <div class="team_area">
         <div class="container">
             <div class="row justify-content-center ">
                 <div class="col-lg-6 col-md-10">
@@ -282,11 +369,11 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- team_area_start  -->
 
     <!-- contact_anipat_start  -->
-    <div class="contact_anipat anipat_bg_1">
+    <!-- <div class="contact_anipat anipat_bg_1">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -303,9 +390,167 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- contact_anipat_end  -->
 
+    <!-- categories -->
+     <!-- <div>
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; text-align: center;">
+  <thead>
+    <tr style="background-color: #f2f2f2;">
+      <th>Dịch vụ</th>
+      <th>Loại thú</th>
+      <th>Kích thước</th>
+      <th>Loại lông</th>
+      <th>Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tắm</td>
+      <td>Chó, Mèo</td>
+      <td>Nhỏ / Vừa / Lớn</td>
+      <td>Lông ngắn / Lông dài</td>
+      <td>Giá thay đổi theo kích thước và lông</td>
+    </tr>
+    <tr>
+      <td>Cắt móng</td>
+      <td>Chó, Mèo</td>
+      <td>Nhỏ / Vừa / Lớn</td>
+      <td>Không phân biệt</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Chải lông</td>
+      <td>Chó, Mèo</td>
+      <td>Nhỏ / Vừa / Lớn</td>
+      <td>Lông ngắn / Lông dài</td>
+      <td>Lông dài tốn thời gian hơn</td>
+    </tr>
+    <tr>
+      <td>Xịt thơm</td>
+      <td>Chó, Mèo</td>
+      <td>Nhỏ / Vừa / Lớn</td>
+      <td>Không phân biệt</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Vệ sinh tai</td>
+      <td>Chó, Mèo</td>
+      <td>Nhỏ / Vừa / Lớn</td>
+      <td>Không phân biệt</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Vệ sinh mắt</td>
+      <td>Chó, Mèo</td>
+      <td>Nhỏ / Vừa / Lớn</td>
+      <td>Không phân biệt</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+     </div> -->
+     <!-- end categories -->
+
+    <!-- Service Table Section -->
+<div class="service_table_area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="section_title text-center mb-5">
+                    <h3>Bảng Giá Dịch Vụ Chi Tiết</h3>
+                    <p>Giá có thể thay đổi tùy theo kích thước và tình trạng của thú cưng</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="service_table_wrapper">
+            <div class="table-responsive">
+                <table class="table table-hover service_price_table border">
+                    <thead>
+                        <tr>
+                            <th scope="col">Dịch Vụ</th>
+                            <th scope="col">Loại Thú Cưng</th>
+                            <th scope="col">Kích Thước</th>
+                            <th scope="col">Giá Tham Khảo</th>
+                            <th scope="col">Chi Tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="service_name">
+                                    <i class="fa fa-bath"></i>
+                                    <span>Tắm Spa</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="pet_type">
+                                    <i class="fa fa-dog"></i>
+                                    <i class="fa fa-cat"></i>
+                                </span>
+                            </td>
+                            <td>
+                                <ul class="size_list">
+                                    <li>Nhỏ (< 5kg)</li>
+                                    <li>Vừa (5-15kg)</li>
+                                    <li>Lớn (> 15kg)</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="price_range">
+                                    <span>150.000đ - 300.000đ</span>
+                                    <small>Tùy kích thước</small>
+                                </div>
+                            </td>
+                            <td>
+                                <ul class="service_details">
+                                    <li>Sữa tắm cao cấp</li>
+                                    <li>Massage</li>
+                                    <li>Sấy khô</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="service_name">
+                                    <i class="fa fa-cut"></i>
+                                    <span>Cắt Tỉa Lông</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="pet_type">
+                                    <i class="fa fa-dog"></i>
+                                    <i class="fa fa-cat"></i>
+                                </span>
+                            </td>
+                            <td>
+                                <ul class="size_list">
+                                    <li>Tất cả các size</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="price_range">
+                                    <span>200.000đ - 500.000đ</span>
+                                    <small>Tùy kiểu tỉa</small>
+                                </div>
+                            </td>
+                            <td>
+                                <ul class="service_details">
+                                    <li>Tỉa theo yêu cầu</li>
+                                    <li>Tạo kiểu</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- Thêm các dịch vụ khác tương tự -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- footer_start  -->
     <footer class="footer">
         <div class="footer_top">
@@ -355,7 +600,7 @@
                         <div class="footer_widget">
                             <div class="footer_logo">
                                 <a href="#">
-                                    <img src="img/logo.png" alt="">
+                                    <!-- <img src="img/logo.png" alt=""> -->
                                 </a>
                             </div>
                             <p class="address_text">239 E 5th St, New York 
@@ -397,21 +642,22 @@
                 <div class="row">
                     <div class="col-xl-12">
                         <p class="copy_right text-center">
-                            <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                            <!-- <p>
   Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="ti-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-                        </p>
+                        </p> -->
                     </div>
                 </div>
             </div>
         </div>
-    </footer>
-    <!-- footer_end  -->
+    </footer> 
+    <!-- footer_end -->
+    
 
 
     <!-- JS here -->
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
@@ -456,6 +702,46 @@
          format: 'HH.MM'
      });
     </script>
+
+    <!-- book_now -->
+    <script>
+    const openBtn = document.getElementById('openBookingBtn');
+    const closeBtn = document.getElementById('closeBookingBtn');
+    const popup = document.getElementById('bookingPopup');
+
+    openBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        popup.style.display = 'flex';
+    });
+
+    closeBtn.addEventListener('click', function() {
+        popup.style.display = 'none';
+    });
+
+    // Đóng popup khi click ngoài form
+    popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+        popup.style.display = 'none';
+        }
+    });
+
+    function handleQuickBooking(event) {
+        event.preventDefault();
+        const name = event.target.name.value.trim();
+        const phone = event.target.phone.value.trim();
+        const service = event.target.service.value;
+
+        if (!name || !phone || !service) {
+        alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+        return;
+        }
+
+        alert(`Cảm ơn ${name}, bạn đã đặt lịch dịch vụ "${service}" thành công!`);
+        event.target.reset();
+        popup.style.display = 'none';
+    }
+    </script>
+    <!-- end book_now -->
 </body>
 
 </html>
