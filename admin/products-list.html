@@ -19,170 +19,149 @@
   <div id="wrapper">
     <!-- Sidebar -->
     <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
-      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-        <div class="sidebar-brand-icon">
-          <img src="img/logo/pet-logo.png">
-        </div>
-        <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
-      </a>
-      <hr class="sidebar-divider my-0">
-      <li class="nav-item">
-        <a class="nav-link" href="index.html">
-          <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Dashboard</span></a>
-      </li>
-      <hr class="sidebar-divider">
-      <div class="sidebar-heading">
-        Management
+  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+    <div class="sidebar-brand-icon">
+      <img src="img/logo/pet-logo.png">
+    </div>
+    <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
+  </a>
+  <hr class="sidebar-divider my-0">
+  <li class="nav-item">
+    <a class="nav-link" href="index.html">
+      <i class="fas fa-fw fa-tachometer-alt"></i>
+      <span>Dashboard</span></a>
+  </li>
+  <hr class="sidebar-divider">
+  <div class="sidebar-heading">
+    Management
+  </div>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
+      aria-controls="collapseServices">
+      <i class="fas fa-fw fa-spa"></i>
+      <span>Services</span>
+    </a>
+    <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Service Management</h6>
+        <a class="collapse-item" href="services-list.html">List Services</a>
+      
       </div>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
-          aria-controls="collapseServices">
-          <i class="fas fa-fw fa-spa"></i>
-          <span>Services</span>
-        </a>
-        <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Service Management</h6>
-            <a class="collapse-item" href="services-list.html">List Services</a>
-            <a class="collapse-item" href="services-add.html">Add Service</a>
-            <a class="collapse-item" href="services-edit.html">Edit Service</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
-          aria-controls="collapseStaff">
-          <i class="fas fa-fw fa-users"></i>
-          <span>Staff</span>
-        </a>
-        <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Staff Management</h6>
-            <a class="collapse-item" href="staff-list.html">List Staff</a>
-            <a class="collapse-item" href="staff-add.html">Add Staff</a>
-            <a class="collapse-item" href="staff-edit.html">Edit Staff</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
-          aria-controls="collapseCustomers">
-          <i class="fas fa-fw fa-user-friends"></i>
-          <span>Customers</span>
-        </a>
-        <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Customer Management</h6>
-            <a class="collapse-item" href="customers-list.html">List Customers</a>
-            <a class="collapse-item" href="customers-add.html">Add Customer</a>
-            <a class="collapse-item" href="customers-edit.html">Edit Customer</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
-          aria-controls="collapsePets">
-          <i class="fas fa-fw fa-paw"></i>
-          <span>Pet Profiles</span>
-        </a>
-        <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Pet Management</h6>
-            <a class="collapse-item" href="pets-list.html">List Pets</a>
-            <a class="collapse-item" href="pets-add.html">Add Pet</a>
-            <a class="collapse-item" href="pets-edit.html">Edit Pet</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
-          aria-controls="collapseProducts">
-          <i class="fas fa-fw fa-shopping-cart"></i>
-          <span>Products</span>
-        </a>
-        <div id="collapseProducts" class="collapse show" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Product Management</h6>
-            <a class="collapse-item active" href="products-list.html">List Products</a>
-            <a class="collapse-item" href="products-add.html">Add Product</a>
-            <a class="collapse-item" href="products-edit.html">Edit Product</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
-          aria-controls="collapseAppointments">
-          <i class="fas fa-fw fa-calendar-alt"></i>
-          <span>Appointments</span>
-        </a>
-        <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Appointment Management</h6>
-            <a class="collapse-item" href="appointments-list.html">List Appointments</a>
-            <a class="collapse-item" href="appointments-add.html">Add Appointment</a>
-            <a class="collapse-item" href="appointments-edit.html">Edit Appointment</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
-          aria-controls="collapsePayments">
-          <i class="fas fa-fw fa-credit-card"></i>
-          <span>Payments</span>
-        </a>
-        <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Payment Management</h6>
-            <a class="collapse-item" href="payments-list.html">List Payments</a>
-            <a class="collapse-item" href="payments-refund.html">Process Refund</a>
-          </div>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
-          aria-controls="collapsePromotions">
-          <i class="fas fa-fw fa-tags"></i>
-          <span>Promotions</span>
-        </a>
-        <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Promotion Management</h6>
-            <a class="collapse-item" href="promotions-list.html">List Promotions</a>
-            <a class="collapse-item" href="promotions-add.html">Add Promotion</a>
-            <a class="collapse-item" href="promotions-edit.html">Edit Promotion</a>
-          </div>
-        </div>
-      </li>
-      <hr class="sidebar-divider">
-      <div class="sidebar-heading">
-        Reports
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
+      aria-controls="collapseStaff">
+      <i class="fas fa-fw fa-users"></i>
+      <span>Staff</span>
+    </a>
+    <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Staff Management</h6>
+        <a class="collapse-item" href="staff.html">List Staff</a>
+       
       </div>
-      <li class="nav-item">
-        <a class="nav-link" href="statistics.html">
-          <i class="fas fa-fw fa-chart-area"></i>
-          <span>Statistics</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePage" aria-expanded="true"
-          aria-controls="collapsePage">
-          <i class="fas fa-fw fa-columns"></i>
-          <span>Pages</span>
-        </a>
-        <div id="collapsePage" class="collapse" aria-labelledby="headingPage" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Admin Pages</h6>
-            <a class="collapse-item" href="login.html">Login</a>
-            <a class="collapse-item" href="register.html">Register</a>
-            <a class="collapse-item" href="404.html">404 Page</a>
-            <a class="collapse-item" href="blank.html">Blank Page</a>
-          </div>
-        </div>
-      </li>
-      <hr class="sidebar-divider">
-      <div class="version" id="version-ruangadmin">Version 1.1</div>
-    </ul>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
+      aria-controls="collapseCustomers">
+      <i class="fas fa-fw fa-user-friends"></i>
+      <span>Customers</span>
+    </a>
+    <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Customer Management</h6>
+        <a class="collapse-item" href="list-customer.html">List Customers</a>
+    
+      </div>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
+      aria-controls="collapsePets">
+      <i class="fas fa-fw fa-paw"></i>
+      <span>Pet Profiles</span>
+    </a>
+    <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Pet Management</h6>
+        <a class="collapse-item" href="pets-list.html">List Pets</a>
+      
+      </div>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
+      aria-controls="collapseProducts">
+      <i class="fas fa-fw fa-shopping-cart"></i>
+      <span>Products</span>
+    </a>
+    <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Product Management</h6>
+        <a class="collapse-item" href="products-list.html">List Products</a>
+        
+       
+      </div>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
+      aria-controls="collapseAppointments">
+      <i class="fas fa-fw fa-calendar-alt"></i>
+      <span>Appointments</span>
+    </a>
+    <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Appointment Management</h6>
+        <a class="collapse-item" href="Appointments.html">List Appointments</a>
+     
+      </div>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
+      aria-controls="collapsePayments">
+      <i class="fas fa-fw fa-credit-card"></i>
+      <span>Payments</span>
+    </a>
+    <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Payment Management</h6>
+        <a class="collapse-item" href="payment.html">List Payments</a>
+        <a class="collapse-item" href="refund.html">Process Refund</a>
+      </div>
+    </div>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
+      aria-controls="collapsePromotions">
+      <i class="fas fa-fw fa-tags"></i>
+      <span>Promotions</span>
+    </a>
+    <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        <h6 class="collapse-header">Promotion Management</h6>
+        <a class="collapse-item" href="promotions-list.html">List Promotions</a>
+   
+      </div>
+    </div>
+  </li>
+  <hr class="sidebar-divider">
+  <div class="sidebar-heading">
+    Reports
+  </div>
+  <li class="nav-item">
+    <a class="nav-link" href="statistics.html">
+      <i class="fas fa-fw fa-chart-area"></i>
+      <span>Statistics</span>
+    </a>
+  </li>
+ 
+  <hr class="sidebar-divider">
+  <div class="version" id="version-ruangadmin">Version 1.1</div>
+</ul>
     <!-- Sidebar -->
     <div id="content-wrapper" class="d-flex flex-column">
       <div id="content">
@@ -386,7 +365,10 @@
               <div class="card shadow">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 class="m-0 font-weight-bold text-primary">Product Inventory</h6>
-                  <a class="m-0 float-right btn btn-primary btn-sm" href="products-add.html">Add New Product <i class="fas fa-plus"></i></a>
+              <button id="btnAddProduct" class="m-0 float-right btn btn-primary btn-sm" type="button">
+                Add New Product <i class="fas fa-plus"></i>
+              </button>
+
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
@@ -403,86 +385,189 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td><a href="products-edit.html?productID=1">1</a></td>
-                          <td>Premium Cat Food</td>
-                          <td>Food</td>
-                          <td>$25.99</td>
-                          <td>120</td>
-                          <td>2025-05-26 08:00:00</td>
-                          <td>
-                            <a href="products-edit.html?productID=1" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
-                            <a href="product-detail.html" class="btn btn-sm btn-danger">detail</a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><a href="products-edit.html?productID=2">2</a></td>
-                          <td>Dog Collar</td>
-                          <td>Accessory</td>
-                          <td>$12.50</td>
-                          <td>50</td>
-                          <td>2025-05-25 14:30:00</td>
-                          <td>
-                            <a href="products-edit.html?productID=2" class="btn btn-sm btn-primary">Edit</a>
-                            <a href="#" class="btn btn-sm btn-danger">Delete</a>
-                            <a href="product-detail.html" class="btn btn-sm btn-danger">detail</a>
-                          </td>
-                        </tr>
-                      </tbody>
+  <tr>
+    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
+    <td>Premium Cat Food</td>
+    <td>Food</td>
+    <td>$25.99</td>
+    <td>120</td>
+    <td>2025-05-26 08:00:00</td>
+    <td>
+      <button class="btn btn-primary btn-sm edit-btn">Edit</button>
+      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
+    </td>
+  </tr>
+  <tr>
+    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
+    <td>Premium Cat Food</td>
+    <td>Food</td>
+    <td>$25.99</td>
+    <td>120</td>
+    <td>2025-05-26 08:00:00</td>
+    <td>
+     <button class="btn btn-primary btn-sm edit-btn">Edit</button>
+      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
+    </td>
+  </tr>
+  <tr>
+    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
+    <td>Premium Cat Food</td>
+    <td>Food</td>
+    <td>$25.99</td>
+    <td>120</td>
+    <td>2025-05-26 08:00:00</td>
+    <td>
+      <button class="btn btn-primary btn-sm edit-btn">Edit</button>
+      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
+    </td>
+  </tr>
+  <tr>
+    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
+    <td>Premium Cat Food</td>
+    <td>Food</td>
+    <td>$25.99</td>
+    <td>120</td>
+    <td>2025-05-26 08:00:00</td>
+    <td>
+      <button class="btn btn-primary btn-sm edit-btn">Edit</button>
+      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
+    </td>
+  </tr>
+  <tr>
+    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="2">2</button></td>
+    <td>Dog Collar</td>
+    <td>Accessory</td>
+    <td>$12.50</td>
+    <td>50</td>
+    <td>2025-05-25 14:30:00</td>
+    <td>
+     <button class="btn btn-primary btn-sm edit-btn">Edit</button>
+      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
+    </td>
+  </tr>
+</tbody>
+
                     </table>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="editForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Chỉnh sửa sản phẩm</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="edit-id"> <!-- ProductID -->
+
+          <div class="form-group">
+            <label for="edit-category">Danh mục</label>
+            <select id="edit-category" class="form-control" required>
+              <!-- Danh sách sẽ được thêm bằng JS -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-name">Tên sản phẩm</label>
+            <input type="text" id="edit-name" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-description">Mô tả</label>
+            <textarea id="edit-description" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-price">Giá</label>
+            <input type="number" step="0.01" min="0" id="edit-price" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-stock">Số lượng trong kho</label>
+            <input type="number" min="0" id="edit-stock" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Lưu</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Product -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="addForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel">Thêm sản phẩm mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="add-category">Danh mục</label>
+          <select id="add-category" class="form-control" required>
+            <!-- Danh mục sẽ thêm bằng JS hoặc server -->
+          </select>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="add-name">Tên sản phẩm</label>
+          <input type="text" id="add-name" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="add-description">Mô tả</label>
+          <textarea id="add-description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="add-price">Giá</label>
+          <input type="number" step="0.01" min="0" id="add-price" class="form-control" required>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="add-stock">Số lượng trong kho</label>
+          <input type="number" min="0" id="add-stock" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
           <!-- End Product List Content -->
 
           <!-- Donate Link -->
-          <div class="row">
-            <div class="col-lg-12 text-center">
-              <p>Do you like this template? Download from <a href="https://github.com/indrijunanda/RuangAdmin"
-                  class="btn btn-primary btn-sm" target="_blank"><i class="fab fa-fw fa-github"></i> GitHub</a> or <a
-                  href="https://trakteer.id/indrijunanda/tip" class="btn btn-success btn-sm" target="_blank">Donate</a></p>
-            </div>
-          </div>
-          <!-- Donate Link -->
 
           <!-- Modal Logout -->
-          <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelLogout"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabelLogout">Leaving So Soon?</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <p>Are you sure you want to logout?</p>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
-                  <a href="login.html" class="btn btn-primary">Logout</a>
-                </div>
-              </div>
-            </div>
-          </div>
+        
 
         </div>
         <!---Container Fluid-->
       </div>
       <!-- Footer -->
-      <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>copyright © <script> document.write(new Date().getFullYear()); </script> - developed by
-              <b><a href="https://indrijunanda.gitlab.io/" target="_blank">indrijunanda</a></b>
-            </span>
-          </div>
-        </div>
-      </footer>
+    
       <!-- Footer -->
     </div>
   </div>
@@ -496,6 +581,122 @@
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
   <script src="js/ruang-admin.min.js"></script>
+ <script>
+// Chỉ xử lý nút delete
+$(".btn-delete").click(function (e) {
+  e.preventDefault();
+  if (confirm("Bạn có chắc muốn ẩn sản phẩm này không?")) {
+    $(this).closest("tr").fadeOut();
+  }
+});
+</script>
+
+
+<script>
+  // Danh sách danh mục giả
+  const categories = [
+    { CategoryID: 1, Name: "Accessory" },
+    { CategoryID: 2, Name: "foot" },
+  ];
+
+  // Hàm đổ dữ liệu vào dropdown (dùng cho cả edit và add)
+  function populateCategoryDropdown(dropdownId) {
+    const categorySelect = document.getElementById(dropdownId);
+    categorySelect.innerHTML = ''; // Xóa dữ liệu cũ
+
+    // Tùy chọn mặc định
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = '-- Chọn danh mục --';
+    categorySelect.appendChild(defaultOption);
+
+    // Thêm từng danh mục
+    categories.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat.CategoryID;
+      option.textContent = cat.Name;
+      categorySelect.appendChild(option);
+    });
+  }
+
+  // Khi mở modal Edit
+  $(document).on("click", ".btn-primary.edit-btn", function (e) {
+    e.preventDefault();
+
+    const currentRow = $(this).closest("tr");
+    const name = currentRow.find("td:eq(1)").text().trim();
+    const price = currentRow.find("td:eq(3)").text().trim();
+
+    $("#edit-name").val(name);
+    $("#edit-price").val(price);
+
+    populateCategoryDropdown('edit-category');
+
+    $("#editModal").modal("show");
+  });
+
+  // Khi bấm nút Add New Product mở modal add
+  document.getElementById('btnAddProduct').addEventListener('click', function () {
+    // Đổ dữ liệu danh mục cho dropdown add
+    populateCategoryDropdown('add-category');
+
+    // Reset form add mới
+    document.getElementById('addForm').reset();
+
+    // Hiện modal add
+    $('#addModal').modal('show');
+  });
+
+  // Xử lý submit form add
+  document.getElementById('addForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const newProduct = {
+      categoryID: document.getElementById('add-category').value,
+      name: document.getElementById('add-name').value.trim(),
+      description: document.getElementById('add-description').value.trim(),
+      price: parseFloat(document.getElementById('add-price').value),
+      stock: parseInt(document.getElementById('add-stock').value),
+    };
+
+    if (!newProduct.categoryID) {
+      alert('Vui lòng chọn danh mục');
+      return;
+    }
+    if (!newProduct.name) {
+      alert('Vui lòng nhập tên sản phẩm');
+      return;
+    }
+    if (isNaN(newProduct.price) || newProduct.price < 0) {
+      alert('Giá không hợp lệ');
+      return;
+    }
+    if (isNaN(newProduct.stock) || newProduct.stock < 0) {
+      alert('Số lượng kho không hợp lệ');
+      return;
+    }
+
+    console.log('Thêm sản phẩm mới:', newProduct);
+
+    // TODO: Gửi lên server hoặc xử lý lưu trữ ở đây
+
+    // Đóng modal sau khi thêm
+    $('#addModal').modal('hide');
+
+    // Reset form
+    this.reset();
+
+    // TODO: Reload lại danh sách sản phẩm nếu cần
+  });
+</script>
+
+
+<script>
+  
+</script>
+
+
+
 </body>
 
 </html>

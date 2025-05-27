@@ -18,7 +18,7 @@
 <body id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+     <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
   <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
     <div class="sidebar-brand-icon">
       <img src="img/logo/pet-logo.png">
@@ -349,44 +349,48 @@
         <!-- Topbar -->
 
         <!-- Container Fluid-->
-        <div class="container-fluid" id="container-wrapper">
+<div class="container-fluid" id="container-wrapper">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Pet List</h1>
+    <h1 class="h3 mb-0 text-gray-800">Appointments</h1>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="./">Home</a></li>
-      <li class="breadcrumb-item"><a href="pets-list.html">Pet Profiles</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Pet List</li>
+      <li class="breadcrumb-item"><a href="appointments-list.html">Appointments</a></li>
+      <li class="breadcrumb-item active" aria-current="page">List Appointments</li>
     </ol>
   </div>
 
-  <!-- Pet List Content -->
+  <!-- Appointments Content -->
   <div class="row">
     <div class="col-lg-12">
       <div class="card shadow">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Pet Profiles</h6>
-          <button id="btnAddPet" class="m-0 float-right btn btn-primary btn-sm" type="button">
-            Add New Pet <i class="fas fa-plus"></i>
+          <h6 class="m-0 font-weight-bold text-primary">Appointment List</h6>
+          <button id="btnAddAppointment" class="m-0 float-right btn btn-primary btn-sm" type="button">
+            Add New Appointment <i class="fas fa-plus"></i>
           </button>
         </div>
         <div class="card-body">
+          <div class="mb-3">
+            <input type="text" id="appointmentSearch" class="form-control" placeholder="Search by customer, pet, or service...">
+          </div>
           <div class="table-responsive">
             <table class="table align-items-center table-flush">
               <thead class="thead-light">
                 <tr>
-                  <th>Pet ID</th>
-                  <th>Name</th>
-                  <th>Species</th>
-                  <th>Breed</th>
-                  <th>Age</th>
-                  <th>Gender</th>
-                  <th>Owner</th>
-                  <th>Created At</th>
+                  <th>Appointment ID</th>
+                  <th>Customer</th>
+                  <th>Pet</th>
+                  <th>Service</th>
+                  <th>Employee</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Promotion</th>
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody id="petTableBody">
-                <!-- Dữ liệu pet sẽ được thêm bằng JS -->
+              <tbody id="appointmentTableBody">
+                <!-- Data will be populated by JavaScript -->
               </tbody>
             </table>
           </div>
@@ -394,55 +398,149 @@
       </div>
     </div>
   </div>
-  <!-- End Pet List Content -->
+  <!-- End Appointments Content -->
 
-  <!-- Modal Edit Pet -->
-  <div class="modal fade" id="editPetModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <!-- Modal Add Appointment -->
+  <div class="modal fade" id="addAppointmentModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <form id="editPetForm" class="modal-content">
+      <form id="addAppointmentForm" class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Edit Pet</h5>
+          <h5 class="modal-title">Add New Appointment</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-
         <div class="modal-body">
-          <input type="hidden" id="edit-pet-id">
-
           <div class="mb-3">
-            <label for="edit-pet-name" class="form-label">Name</label>
-            <input type="text" id="edit-pet-name" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="edit-pet-species" class="form-label">Species</label>
-            <select id="edit-pet-species" class="form-control" required></select>
-          </div>
-
-          <div class="mb-3">
-            <label for="edit-pet-breed" class="form-label">Breed</label>
-            <input type="text" id="edit-pet-breed" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="edit-pet-age" class="form-label">Age</label>
-            <input type="number" min="0" id="edit-pet-age" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="edit-pet-gender" class="form-label">Gender</label>
-            <select id="edit-pet-gender" class="form-control" required>
-              <option value="">-- Select Gender --</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
+            <label for="add-customer" class="form-label">Customer</label>
+            <select id="add-customer" class="form-control" required>
+              <option value="">-- Select Customer --</option>
+              <option value="1">John Doe</option>
+              <option value="2">Jane Smith</option>
             </select>
           </div>
-
           <div class="mb-3">
-            <label for="edit-pet-owner" class="form-label">Owner</label>
-            <input type="text" id="edit-pet-owner" class="form-control" required>
+            <label for="add-pet" class="form-label">Pet</label>
+            <select id="add-pet" class="form-control" required>
+              <option value="">-- Select Pet --</option>
+              <option value="1">Buddy</option>
+              <option value="2">Whiskers</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="add-service" class="form-label">Service</label>
+            <select id="add-service" class="form-control" required>
+              <option value="">-- Select Service --</option>
+              <option value="1">Grooming</option>
+              <option value="2">Nail Trimming</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="add-employee" class="form-label">Employee</label>
+            <select id="add-employee" class="form-control">
+              <option value="">-- Select Employee --</option>
+              <option value="3">Anna Brown</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="add-date" class="form-label">Appointment Date</label>
+            <input type="datetime-local" id="add-date" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="add-status" class="form-label">Status</label>
+            <select id="add-status" class="form-control" required>
+              <option value="1">Pending</option>
+              <option value="2">Confirmed</option>
+              <option value="3">InProgress</option>
+              <option value="4">Completed</option>
+              <option value="5">Cancelled</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="add-notes" class="form-label">Notes</label>
+            <textarea id="add-notes" class="form-control"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="add-promotion" class="form-label">Promotion</label>
+            <select id="add-promotion" class="form-control">
+              <option value="">-- Select Promotion --</option>
+              <option value="1">SUMMER10</option>
+            </select>
           </div>
         </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Add Appointment</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
+  <!-- Modal Edit Appointment -->
+  <div class="modal fade" id="editAppointmentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <form id="editAppointmentForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Appointment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-appointment-id">
+          <div class="mb-3">
+            <label for="edit-customer" class="form-label">Customer</label>
+            <select id="edit-customer" class="form-control" required>
+              <option value="">-- Select Customer --</option>
+              <option value="1">John Doe</option>
+              <option value="2">Jane Smith</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="edit-pet" class="form-label">Pet</label>
+            <select id="edit-pet" class="form-control" required>
+              <option value="">-- Select Pet --</option>
+              <option value="1">Buddy</option>
+              <option value="2">Whiskers</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="edit-service" class="form-label">Service</label>
+            <select id="edit-service" class="form-control" required>
+              <option value="">-- Select Service --</option>
+              <option value="1">Grooming</option>
+              <option value="2">Nail Trimming</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="edit-employee" class="form-label">Employee</label>
+            <select id="edit-employee" class="form-control">
+              <option value="">-- Select Employee --</option>
+              <option value="3">Anna Brown</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="edit-date" class="form-label">Appointment Date</label>
+            <input type="datetime-local" id="edit-date" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit-status" class="form-label">Status</label>
+            <select id="edit-status" class="form-control" required>
+              <option value="1">Pending</option>
+              <option value="2">Confirmed</option>
+              <option value="3">InProgress</option>
+              <option value="4">Completed</option>
+              <option value="5">Cancelled</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="edit-notes" class="form-label">Notes</label>
+            <textarea id="edit-notes" class="form-control"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="edit-promotion" class="form-label">Promotion</label>
+            <select id="edit-promotion" class="form-control">
+              <option value="">-- Select Promotion --</option>
+              <option value="1">SUMMER10</option>
+            </select>
+          </div>
+        </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Save</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -450,61 +548,6 @@
       </form>
     </div>
   </div>
-
-  <!-- Modal Add Pet -->
-  <div class="modal fade" id="addPetModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <form id="addPetForm" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Add New Pet</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="add-pet-name" class="form-label">Name</label>
-            <input type="text" id="add-pet-name" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="add-pet-species" class="form-label">Species</label>
-            <select id="add-pet-species" class="form-control" required></select>
-          </div>
-
-          <div class="mb-3">
-            <label for="add-pet-breed" class="form-label">Breed</label>
-            <input type="text" id="add-pet-breed" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="add-pet-age" class="form-label">Age</label>
-            <input type="number" min="0" id="add-pet-age" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="add-pet-gender" class="form-label">Gender</label>
-            <select id="add-pet-gender" class="form-control" required>
-              <option value="">-- Select Gender --</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label for="add-pet-owner" class="form-label">Owner</label>
-            <input type="text" id="add-pet-owner" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Add Pet</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-</div>
 
         <!---Container Fluid-->
       </div>
@@ -524,153 +567,172 @@
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
   <script src="js/ruang-admin.min.js"></script>
   <script>
-  // Danh sách Species giả lập
-  const speciesList = [
-    { id: 1, name: "Cat" },
-    { id: 2, name: "Dog" },
-    { id: 3, name: "Bird" },
-    { id: 4, name: "Rabbit" }
-  ];
-
-  // Dữ liệu mẫu pets (giả lập)
-  let pets = [
-    { petID: 1, name: "Fluffy", species: "Cat", breed: "Persian", age: 3, gender: "Female", owner: "John Doe", createdAt: "2025-05-26 08:00:00" },
-    { petID: 2, name: "Max", species: "Dog", breed: "Golden Retriever", age: 5, gender: "Male", owner: "Alice Smith", createdAt: "2025-05-25 14:30:00" }
-  ];
-
-  // Hàm đổ dữ liệu species vào dropdown
-  function populateSpeciesDropdown(dropdownId) {
-    const select = document.getElementById(dropdownId);
-    select.innerHTML = '<option value="">-- Select Species --</option>';
-    speciesList.forEach(sp => {
-      const option = document.createElement('option');
-      option.value = sp.name; // Dùng name cho dễ xử lý
-      option.textContent = sp.name;
-      select.appendChild(option);
-    });
-  }
-
-  // Hàm hiển thị danh sách pets lên bảng
-  function renderPetTable() {
-    const tbody = document.getElementById('petTableBody');
-    tbody.innerHTML = ''; // Xóa cũ
-
-    pets.forEach(pet => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><a href="pets-edit.html?petID=${pet.petID}">${pet.petID}</a></td>
-        <td>${pet.name}</td>
-        <td>${pet.species}</td>
-        <td>${pet.breed}</td>
-        <td>${pet.age}</td>
-        <td>${pet.gender}</td>
-        <td>${pet.owner}</td>
-        <td>${pet.createdAt}</td>
-        <td>
-          <button class="btn btn-sm btn-primary edit-pet-btn" data-id="${pet.petID}">Edit</button>
-          <button class="btn btn-sm btn-danger delete-pet-btn" data-id="${pet.petID}">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Xử lý mở modal Edit Pet và đổ dữ liệu
-  document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('edit-pet-btn')) {
-      const petID = parseInt(e.target.getAttribute('data-id'));
-      const pet = pets.find(p => p.petID === petID);
-      if (pet) {
-        document.getElementById('edit-pet-id').value = pet.petID;
-        document.getElementById('edit-pet-name').value = pet.name;
-        document.getElementById('edit-pet-species').value = pet.species;
-        document.getElementById('edit-pet-breed').value = pet.breed;
-        document.getElementById('edit-pet-age').value = pet.age;
-        document.getElementById('edit-pet-gender').value = pet.gender;
-        document.getElementById('edit-pet-owner').value = pet.owner;
-
-        const editModal = new bootstrap.Modal(document.getElementById('editPetModal'));
-        editModal.show();
+    // Fake data
+    const appointments = [
+      {
+        AppointmentID: 1,
+        UserID: 1,
+        CustomerName: 'John Doe',
+        PetID: 1,
+        PetName: 'Buddy',
+        ServiceID: 1,
+        ServiceName: 'Grooming',
+        EmployeeID: 3,
+        EmployeeName: 'Anna Brown',
+        AppointmentDate: '2025-05-30T10:00:00',
+        StatusID: 1,
+        StatusName: 'Pending',
+        Notes: 'Please use hypoallergenic shampoo',
+        PromotionID: 1,
+        PromotionCode: 'SUMMER10'
+      },
+      {
+        AppointmentID: 2,
+        UserID: 2,
+        CustomerName: 'Jane Smith',
+        PetID: 2,
+        PetName: 'Whiskers',
+        ServiceID: 2,
+        ServiceName: 'Nail Trimming',
+        EmployeeID: null,
+        EmployeeName: '',
+        AppointmentDate: '2025-05-31T14:00:00',
+        StatusID: 2,
+        StatusName: 'Confirmed',
+        Notes: '',
+        PromotionID: null,
+        PromotionCode: ''
       }
+    ];
+
+    // Function to render appointments
+    function renderAppointments(filter = '') {
+      const tbody = document.getElementById('appointmentTableBody');
+      tbody.innerHTML = '';
+      const filteredAppointments = appointments.filter(app =>
+        app.CustomerName.toLowerCase().includes(filter.toLowerCase()) ||
+        app.PetName.toLowerCase().includes(filter.toLowerCase()) ||
+        app.ServiceName.toLowerCase().includes(filter.toLowerCase())
+      );
+      filteredAppointments.forEach(app => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${app.AppointmentID}</td>
+          <td>${app.CustomerName}</td>
+          <td>${app.PetName}</td>
+          <td>${app.ServiceName}</td>
+          <td>${app.EmployeeName || 'Unassigned'}</td>
+          <td>${new Date(app.AppointmentDate).toLocaleString()}</td>
+          <td>${app.StatusName}</td>
+          <td>${app.Notes || ''}</td>
+          <td>${app.PromotionCode || 'None'}</td>
+          <td>
+            <button class="btn btn-sm btn-primary edit-btn" data-id="${app.AppointmentID}">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn btn-sm btn-danger delete-btn" data-id="${app.AppointmentID}">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
     }
 
-    // Xử lý Delete (soft delete = ẩn dòng)
-    if (e.target.classList.contains('delete-pet-btn')) {
-      const petID = parseInt(e.target.getAttribute('data-id'));
-      if (confirm('Are you sure you want to delete this pet?')) {
-        // Ở đây chỉ ẩn dòng (soft delete)
-        pets = pets.filter(p => p.petID !== petID);
-        renderPetTable();
+    // Initial render
+    renderAppointments();
+
+    // Search functionality
+    document.getElementById('appointmentSearch').addEventListener('input', e => {
+      renderAppointments(e.target.value);
+    });
+
+    // Add appointment
+    document.getElementById('btnAddAppointment').addEventListener('click', () => {
+      $('#addAppointmentModal').modal('show');
+    });
+
+    document.getElementById('addAppointmentForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const newAppointment = {
+        AppointmentID: appointments.length + 1,
+        UserID: parseInt(document.getElementById('add-customer').value),
+        CustomerName: document.getElementById('add-customer').options[document.getElementById('add-customer').selectedIndex].text,
+        PetID: parseInt(document.getElementById('add-pet').value),
+        PetName: document.getElementById('add-pet').options[document.getElementById('add-pet').selectedIndex].text,
+        ServiceID: parseInt(document.getElementById('add-service').value),
+        ServiceName: document.getElementById('add-service').options[document.getElementById('add-service').selectedIndex].text,
+        EmployeeID: document.getElementById('add-employee').value ? parseInt(document.getElementById('add-employee').value) : null,
+        EmployeeName: document.getElementById('add-employee').value ? document.getElementById('add-employee').options[document.getElementById('add-employee').selectedIndex].text : '',
+        AppointmentDate: document.getElementById('add-date').value,
+        StatusID: parseInt(document.getElementById('add-status').value),
+        StatusName: document.getElementById('add-status').options[document.getElementById('add-status').selectedIndex].text,
+        Notes: document.getElementById('add-notes').value,
+        PromotionID: document.getElementById('add-promotion').value ? parseInt(document.getElementById('add-promotion').value) : null,
+        PromotionCode: document.getElementById('add-promotion').value ? document.getElementById('add-promotion').options[document.getElementById('add-promotion').selectedIndex].text : ''
+      };
+      appointments.push(newAppointment);
+      renderAppointments();
+      $('#addAppointmentModal').modal('hide');
+      document.getElementById('addAppointmentForm').reset();
+    });
+
+    // Edit appointment
+    document.getElementById('appointmentTableBody').addEventListener('click', e => {
+      if (e.target.closest('.edit-btn')) {
+        const id = parseInt(e.target.closest('.edit-btn').dataset.id);
+        const app = appointments.find(a => a.AppointmentID === id);
+        document.getElementById('edit-appointment-id').value = app.AppointmentID;
+        document.getElementById('edit-customer').value = app.UserID;
+        document.getElementById('edit-pet').value = app.PetID;
+        document.getElementById('edit-service').value = app.ServiceID;
+        document.getElementById('edit-employee').value = app.EmployeeID || '';
+        document.getElementById('edit-date').value = app.AppointmentDate.replace('Z', '');
+        document.getElementById('edit-status').value = app.StatusID;
+        document.getElementById('edit-notes').value = app.Notes || '';
+        document.getElementById('edit-promotion').value = app.PromotionID || '';
+        $('#editAppointmentModal').modal('show');
       }
-    }
-  });
+    });
 
-  // Xử lý submit form Edit Pet
-  document.getElementById('editPetForm').addEventListener('submit', function (e) {
-    e.preventDefault();
+    document.getElementById('editAppointmentForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-appointment-id').value);
+      const appIndex = appointments.findIndex(a => a.AppointmentID === id);
+      appointments[appIndex] = {
+        ...appointments[appIndex],
+        UserID: parseInt(document.getElementById('edit-customer').value),
+        CustomerName: document.getElementById('edit-customer').options[document.getElementById('edit-customer').selectedIndex].text,
+        PetID: parseInt(document.getElementById('edit-pet').value),
+        PetName: document.getElementById('edit-pet').options[document.getElementById('edit-pet').selectedIndex].text,
+        ServiceID: parseInt(document.getElementById('edit-service').value),
+        ServiceName: document.getElementById('edit-service').options[document.getElementById('edit-service').selectedIndex].text,
+        EmployeeID: document.getElementById('edit-employee').value ? parseInt(document.getElementById('edit-employee').value) : null,
+        EmployeeName: document.getElementById('edit-employee').value ? document.getElementById('edit-employee').options[document.getElementById('edit-employee').selectedIndex].text : '',
+        AppointmentDate: document.getElementById('edit-date').value,
+        StatusID: parseInt(document.getElementById('edit-status').value),
+        StatusName: document.getElementById('edit-status').options[document.getElementById('edit-status').selectedIndex].text,
+        Notes: document.getElementById('edit-notes').value,
+        PromotionID: document.getElementById('edit-promotion').value ? parseInt(document.getElementById('edit-promotion').value) : null,
+        PromotionCode: document.getElementById('edit-promotion').value ? document.getElementById('edit-promotion').options[document.getElementById('edit-promotion').selectedIndex].text : ''
+      };
+      renderAppointments();
+      $('#editAppointmentModal').modal('hide');
+    });
 
-    const petID = parseInt(document.getElementById('edit-pet-id').value);
-    const index = pets.findIndex(p => p.petID === petID);
-    if (index !== -1) {
-      pets[index].name = document.getElementById('edit-pet-name').value;
-      pets[index].species = document.getElementById('edit-pet-species').value;
-      pets[index].breed = document.getElementById('edit-pet-breed').value;
-      pets[index].age = parseInt(document.getElementById('edit-pet-age').value);
-      pets[index].gender = document.getElementById('edit-pet-gender').value;
-      pets[index].owner = document.getElementById('edit-pet-owner').value;
-
-      renderPetTable();
-
-      // Đóng modal
-      const editModalEl = document.getElementById('editPetModal');
-      const editModal = bootstrap.Modal.getInstance(editModalEl);
-      editModal.hide();
-    }
-  });
-
-  // Xử lý mở modal Add Pet
-  document.getElementById('btnAddPet').addEventListener('click', function () {
-    // Reset form
-    document.getElementById('addPetForm').reset();
-
-    const addModal = new bootstrap.Modal(document.getElementById('addPetModal'));
-    addModal.show();
-  });
-
-  // Xử lý submit form Add Pet
-  document.getElementById('addPetForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    // Tạo ID mới (giả lập)
-    const newID = pets.length > 0 ? Math.max(...pets.map(p => p.petID)) + 1 : 1;
-
-    const newPet = {
-      petID: newID,
-      name: document.getElementById('add-pet-name').value,
-      species: document.getElementById('add-pet-species').value,
-      breed: document.getElementById('add-pet-breed').value,
-      age: parseInt(document.getElementById('add-pet-age').value),
-      gender: document.getElementById('add-pet-gender').value,
-      owner: document.getElementById('add-pet-owner').value,
-      createdAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
-    };
-
-    pets.push(newPet);
-    renderPetTable();
-
-    // Đóng modal
-    const addModalEl = document.getElementById('addPetModal');
-    const addModal = bootstrap.Modal.getInstance(addModalEl);
-    addModal.hide();
-  });
-
-  // Khởi tạo trang
-  window.onload = function () {
-    populateSpeciesDropdown('edit-pet-species');
-    populateSpeciesDropdown('add-pet-species');
-    renderPetTable();
-  };
-</script>
+    // Delete appointment
+    document.getElementById('appointmentTableBody').addEventListener('click', e => {
+      if (e.target.closest('.delete-btn')) {
+        const id = parseInt(e.target.closest('.delete-btn').dataset.id);
+        if (confirm('Are you sure you want to delete this appointment?')) {
+          const index = appointments.findIndex(a => a.AppointmentID === id);
+          appointments.splice(index, 1);
+          renderAppointments();
+        }
+      }
+    });
+  </script>
+ 
 
 </body>
 
