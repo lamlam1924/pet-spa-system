@@ -1,5 +1,6 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300i,400,400i,600,700|Poppins:200,200i,300,300i,400,500,500i,600,700,800,900&display=swap");
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300i,400,400i,600,700|Poppins:200,200i,300,300i,400,500,500i,600,700,800,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+
 /* line 1, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_extend.scss */
 .flex-center-start {
   display: -webkit-box;
@@ -35,7 +36,7 @@
 /* 1. Theme default css */
 /* line 4, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
 body {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-weight: normal;
   font-style: normal;
 }
@@ -86,7 +87,7 @@ button {
 
 /* line 37, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
 h1, h2, h3, h4, h5 {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   color: #191d34;
 }
 
@@ -99,7 +100,139 @@ h5 a,
 h6 a {
   color: inherit;
 }
+.short_contact_list ul {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
+.short_contact_list li {
+    display: flex;
+    align-items: center;
+}
+
+.short_contact_list li a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+.short_contact_list li a:last-child {
+    margin-right: 0;
+}
+
+.search_bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.search_input {
+    padding: 8px 15px;
+    border: 1px solid #918686;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    width: 300px;
+    font-size: 16px;
+    transition: width 0.3s ease;
+    background: #956f6f;
+}
+
+.search_button {
+    padding: 8px 15px;
+    border: 1px solid #a99999;
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    background: #8d8686;
+    cursor: pointer;
+}
+
+.search_button i {
+    color: #333;
+    font-size: 16px;
+}
+
+.search_button:hover {
+    background: #a28888;
+}
+
+.auth_links {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+}
+
+.auth_links a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.auth_links a:hover {
+    color: #007bff;
+}
+
+.auth_links span {
+    margin: 0 10px;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .search_input {
+        width: 200px; /* Giảm chiều rộng trên tablet */
+        font-size: 14px;
+    }
+
+    .search_button {
+        padding: 8px 12px;
+    }
+
+    .search_button i {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 767px) {
+    .search_bar {
+        justify-content: flex-start; /* Căn trái trên mobile */
+        margin: 10px 0; /* Thêm khoảng cách trên/dưới */
+    }
+
+    .search_input {
+        width: 100%; /* Chiếm toàn bộ chiều rộng trên mobile */
+        max-width: 250px;
+        font-size: 14px;
+    }
+
+    .search_button {
+        padding: 8px 10px;
+    }
+
+    .search_button i {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .search_input {
+        max-width: 200px; /* Giảm thêm chiều rộng trên màn hình rất nhỏ */
+        font-size: 12px;
+    }
+
+    .search_button {
+        padding: 8px 8px;
+    }
+
+    .search_button i {
+        font-size: 12px;
+    }
+}
 /* line 50, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
 ul {
   margin: 0px;
@@ -519,7 +652,7 @@ h3 {
   font-weight: 700;
   line-height: 60px;
   color: #191d34;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 /* line 8, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_section_title.scss */
@@ -1386,7 +1519,7 @@ h3 {
 /* line 30, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_slider.scss */
 .slider_area .single_slider .slider_text h3 {
   color: #ffffff;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   font-size: 75px;
   font-weight: 200;
   margin-bottom: 4px;
@@ -3008,7 +3141,7 @@ h3 {
   color: #fff;
   font-weight: 900;
   margin-bottom: 0;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   text-transform: capitalize;
 }
 
@@ -3328,7 +3461,7 @@ h3 {
 .adapt_area .adapt_about .single_adapt .adapt_content h3 {
   font-size: 60px;
   font-weight: 700;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Be Vietnam Pro', sans-serif;
   color: #383737;
   display: inline-block;
   margin-bottom: 2px;
