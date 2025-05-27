@@ -43,10 +43,9 @@
     <section class="make_apppointment_area">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-lg-12">
                     <div class="appoint_ment_form">
-                        <h3 class="mb-3 text-center">Đặt Lịch Dịch Vụ</h3>
-                        
+                        <h3 class="mb-3 text-center" id="booking-title">Đặt Lịch Dịch Vụ</h3> 
                         <div class="booking-container">
                             <!-- Progress Indicator -->
                             <div class="progress-steps">
@@ -111,13 +110,13 @@
                                                     <i class="fa fa-th-large"></i> Tất cả
                                                 </button>
                                                 <button class="filter-btn" data-category="basic">
-                                                    <i class="fa fa-bath"></i> Cơ bản
+                                                    <i class="fa fa-star"></i> Cơ bản
                                                 </button>
                                                 <button class="filter-btn" data-category="premium">
-                                                    <i class="fa fa-cut"></i> Cao cấp
+                                                    <i class="fa fa-star"></i><i class="fa fa-star"></i> Cao cấp
                                                 </button>
                                                 <button class="filter-btn" data-category="luxury">
-                                                    <i class="fa fa-heart"></i> VIP
+                                                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> VIP
                                                 </button>
                                             </div>
                                         </div>
@@ -323,7 +322,11 @@
                                 <!-- Step 2: Customer Information -->
                                 <div class="booking-step" data-step="2">
                                     <div class="customer-form">
-                                        <h3>Thông tin khách hàng</h3>
+                                        <!-- <div class="selected-services-summary">
+                                            <h4>Dịch vụ đã chọn:</h4>
+                                            <div class="selected-services"></div>
+                                        </div> -->
+                                        <h3 style="text-align: center;"><a>Thông tin khách hàng</a></h3>
                                         <div class="form-grid">
                                             <div class="form-group">
                                                 <label>Họ và tên</label>
@@ -381,8 +384,8 @@
                                             </div>
                                         </div>
                                         <div class="selected-services-box">
-                                            <h4>Dịch vụ đã chọn:</h4>
-                                            <ul id="selected-services-list"></ul>
+                                            <span>Dịch vụ đã chọn:</span>
+                                            <ul id="selected-services-list-step-2"></ul>
                                         </div>
                                             <div class="form-group full-width">
                                                 <label>Ghi chú</label>
@@ -398,9 +401,13 @@
                                         <h3 class="mb-3 text-center">Đặt lịch thành công!</h3>
                                         <div class="confirmation-details">
                                             <p><strong>Dịch vụ:</strong> <span id="confirm-service"></span></p>
+                                            <ul id="selected-services-list-step-3"></ul>
                                             <p><strong>Thú cưng:</strong> <span id="confirm-pet"></span></p>
                                             <p><strong>Thời gian:</strong> <span id="confirm-time"></span></p>
                                             <p>Cảm ơn bạn đã tin tưởng dịch vụ của chúng tôi!</p>
+                                        </div>
+                                        <div id="booking-confirmation" class="booking-confirmation">
+                                            <!-- Nội dung sẽ được cập nhật động -->
                                         </div>
                                         <button class="btn btn-primary" onclick="window.location.reload()">Đặt lịch mới</button>
                                     </div>

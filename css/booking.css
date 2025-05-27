@@ -412,6 +412,143 @@
     transition: all 0.3s ease;
 }
 
+.btn-select.selected {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.btn-select.selected:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-select.selected i {
+    color: white;
+}
+
+/* Selected Services Box */
+.selected-services-box {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.selected-services-summary {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.selected-services-summary h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.selected-service {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.selected-service:last-child {
+    border-bottom: none;
+}
+
+.service-info .name {
+    color: #495057;
+    font-weight: 500;
+}
+
+.remove-service {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.remove-service:hover {
+    color: #bd2130;
+}
+
+.total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px solid #dee2e6;
+}
+
+.total .selected-service-item {
+    border-bottom: none;
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideIn 0.3s ease forwards;
+}
+
+.notification.error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification.success {
+    border-left: 4px solid #28a745;
+}
+
+.notification.warning {
+    border-left: 4px solid #ffc107;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification i {
+    font-size: 20px;
+}
+
+.notification.error i {
+    color: #dc3545;
+}
+
+.notification.success i {
+    color: #28a745;
+}
+
+.notification.warning i {
+    color: #ffc107;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .service-type-selector {
@@ -426,4 +563,13 @@
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
     }
+}
+
+#booking-title {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 700;
+    font-size: 2.1rem;
+    color: #EB3015;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
