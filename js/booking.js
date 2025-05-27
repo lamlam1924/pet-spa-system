@@ -5,49 +5,49 @@ const CONFIG = {
     NOTIFICATION_TIMEOUT: 5000
 };
 
-const COMBOS = {
-    basic: {
-        name: 'Combo Cơ bản',
-        price: 300000,
-        services: ['bath', 'nailcut'],
-        savings
-    },
-    premium: {
-        name: 'Combo Cao cấp',
-        price: 660000,
-        services: ['bath', 'nailcut', 'grooming'],
-        savings: '25%'
-    },
-    vip: {
-        name: 'Combo VIP',
-        price: 1000000,
-        services: ['bath', 'nailcut', 'grooming', 'spa'],
-        savings: '30%'
-    }
-};
+// const COMBOS = {
+//     basic: {
+//         name: 'Combo Cơ bản',
+//         price: 300000,
+//         services: ['bath', 'nailcut'],
+//         savings
+//     },
+//     premium: {
+//         name: 'Combo Cao cấp',
+//         price: 660000,
+//         services: ['bath', 'nailcut', 'grooming'],
+//         savings: '25%'
+//     },
+//     vip: {
+//         name: 'Combo VIP',
+//         price: 1000000,
+//         services: ['bath', 'nailcut', 'grooming', 'spa'],
+//         savings: '30%'
+//     }
+// };
 
-const SERVICES = {
-    bath: {
-        name: 'Tắm spa',
-        price: 150000,
-        includedIn: ['basic', 'premium', 'vip']
-    },
-    nailcut: {
-        name: 'Cắt móng',
-        price: 50000,
-        includedIn: ['basic', 'premium', 'vip']
-    },
-    grooming: {
-        name: 'Cắt tỉa lông',
-        price: 200000,
-        includedIn: ['premium', 'vip']
-    },
-    spa: {
-        name: 'Massage',
-        price: 300000,
-        includedIn: ['vip']
-    }
-};
+// const SERVICES = {
+//     bath: {
+//         name: 'Tắm spa',
+//         price: 150000,
+//         includedIn: ['basic', 'premium', 'vip']
+//     },
+//     nailcut: {
+//         name: 'Cắt móng',
+//         price: 50000,
+//         includedIn: ['basic', 'premium', 'vip']
+//     },
+//     grooming: {
+//         name: 'Cắt tỉa lông',
+//         price: 200000,
+//         includedIn: ['premium', 'vip']
+//     },
+//     spa: {
+//         name: 'Massage',
+//         price: 300000,
+//         includedIn: ['vip']
+//     }
+// };
 
 // Notification Manager
 const notificationManager = {
@@ -118,6 +118,8 @@ const notificationManager = {
 
 // Main Booking Manager
 const BookingManager = {
+    selectedServices: new Set(),
+
     init() {
         // Initialize state
         this.currentStep = 1;
@@ -134,6 +136,19 @@ const BookingManager = {
         this.bindEvents();
         this.updateNavigationState();
         this.initPetSelection();
+
+        // Load saved services from storage
+        const savedServices = ServiceStorageManager.getServices();
+        savedServices.forEach(service => {
+            this.selectedServices.add(service.id);
+            const button = document.querySelector(`[data-service="${service.id}"] .btn-select`);
+            if (button) {
+                button.classList.add('selected');
+                button.innerHTML = '<i class="fa fa-check"></i> Đã chọn';
+            }
+        });
+
+        this.updateSelectedServices();
     },
 
     bindEvents() {
@@ -178,56 +193,88 @@ const BookingManager = {
     },
 
     navigate(direction) {
-        if (direction === 'next' && this.currentStep < this.totalSteps) {
-            if (this.validateCurrentStep()) {
-                this.currentStep++;
-                this.updateNavigationState();
-            }
-        } else if (direction === 'prev' && this.currentStep > 1) {
-            this.currentStep--;
-            this.updateNavigationState();
+        const currentStep = document.querySelector('.booking-step.active');
+        const currentStepNumber = parseInt(currentStep.dataset.step);
+        
+        if (direction === 'next' && !this.validateCurrentStep()) {
+            return;
         }
-    },
 
-    validateCurrentStep() {
-        switch (this.currentStep) {
-            case 1: // Validate service selection
-                if (this.selectedServices.size === 0) {
-                    alert('Vui lòng chọn ít nhất một dịch vụ');
-                    return false;
-                }
-                return true;
-
-            case 2: // Validate customer information
-                if (this.selectedPets.size === 0) {
-                    notificationManager.warning('Vui lòng chọn ít nhất một thú cưng');
-                    return false;
-                }
-                return this.validateCustomerForm();
-
-            default:
-                return true;
+        const nextStepNumber = direction === 'next' ? currentStepNumber + 1 : currentStepNumber - 1;
+        
+        if (nextStepNumber < 1 || nextStepNumber > 3) {
+            return;
         }
-    },
 
-    validateCustomerForm() {
-        const form = document.querySelector('.customer-form');
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
+        // Cập nhật currentStep
+        this.currentStep = nextStepNumber;
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('error');
-                isValid = false;
+        // Cập nhật trạng thái active cho steps
+        document.querySelectorAll('.booking-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        document.querySelector(`[data-step="${nextStepNumber}"]`).classList.add('active');
+        
+        // Cập nhật progress steps
+        document.querySelectorAll('.progress-steps .step').forEach((step, index) => {
+            if (index + 1 < nextStepNumber) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            } else if (index + 1 === nextStepNumber) {
+                step.classList.add('active');
+                step.classList.remove('completed');
             } else {
-                field.classList.remove('error');
+                step.classList.remove('active', 'completed');
             }
         });
 
-        if (!isValid) {
-            alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+        this.updateNavigationState();
+    },
+
+    validateCurrentStep() {
+        const currentStep = document.querySelector('.booking-step.active');
+        const stepNumber = currentStep.dataset.step;
+
+        switch(stepNumber) {
+            case '1':
+                if (this.selectedServices.size === 0) {
+                    notificationManager.warning('Vui lòng chọn ít nhất một dịch vụ');
+                    return false;
+                }
+                return true;
+
+            case '2':
+                // Kiểm tra form thông tin
+                const form = currentStep.querySelector('.customer-form');
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('error');
+                        notificationManager.error(`Vui lòng điền ${field.previousElementSibling.textContent.toLowerCase()}`);
+                    } else {
+                        field.classList.remove('error');
+                    }
+                });
+
+                // Kiểm tra chọn thú cưng
+                const selectedPets = currentStep.querySelectorAll('.pet-checkbox:checked');
+                if (selectedPets.length === 0) {
+                    notificationManager.warning('Vui lòng chọn ít nhất một thú cưng');
+                    return false;
+                }
+
+                return isValid;
+
+            case '3':
+                return true;
+
+            default:
+                return false;
         }
-        return isValid;
     },
 
     updateNavigationState() {
@@ -261,32 +308,22 @@ const BookingManager = {
     },
 
     toggleService(button) {
-        const serviceItem = button.closest('[data-service], [data-category]');
-        const serviceId = serviceItem.dataset.service || serviceItem.dataset.category;
-        console.log('Toggling service:', serviceId);
-
+        const serviceId = button.dataset.service;
+        
         if (this.selectedServices.has(serviceId)) {
             this.selectedServices.delete(serviceId);
-            serviceItem.classList.remove('selected');
+            button.classList.remove('selected');
             button.innerHTML = '<i class="fa fa-plus"></i> Chọn dịch vụ';
         } else {
-            // If selecting a combo, clear other selections
-            if (this.currentType === 'combo') {
-                this.selectedServices.clear();
-                document.querySelectorAll('.selected').forEach(el => {
-                    el.classList.remove('selected');
-                    const btn = el.querySelector('.btn-select');
-                    if (btn) btn.innerHTML = '<i class="fa fa-plus"></i> Chọn dịch vụ';
-                });
-            }
-            
-
             this.selectedServices.add(serviceId);
-            serviceItem.classList.add('selected');
+            button.classList.add('selected');
             button.innerHTML = '<i class="fa fa-check"></i> Đã chọn';
         }
 
-        this.updateSummary();
+        // Lưu vào storage
+        ServiceStorageManager.saveServices(this.selectedServices);
+        
+        this.updateSelectedServices();
     },
 
     resetCategoryFilter() {
@@ -333,7 +370,7 @@ const BookingManager = {
         });
     },
 
-    updateSummary() {
+    updateSelectedServices() {
         const summaryContainer = document.querySelector('.selected-services');
         if (!summaryContainer) return;
 
@@ -386,6 +423,40 @@ const BookingManager = {
                 }
             });
         });
+    },
+
+    reset() {
+        this.selectedServices.clear();
+        this.updateSelectedServices();
+    }
+};
+
+const ServiceStorageManager = {
+    STORAGE_KEY: 'selectedServices',
+
+    // Lưu dịch vụ đã chọn
+    saveServices(services) {
+        const servicesData = Array.from(services).map(serviceId => {
+            const serviceEl = document.querySelector(`[data-service="${serviceId}"]`);
+            return {
+                id: serviceId,
+                name: serviceEl.querySelector('h4').textContent,
+                price: serviceEl.querySelector('.price').textContent,
+                duration: serviceEl.querySelector('.meta span:first-child').textContent
+            };
+        });
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(servicesData));
+    },
+
+    // Lấy dịch vụ đã lưu
+    getServices() {
+        const services = localStorage.getItem(this.STORAGE_KEY);
+        return services ? JSON.parse(services) : [];
+    },
+
+    // Xóa dịch vụ đã lưu
+    clearServices() {
+        localStorage.removeItem(this.STORAGE_KEY);
     }
 };
 
