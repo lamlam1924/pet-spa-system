@@ -122,37 +122,53 @@ h6 a {
 .short_contact_list li a:last-child {
     margin-right: 0;
 }
-
 .search_bar {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
+    width: 100%;
+    padding: 0 0.5rem;
 }
 
-.search_input {
-    padding: 8px 15px;
+.search_container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
     border: 1px solid #918686;
-    border-radius: 20px 0 0 20px;
-    outline: none;
-    width: 300px;
-    font-size: 16px;
-    transition: width 0.3s ease;
+    border-radius: 20px;
+    overflow: hidden;
     background: #956f6f;
 }
 
+.search_input {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    flex: 1;
+    font-size: clamp(14px, 2.5vw, 16px);
+    background: #956f6f;
+    box-sizing: border-box;
+}
+
 .search_button {
-    padding: 8px 15px;
-    border: 1px solid #a99999;
-    border-left: none;
+    padding: 0.5rem 1rem;
+    border: none;
     border-radius: 0 20px 20px 0;
     background: #8d8686;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: background 0.3s ease;
+    min-width: 48px; /* Đảm bảo nút có chiều rộng tối thiểu để hiển thị */
 }
 
 .search_button i {
     color: #333;
-    font-size: 16px;
+    font-size: clamp(14px, 2.5vw, 16px);
 }
 
 .search_button:hover {
@@ -164,13 +180,16 @@ h6 a {
     justify-content: flex-end;
     align-items: center;
     height: 100%;
+    padding: 0 0.5rem;
+    flex-wrap: wrap;
 }
 
 .auth_links a {
-    margin-left: 10px;
+    margin-left: 0.625rem;
     text-decoration: none;
     color: #333;
     font-weight: 500;
+    font-size: clamp(14px, 2.5vw, 16px);
 }
 
 .auth_links a:hover {
@@ -178,59 +197,61 @@ h6 a {
 }
 
 .auth_links span {
-    margin: 0 10px;
+    margin: 0 0.625rem;
     color: #333;
+    font-size: clamp(14px, 2.5vw, 16px);
 }
 
-/* Responsive adjustments */
-@media (max-width: 991px) {
-    .search_input {
-        width: 200px; /* Giảm chiều rộng trên tablet */
-        font-size: 14px;
-    }
-
-    .search_button {
-        padding: 8px 12px;
-    }
-
-    .search_button i {
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 767px) {
+/* Media Queries cho các thiết bị nhỏ hơn */
+@media screen and (max-width: 770px) {
     .search_bar {
-        justify-content: flex-start; /* Căn trái trên mobile */
-        margin: 10px 0; /* Thêm khoảng cách trên/dưới */
+        padding: 0 0.25rem;
+    }
+
+    .search_container {
+        width: 100%;
+        min-height: 40px; /* Đảm bảo chiều cao đủ để hiển thị cả input và button */
     }
 
     .search_input {
-        width: 100%; /* Chiếm toàn bộ chiều rộng trên mobile */
-        max-width: 250px;
-        font-size: 14px;
+        border-radius: 20px 0 0 20px;
+        min-width: 0; /* Ngăn input bị co quá nhỏ */
     }
 
     .search_button {
-        padding: 8px 10px;
+        border-radius: 0 20px 20px 0;
+        padding: 0.5rem; /* Đảm bảo padding đủ để hiển thị icon */
+        min-width: 40px; /* Giữ nút hiển thị rõ ràng */
+        flex-shrink: 0; /* Ngăn nút bị co lại */
     }
 
-    .search_button i {
-        font-size: 14px;
+    .auth_links {
+        justify-content: center;
+        gap: 0.5rem;
     }
 }
 
-@media (max-width: 576px) {
+@media screen and (max-width: 576px) {
     .search_input {
-        max-width: 200px; /* Giảm thêm chiều rộng trên màn hình rất nhỏ */
-        font-size: 12px;
+        padding: 0.4rem 0.8rem;
     }
 
     .search_button {
-        padding: 8px 8px;
+        padding: 0.4rem;
+        min-width: 36px; /* Giảm nhẹ cho mobile nhưng vẫn hiển thị */
     }
 
-    .search_button i {
-        font-size: 12px;
+    .auth_links a,
+    .auth_links span {
+        margin: 0 0.3rem;
+        font-size: clamp(12px, 2vw, 14px);
+    }
+}
+
+/* Đảm bảo tương thích với các trình duyệt */
+@supports (-webkit-overflow-scrolling: touch) {
+    .search_input {
+        -webkit-appearance: none;
     }
 }
 /* line 50, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_reset.scss */
