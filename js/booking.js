@@ -1,3 +1,4 @@
+
 // Constants and configurations
 const CONFIG = {
     CURRENCY: 'VND',
@@ -519,5 +520,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the booking manager
     BookingManager.init();
 
-    
+   
+
 });
