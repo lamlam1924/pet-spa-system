@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- <link rel="manifest" href="site.webmanifest"> -->
-    <link rel="shortcut icon" type="image/x-icon" href="img/Picture6.png">
+    <link rel="shortcut icon" type="image/x-icon" href="img/Picture5.png">
     <!-- Place favicon.ico in the root directory -->
 
     <!-- CSS here -->
@@ -35,7 +35,7 @@
         <![endif]-->
 
     <!-- header_start  -->
-    <div include-html="view/header.html"></div>
+    <div include-html="/pet-spa-system/view/header.html"></div>
     <!-- header_start -->
 
 
@@ -69,12 +69,14 @@
                         </p>
                         <div class="service_btn">
                             <a href="booking.html" class="boxed-btn3">Đặt lịch ngay <i class="fa fa-paper-plane"></i></a>
+
+                                <!-- Form đặt lịch nhanh (ẩn mặc định) -->
+                            <!-- Popup form đặt lịch -->
+                        </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Service cards -->
             <div class="row justify-content-center">
                 <!-- Service card 1 -->
                 <div class="col-lg-4 col-md-6">
@@ -306,8 +308,107 @@
         </div>
     </section>
 
-    <!-- footer_start -->
-    <div include-html="view/footer.html"></div>
+
+    <!-- Service Table Section -->
+<div class="service_table_area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="section_title text-center mb-5">
+                    <h3>Bảng Giá Dịch Vụ Chi Tiết</h3>
+                    <p>Giá có thể thay đổi tùy theo kích thước và tình trạng của thú cưng</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="service_table_wrapper">
+            <div class="table-responsive">
+                <table class="table table-hover service_price_table border">
+                    <thead>
+                        <tr>
+                            <th scope="col">Dịch Vụ</th>
+                            <th scope="col">Loại Thú Cưng</th>
+                            <th scope="col">Kích Thước</th>
+                            <th scope="col">Giá Tham Khảo</th>
+                            <th scope="col">Chi Tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="service_name">
+                                    <i class="fa fa-bath"></i>
+                                    <span>Tắm Spa</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="pet_type">
+                                    <i class="fa fa-dog"></i>
+                                    <i class="fa fa-cat"></i>
+                                </span>
+                            </td>
+                            <td>
+                                <ul class="size_list">
+                                    <li>Nhỏ (< 5kg)</li>
+                                    <li>Vừa (5-15kg)</li>
+                                    <li>Lớn (> 15kg)</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="price_range">
+                                    <span>150.000đ - 300.000đ</span>
+                                    <small>Tùy kích thước</small>
+                                </div>
+                            </td>
+                            <td>
+                                <ul class="service_details">
+                                    <li>Sữa tắm cao cấp</li>
+                                    <li>Massage</li>
+                                    <li>Sấy khô</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="service_name">
+                                    <i class="fa fa-cut"></i>
+                                    <span>Cắt Tỉa Lông</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="pet_type">
+                                    <i class="fa fa-dog"></i>
+                                    <i class="fa fa-cat"></i>
+                                </span>
+                            </td>
+                            <td>
+                                <ul class="size_list">
+                                    <li>Tất cả các size</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="price_range">
+                                    <span>200.000đ - 500.000đ</span>
+                                    <small>Tùy kiểu tỉa</small>
+                                </div>
+                            </td>
+                            <td>
+                                <ul class="service_details">
+                                    <li>Tỉa theo yêu cầu</li>
+                                    <li>Tạo kiểu</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- Thêm các dịch vụ khác tương tự -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- footer_start  -->
+    <div include-html="/pet-spa-system/view/footer.html"></div>
+
     <!-- footer_end -->
     
 

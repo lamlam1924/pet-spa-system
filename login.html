@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="no-js" lang="zxx">
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Animal</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <link rel="manifest" href="site.webmanifest"> -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/Picture5.png">
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <!-- Font Awesome CDN for full icon support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/themify-icons.css">
+    <link rel="stylesheet" href="css/nice-select.css">
+    <link rel="stylesheet" href="css/flaticon.css">
+    <link rel="stylesheet" href="css/gijgo.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/slicknav.css">
+   <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+     <script src="js/includeHeader.js"></script>
+     <link rel="stylesheet" href="css/login.css">
+
+        
+    </head>
+    
+
+<body>
+    <div include-html="/pet-spa-system/view/header.html"></div>
+
+    <div class="body-login">
+    <!-- <h2>Đăng Nhập/Đăng Ký</h2> -->
+    <div class="container-login" id="container-login">
+        <div class="form-container sign-up-container">
+            <form class="form-login" action="#">
+                <h1>Đăng Ký</h1>
+                <div class="social-container">
+                   
+                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    
+                </div>
+                <span>hoặc sử dụng email của bạn để đăng ký</span>
+                <input class="input-login" type="text" placeholder="Name" />
+                <input class="input-login" type="email" placeholder="Email" />
+                <input class="input-login" type="password" placeholder="Password" />
+                <button>Đăng Ký</button>
+            </form>
+        </div>
+        <div class="form-container sign-in-container">
+            <form class="form-login" action="#">
+                <h1>Đăng Nhập</h1>
+                <div class="social-container">
+                    
+                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    
+                </div>
+                <span>hoặc sử dụng tài khoản của bạn</span>
+                <input class="input-login" type="email" placeholder="Email" />
+                <input class="input-login" type="password" placeholder="Password" />
+                <div style="display: flex; align-items: center;">
+                    <label style="margin: 0; display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 5px;" /> Ghi nhớ mật khẩu
+                    </label>
+                </div>
+                <div style="text-align: right; margin-bottom: 10px;">
+                    <a href="#">Quên mật khẩu?</a>
+                </div>
+                <button>Đăng Nhập</button>
+            </form>
+        </div>
+        <div class="overlay-container1">
+            <div class="overlay1">
+                <div class="overlay-panel overlay-left">
+                    <h1>Chào mừng trở lại!</h1>
+                    <p>Để tiếp tục kết nối với chúng tôi, vui lòng đăng nhập bằng thông tin cá nhân của bạn</p>
+                    <button class="ghost" id="signIn">Đăng Nhập</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Xin chào, bạn!</h1>
+                    <p>Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi</p>
+                    <button class="ghost" id="signUp">Đăng Ký</button>
+                </div>
+            </div>
+        </div>
+    </div>
+     <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container-login');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add('right-panel-active');
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove('right-panel-active');
+        });
+    </script>
+   </div>
+   <div include-html="/pet-spa-system/view/footer.html"></div>
+    <!-- footer_end  -->
+
+
+    <!-- JS here -->
+    <script src="js/vendor/modernizr-3.5.0.min.js"></script>
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/isotope.pkgd.min.js"></script>
+    <script src="js/ajax-form.js"></script>
+    <script src="js/waypoints.min.js"></script>
+    <script src="js/jquery.counterup.min.js"></script>
+    <script src="js/imagesloaded.pkgd.min.js"></script>
+    <script src="js/scrollIt.js"></script>
+    <script src="js/jquery.scrollUp.min.js"></script>
+    <script src="js/wow.min.js"></script>
+    <script src="js/nice-select.min.js"></script>
+    <script src="js/jquery.slicknav.min.js"></script>
+    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/gijgo.min.js"></script>
+
+    <!--contact js-->
+    <script src="js/contact.js"></script>
+    <script src="js/jquery.ajaxchimp.min.js"></script>
+    <script src="js/jquery.form.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/mail-script.js"></script>
+
+    <script src="js/main.js"></script>
+    <script>
+        $('#datepicker').datepicker({
+            iconsLibrary: 'fontawesome',
+            disableDaysOfWeek: [0, 0],
+        //     icons: {
+        //      rightIcon: '<span class="fa fa-caret-down"></span>'
+        //  }
+        });
+        $('#datepicker2').datepicker({
+            iconsLibrary: 'fontawesome',
+            icons: {
+             rightIcon: '<span class="fa fa-caret-down"></span>'
+         }
+
+        });
+        var timepicker = $('#timepicker').timepicker({
+         format: 'HH.MM'
+     });
+    </script>
+
+    
+</body>
+
+</html>
