@@ -12,9 +12,11 @@
     align-items: center;
     flex-direction: column;
     font-family: 'Montserrat', sans-serif;
-    height: 70vh;
+    height: 80vh;
     margin-bottom: 50px;
-    background-image: url('../img/background.png');
+    
+    background-image: url('../img/banner/banner.png');
+    
     background-repeat: no-repeat;
     background-position: center;
     background-size: 100% auto;
@@ -70,7 +72,7 @@ button:focus {
 }
 
 button.ghost {
-    background-color: transparent;
+    background-color: rgb(240, 133, 151);
     border-color: #FFFFFF;
 }
 
@@ -100,10 +102,41 @@ button.ghost {
         0 10px 10px rgba(0, 0, 0, 0.22);
     position: relative;
     overflow: hidden;
-    width: 768px;
-    max-width: 100%;
-    min-height: 480px;
-    margin-bottom: 50px;
+    width: 90vw;
+    max-width: 1000px;
+    min-width: 320px;
+    min-height: 570px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .container-login {
+        width: 98vw;
+        min-height: 600px;
+        padding: 10px;
+    }
+    .form-container,
+    .sign-in-container,
+    .sign-up-container,
+    .overlay-container1,
+    .overlay1,
+    .overlay-panel {
+        width: 100% !important;
+        left: 0 !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .container-login {
+        width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+    }
+    .form-login {
+        padding: 0 10px;
+    }
 }
 
 .form-container {
@@ -181,6 +214,7 @@ button.ghost {
     width: 200%;
     transform: translateX(0);
     transition: transform 0.6s ease-in-out;
+    
 }
 
 .container-login.right-panel-active .overlay1 {
@@ -200,10 +234,15 @@ button.ghost {
     width: 50%;
     transform: translateX(0);
     transition: transform 0.6s ease-in-out;
+    
 }
 
 .overlay-left {
     transform: translateX(-20%);
+    background-image: url('../img/banner/dog.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 }
 
 .container-login.right-panel-active .overlay-left {
@@ -213,6 +252,7 @@ button.ghost {
 .overlay-right {
     right: 0;
     transform: translateX(0);
+    background-image: url('../img/about/pet_care.png');
 }
 
 .container-login.right-panel-active .overlay-right {
