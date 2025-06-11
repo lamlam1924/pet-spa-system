@@ -1,4 +1,3 @@
-
 INSERT INTO Roles (RoleName, Description) VALUES
     ('Admin', 'Quản trị viên hệ thống, có quyền quản lý toàn bộ dữ liệu và chức năng'),
     ('Customer', 'Khách hàng, có thể đặt lịch hẹn, mua sản phẩm và viết đánh giá'),
@@ -17,7 +16,7 @@ INSERT INTO StatusOrder (StatusName, Description) VALUES
     ('Shipped', 'Đơn hàng đã được giao cho đơn vị vận chuyển'),
     ('Delivered', 'Đơn hàng đã được giao đến khách hàng'),
     ('Cancelled', 'Đơn hàng đã bị hủy');
-
+	
 -- Chèn phương thức thanh toán
 INSERT INTO PaymentMethods (MethodName, Description) VALUES
     ('VNPay', 'Thanh toán qua VNPay'),
