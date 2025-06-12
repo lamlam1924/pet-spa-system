@@ -1,0 +1,39 @@
+# Bỏ qua thư mục hệ thống Visual Studio
+.vs/
+*.user
+*.suo
+*.vsidx
+
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Bb]uild[Ll]og.*
+
+# Thư mục test results
+TestResults/
+*.log
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+
+# Cấu hình máy cá nhân
+*.userprefs
+
+# Cấu hình IDE khác
+.idea/
+*.iml
+
+# Thư mục publish tạm
+publish/
+
+# Web project specific
+wwwroot/
+node_modules/
+
+# Ignore secrets
+secrets.json
+appsettings.Development.json
