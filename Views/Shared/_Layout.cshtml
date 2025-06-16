@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Pet Spa</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- <link rel="manifest" href="site.webmanifest"> -->
+    <link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/img/Picture5.png")">
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="@Url.Content("~/css/bootstrap.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/owl.carousel.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/magnific-popup.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/font-awesome.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/nice-select.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/flaticon.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/gijgo.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/animate.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/slicknav.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/style.css")">
+</head>
+<body>
+    <header>
+        <div class="header-area ">
+            <div class="header-top_area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5">
+                            <div class="short_contact_list">
+                                <ul>
+                                    <li><a href="#"><i class="fa fa-phone mr-1"></i>+880 4664 216</a></li>
+                                    <li><a href="#"><i class="fa fa-clock-o mr-1"></i>Mon - Sat 10:00 - 7:00</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4">
+                            <div class="search_bar">
+                                <form action="#" method="get" class="search_container">
+                                    <input type="text" placeholder="Tìm Kiếm..." name="search" class="search_input">
+                                    <button type="submit" class="search_button">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="social_media_links">
+                                <a href="@Url.Content("~/Login/Login")">
+                                    Đăng Nhập/Đăng Ký
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="sticky-header" class="main-header-area">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-xl-3 col-lg-3">
+                            <div class="logo">
+                                <a href="@Url.Content("~/")">
+                                    <img src="@Url.Content("~/img/Picture4.png")" alt="">
+                                </a>
+
+                            </div>
+                        </div>
+                        <div class="col-xl-9 col-lg-9">
+                            <div class="main-menu  d-none d-lg-block">
+                                <nav>
+                                        <nav>
+                                            <ul id="navigation">
+                                                <li><a href="@Url.Content("~/Home/Index")">trang chủ</a></li>
+                                                <!--<li><a href="../about.html">về chúng tôi</a></li>-->
+                                                <li>
+                                                <a href="@Url.Content("~/Blogs/Blog")">bài viết <i class="ti-angle-down"></i></a>
+                                                    <ul class="submenu">
+                                                        <li><a href="@Url.Content("~/Blogs/Blog")">bài viết</a></li>
+                                                        <li><a href="@Url.Content("~/Blogs/Single_Blog")">bài viết đơn</a></li>
+                                                    </ul>
+                                                </li>
+
+                                                <li><a href="@Url.Content("~/Service/ServicePet")">dịch vụ</a></li>
+                                                <li>
+                                                    <a href="@Url.Content("~/Products/Shop")">sản phẩm <i class="ti-angle-down"></i></a>
+                                                    <ul class="submenu">
+                                                        <li><a href="@Url.Content("~/Products/Cart")">Giỏ hàng</a></li>
+                                                        <li><a href="@Url.Content("~/Products/Checkout")">thanh toán</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="@Url.Content("~/Contact/Contact")">liên hệ</a></li>
+                                                <!-- <li><a href="../admin/index.html">ADMIN</a></li> -->
+                                            </ul>
+                                        </nav>
+                                    
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mobile_menu d-block d-lg-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div>
+        <main role="main" >
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+    <footer class="footer">
+        <div class="footer_top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 col-lg-3">
+                        <div class="footer_widget">
+                            <h3 class="footer_title">
+                                Liên hệ với chúng tôi
+                            </h3>
+                            <ul class="address_line">
+                                <li>+555 0000 565</li>
+                                <li><a href="#">Demomail@gmail.Com</a></li>
+                                <li>Trái Đất, Hệ Mặt Trời, Vũ Trụ</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-3  col-md-6 col-lg-3">
+                        <div class="footer_widget">
+                            <h3 class="footer_title">
+                                Các dịch vụ
+                            </h3>
+                            <ul class="links">
+                                <li><a href="#">Bảo hiểm thú cưng</a></li>
+                                <li><a href="#">Phẫu thuật thú cưng</a></li>
+                                <li><a href="#">Nhận nuôi thú cưng</a></li>
+                                <li><a href="#">Bảo hiểm cho chó</a></li>
+                                <li><a href="#">Bảo hiểm cho chó</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-3  col-md-6 col-lg-3">
+                        <div class="footer_widget">
+                            <h3 class="footer_title">
+                                Liên kết nhanh
+                            </h3>
+                            <ul class="links">
+                                <li><a href="#">Về chúng tôi</a></li>
+                                <li><a href="#">Chính sách bảo mật</a></li>
+                                <li><a href="#">Điều khoản dịch vụ</a></li>
+                                <li><a href="#">Thông tin đăng nhập</a></li>
+                                <li><a href="#">Cơ sở kiến thức</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 col-lg-3 ">
+                        <div class="footer_widget">
+                            <div class="footer_logo">
+                                <a href="#">
+                                    <img src="@Url.Content("~/img/Picture4.png")" alt="">
+                                </a>
+                            </div>
+                            <p class="address_text">
+                                Trái Đất, Hệ Mặt Trời, Vũ Trụ
+                            </p>
+                            <div class="socail_links">
+                                <ul>
+                                    <li> 
+                                        <a href="#">
+                                            <i class="fa fa-facebook" style="color:blue; border-radius: 6px; border: 1px solid #3b5998; padding: 7px;"></i>
+                                        </a>
+                                    </li>
+                                    @* <li>
+                                        <a href="#">
+                                            <i class="ti-pinterest"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-google-plus"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-linkedin"></i>
+                                        </a>
+                                    </li> *@
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* <div class="copy-right_text">
+            <div class="container">
+                <div class="bordered_1px"></div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <p class="copy_right text-center">
+                        <p>
+                            Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0.
+                            Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="ti-heart" aria-hidden="true"></i> by <a href="#" target="_blank"> 3333</a>
+                            Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0.
+                        </p>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+    </footer>
+
+
+    <!-- JS here -->
+    <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>
+    <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
+    <script src="@Url.Content("~/js/popper.min.js")"></script>
+    <script src="@Url.Content("~/js/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/js/owl.carousel.min.js")"></script>
+    <script src="@Url.Content("~/js/isotope.pkgd.min.js")"></script>
+    <script src="@Url.Content("~/js/ajax-form.js")"></script>
+    <script src="@Url.Content("~/js/waypoints.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.counterup.min.js")"></script>
+    <script src="@Url.Content("~/js/imagesloaded.pkgd.min.js")"></script>
+    <script src="@Url.Content("~/js/scrollIt.js")"></script>
+    <script src="@Url.Content("~/js/jquery.scrollUp.min.js")"></script>
+    <script src="@Url.Content("~/js/wow.min.js")"></script>
+    <script src="@Url.Content("~/js/nice-select.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.slicknav.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.magnific-popup.min.js")"></script>
+    <script src="@Url.Content("~/js/plugins.js")"></script>
+    <script src="@Url.Content("~/js/gijgo.min.js")"></script>
+
+    <!--contact js-->
+    <script src="@Url.Content("~/js/contact.js")"></script>
+    <script src="@Url.Content("~/js/jquery.ajaxchimp.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.form.js")"></script>
+    <script src="@Url.Content("~/js/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/js/mail-script.js")"></script>
+
+    <script src="@Url.Content("~/js/main.js")"></script>
+    <script>
+        $('#datepicker').datepicker({
+            iconsLibrary: 'fontawesome',
+            disableDaysOfWeek: [0, 0],
+        });
+        $('#datepicker2').datepicker({
+            iconsLibrary: 'fontawesome',
+            icons: {
+                rightIcon: '<span class="fa fa-caret-down"></span>'
+            }
+        });
+        var timepicker = $('#timepicker').timepicker({
+            format: 'HH.MM'
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
