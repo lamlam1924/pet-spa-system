@@ -1,4 +1,7 @@
 @page
+@{
+    Layout = null; // hoặc đường dẫn layout khác
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,12 +11,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
   <meta name="author" content="indrijunanda">
-  <link href="img/logo/pet-logo.png" rel="icon">
+  <link href="imgAdmin/logo/pet-logo.png" rel="icon">
   <title>petshop - Pet List</title>
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="vendorAdmin/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="vendorAdmin/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/ruang-admin.min.css" rel="stylesheet">
+  <link href="cssAdmin/ruang-admin.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
@@ -22,7 +25,7 @@
     <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
   <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
     <div class="sidebar-brand-icon">
-      <img src="img/logo/pet-logo.png">
+      <img src="imgAdmin/logo/pet-logo.png">
     </div>
     <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
   </a>
@@ -250,7 +253,7 @@
                 </h6>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/customer1.png" style="max-width: 60px" alt="">
+                    <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer1.png")" style="max-width: 60px" alt="">
                     <div class="status-indicator bg-success"></div>
                   </div>
                   <div class="font-weight-bold">
@@ -260,7 +263,7 @@
                 </a>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/customer2.png" style="max-width: 60px" alt="">
+                    <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer2.png")" style="max-width: 60px" alt="">
                     <div class="status-indicator bg-default"></div>
                   </div>
                   <div>
@@ -318,11 +321,13 @@
                 <a class="dropdown-item text-center small text-gray-500" href="#">View All Tasks</a>
               </div>
             </li>
-            <div class="topbar-divider d-none d-sm-block"></div>
+            <li>
+              <span class="topbar-divider d-none d-sm-block"></span>
+            </li>
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-                <img class="img-profile rounded-circle" src="img/staff.png" style="max-width: 60px">
+                <img class="imgAdmin-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
                 <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
               </a>
               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -354,8 +359,8 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Pet List</h1>
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="./">Home</a></li>
-      <li class="breadcrumb-item"><a href="pets-list.html">Pet Profiles</a></li>
+      <li class="breadcrumb-item"><a href="@Url.Content("~/")">Home</a></li>
+      <li class="breadcrumb-item"><a href="@Url.Content("~/pets-list.html")">Pet Profiles</a></li>
       <li class="breadcrumb-item active" aria-current="page">Pet List</li>
     </ol>
   </div>
@@ -520,10 +525,10 @@
     <i class="fas fa-angle-up"></i>
   </a>
 
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-  <script src="js/ruang-admin.min.js"></script>
+  <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+  <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
+  <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
+  <script src="@Url.Content("~/js/ruang-admin.min.js")"></script>
   <script>
   // Danh sách Species giả lập
   const speciesList = [
@@ -559,7 +564,7 @@
     pets.forEach(pet => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><a href="pets-edit.html?petID=${pet.petID}">${pet.petID}</a></td>
+        <td><a href="@Url.Content("~/pets-edit.html")?petID=${pet.petID}">${pet.petID}</a></td>
         <td>${pet.name}</td>
         <td>${pet.species}</td>
         <td>${pet.breed}</td>

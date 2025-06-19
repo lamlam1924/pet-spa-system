@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nQuKZST8w/I=",
+  "dgSpecHash": "N5Syvz71bFk=",
   "success": true,
-  "projectFilePath": "D:\\PRN212\\pet-spa-system1\\pet-spa-system1.csproj",
+  "projectFilePath": "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ADMIN\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
