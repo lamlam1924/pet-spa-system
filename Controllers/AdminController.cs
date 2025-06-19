@@ -29,7 +29,7 @@ namespace pet_spa_system1.Controllers
             return View();
         }
 
-        public IActionResult Product_List()
+        public IActionResult Products_List()
         {
             return View();
         }
