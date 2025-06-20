@@ -13,7 +13,7 @@ using System.Reflection;
 
 [assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("55eedd50-3cf3-41c8-a063-496a46a7144a")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("pet-spa-system1")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a217f8c648590472f98b4c3c7ecda33580c6012a")]
 [assembly: System.Reflection.AssemblyProductAttribute("pet-spa-system1")]

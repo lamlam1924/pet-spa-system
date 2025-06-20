@@ -24,19 +24,20 @@
 <body id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-    <div class="sidebar-brand-icon">
-      <img src="imgAdmin/logo/pet-logo.png">
-    </div>
-    <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
-  </a>
-  <hr class="sidebar-divider my-0">
-  <li class="nav-item">
-    <a class="nav-link" href="index.html">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a>
-  </li>
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Content("~/Admin/Index")">
+                <div class="sidebar-brand-icon">
+                    <img src="@Url.Content("~/imgAdmin/logo/pet-logo.png")">
+                </div>
+                <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
   <hr class="sidebar-divider">
   <div class="sidebar-heading">
     Management
@@ -50,7 +51,7 @@
     <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Service Management</h6>
-        <a class="collapse-item" href="services-list.html">List Services</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/List_Service.html")">List Services</a>
       
       </div>
     </div>
@@ -64,7 +65,7 @@
     <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Staff Management</h6>
-        <a class="collapse-item" href="staff.html">List Staff</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">List Staff</a>
        
       </div>
     </div>
@@ -78,7 +79,7 @@
     <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Customer Management</h6>
-        <a class="collapse-item" href="list-customer.html">List Customers</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">List Customers</a>
     
       </div>
     </div>
@@ -92,7 +93,7 @@
     <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Pet Management</h6>
-        <a class="collapse-item" href="pets-list.html">List Pets</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">List Pets</a>
       
       </div>
     </div>
@@ -106,7 +107,7 @@
     <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Product Management</h6>
-        <a class="collapse-item" href="products-list.html">List Products</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Products_List")">List Products</a>
         
        
       </div>
@@ -121,7 +122,7 @@
     <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Appointment Management</h6>
-        <a class="collapse-item" href="Appointments.html">List Appointments</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Appointments")">List Appointments</a>
      
       </div>
     </div>
@@ -135,8 +136,8 @@
     <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Payment Management</h6>
-        <a class="collapse-item" href="payment.html">List Payments</a>
-        <a class="collapse-item" href="refund.html">Process Refund</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Payment")">List Payments</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Process Refund</a>
       </div>
     </div>
   </li>
@@ -327,7 +328,7 @@
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-                <img class="imgAdmin-profile rounded-circle" src="imgAdmin/staff.png" style="max-width: 60px">
+                <img class="imgAdmin-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
                 <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
               </a>
               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -359,8 +360,8 @@
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Product Detail</h1>
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item"><a href="products-list.html">Products</a></li>
+              <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
+              <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Products_List")">Products</a></li>
               <li class="breadcrumb-item active" aria-current="page">Product Detail</li>
             </ol>
           </div>
@@ -510,7 +511,7 @@
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
-                  <a href="login.html" class="btn btn-primary">Logout</a>
+                  <a href="@Url.Content("~/Admin/Login")" class="btn btn-primary">Logout</a>
                 </div>
               </div>
             </div>

@@ -22,19 +22,20 @@
 <body id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-    <div class="sidebar-brand-icon">
-      <img src="imgAdmin/logo/pet-logo.png">
-    </div>
-    <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
-  </a>
-  <hr class="sidebar-divider my-0">
-  <li class="nav-item">
-    <a class="nav-link" href="index.html">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a>
-  </li>
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Content("~/Admin/Index")">
+                <div class="sidebar-brand-icon">
+                    <img src="@Url.Content("~/imgAdmin/logo/pet-logo.png")">
+                </div>
+                <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
   <hr class="sidebar-divider">
   <div class="sidebar-heading">
     Management
@@ -62,7 +63,7 @@
     <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Staff Management</h6>
-        <a class="collapse-item" href="staff.html">List Staff</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">List Staff</a>
        
       </div>
     </div>
@@ -76,7 +77,7 @@
     <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Customer Management</h6>
-        <a class="collapse-item" href="list-customer.html">List Customers</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">List Customers</a>
     
       </div>
     </div>
@@ -90,7 +91,7 @@
     <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Pet Management</h6>
-        <a class="collapse-item" href="pets-list.html">List Pets</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">List Pets</a>
       
       </div>
     </div>
@@ -104,7 +105,7 @@
     <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Product Management</h6>
-        <a class="collapse-item" href="products-list.html">List Products</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Products_List")">List Products</a>
         
        
       </div>
@@ -119,7 +120,7 @@
     <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Appointment Management</h6>
-        <a class="collapse-item" href="Appointments.html">List Appointments</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Appointments")">List Appointments</a>
      
       </div>
     </div>
@@ -133,8 +134,8 @@
     <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Payment Management</h6>
-        <a class="collapse-item" href="payment.html">List Payments</a>
-        <a class="collapse-item" href="refund.html">Process Refund</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Payment")">List Payments</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Process Refund</a>
       </div>
     </div>
   </li>
@@ -147,7 +148,7 @@
     <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Promotion Management</h6>
-        <a class="collapse-item" href="promotions-list.html">List Promotions</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Promotions_List")">List Promotions</a>
    
       </div>
     </div>
@@ -359,8 +360,8 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Pet List</h1>
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="@Url.Content("~/")">Home</a></li>
-      <li class="breadcrumb-item"><a href="@Url.Content("~/pets-list.html")">Pet Profiles</a></li>
+      <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
+      <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Pets_List")">Pet Profiles</a></li>
       <li class="breadcrumb-item active" aria-current="page">Pet List</li>
     </ol>
   </div>
