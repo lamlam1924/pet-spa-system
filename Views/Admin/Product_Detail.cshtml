@@ -1,37 +1,43 @@
-@page
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
-  <meta name="author" content="indrijunanda">
-  <link href="img/logo/pet-logo.png" rel="icon">
-  <title>petshop - Product Detail</title>
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/ruang-admin.min.css" rel="stylesheet">
-</head>
+  @page
+  @{
+      Layout = null; // hoặc đường dẫn layout khác
+  }
+  <!DOCTYPE html>
+  <html lang="en">
 
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
+    <meta name="author" content="indrijunanda">
+    <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
+    <title>petshop - Product Detail</title>
+    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
+    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
+  </head>
+
+ 
 <body id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-    <div class="sidebar-brand-icon">
-      <img src="img/logo/pet-logo.png">
-    </div>
-    <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
-  </a>
-  <hr class="sidebar-divider my-0">
-  <li class="nav-item">
-    <a class="nav-link" href="index.html">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a>
-  </li>
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Content("~/Admin/Index")">
+                <div class="sidebar-brand-icon">
+                    <img src="@Url.Content("~/imgAdmin/logo/pet-logo.png")">
+                </div>
+                <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
   <hr class="sidebar-divider">
   <div class="sidebar-heading">
     Management
@@ -45,7 +51,7 @@
     <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Service Management</h6>
-        <a class="collapse-item" href="services-list.html">List Services</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/List_Service.html")">List Services</a>
       
       </div>
     </div>
@@ -59,7 +65,7 @@
     <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Staff Management</h6>
-        <a class="collapse-item" href="staff.html">List Staff</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">List Staff</a>
        
       </div>
     </div>
@@ -73,7 +79,7 @@
     <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Customer Management</h6>
-        <a class="collapse-item" href="list-customer.html">List Customers</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">List Customers</a>
     
       </div>
     </div>
@@ -87,7 +93,7 @@
     <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Pet Management</h6>
-        <a class="collapse-item" href="pets-list.html">List Pets</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">List Pets</a>
       
       </div>
     </div>
@@ -101,7 +107,7 @@
     <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Product Management</h6>
-        <a class="collapse-item" href="products-list.html">List Products</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Products_List")">List Products</a>
         
        
       </div>
@@ -116,7 +122,7 @@
     <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Appointment Management</h6>
-        <a class="collapse-item" href="Appointments.html">List Appointments</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Appointments")">List Appointments</a>
      
       </div>
     </div>
@@ -130,8 +136,8 @@
     <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Payment Management</h6>
-        <a class="collapse-item" href="payment.html">List Payments</a>
-        <a class="collapse-item" href="refund.html">Process Refund</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Payment")">List Payments</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Process Refund</a>
       </div>
     </div>
   </li>
@@ -250,7 +256,7 @@
                 </h6>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/customer1.png" style="max-width: 60px" alt="">
+                    <img class="rounded-circle" src="imgAdmin/customer1.png" style="max-width: 60px" alt="">
                     <div class="status-indicator bg-success"></div>
                   </div>
                   <div class="font-weight-bold">
@@ -260,7 +266,7 @@
                 </a>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/customer2.png" style="max-width: 60px" alt="">
+                    <img class="rounded-circle" src="imgAdmin/customer2.png" style="max-width: 60px" alt="">
                     <div class="status-indicator bg-default"></div>
                   </div>
                   <div>
@@ -322,7 +328,7 @@
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-                <img class="img-profile rounded-circle" src="img/staff.png" style="max-width: 60px">
+                <img class="imgAdmin-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
                 <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
               </a>
               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -354,8 +360,8 @@
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Product Detail</h1>
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item"><a href="products-list.html">Products</a></li>
+              <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
+              <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Products_List")">Products</a></li>
               <li class="breadcrumb-item active" aria-current="page">Product Detail</li>
             </ol>
           </div>
@@ -370,7 +376,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col-md-5">
-                      <img src="https://via.placeholder.com/400x300" class="img-fluid rounded" alt="Product Image">
+                      <img src="https://via.placeholder.com/400x300" class="imgAdmin-fluid rounded" alt="Product Image">
                     </div>
                     <div class="col-md-7">
                       <h3 id="product-name">Premium Cat Food</h3>
@@ -505,7 +511,7 @@
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
-                  <a href="login.html" class="btn btn-primary">Logout</a>
+                  <a href="@Url.Content("~/Admin/Login")" class="btn btn-primary">Logout</a>
                 </div>
               </div>
             </div>
@@ -524,11 +530,11 @@
   <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
   </a>
-
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-  <script src="js/ruang-admin.min.js"></script>
+    <!-- ...rest of the file remains unchanged... -->
+    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+    <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
+    <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
+    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
 </body>
 
 </html>

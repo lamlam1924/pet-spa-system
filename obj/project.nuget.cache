@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "Z40emp72jMQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\ASUS\\source\\repos\\pet-spa-system\\pet-spa-system1.csproj",
+=======
+  "dgSpecHash": "N5Syvz71bFk=",
+  "success": true,
+  "projectFilePath": "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj",
+>>>>>>> 789156307034be280e2952d294e684ee1081f5d8
   "expectedPackageFiles": [
     "C:\\Users\\ASUS\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
