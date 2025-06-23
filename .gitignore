@@ -1,0 +1,22 @@
+# Build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+.vs/
+
+# Logs
+*.log
+
+# Runtime-generated
+*.db
+*.sqlite
+
+# ASP.NET Core config
+appsettings.Development.json
+appsettings.Production.json
+
+# Optional: Nếu bạn không dùng launchSettings
+#Properties/launchSettings.json

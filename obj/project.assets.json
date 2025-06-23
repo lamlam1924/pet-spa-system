@@ -4088,11 +4088,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ASUS\\Source\\Repos\\pet-spa-system\\pet-spa-system1.csproj",
+      "projectUniqueName": "C:\\Users\\ASUS\\source\\repos\\pet-spa-system - Copy - Copy\\pet-spa-system1.csproj",
       "projectName": "pet-spa-system1",
-      "projectPath": "C:\\Users\\ASUS\\Source\\Repos\\pet-spa-system\\pet-spa-system1.csproj",
+      "projectPath": "C:\\Users\\ASUS\\source\\repos\\pet-spa-system - Copy - Copy\\pet-spa-system1.csproj",
       "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ASUS\\Source\\Repos\\pet-spa-system\\obj\\",
+      "outputPath": "C:\\Users\\ASUS\\source\\repos\\pet-spa-system - Copy - Copy\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
