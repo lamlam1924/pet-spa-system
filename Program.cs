@@ -1,7 +1,25 @@
+using Microsoft.EntityFrameworkCore;
+using pet_spa_system1.Models;
+using pet_spa_system1.Repositories;
+using pet_spa_system1.Repository;
+using pet_spa_system1.Services;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IPetRepository, PetRepository>();
+builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+builder.Services.AddDbContext<PetDataShopContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 
@@ -9,21 +27,34 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();  // Phục vụ file tĩnh css, js, img
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
+// Tùy chọn: kiểm tra kết nối DB (nên để riêng, không cần trong production)
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
+    try
+    {
+        context.Database.OpenConnection();
+        Console.WriteLine("✅ Kết nối cơ sở dữ liệu thành công!");
+        context.Database.CloseConnection();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("❌ Lỗi kết nối DB: " + ex.Message);
+    }
+}
 
 app.Run();
