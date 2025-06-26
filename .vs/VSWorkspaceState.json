@@ -1,7 +1,16 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Properties",
+    "\\Repositories",
+    "\\Services",
+    "\\Utils",
+    "\\Views",
+    "\\Views\\Admin",
+    "\\Views\\Home",
+    "\\Views\\Products",
+    "\\Views\\Service"
   ],
-  "SelectedNode": "\\pet-spa-system1.sln",
+  "SelectedNode": "\\Views\\Admin\\Simple_Tables.cshtml",
   "PreviewInSolutionExplorer": false
 }

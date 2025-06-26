@@ -1,12 +1,89 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\ASUS\\source\\repos\\pet-spa-system\\",
-  "Documents": [],
+  "WorkspaceRootPath": "D:\\pet\\pet-spa-system\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\pet\\pet-spa-system\\Views\\Admin\\Pets_List.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Admin\\Pets_List.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\pet\\pet-spa-system\\Models\\PetDataShopContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Models\\PetDataShopContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\pet\\pet-spa-system\\ViewModel\\LoginRegisterViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ViewModel\\LoginRegisterViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\pet\\pet-spa-system\\Utils\\SessionExtensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Utils\\SessionExtensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Pets_List.cshtml",
+              "DocumentMoniker": "D:\\pet\\pet-spa-system\\Views\\Admin\\Pets_List.cshtml",
+              "RelativeDocumentMoniker": "Views\\Admin\\Pets_List.cshtml",
+              "ToolTip": "D:\\pet\\pet-spa-system\\Views\\Admin\\Pets_List.cshtml",
+              "RelativeToolTip": "Views\\Admin\\Pets_List.cshtml",
+              "ViewState": "AgIAAIcCAAAAAAAAAAAAwIQCAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-24T09:50:05.861Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PetDataShopContext.cs",
+              "DocumentMoniker": "D:\\pet\\pet-spa-system\\Models\\PetDataShopContext.cs",
+              "RelativeDocumentMoniker": "Models\\PetDataShopContext.cs",
+              "ToolTip": "D:\\pet\\pet-spa-system\\Models\\PetDataShopContext.cs",
+              "RelativeToolTip": "Models\\PetDataShopContext.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAwwB4AAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T07:29:14.846Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "LoginRegisterViewModel.cs",
+              "DocumentMoniker": "D:\\pet\\pet-spa-system\\ViewModel\\LoginRegisterViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\LoginRegisterViewModel.cs",
+              "ToolTip": "D:\\pet\\pet-spa-system\\ViewModel\\LoginRegisterViewModel.cs",
+              "RelativeToolTip": "ViewModel\\LoginRegisterViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T07:23:42.431Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SessionExtensions.cs",
+              "DocumentMoniker": "D:\\pet\\pet-spa-system\\Utils\\SessionExtensions.cs",
+              "RelativeDocumentMoniker": "Utils\\SessionExtensions.cs",
+              "ToolTip": "D:\\pet\\pet-spa-system\\Utils\\SessionExtensions.cs",
+              "RelativeToolTip": "Utils\\SessionExtensions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T07:23:40.49Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
