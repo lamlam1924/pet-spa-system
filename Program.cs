@@ -15,11 +15,11 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// ✅ Cấu hình DbContext (chỉ giữ 1 dòng)
+// ✅ Cấu hình DbContext
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ✅ Cấu hình Session (gộp lại 1 lần)
+// ✅ Cấu hình Session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -46,7 +46,7 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// ✅ Test kết nối database
+// ✅ Kiểm tra kết nối Database
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
@@ -74,18 +74,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// ➕ Bổ sung StaticFiles để phục vụ JS/CSS
 app.UseHttpsRedirection();
+
+// ✅ Phục vụ file tĩnh (CSS/JS/images...)
 app.UseStaticFiles();
 
 app.UseRouting();
 
-// Đảm bảo authentication + session + authorization đúng thứ tự
+// ✅ Đảm bảo thứ tự đúng
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
-// ✅ Cấu hình định tuyến Controller
+// ✅ Định tuyến Controller
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
