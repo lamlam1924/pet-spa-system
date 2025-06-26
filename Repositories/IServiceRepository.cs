@@ -5,7 +5,7 @@ namespace pet_spa_system1.Repositories
 {
     public interface IServiceRepository
     {
-        ServicesViewModel GetAllService();
+        ServiceViewModel GetAllService();
         Service GetServiceById(int id);
         void AddService(Service service);
         void UpdateService(Service service);

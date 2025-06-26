@@ -4,7 +4,7 @@ namespace pet_spa_system1.Services
 {
     public interface IServiceService
     {
-        ServicesViewModel GetAllService();
+        ServiceViewModel GetAllService();
         Service GetServiceById(int id);
         void AddService(Service service);
         void UpdateService(Service service);

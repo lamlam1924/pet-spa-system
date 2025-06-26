@@ -2219,7 +2219,6 @@ D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\staticwebassets\ms
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.pet-spa-system1.props
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.pet-spa-system1.props
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\staticwebassets.pack.json
-D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\pet-spa-.FD726F2E.Up2Date
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\pet-spa-system1.dll
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\refint\pet-spa-system1.dll
@@ -2230,5 +2229,5 @@ D:\Code\Visual_Studio_Code\C#\pet-spa-system\bin\Debug\net9.0\pet-spa-system1.dl
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\bin\Debug\net9.0\pet-spa-system1.pdb
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\pet-spa-system1.genruntimeconfig.cache
 D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\ref\pet-spa-system1.dll
-D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\compressed\sylbem1a5h-t73qoei64v.gz
-D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\compressed\k3p4gvaxif-bo59zjajs0.gz
+D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\compressed\hpafgzcy13-qa3cjv6pqq.gz
+D:\Code\Visual_Studio_Code\C#\pet-spa-system\obj\Debug\net9.0\compressed\njcf1f86fq-2wwavno9q3.gz

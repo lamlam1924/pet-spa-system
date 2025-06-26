@@ -13,9 +13,9 @@ namespace pet_spa_system1.Repositories
             _context = context;
         }
 
-        public ServicesViewModel GetAllServiceAdmin()
+        public ServiceViewModel GetAllServiceAdmin()
         {
-            return new ServicesViewModel
+            return new ServiceViewModel
             {
                 Services = _context.Services
                     .Include(s => s.Category)
@@ -45,9 +45,9 @@ namespace pet_spa_system1.Repositories
                     .ToList()
             };
         }
-        public ServicesViewModel GetAllService()
+        public ServiceViewModel GetAllService()
         {
-            return new ServicesViewModel
+            return new ServiceViewModel
             {
                 Services = _context.Services
                     .Include(s => s.Category)

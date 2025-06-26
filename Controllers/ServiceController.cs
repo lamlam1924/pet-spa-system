@@ -20,32 +20,17 @@ namespace pet_spa_system1.Controllers
             var services = _serviceService.GetActiveServices();
             var categories = _categoryService.GetActiveCategories();
             // Trả về view với model phù hợp
-            return View(new ServicesViewModel
+            return View(new ServiceViewModel
             {
                 Services = services,
                 Categories = categories
             });
         }
 
-        // GET: Service/Edit/5
-        public IActionResult Edit(int id)
+        public IActionResult HomeService()
         {
-            var service = _serviceService.GetServiceById(id);
-            if (service == null) return NotFound();
-            return View(service);
+            return View();
         }
-
-        // POST: Service/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Service service)
-        {
-            if (ModelState.IsValid)
-            {
-                _serviceService.UpdateService(service);
-                return RedirectToAction("ListService");
-            }
-            return View(service);
-        }
+        
     }
 }

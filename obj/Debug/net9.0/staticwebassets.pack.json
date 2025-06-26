@@ -33,10 +33,6 @@
       "PackagePath": "staticwebassets\\css\\animate.css"
     },
     {
-      "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\css\\booking.css",
-      "PackagePath": "staticwebassets\\css\\booking.css"
-    },
-    {
       "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\css\\bootstrap.min.css",
       "PackagePath": "staticwebassets\\css\\bootstrap.min.css"
     },
@@ -107,6 +103,14 @@
     {
       "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\css\\themify-icons.css",
       "PackagePath": "staticwebassets\\css\\themify-icons.css"
+    },
+    {
+      "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\cssjsAppointment\\appointment.css",
+      "PackagePath": "staticwebassets\\cssjsAppointment\\appointment.css"
+    },
+    {
+      "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\cssjsAppointment\\appointment.js",
+      "PackagePath": "staticwebassets\\cssjsAppointment\\appointment.js"
     },
     {
       "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\favicon.ico",
@@ -895,10 +899,6 @@
     {
       "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\js\\ajax-form.js",
       "PackagePath": "staticwebassets\\js\\ajax-form.js"
-    },
-    {
-      "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\js\\booking.js",
-      "PackagePath": "staticwebassets\\js\\booking.js"
     },
     {
       "Id": "D:\\Code\\Visual_Studio_Code\\C#\\pet-spa-system\\wwwroot\\js\\bootstrap.min.js",

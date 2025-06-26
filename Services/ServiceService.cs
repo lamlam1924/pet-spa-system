@@ -28,7 +28,7 @@ namespace pet_spa_system1.Services
             return _serviceRepository.GetActiveCategories();
         }
 
-        public ServicesViewModel GetAllService()
+        public ServiceViewModel GetAllService()
         {
             return _serviceRepository.GetAllService();
         }
