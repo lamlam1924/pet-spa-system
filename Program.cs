@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
-using pet_spa_system1.Repository;
 using pet_spa_system1.Services;
+using AppointmentService = pet_spa_system1.Services.AppointmentService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +14,13 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
+builder.Services.AddScoped<ISerCateService, SerCateService>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

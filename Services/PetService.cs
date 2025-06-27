@@ -6,51 +6,9 @@ namespace pet_spa_system1.Services
 {
     public class PetService : IPetService
     {
-        private readonly IPetRepository _petRepository;
-
-        public PetService(IPetRepository petRepository)
-        {
-            _petRepository = petRepository;
-        }
-
-        public List<Pet> GetAllPets()
-        {
-            return _petRepository.GetAllPets();
-        }
-
-        public List<Pet> GetPetsByUserId(int userId)
-        {
-            return _petRepository.GetPetsByUserId(userId);
-        }
-
-        public Pet GetPetById(int id)
-        {
-            return _petRepository.GetPetById(id);
-        }
-
-        public void AddPet(Pet pet)
-        {
-            _petRepository.AddPet(pet);
-        }
-
-        public void UpdatePet(Pet pet)
-        {
-            _petRepository.UpdatePet(pet);
-        }
-
-        public void SoftDeletePet(int id)
-        {
-            _petRepository.SoftDeletePet(id);
-        }
-
-        public void RestorePet(int id)
-        {
-            _petRepository.RestorePet(id);
-        }
-
-        public void Save()
-        {
-            _petRepository.Save();
-        }
+        private readonly IPetRepository _petRepo;
+        public PetService(IPetRepository repo) { _petRepo = repo; }
+        public List<Pet> GetPetsByUserId(int userId) => _petRepo.GetPetsByUserId(userId);
+        public void AddPet(Pet pet) => _petRepo.AddPet(pet);
     }
 }

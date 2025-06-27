@@ -119,6 +119,10 @@ namespace pet_spa_system1.Repositories
         }
 
         public List<Service> GetActiveServices() => _context.Services.Where(s => s.IsActive).ToList();
-        public List<SerCate> GetActiveCategories() => _context.SerCates.Where(c => c.IsActive).ToList();
+        public List<Service> GetAll()
+        {
+            return _context.Services.ToList();
+        }
+
     }
 }

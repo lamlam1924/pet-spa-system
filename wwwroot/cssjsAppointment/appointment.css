@@ -106,125 +106,74 @@ body { background: var(--gray-bg); }
     padding: 0.75rem 3rem;
     font-size: 1.25rem;
 }
-input.error {
+
+
+/*HIỂN THỊ LỖI Ở DƯỚI THẺ INPUT*/
+.field-error {
+    color: #dc3545;         /* Màu đỏ Bootstrap */
+    font-size: 0.97em;
+    margin-top: 4px;
+    margin-left: 2px;
+    display: none;          /* Mặc định ẩn, show bằng JS */
+}
+
+input.error,
+select.error,
+textarea.error {
     border-color: #dc3545 !important;
-    background-color: #fff6f6;
+    box-shadow: 0 0 0 0.1rem rgba(220,53,69,.2);  /* Hiệu ứng đỏ nhẹ */
 }
 
 
-/* Custom Toast Styles */
+
+
 .custom-toast {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    min-width: 280px;
-    max-width: 360px;
     background: #fff;
-    overflow: hidden;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    border-left: 4px solid;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    padding: 8px 12px;
+    min-width: 300px;
+    max-width: 420px;
+    animation: slideInTop 0.3s ease forwards;
+    transition: all 0.3s ease;
 }
 
-/* Animation: Slide-in từ trên */
+.custom-toast.success { border-color: #28a745; }
+.custom-toast.error { border-color: #dc3545; }
+.custom-toast.info { border-color: #17a2b8; }
+
 @keyframes slideInTop {
     from { transform: translateY(-100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
-
-@keyframes slideOutTop {
-    from { transform: translateY(0); opacity: 1; }
-    to { transform: translateY(-100%); opacity: 0; }
-}
-
-.custom-toast.show {
-    animation: slideInTop 0.3s ease forwards;
-}
-
 .custom-toast.hiding {
-    animation: slideOutTop 0.3s ease forwards;
+    opacity: 0;
+    transform: translateY(-20px);
 }
 
-/* Toast Content */
-.custom-toast .toast-content {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
+/*HISTORY*/
+.card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(229,57,53,.09);
+    padding: 24px 24px;
 }
-
-/* Toast Icon */
-.custom-toast .toast-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.table th, .table td {
+    vertical-align: middle;
+    font-size: 1.06em;
+    padding: 14px 10px;
 }
-
-.custom-toast .toast-icon.success::before {
-    content: '\f058'; /* Font Awesome check-circle */
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    color: var(--main-red);
-}
-
-.custom-toast .toast-icon.error::before {
-    content: '\f057'; /* Font Awesome x-circle */
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    color: #dc3545;
-}
-
-.custom-toast .toast-icon.info::before {
-    content: '\f05a'; /* Font Awesome info-circle */
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    color: #17a2b8;
-}
-
-/* Toast Message */
-.custom-toast .toast-message {
-    font-size: 0.95rem;
+.badge {
+    font-size: 1em;
+    border-radius: 16px;
     font-weight: 500;
-    color: var(--gray-text);
-    line-height: 1.4;
+    letter-spacing: 0.03em;
 }
-
-/* Close Button */
-.custom-toast .btn-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--gray-border);
-    border-radius: 50%;
-    padding: 4px;
-    opacity: 0.7;
+.table-hover tbody tr:hover {
+    background-color: #f5f5f5;
 }
-
-.custom-toast .btn-close:hover {
-    opacity: 1;
+@media (max-width: 768px) {
+    .card { padding: 12px 4px; }
+    .table th, .table td { font-size: .98em; padding: 8px 3px;}
 }
-
-/* Type-specific Styles */
-.custom-toast.success {
-    border-left: 4px solid var(--main-red);
-}
-
-.custom-toast.error {
-    border-left: 4px solid #dc3545;
-}
-
-.custom-toast.info {
-    border-left: 4px solid #17a2b8;
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-    .custom-toast {
-        min-width: 240px;
-        max-width: 90vw;
-    }
-}
-.custom-toast.success { background: linear-gradient(135deg, #fff, #fff5f5); }
-.custom-toast.error { background: linear-gradient(135deg, #fff, #fff6f6); }
-.custom-toast.info { background: linear-gradient(135deg, #fff, #e6f7fa); }

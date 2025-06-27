@@ -1,388 +1,444 @@
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        // === State Variables ===
-        let currentStep = 1;
-        let selectedServices = [];
-        let toastQueue = [];
 
-        // === Toast Notification ===
-        function showToast(message, type = 'info') {
-            const toastEl = document.getElementById('appToast');
-            if (!toastEl) {
-                console.error('Không tìm thấy #appToast');
-                return;
-            }
+    // === State Variables ===
+    let currentStep = 1;
+    let selectedServices = [];
 
-            const friendlyMessages = {
-                success: {
-                    addService: (name) => `Yay! Dịch vụ "${name}" đã được thêm!`,
-                    removeService: (name) => `Dịch vụ "${name}" đã được bỏ nhé.`,
-                    addPet: (name) => `Cưng xỉu! "${name}" đã vào danh sách!`,
-                    confirm: `Đặt lịch thành công! Chúng mình sẽ liên hệ bạn sớm nha!`
-                },
-                error: {
-                    noService: `Oops! Bạn chưa chọn dịch vụ nào, chọn một cái nha!`,
-                    invalidInput: (msg) => `Ôi, ${msg.toLowerCase()[0] + msg.slice(1)}`,
-                    addPet: `Hãy nhập đủ tên và giống loài cho bé cưng nha!`,
-                    error: `Có lỗi rồi! Thử lại nhé!`
-                },
-                info: {
-                    step: (step) => `Bước ${step} đây! Tiếp tục nào!`,
-                    back: (step) => `Quay lại bước ${step} nè!`
+    // === Toast Notification ===
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) {
+            console.warn('Không tìm thấy #toastContainer');
+            return;
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `custom-toast ${type} show mb-2 d-flex align-items-center justify-content-between`;
+        toast.style.animation = 'slideInTop 0.3s ease forwards';
+        toast.setAttribute('role', 'alert');
+
+        const iconMap = {
+            success: '<i class="fas fa-check-circle text-success me-2"></i>',
+            error: '<i class="fas fa-times-circle text-danger me-2"></i>',
+            info: '<i class="fas fa-info-circle text-info me-2"></i>'
+        };
+
+        toast.innerHTML = `
+        <div class="toast-content d-flex align-items-center p-2">
+            <span class="toast-icon">${iconMap[type] || ''}</span>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button type="button" class="btn-close m-2" aria-label="Đóng"></button>
+    `;
+
+        toast.querySelector('.btn-close').addEventListener('click', () => {
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 300);
+        });
+
+        setTimeout(() => {
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 300);
+        }, 2500);
+
+        container.appendChild(toast);
+    }
+
+
+    // ---- Toast Notification ----
+    function showFieldError(field, message) {
+        if (!field) return;
+        field.classList.add('error');
+        let err = field.closest('.form-group, .form-section')?.querySelector('.field-error');
+        if (err) {
+            err.textContent = message;
+            err.style.display = 'block';
+        }
+    }
+
+    function clearFieldError(field) {
+        if (!field) return;
+        field.classList.remove('error');
+        let err = field.closest('.form-group, .form-section')?.querySelector('.field-error');
+        if (err) {
+            err.textContent = '';
+            err.style.display = 'none';
+        }
+    }
+
+    function clearAllErrors() {
+        document.querySelectorAll('.field-error').forEach(div => {
+            div.textContent = '';
+            div.style.display = 'none';
+        });
+        document.querySelectorAll('.form-control.error').forEach(input => input.classList.remove('error'));
+    }
+
+    // --- Hàm này quản lý required theo step ---
+    function updateRequiredAttributes(currentStep) {
+        document.querySelectorAll('.booking-step').forEach(step => {
+            const isActive = parseInt(step.dataset.step) === currentStep;
+            step.querySelectorAll('input, select, textarea').forEach(input => {
+                // Lưu trạng thái required gốc (chỉ lưu 1 lần)
+                if (input.dataset.initialRequired === undefined) {
+                    input.dataset.initialRequired = input.hasAttribute('required') ? "true" : "false";
                 }
-            };
-
-            let displayMessage = message;
-            if (type === 'success') {
-                if (message.startsWith('Đã thêm dịch vụ')) displayMessage = friendlyMessages.success.addService(message.split(': ')[1]);
-                else if (message.startsWith('Đã bỏ dịch vụ')) displayMessage = friendlyMessages.success.removeService(message.split(': ')[1]);
-                else if (message.startsWith('Đã thêm thú cưng')) displayMessage = friendlyMessages.success.addPet(message.split(': ')[1]);
-                else if (message === 'Đặt lịch thành công!') displayMessage = friendlyMessages.success.confirm;
-            } else if (type === 'error') {
-                if (message === 'Vui lòng chọn ít nhất một dịch vụ.') displayMessage = friendlyMessages.error.noService;
-                else if (message === 'Vui lòng nhập đầy đủ tên và giống loài.') displayMessage = friendlyMessages.error.addPet;
-                else if (message === 'Đã có lỗi xảy ra, vui lòng thử lại.') displayMessage = friendlyMessages.error.error;
-                else displayMessage = friendlyMessages.error.invalidInput(message);
-            } else if (type === 'info') {
-                if (message.startsWith('Chuyển sang bước')) displayMessage = friendlyMessages.info.step(message.split(' ')[3]);
-                else if (message.startsWith('Quay lại bước')) displayMessage = friendlyMessages.info.back(message.split(' ')[3]);
-            }
-
-            toastQueue.push({ message: displayMessage, type });
-            if (toastQueue.length > 1) return;
-
-            function displayNextToast() {
-                if (toastQueue.length === 0) return;
-                const { message, type } = toastQueue[0];
-
-                const toastMessage = toastEl.querySelector('.toast-message');
-                if (toastMessage) toastMessage.textContent = message;
-
-                const toastIcon = toastEl.querySelector('.toast-icon');
-                if (toastIcon) {
-                    toastIcon.className = 'toast-icon';
-                    toastIcon.classList.add(type);
+                if (isActive && input.dataset.initialRequired === "true") {
+                    input.setAttribute('required', 'required');
+                } else {
+                    input.removeAttribute('required');
                 }
-
-                toastEl.className = 'toast custom-toast';
-                toastEl.classList.add(type);
-
-                const toast = new bootstrap.Toast(toastEl);
-                toastEl.addEventListener('hidden.bs.toast', () => {
-                    toastQueue.shift();
-                    displayNextToast();
-                }, { once: true });
-                toast.show();
-            }
-
-            displayNextToast();
-        }
-
-        // === Error Handling ===
-        function showFieldError(field, message) {
-            if (!field) return;
-            field.classList.add('error');
-            field.setAttribute('data-bs-toggle', 'tooltip');
-            field.setAttribute('data-bs-title', message);
-            new bootstrap.Tooltip(field).show();
-            field.focus();
-            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        function clearFieldError(field) {
-            if (!field) return;
-            field.classList.remove('error');
-            const tooltip = bootstrap.Tooltip.getInstance(field);
-            if (tooltip) tooltip.dispose();
-        }
-
-        function clearAllErrors() {
-            document.querySelectorAll('input.error, select.error').forEach(input => {
-                input.classList.remove('error');
-                const tooltip = bootstrap.Tooltip.getInstance(input);
-                if (tooltip) tooltip.dispose();
             });
+        });
+    }
+
+    updateRequiredAttributes(currentStep); // Đảm bảo chỉ input step đầu có required
+
+
+    // === Validation cho Step 2 ===
+    function validateStep2() {
+        clearAllErrors();
+
+        const errors = [];
+        let firstErrorField = null;
+
+        const nameInput = document.querySelector('.customer-form input[type="text"]');
+        if (!nameInput || !nameInput.value.trim()) {
+            errors.push({message: 'Vui lòng nhập họ tên khách hàng.', field: nameInput});
+            if (!firstErrorField) firstErrorField = nameInput;
         }
 
-        // === Validation ===
-        function validateStep2() {
-            const errors = [];
-            const nameInput = document.querySelector('.customer-form input[type="text"]');
-            if (!nameInput || !nameInput.value.trim()) {
-                errors.push({ message: 'Vui lòng nhập họ tên khách hàng.', field: nameInput });
-            }
+        const phoneInput = document.querySelector('.customer-form input[type="tel"]');
+        if (!phoneInput || !phoneInput.value.trim()) {
+            errors.push({message: 'Vui lòng nhập số điện thoại.', field: phoneInput});
+            if (!firstErrorField) firstErrorField = phoneInput;
+        } else if (!/^[0-9]{9,11}$/.test(phoneInput.value.trim())) {
+            errors.push({message: 'Số điện thoại không hợp lệ.', field: phoneInput});
+            if (!firstErrorField) firstErrorField = phoneInput;
+        }
 
-            const phoneInput = document.querySelector('.customer-form input[type="tel"]');
-            if (!phoneInput || !phoneInput.value.trim()) {
-                errors.push({ message: 'Vui lòng nhập số điện thoại.', field: phoneInput });
-            } else if (!/^[0-9]{9,11}$/.test(phoneInput.value.trim())) {
-                errors.push({ message: 'Số điện thoại không hợp lệ.', field: phoneInput });
-            }
+        const emailInput = document.querySelector('.customer-form input[type="email"]');
+        if (!emailInput || !emailInput.value.trim()) {
+            errors.push({message: 'Vui lòng nhập email.', field: emailInput});
+            if (!firstErrorField) firstErrorField = emailInput;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
+            errors.push({message: 'Email không hợp lệ.', field: emailInput});
+            if (!firstErrorField) firstErrorField = emailInput;
+        }
 
-            const emailInput = document.querySelector('.customer-form input[type="email"]');
-            if (!emailInput || !emailInput.value.trim()) {
-                errors.push({ message: 'Vui lòng nhập email.', field: emailInput });
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
-                errors.push({ message: 'Email không hợp lệ.', field: emailInput });
+        const dateInput = document.querySelector('.customer-form input[type="date"]');
+        if (!dateInput || !dateInput.value) {
+            errors.push({message: 'Vui lòng chọn ngày hẹn.', field: dateInput});
+            if (!firstErrorField) firstErrorField = dateInput;
+        } else {
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selectedDate < today) {
+                errors.push({message: 'Ngày hẹn không được là ngày trong quá khứ.', field: dateInput});
+                if (!firstErrorField) firstErrorField = dateInput;
             }
+        }
 
-            const dateInput = document.querySelector('.customer-form input[type="date"]');
-            if (!dateInput || !dateInput.value) {
-                errors.push({ message: 'Vui lòng chọn ngày hẹn.', field: dateInput });
+        const timeInput = document.querySelector('.customer-form input[type="time"]');
+        if (!timeInput || !timeInput.value) {
+            errors.push({message: 'Vui lòng chọn giờ hẹn.', field: timeInput});
+            if (!firstErrorField) firstErrorField = timeInput;
+        } else if (dateInput && dateInput.value) {
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selectedDate.getTime() === today.getTime()) {
+                const [hours, minutes] = timeInput.value.split(':').map(Number);
+                const currentHours = new Date().getHours();
+                const currentMinutes = new Date().getMinutes();
+                if (hours < currentHours || (hours === currentHours && minutes < currentMinutes)) {
+                    errors.push({message: 'Giờ hẹn không được là giờ trong quá khứ.', field: timeInput});
+                    if (!firstErrorField) firstErrorField = timeInput;
+                }
+            }
+        }
+
+        const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
+        if (!selectedPets || selectedPets.length === 0) {
+            errors.push({message: 'Vui lòng chọn ít nhất một thú cưng.', field: null});
+            if (!firstErrorField) firstErrorField = document.querySelector('.pet-list');
+        }
+
+        // Hiển thị lỗi cho từng trường
+        errors.forEach(e => {
+            if (e.field) {
+                showFieldError(e.field, e.message);
             } else {
-                const selectedDate = new Date(dateInput.value);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                if (selectedDate < today) {
-                    errors.push({ message: 'Ngày hẹn không được là ngày trong quá khứ.', field: dateInput });
+                // Báo lỗi cho pet
+                let petErrorDiv = document.querySelector('.pet-selection .pet-error');
+                if (petErrorDiv) {
+                    petErrorDiv.textContent = e.message;
+                    petErrorDiv.style.display = 'block';
                 }
             }
+        });
 
-            const timeInput = document.querySelector('.customer-form input[type="time"]');
-            if (!timeInput || !timeInput.value) {
-                errors.push({ message: 'Vui lòng chọn giờ hẹn.', field: timeInput });
-            } else if (dateInput && dateInput.value) {
-                const selectedDate = new Date(dateInput.value);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                if (selectedDate.getTime() === today.getTime()) {
-                    const [hours, minutes] = timeInput.value.split(':').map(Number);
-                    const currentHours = new Date().getHours();
-                    const currentMinutes = new Date().getMinutes();
-                    if (hours < currentHours || (hours === currentHours && minutes < currentMinutes)) {
-                        errors.push({ message: 'Giờ hẹn không được là giờ trong quá khứ.', field: timeInput });
-                    }
-                }
-            }
-
-            const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
-            if (!selectedPets || selectedPets.length === 0) {
-                errors.push({ message: 'Vui lòng chọn ít nhất một thú cưng.', field: null });
-            }
-
-            return errors.length ? { valid: false, errors } : { valid: true };
+        // Tự động focus và scroll tới lỗi đầu tiên
+        if (firstErrorField) {
+            firstErrorField.scrollIntoView({behavior: 'smooth', block: 'center'});
+            if (firstErrorField.focus) firstErrorField.focus();
         }
 
-        // === Sidebar Update ===
-        function updateSelectedServicesSidebar() {
-            const list = document.getElementById('selected-services-sidebar');
-            if (!list) {
-                console.error('Không tìm thấy #selected-services-sidebar');
-                return;
-            }
+        return errors.length ? {valid: false, errors} : {valid: true};
+    }
 
-            let total = 0;
-            list.innerHTML = '';
-            selectedServices.forEach(sv => {
-                const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                li.innerHTML = `
+
+    // === Sidebar Update ===
+    function updateSelectedServicesSidebar() {
+        const list = document.getElementById('selected-services-sidebar');
+        if (!list) {
+            console.error('Không tìm thấy #selected-services-sidebar');
+            return;
+        }
+
+        let total = 0;
+        list.innerHTML = '';
+        selectedServices.forEach(sv => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `
                     <span><i class="fa fa-check-circle text-success me-2"></i>${sv.name}</span>
                     <span class="badge bg-primary rounded-pill">${sv.price.toLocaleString()} đ</span>
                 `;
-                list.appendChild(li);
-                total += sv.price;
-            });
-
-            const totalEl = document.getElementById('selected-services-total');
-            if (totalEl) totalEl.textContent = total.toLocaleString() + ' đ';
-        }
-
-        // === Confirmation Step ===
-        function updateConfirmationStep() {
-            const confirmServiceEl = document.getElementById('confirm-service');
-            if (confirmServiceEl) confirmServiceEl.textContent = selectedServices.map(sv => sv.name).join(', ');
-
-            const confirmPetsList = document.getElementById('confirm-pets-list');
-            if (confirmPetsList) {
-                const selectedPets = [...document.querySelectorAll('.pet-checkbox:checked')]
-                    .map(petCheckbox => {
-                        const label = document.querySelector(`label[for="${petCheckbox.id}"]`);
-                        if (!label) return null;
-                        const name = label.querySelector('h5')?.innerText.trim() || '';
-                        const breed = label.querySelector('.pet-breed')?.innerText.trim() || '';
-                        return { name, breed };
-                    })
-                    .filter(p => p && p.name);
-
-                confirmPetsList.innerHTML = '';
-                selectedPets.forEach(pet => {
-                    const li = document.createElement('li');
-                    li.textContent = `${pet.name} (${pet.breed})`;
-                    confirmPetsList.appendChild(li);
-                });
-            }
-
-            const confirmCustomerName = document.getElementById('confirm-customer-name');
-            if (confirmCustomerName) {
-                const nameInput = document.querySelector('.customer-form input[type="text"]');
-                confirmCustomerName.textContent = nameInput?.value.trim() || '';
-            }
-
-            const confirmCustomerPhone = document.getElementById('confirm-customer-phone');
-            if (confirmCustomerPhone) {
-                const phoneInput = document.querySelector('.customer-form input[type="tel"]');
-                confirmCustomerPhone.textContent = phoneInput?.value.trim() || '';
-            }
-
-            const confirmCustomerEmail = document.getElementById('confirm-customer-email');
-            if (confirmCustomerEmail) {
-                const emailInput = document.querySelector('.customer-form input[type="email"]');
-                confirmCustomerEmail.textContent = emailInput?.value.trim() || '';
-            }
-
-            const confirmTimeEl = document.getElementById('confirm-time');
-            if (confirmTimeEl) {
-                const dateInput = document.querySelector('.customer-form input[type="date"]');
-                const timeInput = document.querySelector('.customer-form input[type="time"]');
-                const dateVal = dateInput?.value || '';
-                const timeVal = timeInput?.value || '';
-                confirmTimeEl.textContent = dateVal && timeVal ? `${dateVal} lúc ${timeVal}` : 'Chưa chọn thời gian';
-            }
-
-            const confirmNoteEl = document.getElementById('confirm-note');
-            if (confirmNoteEl) {
-                const noteInput = document.querySelector('.customer-form textarea');
-                confirmNoteEl.textContent = noteInput?.value.trim() || '(Không có)';
-            }
-        }
-
-        // === Event Listeners ===
-        // Service Selection
-        document.addEventListener('click', e => {
-            const btn = e.target.closest('.btn-select');
-            if (!btn) return;
-
-            const { service: serviceId, name: serviceName, price: servicePrice } = btn.dataset;
-            const price = parseFloat(servicePrice);
-            const index = selectedServices.findIndex(sv => sv.serviceId === serviceId);
-
-            if (index === -1) {
-                selectedServices.push({ serviceId, name: serviceName, price });
-                btn.classList.add('selected');
-                btn.innerHTML = '<i class="fa fa-check"></i> Đã chọn';
-                showToast(`Đã thêm dịch vụ: ${serviceName}`, 'success');
-            } else {
-                selectedServices.splice(index, 1);
-                btn.classList.remove('selected');
-                btn.innerHTML = '<i class="fa fa-plus"></i> Chọn';
-                showToast(`Đã bỏ dịch vụ: ${serviceName}`, 'info');
-            }
-
-            updateSelectedServicesSidebar();
+            list.appendChild(li);
+            total += sv.price;
         });
 
-        // Step Navigation: Next
-        const btnNext = document.querySelector('.btn-next');
-        if (btnNext) {
-            btnNext.addEventListener('click', () => {
-                if (currentStep === 1 && selectedServices.length === 0) {
-                    showToast('Oops! Bạn chưa chọn dịch vụ nào, chọn một cái nha!', 'error');
-                    return;
-                }
+        const totalEl = document.getElementById('selected-services-total');
+        if (totalEl) totalEl.textContent = total.toLocaleString() + ' đ';
+    }
 
-                if (currentStep === 2) {
-                    clearAllErrors();
-                    const validation = validateStep2();
-                    if (!validation.valid) {
-                        validation.errors.forEach(({ message, field }, index) => {
-                            if (field) {
-                                showFieldError(field, message);
-                                if (index === 0) {
-                                    field.focus();
-                                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                }
-                            }
-                            showToast(friendlyMessages.error.invalidInput(message), 'error');
-                        });
-                        return;
-                    }
-                }
+    // === Confirmation Step ===
+    function updateConfirmationStep() {
+        const confirmServiceEl = document.getElementById('confirm-service');
+        if (confirmServiceEl) confirmServiceEl.textContent = selectedServices.map(sv => sv.name).join(', ');
 
-                if (currentStep === 3) {
-                    updateConfirmationStep();
-                    return;
-                }
+        const confirmPetsList = document.getElementById('confirm-pets-list');
+        if (confirmPetsList) {
+            const selectedPets = [...document.querySelectorAll('.pet-checkbox:checked')]
+                .map(petCheckbox => {
+                    const label = document.querySelector(`label[for="${petCheckbox.id}"]`);
+                    if (!label) return null;
+                    const name = label.querySelector('h5')?.innerText.trim() || '';
+                    const breed = label.querySelector('.pet-breed')?.innerText.trim() || '';
+                    return {name, breed};
+                })
+                .filter(p => p && p.name);
 
-                const currentStepEl = document.querySelector('.booking-step.active');
-                if (currentStepEl) {
-                    currentStepEl.style.display = 'none';
-                    currentStepEl.classList.remove('active');
-                }
-
-                currentStep++;
-                const nextStep = document.querySelector(`.booking-step[data-step="${currentStep}"]`);
-                if (nextStep) {
-                    nextStep.style.display = 'block';
-                    nextStep.classList.add('active');
-                    document.querySelectorAll('.step').forEach(stepEl => {
-                        stepEl.classList.toggle('active', parseInt(stepEl.dataset.step) === currentStep);
-                    });
-                    document.querySelector('.btn-prev').disabled = currentStep === 1;
-                    showToast(`Bước ${currentStep} đây! Tiếp tục nào!`, 'info');
-                }
+            confirmPetsList.innerHTML = '';
+            selectedPets.forEach(pet => {
+                const li = document.createElement('li');
+                li.textContent = `${pet.name} (${pet.breed})`;
+                confirmPetsList.appendChild(li);
             });
         }
 
-        // Step Navigation: Previous
-        const btnPrev = document.querySelector('.btn-prev');
-        if (btnPrev) {
-            btnPrev.addEventListener('click', () => {
-                if (currentStep <= 1) return;
-
-                const currentStepEl = document.querySelector('.booking-step.active');
-                if (currentStepEl) {
-                    currentStepEl.style.display = 'none';
-                    currentStepEl.classList.remove('active');
-                }
-
-                currentStep--;
-                const prevStep = document.querySelector(`.booking-step[data-step="${currentStep}"]`);
-                if (prevStep) {
-                    prevStep.style.display = 'block';
-                    prevStep.classList.add('active');
-                    document.querySelectorAll('.step').forEach(stepEl => {
-                        stepEl.classList.toggle('active', parseInt(stepEl.dataset.step) === currentStep);
-                    });
-                    btnPrev.disabled = currentStep === 1;
-                    showToast(`Quay lại bước ${currentStep} nè!`, 'info');
-                }
-            });
+        const confirmCustomerName = document.getElementById('confirm-customer-name');
+        if (confirmCustomerName) {
+            const nameInput = document.querySelector('.customer-form input[type="text"]');
+            confirmCustomerName.textContent = nameInput?.value.trim() || '';
         }
 
-        // Service Filtering
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const selectedCategory = btn.dataset.category;
+        const confirmCustomerPhone = document.getElementById('confirm-customer-phone');
+        if (confirmCustomerPhone) {
+            const phoneInput = document.querySelector('.customer-form input[type="tel"]');
+            confirmCustomerPhone.textContent = phoneInput?.value.trim() || '';
+        }
 
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        const confirmCustomerEmail = document.getElementById('confirm-customer-email');
+        if (confirmCustomerEmail) {
+            const emailInput = document.querySelector('.customer-form input[type="email"]');
+            confirmCustomerEmail.textContent = emailInput?.value.trim() || '';
+        }
 
-                document.querySelectorAll('.service-card').forEach(card => {
-                    const cardCategory = card.dataset.category;
-                    card.style.display = selectedCategory === 'all' || cardCategory === selectedCategory ? 'block' : 'none';
-                });
-            });
-        });
+        const confirmTimeEl = document.getElementById('confirm-time');
+        if (confirmTimeEl) {
+            const dateInput = document.querySelector('.customer-form input[type="date"]');
+            const timeInput = document.querySelector('.customer-form input[type="time"]');
+            const dateVal = dateInput?.value || '';
+            const timeVal = timeInput?.value || '';
+            confirmTimeEl.textContent = dateVal && timeVal ? `${dateVal} lúc ${timeVal}` : 'Chưa chọn thời gian';
+        }
 
-        // Add Pet
-        const addPetForm = document.getElementById('addPetForm');
-        if (addPetForm) {
-            addPetForm.addEventListener('submit', e => {
+        const confirmNoteEl = document.getElementById('confirm-note');
+        if (confirmNoteEl) {
+            const noteInput = document.querySelector('.customer-form textarea');
+            confirmNoteEl.textContent = noteInput?.value.trim() || '(Không có)';
+        }
+        const selectedIds = selectedServices.map(sv => sv.serviceId).join(',');
+        document.getElementById('SelectedServiceIds').value = selectedIds;
+    }
+
+    // ---- Ngăn submit form nếu chưa phải bước 3 ----
+    const mainForm = document.querySelector('.booking-container form');
+    if (mainForm) {
+        mainForm.addEventListener('submit', function (e) {
+            if (currentStep !== 3) {
                 e.preventDefault();
+                return false;
+            }
+            // Đảm bảo cập nhật input hidden (dự phòng)
+            updateConfirmationStep();
+        });
+    }
 
-                const petName = document.getElementById('petName')?.value.trim();
-                const petBreed = document.getElementById('petBreed')?.value;
+    // ---- Ngăn Enter ở input/textarea khi chưa phải bước 3 ----
+    document.querySelectorAll('.customer-form input, .customer-form textarea').forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && currentStep !== 3) {
+                e.preventDefault();
+            }
+        });
+    });
 
-                if (!petName || !petBreed) {
-                    showToast('Vui lòng nhập đầy đủ tên và giống loài.', 'error');
+
+    // === Event Listeners ===
+    // Service Selection
+    document.addEventListener('click', e => {
+        const btn = e.target.closest('.btn-select');
+        if (!btn) return;
+
+        const {service: serviceId, name: serviceName, price: servicePrice} = btn.dataset;
+        const price = parseFloat(servicePrice);
+        const index = selectedServices.findIndex(sv => sv.serviceId === serviceId);
+
+        if (index === -1) {
+            selectedServices.push({serviceId, name: serviceName, price});
+            btn.classList.add('selected');
+            btn.innerHTML = '<i class="fa fa-check"></i> Đã chọn';
+            showToast(`Đã thêm dịch vụ: ${serviceName}`, 'success');
+        } else {
+            selectedServices.splice(index, 1);
+            btn.classList.remove('selected');
+            btn.innerHTML = '<i class="fa fa-plus"></i> Chọn';
+            showToast(`Đã bỏ dịch vụ: ${serviceName}`, 'info');
+        }
+
+        updateSelectedServicesSidebar();
+    });
+
+
+    // ---- Step Navigation: Next ----
+    const btnNext = document.querySelector('.btn-next');
+    if (btnNext) {
+        btnNext.addEventListener('click', () => {
+            if (currentStep === 1 && selectedServices.length === 0) {
+                showToast('Oops! Bạn chưa chọn dịch vụ nào, chọn một cái nha!', 'error');
+                return;
+            }
+            if (currentStep === 2) {
+                clearAllErrors();
+                const validation = validateStep2();
+                if (!validation.valid) {
+                    validation.errors.forEach(({message, field}, index) => {
+                        if (field) {
+                            showFieldError(field, message);
+                            if (index === 0) {
+                                field.focus();
+                                field.scrollIntoView({behavior: 'smooth', block: 'center'});
+                            }
+                        }
+                        showToast(message, 'error');
+                    });
                     return;
                 }
+                updateConfirmationStep();
+            }
+            if (currentStep === 3) {
+                updateConfirmationStep();
+                return;
+            }
+            // Ẩn step cũ
+            const currentStepEl = document.querySelector('.booking-step.active');
+            if (currentStepEl) {
+                currentStepEl.style.display = 'none';
+                currentStepEl.classList.remove('active');
+            }
+            currentStep++;
+            updateRequiredAttributes(currentStep);
+            const nextStep = document.querySelector(`.booking-step[data-step="${currentStep}"]`);
+            if (nextStep) {
+                nextStep.style.display = 'block';
+                nextStep.classList.add('active');
+                document.querySelectorAll('.step').forEach(stepEl => {
+                    stepEl.classList.toggle('active', parseInt(stepEl.dataset.step) === currentStep);
+                });
+                document.querySelector('.btn-prev').disabled = currentStep === 1;
+                showToast(`Bước ${currentStep} đây! Tiếp tục nào!`, 'info');
+                scrollToFormTop();
+            }
+        });
+    }
 
-                const tempPetId = Date.now();
-                const petHtml = `
+    // ---- Step Navigation: Previous ----
+    const btnPrev = document.querySelector('.btn-prev');
+    if (btnPrev) {
+        btnPrev.addEventListener('click', () => {
+            if (currentStep <= 1) return;
+            const currentStepEl = document.querySelector('.booking-step.active');
+            if (currentStepEl) {
+                currentStepEl.style.display = 'none';
+                currentStepEl.classList.remove('active');
+            }
+            currentStep--;
+            updateRequiredAttributes(currentStep);
+            const prevStep = document.querySelector(`.booking-step[data-step="${currentStep}"]`);
+            if (prevStep) {
+                prevStep.style.display = 'block';
+                prevStep.classList.add('active');
+                document.querySelectorAll('.step').forEach(stepEl => {
+                    stepEl.classList.toggle('active', parseInt(stepEl.dataset.step) === currentStep);
+                });
+                btnPrev.disabled = currentStep === 1;
+                showToast(`Quay lại bước ${currentStep} nè!`, 'info');
+                scrollToFormTop();
+            }
+        });
+    }
+
+    // ---- Service Filtering ----
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedCategory = btn.dataset.category;
+
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.service-card').forEach(card => {
+                const cardCategory = card.dataset.category;
+                card.style.display = selectedCategory === 'all' || cardCategory === selectedCategory ? 'block' : 'none';
+            });
+        });
+    });
+
+    // Modal Thêm thú cưng mới
+    const btnAddPet = document.getElementById('btnAddPet');
+    if (btnAddPet) {
+        console.log("Đang gắn event cho btnAddPet:", document.getElementById('btnAddPet'));
+
+        btnAddPet.addEventListener('click', function () {
+            console.log("Button Thêm thú cưng được bấm!"); // Debug
+            const petName = document.getElementById('petNameModal').value.trim();
+            const petBreed = document.getElementById('petBreedModal').value;
+            if (!petName || !petBreed) {
+                showToast('Vui lòng nhập đầy đủ tên và giống loài.', 'error');
+                return;
+            }
+            const tempPetId = "new_" + Date.now();
+            console.log("Button Thêm thú cưng được bấm!"); // phải thấy log này khi click
+            const petList = document.querySelector('.pet-selection .pet-list');
+            console.log('petList:', petList);
+
+            if (petList) {
+                petList.insertAdjacentHTML('beforeend', `
                     <div class="pet-item">
-                        <input type="checkbox" id="pet-${tempPetId}" name="pets[]" value="${tempPetId}" class="pet-checkbox" checked>
+                        <input type="checkbox" id="pet-${tempPetId}" name="SelectedPetIds[]" value="${tempPetId}" class="pet-checkbox" checked>
                         <label for="pet-${tempPetId}" class="pet-card">
                             <div class="pet-avatar"><i class="fa fa-paw"></i></div>
                             <div class="pet-info">
@@ -391,56 +447,143 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </label>
                     </div>
-                `;
-
-                const petList = document.querySelector('.pet-list');
-                if (petList) petList.insertAdjacentHTML('beforeend', petHtml);
-
-                addPetForm.reset();
-
-                const addPetModalEl = document.getElementById('addPetModal');
-                if (addPetModalEl) {
-                    const addPetModal = new bootstrap.Modal(addPetModalEl);
-                    addPetModal.hide();
-                    showToast(`Đã thêm thú cưng: ${petName}`, 'success');
-                }
-            });
-        }
-
-        // Confirm Appointment
-        const btnConfirmAppointment = document.getElementById('btnConfirmAppointment');
-        if (btnConfirmAppointment) {
-            btnConfirmAppointment.addEventListener('click', () => {
-                const successModalEl = document.getElementById('successModal');
-                if (successModalEl) {
-                    const successModal = new bootstrap.Modal(successModalEl);
-                    successModal.show();
-                    showToast('Đặt lịch thành công!', 'success');
-                }
-            });
-        }
-
-        // Modal Buttons
-        const btnGoHome = document.getElementById('btnGoHome');
-        if (btnGoHome) {
-            btnGoHome.addEventListener('click', () => {
-                window.location.href = '/';
-            }, { once: true });
-        }
-
-        const btnNewBooking = document.getElementById('btnNewBooking');
-        if (btnNewBooking) {
-            btnNewBooking.addEventListener('click', () => {
-                window.location.reload();
-            }, { once: true });
-        }
-
-        // Input Event Listeners
-        document.querySelectorAll('.customer-form input, .customer-form textarea')
-            .forEach(input => input.addEventListener('input', () => clearFieldError(input)));
-
-    } catch (error) {
-        console.error('Lỗi trong appointment.js:', error);
-        showToast('Đã có lỗi xảy ra, vui lòng thử lại.', 'error');
+                `);
+            } else {
+                showToast('Không tìm thấy danh sách thú cưng!', 'error');
+            }
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addPetModal')).hide();
+            document.getElementById('petNameModal').value = '';
+            document.getElementById('petBreedModal').value = '';
+            showToast(`Đã thêm thú cưng: ${petName}`, 'success');
+        });
     }
+
+    // ---- Xóa thú cưng (event delegation) ----
+    const petList = document.querySelector('.pet-list');
+    if (petList) {
+        petList.addEventListener('click', function (e) {
+            const removeBtn = e.target.closest('.btn-pet-remove');
+            if (removeBtn) {
+                const petItem = removeBtn.closest('.pet-item');
+                if (petItem) {
+                    petItem.remove();
+                    showToast('Đã xóa thú cưng khỏi danh sách.', 'info');
+                }
+            }
+        });
+    }
+
+    // ---- Clear lỗi khi nhập lại ----
+    document.querySelectorAll('.customer-form input, .customer-form textarea')
+        .forEach(input => input.addEventListener('input', () => clearFieldError(input)));
+
+    // ---- Nút trang chủ & đặt lịch mới ----
+    const btnGoHome = document.getElementById('btnGoHome');
+    if (btnGoHome) {
+        btnGoHome.addEventListener('click', () => {
+            window.location.href = '/';
+        }, {once: true});
+    }
+    const btnNewBooking = document.getElementById('btnNewBooking');
+    if (btnNewBooking) {
+        btnNewBooking.addEventListener('click', () => {
+            window.location.reload();
+        }, {once: true});
+    }
+
+    // ---- Scroll về đầu form ----
+    function scrollToFormTop() {
+        const formSection = document.querySelector('.appoint_ment_form');
+        if (formSection) {
+            formSection.scrollIntoView({behavior: 'smooth', block: 'start'});
+        } else {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    }
+
+    // Confirm Appointment
+    const btnConfirmAppointment = document.getElementById('btnConfirmAppointment');
+    if (btnConfirmAppointment) {
+        btnConfirmAppointment.addEventListener('click', function (e) {
+            // Trước khi submit, đảm bảo update input ẩn (dự phòng)
+            updateConfirmationStep();
+            // Submit form
+            this.form.submit();
+            // Không show modal nữa, vì submit là redirect, không cần show JS modal!
+        });
+    }
+
+
+    function scrollToFormTop() {
+        const formSection = document.querySelector('.appoint_ment_form');
+        if (formSection) {
+            formSection.scrollIntoView({behavior: 'smooth', block: 'start'});
+        } else {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    }
+
 });
+    // Đảm bảo SelectedServiceIds và SelectedPetIds là nhiều input hidden cho đúng ASP.NET MVC
+    
+    function createHiddenInputs() {
+        // Xóa input cũ
+        document.querySelectorAll('input[name="SelectedServiceIds"]').forEach(el => el.remove());
+        document.querySelectorAll('input[name="SelectedPetIds"]').forEach(el => el.remove());
+    
+        // Tạo input dịch vụ
+        selectedServices.forEach(sv => {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'SelectedServiceIds';
+            input.value = sv.serviceId;
+            mainForm.appendChild(input);
+        });
+    
+        // Tạo input thú cưng
+        document.querySelectorAll('.pet-checkbox:checked').forEach(petCb => {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'SelectedPetIds';
+            input.value = petCb.value;
+            mainForm.appendChild(input);
+        });
+    }
+    
+    // Trong event submit form hoặc click nút xác nhận:
+    btnConfirmAppointment.addEventListener('click', function (e) {
+        createHiddenInputs(); // <-- THÊM DÒNG NÀY
+        updateConfirmationStep();
+        this.form.submit();
+    });
+
+function updateHiddenInputs() {
+    // Remove old
+    document.querySelectorAll('input[name="SelectedServiceIds"]').forEach(el => el.remove());
+    document.querySelectorAll('input[name="SelectedPetIds"]').forEach(el => el.remove());
+    // Add services
+    selectedServices.forEach(sv => {
+        let input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'SelectedServiceIds';
+        input.value = sv.serviceId;
+        mainForm.appendChild(input);
+    });
+    // Add pets
+    document.querySelectorAll('.pet-checkbox:checked').forEach(cb => {
+        let input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'SelectedPetIds';
+        input.value = cb.value;
+        mainForm.appendChild(input);
+    });
+}
+// Và gọi hàm này NGAY TRƯỚC khi submit form
+
+
+
+
+
+
+
+

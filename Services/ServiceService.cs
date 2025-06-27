@@ -23,10 +23,6 @@ namespace pet_spa_system1.Services
             return _serviceRepository.GetActiveServices();
         }
 
-        public List<SerCate> GetActiveCategories()
-        {
-            return _serviceRepository.GetActiveCategories();
-        }
 
         public ServiceViewModel GetAllService()
         {
@@ -57,5 +53,10 @@ namespace pet_spa_system1.Services
         {
             _serviceRepository.UpdateService(service);
         }
+        public List<Service> GetAll()
+        {
+            return _serviceRepository.GetAll();
+        }
+
     }
 }

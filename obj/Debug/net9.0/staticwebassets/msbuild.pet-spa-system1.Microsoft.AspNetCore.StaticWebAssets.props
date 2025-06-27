@@ -390,8 +390,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>qa3cjv6pqq</Fingerprint>
-      <Integrity>sgp66sKF+cg4FDp0U8iCMGsipezzwoAEvqvEXasG1wU=</Integrity>
+      <Fingerprint>lr2y1u11zn</Fingerprint>
+      <Integrity>f5QytcxLmKe+ubhKZLLENaXl5Qy0x8tUpAGZeHhuYCk=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\cssjsAppointment\appointment.css'))</OriginalItemSpec>
@@ -408,8 +408,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>2wwavno9q3</Fingerprint>
-      <Integrity>/j85p+oVUJDjx0Rz9CNrqtOM/Y7B9JQKwiqLPxolEcs=</Integrity>
+      <Fingerprint>917ng7mgh3</Fingerprint>
+      <Integrity>o5D+/8Yf2CuMJqIzZu8dHArUzFF77DMPSYVyeaInr/o=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\cssjsAppointment\appointment.js'))</OriginalItemSpec>

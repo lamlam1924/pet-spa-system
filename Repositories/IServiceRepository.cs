@@ -13,6 +13,6 @@ namespace pet_spa_system1.Repositories
         void RestoreService(int id);
         void Save();
         public List<Service> GetActiveServices();
-        public List<SerCate> GetActiveCategories();
+        List<Service> GetAll();
     }
 }

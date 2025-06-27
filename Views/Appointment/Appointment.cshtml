@@ -16,212 +16,218 @@
                 <div class="appoint_ment_form">
                     <h3 class="mb-4 text-center" id="booking-title" style="color:#2563eb;font-weight:700;">Đặt Lịch Dịch Vụ</h3>
                     <div class="booking-container">
-                        <!-- Progress Indicator -->
-                        <div class="progress-steps mb-4">
-                            <div class="step active" data-step="1">
-                                <div class="step-icon">1</div>
-                                <span class="step-label">Chọn dịch vụ</span>
-                            </div>
-                            <div class="step" data-step="2">
-                                <div class="step-icon">2</div>
-                                <span class="step-label">Điền thông tin</span>
-                            </div>
-                            <div class="step" data-step="3">
-                                <div class="step-icon">3</div>
-                                <span class="step-label">Xác nhận</span>
-                            </div>
-                        </div>
-
-                        <!-- Step Content -->
-                        <div class="booking-steps">
-                            <!-- Step 1: Choose Services -->
-                            <div class="booking-step active" data-step="1">
-                                <!-- Category Filter -->
-                                <div class="filter-container">
-                                    <div class="category-group active">
-                                        <button class="filter-btn active" data-category="all">
-                                            <i class="fa fa-th-large"></i> Tất cả
-                                        </button>
-                                        @foreach (var cat in Model.Categories)
-                                        {
-                                            <button class="filter-btn" data-category="@cat.CategoryId">
-                                                <i class="fa fa-paw"></i> @cat.Name
-                                            </button>
-                                        }
-                                    </div>
+                        <form asp-action="Book" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" id="SelectedServiceIds" name="SelectedServiceIds" value="" />
+                            <!-- Progress Indicator -->
+                            <div class="progress-steps mb-4">
+                                <div class="step active" data-step="1">
+                                    <div class="step-icon">1</div>
+                                    <span class="step-label">Chọn dịch vụ</span>
                                 </div>
-                                <!-- Service Grid -->
-                                <div class="service-container">
-                                    <div class="service-grid active" id="services">
-                                        @foreach (var service in Model.Services)
-                                        {
-                                            <div class="service-card" data-category="@service.CategoryId">
-                                                <div class="card-header">
-                                                    <div class="service-icon">
-                                                        <i class="fa fa-paw"></i>
-                                                    </div>
-                                                    <div class="service-info">
-                                                        <h4>@service.Name</h4>
-                                                        <div class="meta">
-                                                            <span><i class="fa fa-clock-o"></i> @service.DurationMinutes phút</span>
-                                                            <span class="price">@service.Price.ToString("N0") đ</span>
+                                <div class="step" data-step="2">
+                                    <div class="step-icon">2</div>
+                                    <span class="step-label">Điền thông tin</span>
+                                </div>
+                                <div class="step" data-step="3">
+                                    <div class="step-icon">3</div>
+                                    <span class="step-label">Xác nhận</span>
+                                </div>
+                            </div>
+
+                            <!-- Step Content -->
+                            <div class="booking-steps">
+                                <!-- Step 1: Choose Services -->
+                                <div class="booking-step active" data-step="1">
+                                    <!-- Category Filter -->
+                                    <div class="filter-container">
+                                        <div class="category-group active">
+                                            <button type="button" class="filter-btn active" data-category="all">
+                                                <i class="fa fa-th-large"></i> Tất cả
+                                            </button>
+                                            @foreach (var cat in Model.Categories)
+                                            {
+                                                <button type="button" class="filter-btn" data-category="@cat.CategoryId">
+                                                    <i class="fa fa-paw"></i> @cat.Name
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <!-- Service Grid -->
+                                    <div class="service-container">
+                                        <div class="service-grid active" id="services">
+                                            @foreach (var service in Model.Services)
+                                            {
+                                                <div class="service-card" data-category="@service.CategoryId">
+                                                    <div class="card-header">
+                                                        <div class="service-icon">
+                                                            <i class="fa fa-paw"></i>
+                                                        </div>
+                                                        <div class="service-info">
+                                                            <h4>@service.Name</h4>
+                                                            <div class="meta">
+                                                                <span><i class="fa fa-clock-o"></i> @service.DurationMinutes phút</span>
+                                                                <span class="price">@service.Price.ToString("N0") đ</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="card-body">
-                                                    <ul class="features">
-                                                        <li><i class="fa fa-check"></i> @service.Description</li>
-                                                    </ul>
-                                                </div>
-                                                <div class="card-footer">
-                                                    <button class="btn-select" data-service="@service.ServiceId" data-name="@service.Name" data-price="@service.Price">
-                                                        <i class="fa fa-plus"></i> Chọn
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                    
-                                </div>
-                            </div>
-
-                            <!-- Step 2: Customer Information -->
-                            <div class="booking-step" data-step="2" style="display:none;">
-                                <div class="customer-form">
-                                    <h3 class="text-center mb-4" style="color:#2563eb;">Thông tin khách hàng</h3>
-                                    <div class="form-grid">
-                                        <div class="form-group">
-                                            <label>Họ và tên</label>
-                                            <input type="text" class="form-control">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Số điện thoại</label>
-                                            <input type="tel" class="form-control" >
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Email</label>
-                                            <input type="email" class="form-control">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Ngày hẹn</label>
-                                            <input type="date" class="form-control">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Giờ hẹn</label>
-                                            <input type="time" class="form-control" >
-                                        </div>
-                                        <div class="form-section pet-selection">
-                                            <h4>Chọn thú cưng của bạn</h4>
-                                            <div class="pet-list">
-                                                @foreach (var pet in Model.Pets)
-                                                {
-                                                    <div class="pet-item">
-                                                        <input type="checkbox" id="pet-@pet.PetId" name="pets[]" value="@pet.PetId" class="pet-checkbox">
-                                                        <label for="pet-@pet.PetId" class="pet-card">
-                                                            <div class="pet-avatar">
-                                                                <i class="fa fa-paw"></i>
-                                                            </div>
-                                                            <div class="pet-info">
-                                                                <h5>@pet.Name</h5>
-                                                                <span class="pet-breed">@pet.Breed</span>
-                                                            </div>
-                                                        </label>
+                                                    <div class="card-body">
+                                                        <ul class="features">
+                                                            <li><i class="fa fa-check"></i> @service.Description</li>
+                                                        </ul>
                                                     </div>
-                                                }
+                                                    <div class="card-footer">
+                                                        <button type="button" class="btn-select" data-service="@service.ServiceId" data-name="@service.Name" data-price="@service.Price">
+                                                            <i class="fa fa-plus"></i> Chọn
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Customer Information -->
+                                <div class="booking-step" data-step="2" style="display:none;">
+                                    <div class="customer-form">
+                                        <h3 class="text-center mb-4" style="color:#2563eb;">Thông tin khách hàng</h3>
+                                        <div class="form-grid">
+                                            <div class="form-group">
+                                                <label for="customerName">Họ và tên</label>
+                                                <input type="text" class="form-control" id="customerName" name="CustomerName" autocomplete="name" value="@Model.CustomerName">
+                                                <div class="field-error"></div>
                                             </div>
-                                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addPetModal">
-                                                <i class="fa fa-plus"></i> Thêm thú cưng mới
-                                            </button>
-                                            <!-- Modal thêm thú cưng -->
-                                            <div class="modal fade" id="addPetModal" tabindex="-1" aria-labelledby="addPetModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <form id="addPetForm">
+                                            <div class="form-group">
+                                                <label for="Phone">Số điện thoại</label>
+                                                <input type="tel" class="form-control" id="Phone" name="Phone" autocomplete="tel" value="@Model.Phone">
+                                                <div class="field-error"></div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="Email">Email</label>
+                                                <input type="email" class="form-control" id="Email" name="Email" autocomplete="email" value="@Model.Email">
+                                                <div class="field-error"></div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="AppointmentDate">Ngày hẹn</label>
+                                                <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate" autocomplete="off">
+                                                <div class="field-error"></div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="AppointmentTime">Giờ hẹn</label>
+                                                <input type="time" class="form-control" id="AppointmentTime" name="AppointmentTime" autocomplete="off">
+                                                <div class="field-error"></div>
+                                            </div>
+
+                                            <div class="form-section pet-selection">
+                                                <h4>Chọn thú cưng của bạn</h4>
+                                                <div class="pet-list" id="mainPetList" >
+                                                    @foreach (var pet in Model.Pets)
+                                                    {
+                                                        <div class="pet-item">
+                                                            <input type="checkbox" id="pet-@pet.PetId" name="SelectedPetIds[]" value="@pet.PetId" class="pet-checkbox">
+
+                                                            <label for="pet-@pet.PetId" class="pet-card">
+                                                                <div class="pet-avatar">
+                                                                    <i class="fa fa-paw"></i>
+                                                                </div>
+                                                                <div class="pet-info">
+                                                                    <h5>@pet.Name</h5>
+                                                                    <span class="pet-breed">@pet.Breed</span>
+                                                                </div>
+                                                            </label>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="field-error pet-error"></div>
+                                                <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addPetModal">
+                                                    <i class="fa fa-plus"></i> Thêm thú cưng mới
+                                                </button>
+                                                <!-- Modal thêm thú cưng -->
+                                                <div class="modal fade" id="addPetModal">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="addPetModalLabel">Thêm thú cưng mới</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                                                <h5>Thêm thú cưng mới</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                             </div>
                                                             <div class="modal-body">
                                                                 <div class="mb-3">
-                                                                    <label for="petName" class="form-label">Tên thú cưng</label>
-                                                                    <input type="text" class="form-control" id="petName" required>
+                                                                    <label for="petNameModal">Tên thú cưng</label>
+                                                                    <input type="text" class="form-control" id="petNameModal" />
                                                                 </div>
                                                                 <div class="mb-3">
-                                                                    <label for="petBreed" class="form-label">Giống loài</label>
-                                                                    <select class="form-select" id="petBreed" required>
+                                                                    <label for="petBreedModal">Giống loài</label>
+                                                                    <select class="form-select" id="petBreedModal">
                                                                         <option value="">-- Chọn giống loài --</option>
                                                                         <option value="Chó">Chó</option>
                                                                         <option value="Mèo">Mèo</option>
                                                                     </select>
                                                                 </div>
-
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                                <button type="submit" class="btn btn-primary">Thêm</button>
+                                                                <button type="button" id="btnAddPet" class="btn btn-primary">Thêm</button>
                                                             </div>
-                                                        </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        
-                                        <div class="form-group full-width">
-                                            <label>Ghi chú</label>
-                                            <textarea class="form-control" rows="3"></textarea>
+
+                                            <div class="form-group full-width">
+                                                <label>Ghi chú</label>
+                                                <textarea class="form-control" rows="3" name="Notes"></textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Step 3: Confirmation -->
+                                <div class="booking-step" data-step="3" style="display:none;">
+                                    <div class="card shadow-sm p-4" style="max-width: 600px; margin: 0 auto;">
+                                        <h3 class="mb-4 text-primary text-center">Xác nhận thông tin đặt lịch</h3>
+                                        <div class="mb-3">
+                                            <strong>Dịch vụ đã chọn:</strong>
+                                            <div class="alert alert-info" id="confirm-service"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Thú cưng đã chọn:</strong>
+                                            <ul id="confirm-pets-list" class="list-group"></ul>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Thông tin khách hàng:</strong>
+                                            <ul class="list-group">
+                                                <li class="list-group-item">Họ tên: <span id="confirm-customer-name"></span></li>
+                                                <li class="list-group-item">Điện thoại: <span id="confirm-customer-phone"></span></li>
+                                                <li class="list-group-item">Email: <span id="confirm-customer-email"></span></li>
+                                            </ul>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Thời gian đặt lịch:</strong>
+                                            <div class="alert alert-secondary" id="confirm-time"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong>Ghi chú:</strong>
+                                            <div class="alert alert-light" id="confirm-note"></div>
+                                        </div>
+                                        <button type="submit" id="btnConfirmAppointment" class="btn btn-success w-100 mt-3" style="font-size:1.2rem;">
+                                            Xác nhận đặt lịch
+                                        </button>
+                                    </div>
+                                </div>
+
+
                             </div>
 
-                            <!-- Step 3: Confirmation -->
-                            <div class="booking-step" data-step="3" style="display:none;">
-                                <h3>Xác nhận thông tin đặt lịch</h3>
-
-                                <div>
-                                    <strong>Dịch vụ đã chọn:</strong>
-                                    <span id="confirm-service"></span>
-                                </div>
-
-                                <div>
-                                    <strong>Thú cưng đã chọn:</strong>
-                                    <ul id="confirm-pets-list"></ul>
-                                </div>
-
-                                <div>
-                                    <strong>Thông tin khách hàng:</strong>
-                                    <p>Họ tên: <span id="confirm-customer-name"></span></p>
-                                    <p>Điện thoại: <span id="confirm-customer-phone"></span></p>
-                                    <p>Email: <span id="confirm-customer-email"></span></p>
-                                </div>
-
-                                <div>
-                                    <strong>Thời gian đặt lịch:</strong>
-                                    <span id="confirm-time"></span>
-                                </div>
-
-                                <div>
-                                    <strong>Ghi chú:</strong>
-                                    <p id="confirm-note"></p>
-                                </div>
-
-                                <button id="btnConfirmAppointment" class="btn btn-primary" style="display: block; margin: 2rem auto; padding: 0.75rem 3rem; font-size: 1.25rem;">
-                                    Xác nhận đặt lịch
+                            <!-- Navigation Buttons -->
+                            <div class="booking-navigation mt-3">
+                                <button type="button" class="btn btn-outline-secondary btn-prev" disabled>
+                                    <i class="fa fa-arrow-left"></i> Quay lại
+                                </button>
+                                <button type="button" class="btn btn-primary btn-next">
+                                    Tiếp tục <i class="fa fa-arrow-right"></i>
                                 </button>
                             </div>
-
-
-                        </div>
-
-                        <!-- Navigation Buttons -->
-                        <div class="booking-navigation mt-3">
-                            <button class="btn btn-outline-secondary btn-prev" disabled>
-                                <i class="fa fa-arrow-left"></i> Quay lại
-                            </button>
-                            <button class="btn btn-primary btn-next">
-                                Tiếp tục <i class="fa fa-arrow-right"></i>
-                            </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -244,31 +250,25 @@
     </div>
     
     <!-- Toast Container -->
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
-        <div id="appToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3500">
-            <div class="toast-content">
-                <span class="toast-icon"></span>
-                <div class="toast-message"></div>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
+    <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
     
 </section>
-<!-- Modal xác nhận thành công -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+
+@* Đặt lịch thành công *@
+<div class="modal fade" id="bookingSuccessModal" tabindex="-1" aria-labelledby="bookingSuccessLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">Đặt lịch thành công</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                <h5 class="modal-title" id="bookingSuccessLabel">Đặt lịch thành công!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Cảm ơn bạn đã đặt lịch dịch vụ!</p>
+                Cảm ơn bạn đã đặt lịch. Chúng tôi đã ghi nhận thông tin của bạn.<br>
+                Bạn muốn làm gì tiếp?
             </div>
             <div class="modal-footer">
-                <button type="button" id="btnGoHome" class="btn btn-secondary">Quay về trang chủ</button>
-                <button type="button" id="btnNewBooking" class="btn btn-primary">Đặt lịch mới</button>
+                <a href="@Url.Action("Book", "Appointment")" class="btn btn-primary">Đặt lịch mới</a>
+                <a href="@Url.Action("History", "Appointment")" class="btn btn-outline-secondary">Xem lịch sử đặt lịch</a>
             </div>
         </div>
     </div>
@@ -276,4 +276,16 @@
 
 @section Scripts {
     <script src="@Url.Content("~/cssjsAppointment/appointment.js")"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Nếu đặt lịch thành công thì show modal
+            @if (ViewBag.BookingSuccess == true)
+            {
+                <text>
+                    var successModal = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
+                    successModal.show();
+                </text>
+            }
+        });
+    </script>
 }
