@@ -1,6 +1,5 @@
 {
   "ExpandedNodes": [
-    "",
     "\\Properties",
     "\\Repositories",
     "\\Services",
@@ -11,6 +10,5 @@
     "\\Views\\Products",
     "\\Views\\Service"
   ],
-  "SelectedNode": "\\Views\\Admin\\Simple_Tables.cshtml",
   "PreviewInSolutionExplorer": false
 }

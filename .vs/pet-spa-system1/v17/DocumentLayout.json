@@ -3,36 +3,52 @@
   "WorkspaceRootPath": "D:\\projectki5\\pet-spa-system-ASP_MVC\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\UserRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Repositories\\UserRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\PetDataShopContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Models\\PetDataShopContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Services\\UserService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Services\\UserService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\GenericRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Repositories\\GenericRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\ErrorViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Models\\ErrorViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\views\\admin\\pets_list.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:views\\admin\\pets_list.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\LoginController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\LoginController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\views\\admin\\list_customer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:views\\admin\\list_customer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\HomeController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\HomeController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\models\\petdatashopcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:models\\petdatashopcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\projectki5\\pet-spa-system-ASP_MVC\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\projectki5\\pet-spa-system-asp_mvc\\repositories\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:repositories\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,94 +58,141 @@
       "DocumentGroups": [
         {
           "DockedHeight": 545,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Services\\UserService.cs",
-              "RelativeDocumentMoniker": "Services\\UserService.cs",
-              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Services\\UserService.cs",
-              "RelativeToolTip": "Services\\UserService.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T14:33:51.244Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "UserRepository.cs",
-              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\UserRepository.cs",
-              "RelativeDocumentMoniker": "Repositories\\UserRepository.cs",
-              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\UserRepository.cs",
-              "RelativeToolTip": "Repositories\\UserRepository.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAowAsAAAAAAAAAAAAAAA==",
+              "Title": "UserController.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UserController.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\UserController.cs",
+              "RelativeToolTip": "Controllers\\UserController.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T14:33:39.08Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "GenericRepository.cs",
-              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\GenericRepository.cs",
-              "RelativeDocumentMoniker": "Repositories\\GenericRepository.cs",
-              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\GenericRepository.cs",
-              "RelativeToolTip": "Repositories\\GenericRepository.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAAmwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T14:33:36.844Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PetDataShopContext.cs",
-              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\PetDataShopContext.cs",
-              "RelativeDocumentMoniker": "Models\\PetDataShopContext.cs",
-              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\PetDataShopContext.cs",
-              "RelativeToolTip": "Models\\PetDataShopContext.cs",
-              "ViewState": "AgIAANEAAAAAAAAAAAAqwN8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T14:26:16.447Z",
+              "WhenOpened": "2025-06-27T08:45:07.527Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "ErrorViewModel.cs",
-              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\ErrorViewModel.cs",
-              "RelativeDocumentMoniker": "Models\\ErrorViewModel.cs",
-              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\ErrorViewModel.cs",
-              "RelativeToolTip": "Models\\ErrorViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T14:25:56.791Z"
+              "Title": "Pets_List.cshtml",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Views\\Admin\\Pets_List.cshtml",
+              "RelativeDocumentMoniker": "Views\\Admin\\Pets_List.cshtml",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Views\\Admin\\Pets_List.cshtml",
+              "RelativeToolTip": "Views\\Admin\\Pets_List.cshtml",
+              "ViewState": "AgIAADwAAAAAAAAAAAAAACcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-27T08:37:19.599Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "List_Customer.cshtml",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Views\\Admin\\List_Customer.cshtml",
+              "RelativeDocumentMoniker": "Views\\Admin\\List_Customer.cshtml",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Views\\Admin\\List_Customer.cshtml",
+              "RelativeToolTip": "Views\\Admin\\List_Customer.cshtml",
+              "ViewState": "AgIAACkEAAAAAAAAAAAAADgEAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-27T08:35:43.534Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T14:19:57.228Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PetDataShopContext.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\PetDataShopContext.cs",
+              "RelativeDocumentMoniker": "Models\\PetDataShopContext.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\PetDataShopContext.cs",
+              "RelativeToolTip": "Models\\PetDataShopContext.cs",
+              "ViewState": "AgIAAKsCAAAAAAAAAAAAALICAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T14:26:16.447Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "LoginController.cs",
               "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "Controllers\\LoginController.cs",
               "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\LoginController.cs",
               "RelativeToolTip": "Controllers\\LoginController.cs",
-              "ViewState": "AgIAAIwAAAAAAAAAAAAuwJkAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-26T14:24:28.68Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAE0BAAAAAAAAAAAAAGEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-27T08:41:45.544Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ErrorViewModel.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\ErrorViewModel.cs",
+              "RelativeDocumentMoniker": "Models\\ErrorViewModel.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Models\\ErrorViewModel.cs",
+              "RelativeToolTip": "Models\\ErrorViewModel.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAowAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T14:25:56.791Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "Repositories\\UserRepository.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "Repositories\\UserRepository.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAA1wAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T14:33:39.08Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "Services\\UserService.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Services\\UserService.cs",
+              "RelativeToolTip": "Services\\UserService.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAQwDcAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T14:33:51.244Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "HomeController.cs",
               "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -141,15 +204,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAFsAAAAAAAAAAAAAAGcAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 11,
+              "Title": "GenericRepository.cs",
+              "DocumentMoniker": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\GenericRepository.cs",
+              "RelativeDocumentMoniker": "Repositories\\GenericRepository.cs",
+              "ToolTip": "D:\\projectki5\\pet-spa-system-ASP_MVC\\Repositories\\GenericRepository.cs",
+              "RelativeToolTip": "Repositories\\GenericRepository.cs",
+              "ViewState": "AgIAACcAAAAAAAAAAAAmwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-26T14:19:57.228Z"
+              "WhenOpened": "2025-06-26T14:33:36.844Z"
             }
           ]
         }
