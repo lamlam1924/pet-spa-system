@@ -5,7 +5,13 @@ using pet_spa_system1.Models;
 namespace pet_spa_system1.Repositories
 
 {
+<<<<<<< HEAD
     public class UserRepository : GenericRepository<User>
+=======
+    public class UserRepository
+
+          : GenericRepository<User>
+>>>>>>> my-code
     {
         private readonly PetDataShopContext _context;
         public UserRepository(PetDataShopContext context) : base(context)

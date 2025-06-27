@@ -10,8 +10,10 @@ namespace pet_spa_system1.Services
     {
         private readonly UserRepository _userRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
-        
-        
+
+
+
+
 
         public UserService(UserRepository userRepository, IPasswordHasher<User> passwordHasher)
         {
@@ -32,7 +34,9 @@ namespace pet_spa_system1.Services
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
             return result == PasswordVerificationResult.Success ? user : null;
         }
-        public async Task<User?> RegisterAsync(string email,string userName ,string plainPassword)
+
+        public async Task<User?> RegisterAsync(string email, string userName, string plainPassword)
+
         {
             Console.WriteLine("[DEBUG] passwordHasher null? " + (_passwordHasher == null));
             Console.WriteLine("password" + plainPassword);
@@ -42,7 +46,9 @@ namespace pet_spa_system1.Services
             {
                 Console.WriteLine("emaill existed!");
                 return null; // hoặc throw exception
-            }    
+
+            }
+
 
             // Tạo user mới
             var newUser = new User
@@ -60,8 +66,10 @@ namespace pet_spa_system1.Services
             await _userRepository.AddAsync(newUser);
             await _userRepository.SaveChangesAsync();
 
-            
-            return await AuthenticateAsync(email,plainPassword);
+
+
+            return await AuthenticateAsync(email, plainPassword);
+
         }
         public async Task<User?> RegisterByGoogle(string email, string name)
         {

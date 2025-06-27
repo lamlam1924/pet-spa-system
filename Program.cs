@@ -9,26 +9,33 @@ using pet_spa_system1.Services;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
-//DI container
+
+
+
+// ✅ Dependency Injection
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddDbContext<PetDataShopContext>();
 
-//Session
-builder.Services.AddSession();
+// ✅ Cấu hình DbContext
+builder.Services.AddDbContext<PetDataShopContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ✅ Cấu hình Session
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
 
-// Add services to the container.
+
+// ✅ Cấu hình MVC
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<PetDataShopContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-// 🔐 Add Authentication
+
+// ✅ Cấu hình Authentication
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -41,14 +48,19 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
     options.CallbackPath = "/signin-google";
 });
+
+
 var app = builder.Build();
-app.UseSession();
+
+// ✅ Kiểm tra kết nối Database
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
     try
     {
-        // Ping database
+
+
         if (db.Database.CanConnect())
         {
             Console.WriteLine("✅ Database connection successful.");
@@ -64,33 +76,32 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline.
+
+// ✅ Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-// 🔐 Enable middleware
+
+app.UseHttpsRedirection();
+
+// ✅ Phục vụ file tĩnh (CSS/JS/images...)
+app.UseStaticFiles();
+
+app.UseRouting();
+
+// ✅ Đảm bảo thứ tự đúng
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
+
+// ✅ Định tuyến Controller
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-
-
-app.UseHttpsRedirection();
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
 
 
 app.Run();

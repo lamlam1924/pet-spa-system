@@ -12,7 +12,11 @@ namespace pet_spa_system1.Controllers
 {
     public class LoginController : Controller
     {
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> my-code
         private readonly UserService _userService;
 
         public LoginController(UserService userService)
@@ -20,7 +24,11 @@ namespace pet_spa_system1.Controllers
             _userService = userService;
         }
 
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> my-code
         [HttpGet]
         public IActionResult Login()
         {
@@ -112,7 +120,11 @@ namespace pet_spa_system1.Controllers
             var user = await _userService.GetUserByEmail(email);
             if (user == null)
             {
+<<<<<<< HEAD
                 user = await _userService.RegisterByGoogle(email,name);
+=======
+                user = await _userService.RegisterByGoogle(email, name);
+>>>>>>> my-code
             }
             //var user = new User { Email = email, FullName = name };
             HttpContext.Session.SetObjectAsJson("CurrentUser", user);
@@ -142,4 +154,8 @@ namespace pet_spa_system1.Controllers
         }
 
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> my-code

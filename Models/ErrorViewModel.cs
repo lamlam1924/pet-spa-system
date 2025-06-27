@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 namespace pet_spa_system1.Models
+=======
+﻿namespace pet_spa_system1.Models
+>>>>>>> my-code
 {
     public class ErrorViewModel
     {
@@ -6,4 +10,8 @@ namespace pet_spa_system1.Models
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> my-code
