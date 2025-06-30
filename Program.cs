@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Services;
@@ -24,6 +25,8 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<PetDataShopContext>(options =>
@@ -39,8 +42,28 @@ builder.Services.AddAuthentication(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    options.Scope.Add("email");
+    options.Scope.Add("profile"); // thêm profile để lấy tên đầy đủ
+    options.SaveTokens = true;
+
+    options.Events.OnCreatingTicket = context =>
+    {
+        var identity = context.Identity;
+
+        var email = context.User.GetProperty("email").GetString();
+        var name = context.User.GetProperty("name").GetString();
+
+        identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
+        identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
+
+        Console.WriteLine("🎯 Email nhận từ Google: " + email);
+        Console.WriteLine("🎯 Name nhận từ Google: " + name);
+        return Task.CompletedTask;
+    };
+
     options.CallbackPath = "/signin-google";
 });
+
 var app = builder.Build();
 app.UseSession();
 using (var scope = app.Services.CreateScope())
