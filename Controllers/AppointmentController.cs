@@ -55,12 +55,34 @@ namespace pet_spa_system1.Controllers
         {
             int userId = 2; // sau này lấy từ User.Identity
 
-            // Debug: Kiểm tra binding
-            System.Diagnostics.Debug.WriteLine("ServiceIds: " + string.Join(",", model.SelectedServiceIds));
-            System.Diagnostics.Debug.WriteLine("PetIds: " + string.Join(",", model.SelectedPetIds));
-
-            if (!ModelState.IsValid)
+            // DEBUG
+            Console.WriteLine($"Nhận được {model.SelectedServiceIds?.Count ?? 0} dịch vụ");
+            if (model.SelectedServiceIds != null)
             {
+                foreach (var serviceId in model.SelectedServiceIds)
+                {
+                    Console.WriteLine($"Service ID: {serviceId}");
+                }
+            }
+            
+            // Kiểm tra xem có đủ dịch vụ và thú cưng đã chọn chưa
+            if (!ModelState.IsValid || model.SelectedServiceIds == null || !model.SelectedServiceIds.Any() ||
+                model.SelectedPetIds == null || !model.SelectedPetIds.Any())
+            {
+                // Kiểm tra thông tin thú cưng và dịch vụ trước khi tiếp tục
+                if (model.SelectedServiceIds == null || !model.SelectedServiceIds.Any())
+                {
+                    ModelState.AddModelError("", "Vui lòng chọn ít nhất một dịch vụ.");
+                }
+                
+                if (model.SelectedPetIds == null || !model.SelectedPetIds.Any())
+                {
+                    ModelState.AddModelError("", "Vui lòng chọn ít nhất một thú cưng.");
+                }
+                
+                // In ra debug để kiểm tra
+                Console.WriteLine($"Validation failed: Services={model.SelectedServiceIds?.Count ?? 0}, Pets={model.SelectedPetIds?.Count ?? 0}");
+                
                 // Nạp lại danh sách cho ViewModel khi có lỗi
                 model.Services = _serviceService.GetActiveServices();
                 model.Categories = _serCateService.GetActiveCategories();
@@ -83,16 +105,44 @@ namespace pet_spa_system1.Controllers
                 return View("Appointment", model);
             }
 
+            // Đặt lịch thành công - tạo ViewModel mới để tránh các lỗi từ form cũ
             ViewBag.BookingSuccess = true;
-            model.Services = _serviceService.GetActiveServices();
-            model.Categories = _serCateService.GetActiveCategories();
-            model.Pets = _petService.GetPetsByUserId(userId);
-            return View("Appointment", model);
+            
+            // Debug thông tin thú cưng đã chọn
+            if (model.SelectedPetIds != null)
+            {
+                foreach (var petId in model.SelectedPetIds) 
+                {
+                    Console.WriteLine($"Pet ID được chọn: {petId}");
+                }
+            }
+            
+            var newModel = new AppointmentViewModel
+            {
+                Services = _serviceService.GetActiveServices(),
+                Categories = _serCateService.GetActiveCategories(),
+                Pets = _petService.GetPetsByUserId(userId),
+                CustomerName = model.CustomerName, // giữ lại thông tin khách hàng để tiện cho lần đặt tiếp theo
+                Phone = model.Phone,
+                Email = model.Email
+            };
+            return View("Appointment", newModel);
             // -----------------------------------------------
         }
         
         [HttpGet]
         public IActionResult History()
+        {
+            // TODO: sau này thay 1 bằng userId thực tế từ đăng nhập
+            int userId = 2;
+            //var appointments = _appointmentService.GetAppointmentsByUser(userId);
+            var viewmodel = _appointmentService.GetAppointmentHistory(userId);
+            
+            return View(viewmodel);
+        }
+        
+        [HttpGet]
+        public IActionResult EmailForAppointment()
         {
             // TODO: sau này thay 1 bằng userId thực tế từ đăng nhập
             int userId = 2;

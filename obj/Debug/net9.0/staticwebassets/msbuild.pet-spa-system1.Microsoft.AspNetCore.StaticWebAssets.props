@@ -408,8 +408,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>917ng7mgh3</Fingerprint>
-      <Integrity>o5D+/8Yf2CuMJqIzZu8dHArUzFF77DMPSYVyeaInr/o=</Integrity>
+      <Fingerprint>yjilfpao74</Fingerprint>
+      <Integrity>0psih+mapRCMoeRPR3cijXeduQgqnRwZoQm3apeBFxI=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\cssjsAppointment\appointment.js'))</OriginalItemSpec>

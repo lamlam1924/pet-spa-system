@@ -7,6 +7,8 @@ namespace pet_spa_system1.Services
         bool SaveAppointment(AppointmentViewModel vm, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
         Appointment GetAppointmentById(int appointmentId);
+        List<string> GetPetNames(List<int> petIds);
+        List<string> GetServiceNames(List<int> serviceIds);
     }
 }
 

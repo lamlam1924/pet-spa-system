@@ -46,11 +46,29 @@
                                 <td>@appt.AppointmentDate.ToString("dd/MM/yyyy")</td>
                                 <td>@appt.AppointmentDate.ToString("HH:mm")</td>
                                 <td>
-                                    @if (appt.ServiceNames != null && appt.ServiceNames.Any())
-                                        { @string.Join(", ", appt.ServiceNames) }
+                                    @* <p>Appointment @appt.AppointmentId has @(appt.Services?.Count ?? 0) services</p> *@
+                                    @if (appt.Services != null && appt.Services.Any())
+                                    {
+                                        @foreach (var svc in appt.Services)
+                                        {
+                                            <span>@svc.Name</span>
+                                            @if (!svc.IsActive)
+                                            {
+                                                <span class="badge bg-danger ms-1">Ngừng cung cấp</span>
+                                            }
+
+                                            @if (svc != appt.Services.Last())
+                                            {
+                                                <span>, </span>
+                                            }
+                                        }
+                                    }
                                     else
-                                        { <span class="text-muted">Chưa có dữ liệu</span> }
+                                    {
+                                        <span class="text-muted">Chưa có dữ liệu</span>
+                                    }
                                 </td>
+
                                 <td>
                                     @if (appt.PetNames != null && appt.PetNames.Any())
                                         { @string.Join(", ", appt.PetNames) }

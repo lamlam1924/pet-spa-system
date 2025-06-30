@@ -14,7 +14,7 @@ public class AppointmentViewModel
 
     public DateTime AppointmentDate { get; set; }
     public TimeSpan AppointmentTime { get; set; }
-    public List<int> SelectedServiceIds { get; set; } = new();
-    public List<int> SelectedPetIds { get; set; } = new();
+    public List<int> SelectedServiceIds { get; set; } = new List<int>();
+    public List<int> SelectedPetIds { get; set; } = new List<int>();
     public string? Notes { get; set; }
 }

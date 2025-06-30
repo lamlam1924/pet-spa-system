@@ -6,6 +6,82 @@
 
 @section Styles {
     <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/appointment.css")" />
+    <style>
+        /* Thiết kế mới cho danh sách thú cưng */
+        .pet-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .pet-item {
+            flex: 0 0 auto;
+            width: auto;
+            max-width: calc(33.33% - 10px);
+            min-width: 120px;
+            margin-bottom: 5px;
+        }
+        
+        .pet-card {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: white;
+            transition: all 0.2s;
+            cursor: pointer;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .pet-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.2);
+        }
+        
+        input[name="SelectedPetIds"]:checked + .pet-card {
+            background-color: #e6f0ff;
+            border-color: #2563eb;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+        }
+        
+        .pet-avatar {
+            flex: 0 0 auto;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #f0f5ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .pet-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .pet-info h5 {
+            font-size: 0.9rem;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .pet-breed {
+            font-size: 0.75rem;
+            color: #666;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 }
 
 <section class="make_apppointment_area">
@@ -19,6 +95,7 @@
                         <form asp-action="Book" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" id="SelectedServiceIds" name="SelectedServiceIds" value="" />
+                            <!-- Không cần hidden field cho SelectedPetIds vì form sẽ tự collect các checkbox -->
                             <!-- Progress Indicator -->
                             <div class="progress-steps mb-4">
                                 <div class="step active" data-step="1">
@@ -95,47 +172,80 @@
                                         <div class="form-grid">
                                             <div class="form-group">
                                                 <label for="customerName">Họ và tên</label>
-                                                <input type="text" class="form-control" id="customerName" name="CustomerName" autocomplete="name" value="@Model.CustomerName">
+                                                <input type="text" class="form-control" id="customerName" name="CustomerName" autocomplete="name" value="@(string.IsNullOrEmpty(Model.CustomerName) ? "Nguyễn Văn A" : Model.CustomerName)">
                                                 <div class="field-error"></div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="Phone">Số điện thoại</label>
-                                                <input type="tel" class="form-control" id="Phone" name="Phone" autocomplete="tel" value="@Model.Phone">
+                                                <input type="tel" class="form-control" id="Phone" name="Phone" autocomplete="tel" value="@(string.IsNullOrEmpty(Model.Phone) ? "0901234567" : Model.Phone)">
                                                 <div class="field-error"></div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="Email">Email</label>
-                                                <input type="email" class="form-control" id="Email" name="Email" autocomplete="email" value="@Model.Email">
+                                                <input type="email" class="form-control" id="Email" name="Email" autocomplete="email" value="@(string.IsNullOrEmpty(Model.Email) ? "example@gmail.com" : Model.Email)">
                                                 <div class="field-error"></div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="AppointmentDate">Ngày hẹn</label>
-                                                <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate" autocomplete="off">
+                                                <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate" autocomplete="off" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")">
                                                 <div class="field-error"></div>
                                             </div>
                                             <div class="form-group">
                                                 <label for="AppointmentTime">Giờ hẹn</label>
-                                                <input type="time" class="form-control" id="AppointmentTime" name="AppointmentTime" autocomplete="off">
+                                                <input type="time" class="form-control" id="AppointmentTime" name="AppointmentTime" autocomplete="off" value="10:00">
                                                 <div class="field-error"></div>
                                             </div>
 
                                             <div class="form-section pet-selection">
                                                 <h4>Chọn thú cưng của bạn</h4>
                                                 <div class="pet-list" id="mainPetList" >
-                                                    @foreach (var pet in Model.Pets)
+                                                    @if (Model.Pets != null && Model.Pets.Any())
                                                     {
+                                                        foreach (var pet in Model.Pets)
+                                                        {
+                                                            <div class="pet-item">
+                                                                <input type="checkbox" id="pet-@pet.PetId" name="SelectedPetIds" value="@pet.PetId" class="pet-checkbox" @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(pet.PetId) ? "checked" : "")>
+                                                                <label for="pet-@pet.PetId" class="pet-card">
+                                                                    <div class="pet-avatar">
+                                                                        <i class="fa fa-paw"></i>
+                                                                    </div>
+                                                                    <div class="pet-info">
+                                                                        <h5>@pet.Name</h5>
+                                                                        <span class="pet-breed">@pet.Breed</span>
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <!-- Dữ liệu mẫu khi không có thú cưng -->
                                                         <div class="pet-item">
-                                                            <input type="checkbox" id="pet-@pet.PetId" name="SelectedPetIds[]" value="@pet.PetId" class="pet-checkbox">
-
-                                                            <label for="pet-@pet.PetId" class="pet-card">
+                                                            <input type="checkbox" id="pet-sample-1" name="SelectedPetIds" value="1" class="pet-checkbox" @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(1) ? "checked" : "")>
+                                                            <label for="pet-sample-1" class="pet-card">
                                                                 <div class="pet-avatar">
                                                                     <i class="fa fa-paw"></i>
                                                                 </div>
                                                                 <div class="pet-info">
-                                                                    <h5>@pet.Name</h5>
-                                                                    <span class="pet-breed">@pet.Breed</span>
+                                                                    <h5>Lucky</h5>
+                                                                    <span class="pet-breed">Chó Golden Retriever</span>
                                                                 </div>
                                                             </label>
+                                                        </div>
+                                                        <div class="pet-item">
+                                                            <input type="checkbox" id="pet-sample-2" name="SelectedPetIds" value="2" class="pet-checkbox" @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(2) ? "checked" : "")>
+                                                            <label for="pet-sample-2" class="pet-card">
+                                                                <div class="pet-avatar">
+                                                                    <i class="fa fa-paw"></i>
+                                                                </div>
+                                                                <div class="pet-info">
+                                                                    <h5>Miu Miu</h5>
+                                                                    <span class="pet-breed">Mèo Anh Lông Ngắn</span>
+                                                                </div>
+                                                            </label>
+                                                        </div>
+                                                        <div class="alert alert-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i> Hiện tại bạn chưa có thú cưng nào. Vui lòng thêm thú cưng bằng nút bên dưới.
                                                         </div>
                                                     }
                                                 </div>
@@ -174,8 +284,8 @@
                                             </div>
 
                                             <div class="form-group full-width">
-                                                <label>Ghi chú</label>
-                                                <textarea class="form-control" rows="3" name="Notes"></textarea>
+                                                <label for="Notes">Ghi chú</label>
+                                                <textarea class="form-control" id="Notes" rows="3" name="Notes"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -278,13 +388,82 @@
     <script src="@Url.Content("~/cssjsAppointment/appointment.js")"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Khôi phục trạng thái form nếu từng có lỗi ở server-side
+            function resetFormDisplay() {
+                // Ẩn các bước trước, chỉ hiển thị bước 1
+                document.querySelectorAll('.booking-step').forEach(step => {
+                    if (parseInt(step.dataset.step) === 1) {
+                        step.classList.add('active');
+                        step.style.display = 'block';
+                    } else {
+                        step.classList.remove('active');
+                        step.style.display = 'none';
+                    }
+                });
+                
+                // Thiết lập các điều khiển điều hướng
+                document.querySelectorAll('.progress-steps .step').forEach(step => {
+                    step.classList.toggle('active', parseInt(step.dataset.step) === 1);
+                });
+                
+                const prevButton = document.querySelector('.btn-prev');
+                if (prevButton) {
+                    prevButton.disabled = true;
+                }
+            }
+            
             // Nếu đặt lịch thành công thì show modal
             @if (ViewBag.BookingSuccess == true)
             {
                 <text>
                     var successModal = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
                     successModal.show();
+                    // Reset lại form về bước 1 để chuẩn bị lần đặt lịch mới
+                    resetFormDisplay();
                 </text>
+            }
+            
+            // Lưu ý: Xử lý thêm thú cưng đã được thực hiện ở appointment.js
+            // Không cần xử lý trùng lặp ở đây để tránh xung đột
+            
+            // Lưu ý: Xử lý form submit đã được thực hiện ở appointment.js
+            // Không cần xử lý trùng lặp ở đây để tránh xung đột
+            
+            // Hàm hiển thị thông báo toast
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0 show`;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                container.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+            
+            // Thêm sự kiện nếu người dùng đóng modal success
+            const bookingSuccessModal = document.getElementById('bookingSuccessModal');
+            if (bookingSuccessModal) {
+                bookingSuccessModal.addEventListener('hidden.bs.modal', function() {
+                    // Reset form về bước 1 khi đóng modal
+                    resetFormDisplay();
+                });
             }
         });
     </script>

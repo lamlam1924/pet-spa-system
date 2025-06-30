@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === State Variables ===
     let currentStep = 1;
     let selectedServices = [];
+    const mainForm = document.querySelector('.booking-container form');
 
     // === Toast Notification ===
     function showToast(message, type = 'info') {
@@ -44,8 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(toast);
     }
 
-
-    // ---- Toast Notification ----
+    // ---- Form Validation Helpers ----
     function showFieldError(field, message) {
         if (!field) return;
         field.classList.add('error');
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.form-control.error').forEach(input => input.classList.remove('error'));
     }
 
-    // --- Hàm này quản lý required theo step ---
+    // --- Quản lý required theo step ---
     function updateRequiredAttributes(currentStep) {
         document.querySelectorAll('.booking-step').forEach(step => {
             const isActive = parseInt(step.dataset.step) === currentStep;
@@ -92,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    updateRequiredAttributes(currentStep); // Đảm bảo chỉ input step đầu có required
-
+    // Khởi tạo required ban đầu
+    updateRequiredAttributes(currentStep); 
 
     // === Validation cho Step 2 ===
     function validateStep2() {
@@ -159,10 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const selectedPets = document.querySelectorAll('.pet-checkbox:checked');
-        if (!selectedPets || selectedPets.length === 0) {
+        // Kiểm tra thú cưng đã chọn bằng hàm chung
+        if (!checkPetSelection(false)) {
             errors.push({message: 'Vui lòng chọn ít nhất một thú cưng.', field: null});
             if (!firstErrorField) firstErrorField = document.querySelector('.pet-list');
+            
+            // Log debug thêm
+            const allPets = document.querySelectorAll('input[name="SelectedPetIds"]');
+            console.log(`DEBUG: Tổng số thú cưng: ${allPets.length}`);
+            allPets.forEach((pet, i) => {
+                console.log(`  Pet #${i+1}: ID=${pet.id}, value=${pet.value}, checked=${pet.checked}`);
+            });
         }
 
         // Hiển thị lỗi cho từng trường
@@ -188,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return errors.length ? {valid: false, errors} : {valid: true};
     }
 
-
     // === Sidebar Update ===
     function updateSelectedServicesSidebar() {
         const list = document.getElementById('selected-services-sidebar');
@@ -203,9 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             li.innerHTML = `
-                    <span><i class="fa fa-check-circle text-success me-2"></i>${sv.name}</span>
-                    <span class="badge bg-primary rounded-pill">${sv.price.toLocaleString()} đ</span>
-                `;
+                <span><i class="fa fa-check-circle text-success me-2"></i>${sv.name}</span>
+                <span class="badge bg-primary rounded-pill">${sv.price.toLocaleString()} đ</span>
+            `;
             list.appendChild(li);
             total += sv.price;
         });
@@ -214,6 +220,62 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalEl) totalEl.textContent = total.toLocaleString() + ' đ';
     }
 
+    // === Kiểm tra thú cưng được chọn ===
+    function checkPetSelection(showError = true) {
+        // Using more specific selector to ensure we're getting all checked pet checkboxes
+        const selectedPets = document.querySelectorAll('.pet-item input[name="SelectedPetIds"]:checked');
+        const count = selectedPets.length;
+        
+        // Enhanced logging for debugging
+        console.log(`Đang kiểm tra thú cưng: Đã chọn ${count} thú cưng`);
+        console.log("Danh sách thú cưng đã chọn:", Array.from(selectedPets).map(pet => pet.id));
+        
+        // Check for nodes that exist but might have issues
+        const allPetCheckboxes = document.querySelectorAll('.pet-item input[name="SelectedPetIds"]');
+        console.log(`Tổng số checkbox thú cưng: ${allPetCheckboxes.length}`);
+        
+        if (count === 0) {
+            if (showError) {
+                showToast("Vui lòng chọn ít nhất một thú cưng", "error");
+            }
+            return false;
+        }
+        
+        return count > 0;
+    }
+    
+    // === Tạo input hidden cho dịch vụ ===
+    // Được tích hợp trực tiếp vào nút Next và Confirm thay vì dùng function riêng
+    // Function này được giữ lại để tham khảo và khả năng tương thích ngược
+    function updateServiceInputs() {
+        console.log("Bắt đầu cập nhật input hidden cho dịch vụ...");
+        
+        // === DỊCH VỤ ===
+        // Xóa input hidden dịch vụ cũ để tránh trùng lặp
+        mainForm.querySelectorAll('input[name="SelectedServiceIds"][type="hidden"]').forEach(e => e.remove());
+        
+        // Kiểm tra xem có dịch vụ nào được chọn không
+        if (selectedServices.length === 0) {
+            console.log("Không có dịch vụ nào được chọn!");
+            showToast("Vui lòng chọn ít nhất một dịch vụ", "error");
+            return "no-service"; // Trả về mã lỗi cụ thể thay vì false
+        }
+        
+        // Thêm input hidden cho các dịch vụ đã chọn
+        selectedServices.forEach(sv => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'SelectedServiceIds';
+            input.value = sv.serviceId;
+            mainForm.appendChild(input);
+            console.log(`Đã thêm service: ${sv.name} (ID: ${sv.serviceId})`);
+        });
+        
+        console.log("Hoàn tất cập nhật input hidden!");
+        return true;
+    }
+
+
     // === Confirmation Step ===
     function updateConfirmationStep() {
         const confirmServiceEl = document.getElementById('confirm-service');
@@ -221,22 +283,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const confirmPetsList = document.getElementById('confirm-pets-list');
         if (confirmPetsList) {
-            const selectedPets = [...document.querySelectorAll('.pet-checkbox:checked')]
-                .map(petCheckbox => {
-                    const label = document.querySelector(`label[for="${petCheckbox.id}"]`);
-                    if (!label) return null;
-                    const name = label.querySelector('h5')?.innerText.trim() || '';
-                    const breed = label.querySelector('.pet-breed')?.innerText.trim() || '';
-                    return {name, breed};
-                })
-                .filter(p => p && p.name);
+            console.log("Cập nhật danh sách pet ở bước xác nhận");
+            
+            // Sử dụng selector cụ thể hơn để đảm bảo lấy được đúng các checkbox
+            // Selector: .pet-item input[name="SelectedPetIds"]:checked
+            const petCheckboxes = document.querySelectorAll('.pet-item input[name="SelectedPetIds"]:checked');
+            
+            // Debug counts với nhiều selector khác nhau để tìm ra vấn đề
+            console.log(`DEBUG: Số pet với 'input[name="SelectedPetIds"]:checked': ${document.querySelectorAll('input[name="SelectedPetIds"]:checked').length}`);
+            console.log(`DEBUG: Số pet với '.pet-checkbox:checked': ${document.querySelectorAll('.pet-checkbox:checked').length}`);
+            console.log(`DEBUG: Số pet với '.pet-item input:checked': ${document.querySelectorAll('.pet-item input:checked').length}`);
+            console.log(`DEBUG: Số pet với '.pet-item input[name="SelectedPetIds"]:checked': ${petCheckboxes.length}`);
+            
+            // In chi tiết từng checkbox để debug
+            document.querySelectorAll('.pet-item input[name="SelectedPetIds"]').forEach((cb, idx) => {
+                console.log(`Pet checkbox ${idx+1}: id=${cb.id}, checked=${cb.checked}, value=${cb.value}`);
+            });
+            
+            // Chuyển NodeList thành array để có thể dùng map
+            const selectedPets = Array.from(petCheckboxes).map(petCheckbox => {
+                const label = document.querySelector(`label[for="${petCheckbox.id}"]`);
+                // Nếu không tìm thấy label với for=id thì thử nhận label là phần tử kế tiếp
+                let name = '', breed = '';
+                
+                if (label) {
+                    name = label.querySelector('h5')?.innerText.trim() || '';
+                    breed = label.querySelector('.pet-breed')?.innerText.trim() || '';
+                } else {
+                    // Tìm trong parent của checkbox để handle TH không có label
+                    const petItem = petCheckbox.closest('.pet-item');
+                    name = petItem?.querySelector('h5')?.innerText.trim() || '';
+                    breed = petItem?.querySelector('.pet-breed')?.innerText.trim() || '';
+                }
+                
+                console.log(`Tìm được pet: ${name} (${breed}) từ checkbox ${petCheckbox.id}`);
+                return name ? {name, breed} : null;
+            }).filter(Boolean); // Lọc các giá trị null
 
+            console.log(`Tổng số pet sau khi xử lý: ${selectedPets.length}`);
+            
             confirmPetsList.innerHTML = '';
             selectedPets.forEach(pet => {
                 const li = document.createElement('li');
                 li.textContent = `${pet.name} (${pet.breed})`;
                 confirmPetsList.appendChild(li);
             });
+            
+            // Nếu không tìm thấy pet nào, hiển thị thông báo
+            if (selectedPets.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item text-danger';
+                li.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Chưa có thú cưng nào được chọn!';
+                confirmPetsList.appendChild(li);
+            }
         }
 
         const confirmCustomerName = document.getElementById('confirm-customer-name');
@@ -271,20 +370,56 @@ document.addEventListener('DOMContentLoaded', () => {
             const noteInput = document.querySelector('.customer-form textarea');
             confirmNoteEl.textContent = noteInput?.value.trim() || '(Không có)';
         }
-        const selectedIds = selectedServices.map(sv => sv.serviceId).join(',');
-        document.getElementById('SelectedServiceIds').value = selectedIds;
     }
 
+    // === Scroll về đầu form ===
+    function scrollToFormTop() {
+        const formSection = document.querySelector('.appoint_ment_form');
+        if (formSection) {
+            formSection.scrollIntoView({behavior: 'smooth', block: 'start'});
+        } else {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    }
+
+    // ---- Theo dõi thay đổi trên checkbox thú cưng ----
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('input[name="SelectedPetIds"]')) {
+            console.log(`Pet checkbox ${e.target.id} changed: checked=${e.target.checked}, value=${e.target.value}`);
+            
+            // Khi có thay đổi checkbox, cập nhật lại lỗi nếu có
+            const petErrorDiv = document.querySelector('.pet-selection .pet-error');
+            if (petErrorDiv && document.querySelectorAll('input[name="SelectedPetIds"]:checked').length > 0) {
+                petErrorDiv.textContent = '';
+                petErrorDiv.style.display = 'none';
+            }
+        }
+    });
+
+    // === EVENT LISTENERS ===
+
     // ---- Ngăn submit form nếu chưa phải bước 3 ----
-    const mainForm = document.querySelector('.booking-container form');
     if (mainForm) {
         mainForm.addEventListener('submit', function (e) {
+            console.log(`Form submit được kích hoạt (bước ${currentStep})`);
+            
             if (currentStep !== 3) {
+                console.log("Chặn submit form vì chưa phải ở bước 3");
                 e.preventDefault();
                 return false;
             }
-            // Đảm bảo cập nhật input hidden (dự phòng)
-            updateConfirmationStep();
+            
+            // Kiểm tra xem có pets được chọn không
+            const selectedPetsCount = document.querySelectorAll('input[name="SelectedPetIds"]:checked').length;
+            console.log(`Kiểm tra trước khi submit: Đã chọn ${selectedPetsCount} thú cưng`);
+            // Kiểm tra xem có pets được chọn không với hàm chung
+            if (!checkPetSelection(true)) {
+                console.log("Chặn submit form vì chưa chọn thú cưng");
+                e.preventDefault();
+                moveToStep(2);
+                return false;
+            }
+            return true;
         });
     }
 
@@ -297,8 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
-    // === Event Listeners ===
     // Service Selection
     document.addEventListener('click', e => {
         const btn = e.target.closest('.btn-select');
@@ -323,15 +456,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSelectedServicesSidebar();
     });
 
-
     // ---- Step Navigation: Next ----
     const btnNext = document.querySelector('.btn-next');
     if (btnNext) {
         btnNext.addEventListener('click', () => {
+            // STEP 1: Check services selection
             if (currentStep === 1 && selectedServices.length === 0) {
                 showToast('Oops! Bạn chưa chọn dịch vụ nào, chọn một cái nha!', 'error');
                 return;
             }
+            
+            // STEP 2: Validate customer info and pets
             if (currentStep === 2) {
                 clearAllErrors();
                 const validation = validateStep2();
@@ -348,12 +483,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     return;
                 }
+                
+                // Double-check pet selection explicitly here - critical for step 3
+                const selectedPetsCount = document.querySelectorAll('.pet-item input[name="SelectedPetIds"]:checked').length;
+                console.log(`Double-check trước khi sang bước 3: Có ${selectedPetsCount} thú cưng đã chọn`);
+                
+                if (selectedPetsCount === 0) {
+                    showToast('Vui lòng chọn ít nhất một thú cưng', 'error');
+                    let petErrorDiv = document.querySelector('.pet-selection .pet-error');
+                    if (petErrorDiv) {
+                        petErrorDiv.textContent = 'Vui lòng chọn ít nhất một thú cưng.';
+                        petErrorDiv.style.display = 'block';
+                        petErrorDiv.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }
+                    return;
+                }
+                
+                // Chuẩn bị input hidden cho dịch vụ
+                mainForm.querySelectorAll('input[name="SelectedServiceIds"][type="hidden"]').forEach(e => e.remove());
+                selectedServices.forEach(sv => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'SelectedServiceIds';
+                    input.value = sv.serviceId;
+                    mainForm.appendChild(input);
+                });
+                
+                // Cập nhật giao diện bước 3
                 updateConfirmationStep();
             }
+            
+            // STEP 3: Just update confirmation
             if (currentStep === 3) {
+                // Khi ở bước 3, chỉ cập nhật thông tin xác nhận, không cần validate lại
                 updateConfirmationStep();
                 return;
             }
+            
+            // Common navigation logic
             // Ẩn step cũ
             const currentStepEl = document.querySelector('.booking-step.active');
             if (currentStepEl) {
@@ -420,10 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal Thêm thú cưng mới
     const btnAddPet = document.getElementById('btnAddPet');
     if (btnAddPet) {
-        console.log("Đang gắn event cho btnAddPet:", document.getElementById('btnAddPet'));
-
         btnAddPet.addEventListener('click', function () {
-            console.log("Button Thêm thú cưng được bấm!"); // Debug
             const petName = document.getElementById('petNameModal').value.trim();
             const petBreed = document.getElementById('petBreedModal').value;
             if (!petName || !petBreed) {
@@ -431,23 +595,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             const tempPetId = "new_" + Date.now();
-            console.log("Button Thêm thú cưng được bấm!"); // phải thấy log này khi click
             const petList = document.querySelector('.pet-selection .pet-list');
-            console.log('petList:', petList);
 
             if (petList) {
-                petList.insertAdjacentHTML('beforeend', `
-                    <div class="pet-item">
-                        <input type="checkbox" id="pet-${tempPetId}" name="SelectedPetIds[]" value="${tempPetId}" class="pet-checkbox" checked>
-                        <label for="pet-${tempPetId}" class="pet-card">
-                            <div class="pet-avatar"><i class="fa fa-paw"></i></div>
-                            <div class="pet-info">
-                                <h5>${petName}</h5>
-                                <span class="pet-breed">${petBreed}</span>
-                            </div>
-                        </label>
-                    </div>
-                `);
+                // Tạo element thay vì chỉ insertAdjacentHTML để có thể tương tác với checkbox
+                const petItemDiv = document.createElement('div');
+                petItemDiv.className = 'pet-item';
+                petItemDiv.innerHTML = `
+                    <input type="checkbox" id="pet-${tempPetId}" name="SelectedPetIds" value="${tempPetId}" class="pet-checkbox" checked>
+                    <label for="pet-${tempPetId}" class="pet-card">
+                        <div class="pet-avatar"><i class="fa fa-paw"></i></div>
+                        <div class="pet-info">
+                            <h5>${petName}</h5>
+                            <span class="pet-breed">${petBreed}</span>
+                        </div>
+                    </label>
+                `;
+                
+                petList.appendChild(petItemDiv);
+                
+                // Kiểm tra xem checkbox đã được thêm đúng và đã được check
+                const newCheckbox = document.getElementById(`pet-${tempPetId}`);
+                if (newCheckbox) {
+                    console.log(`Đã thêm pet mới: ${petName} với ID=${newCheckbox.id}, checked=${newCheckbox.checked}`);
+                    
+                    // Đảm bảo checkbox được check
+                    newCheckbox.checked = true;
+                }
+                
+                // Xóa thông báo cảnh báo nếu có
+                const warningAlert = petList.querySelector('.alert-warning');
+                if (warningAlert) {
+                    warningAlert.remove();
+                }
+                
+                // Xóa lỗi thú cưng nếu có
+                const petError = document.querySelector('.pet-selection .pet-error');
+                if (petError) {
+                    petError.textContent = '';
+                    petError.style.display = 'none';
+                }
             } else {
                 showToast('Không tìm thấy danh sách thú cưng!', 'error');
             }
@@ -484,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '/';
         }, {once: true});
     }
+    
     const btnNewBooking = document.getElementById('btnNewBooking');
     if (btnNewBooking) {
         btnNewBooking.addEventListener('click', () => {
@@ -491,94 +679,111 @@ document.addEventListener('DOMContentLoaded', () => {
         }, {once: true});
     }
 
-    // ---- Scroll về đầu form ----
-    function scrollToFormTop() {
-        const formSection = document.querySelector('.appoint_ment_form');
-        if (formSection) {
-            formSection.scrollIntoView({behavior: 'smooth', block: 'start'});
-        } else {
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-    }
-
     // Confirm Appointment
     const btnConfirmAppointment = document.getElementById('btnConfirmAppointment');
     if (btnConfirmAppointment) {
         btnConfirmAppointment.addEventListener('click', function (e) {
-            // Trước khi submit, đảm bảo update input ẩn (dự phòng)
+            e.preventDefault();
+            console.log("BƯỚC 3: Nút xác nhận đặt lịch được nhấn");
+            
+            // Cập nhật form confirmation và kiểm tra dữ liệu
             updateConfirmationStep();
-            // Submit form
-            this.form.submit();
-            // Không show modal nữa, vì submit là redirect, không cần show JS modal!
+            
+            // Debug hiện trạng các checkbox thú cưng với selector cụ thể
+            console.log("Trạng thái checkbox thú cưng:");
+            document.querySelectorAll('.pet-item input[name="SelectedPetIds"]').forEach((cb, i) => {
+                console.log(`  ${i+1}. ID=${cb.id}, value=${cb.value}, checked=${cb.checked}`);
+            });
+            
+            // Kiểm tra dịch vụ đã chọn 
+            if (selectedServices.length === 0) {
+                showToast("Vui lòng chọn ít nhất một dịch vụ", "error");
+                moveToStep(1);
+                return;
+            }
+            
+            // Kiểm tra thú cưng đã chọn với selector cụ thể
+            const selectedPetsCount = document.querySelectorAll('.pet-item input[name="SelectedPetIds"]:checked').length;
+            if (selectedPetsCount === 0) {
+                console.log("Không tìm thấy thú cưng nào được chọn (với selector .pet-item), quay lại bước 2");
+                showToast("Vui lòng chọn ít nhất một thú cưng", "error");
+                moveToStep(2);
+                return;
+            }
+            
+            // Log thông tin pet đã chọn để debug
+            const selectedPets = document.querySelectorAll('.pet-item input[name="SelectedPetIds"]:checked');
+            console.log(`Tìm thấy ${selectedPets.length} thú cưng được chọn (với selector .pet-item)`);
+            selectedPets.forEach((pet, i) => {
+                console.log(`  Pet #${i+1}: ID=${pet.id}, value=${pet.value}`);
+            });
+            
+            // QUAN TRỌNG: Xóa hidden inputs cũ để tránh duplicate
+            mainForm.querySelectorAll('input[name="SelectedServiceIds"][type="hidden"]').forEach(e => e.remove());
+            
+            // Thêm service IDs mới
+            selectedServices.forEach(sv => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedServiceIds';
+                input.value = sv.serviceId;
+                mainForm.appendChild(input);
+                console.log(`Thêm service: ${sv.name} (ID: ${sv.serviceId})`);
+            });
+            
+            // Ensure all selected pets are properly checked before submission
+            // This ensures the form will include the selected pet IDs
+            selectedPets.forEach(pet => {
+                if (!pet.checked) {
+                    console.log(`Fixing unchecked pet: ${pet.id}`);
+                    pet.checked = true;
+                }
+                console.log(`Đã chọn Pet ID: ${pet.value}`);
+            });
+                        
+            // Hiển thị thông báo đang xử lý
+            showToast("Đang xử lý đặt lịch...", "info");
+            
+            // Thêm delay nhỏ để người dùng thấy thông báo 
+            setTimeout(() => {
+                console.log("Đang submit form...");
+                mainForm.submit();
+            }, 500);
         });
     }
 
-
-    function scrollToFormTop() {
-        const formSection = document.querySelector('.appoint_ment_form');
-        if (formSection) {
-            formSection.scrollIntoView({behavior: 'smooth', block: 'start'});
-        } else {
-            window.scrollTo({top: 0, behavior: 'smooth'});
+    function moveToStep(stepNumber) {
+        // Ẩn step hiện tại
+        const currentStepEl = document.querySelector('.booking-step.active');
+        if (currentStepEl) {
+            currentStepEl.style.display = 'none';
+            currentStepEl.classList.remove('active');
+        }
+        
+        // Cập nhật biến theo dõi bước hiện tại
+        currentStep = stepNumber;
+        updateRequiredAttributes(currentStep);
+        
+        // Hiển thị step mới
+        const nextStep = document.querySelector(`.booking-step[data-step="${currentStep}"]`);
+        if (nextStep) {
+            nextStep.style.display = 'block';
+            nextStep.classList.add('active');
+            document.querySelectorAll('.step').forEach(stepEl => {
+                stepEl.classList.toggle('active', parseInt(stepEl.dataset.step) === currentStep);
+            });
+            document.querySelector('.btn-prev').disabled = currentStep === 1;
+            
+            let stepName = "";
+            if (currentStep === 1) stepName = "chọn dịch vụ";
+            else if (currentStep === 2) stepName = "thông tin và thú cưng";
+            else if (currentStep === 3) stepName = "xác nhận đặt lịch";
+            
+            showToast(`Quay lại bước ${currentStep}: ${stepName}`, 'info');
+            scrollToFormTop();
         }
     }
-
 });
-    // Đảm bảo SelectedServiceIds và SelectedPetIds là nhiều input hidden cho đúng ASP.NET MVC
-    
-    function createHiddenInputs() {
-        // Xóa input cũ
-        document.querySelectorAll('input[name="SelectedServiceIds"]').forEach(el => el.remove());
-        document.querySelectorAll('input[name="SelectedPetIds"]').forEach(el => el.remove());
-    
-        // Tạo input dịch vụ
-        selectedServices.forEach(sv => {
-            let input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'SelectedServiceIds';
-            input.value = sv.serviceId;
-            mainForm.appendChild(input);
-        });
-    
-        // Tạo input thú cưng
-        document.querySelectorAll('.pet-checkbox:checked').forEach(petCb => {
-            let input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'SelectedPetIds';
-            input.value = petCb.value;
-            mainForm.appendChild(input);
-        });
-    }
-    
-    // Trong event submit form hoặc click nút xác nhận:
-    btnConfirmAppointment.addEventListener('click', function (e) {
-        createHiddenInputs(); // <-- THÊM DÒNG NÀY
-        updateConfirmationStep();
-        this.form.submit();
-    });
-
-function updateHiddenInputs() {
-    // Remove old
-    document.querySelectorAll('input[name="SelectedServiceIds"]').forEach(el => el.remove());
-    document.querySelectorAll('input[name="SelectedPetIds"]').forEach(el => el.remove());
-    // Add services
-    selectedServices.forEach(sv => {
-        let input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'SelectedServiceIds';
-        input.value = sv.serviceId;
-        mainForm.appendChild(input);
-    });
-    // Add pets
-    document.querySelectorAll('.pet-checkbox:checked').forEach(cb => {
-        let input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'SelectedPetIds';
-        input.value = cb.value;
-        mainForm.appendChild(input);
-    });
-}
-// Và gọi hàm này NGAY TRƯỚC khi submit form
 
 
 
