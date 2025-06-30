@@ -9,6 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+
+    <PackageReference Include="Abp.Web.Common" Version="10.2.0" />
+
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.6" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">

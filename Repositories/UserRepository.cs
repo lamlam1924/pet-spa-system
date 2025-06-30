@@ -2,10 +2,13 @@
 using pet_spa_system1.Models;
 
 
-namespace pet_spa_system1.Repositories
+namespace pet_spa_system1.Repositories;
 
-{
-    public class UserRepository : GenericRepository<User>
+
+    public class UserRepository
+
+          : GenericRepository<User>
+
     {
         private readonly PetDataShopContext _context;
         public UserRepository(PetDataShopContext context) : base(context)

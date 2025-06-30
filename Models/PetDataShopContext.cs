@@ -554,7 +554,7 @@ public partial class PetDataShopContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC8E60288C");
 
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E43B839247").IsUnique();
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC05475DB9");
 
             entity.HasIndex(e => e.Email, "UQ__Users__A9D10534838E41F3").IsUnique();
 
