@@ -36,8 +36,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cNDA0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PRN212/PRJ_PET1/Views/Admin/Add_New_Product.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkX05ld19Qcm9kdWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PRN212/PRJ_PET1/Views/Admin/Appointments.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXBwb2ludG1lbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/Edit_Products.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdF9Qcm9kdWN0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Index.cshtml]
@@ -50,6 +58,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageService.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Modals.cshtml]
@@ -90,6 +106,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Ui_Colors.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVWlfQ29sb3JzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/_LayoutAdmin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX0xheW91dEFkbWluLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Appointment/Appointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRcQXBwb2ludG1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Appointment/History.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRcSGlzdG9yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Blogs/Blog.cshtml]
@@ -134,6 +162,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Service/Booking.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxCb29raW5nLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Service/HomeService.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxIb21lU2VydmljZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Service/ListService.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxMaXN0U2VydmljZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Service/ServicePet.cshtml]

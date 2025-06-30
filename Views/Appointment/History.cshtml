@@ -1,0 +1,103 @@
+@model pet_spa_system1.Models.AppointmentHistoryViewModel
+
+<div class="container py-4">
+    <h2 class="mb-4 fw-bold text-center">Lịch sử đặt lịch</h2>
+    @if (Model.Appointments == null || !Model.Appointments.Any())
+    {
+        <div class="alert alert-info text-center p-4 mt-4 shadow-sm rounded-3">
+            Bạn chưa có lịch sử đặt lịch nào.
+            <br />
+            <a href="/Appointment/Book" class="btn btn-danger mt-3">Đặt lịch ngay</a>
+        </div>
+    }
+    else
+    {
+        <!-- Bộ lọc trạng thái nếu cần -->
+        @if (Model.Statuses != null && Model.Statuses.Any())
+        {
+            <div class="mb-3 d-flex align-items-center gap-3">
+                <label class="fw-semibold mb-0">Lọc theo trạng thái:</label>
+                <select id="statusFilter" class="form-select w-auto">
+                    <option value="">Tất cả</option>
+                    @foreach (var status in Model.Statuses)
+                    {
+                        <option value="@status.StatusId">@status.StatusName</option>
+                    }
+                </select>
+            </div>
+        }
+        <div class="card shadow-sm rounded-4 p-3 border-0">
+            <div class="table-responsive">
+                <table class="table align-middle table-hover mb-0" id="historyTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Giờ</th>
+                            <th>Dịch vụ</th>
+                            <th>Thú cưng</th>
+                            <th>Trạng thái</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var appt in Model.Appointments)
+                        {
+                            <tr data-status="@appt.StatusId">
+                                <td>@appt.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                                <td>@appt.AppointmentDate.ToString("HH:mm")</td>
+                                <td>
+                                    @if (appt.ServiceNames != null && appt.ServiceNames.Any())
+                                        { @string.Join(", ", appt.ServiceNames) }
+                                    else
+                                        { <span class="text-muted">Chưa có dữ liệu</span> }
+                                </td>
+                                <td>
+                                    @if (appt.PetNames != null && appt.PetNames.Any())
+                                        { @string.Join(", ", appt.PetNames) }
+                                    else
+                                        { <span class="text-muted">Chưa có dữ liệu</span> }
+                                </td>
+                                <td>
+                                    <span class="badge px-3 py-2 @GetStatusClass(appt.StatusId)">
+                                        @appt.StatusName
+                                    </span>
+                                </td>
+                                <td>@appt.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Lọc trạng thái client-side (không cần reload)
+        document.getElementById('statusFilter')?.addEventListener('change', function () {
+            const value = this.value;
+            document.querySelectorAll('#historyTable tbody tr').forEach(row => {
+                if (!value || row.dataset.status === value)
+                    row.style.display = '';
+                else
+                    row.style.display = 'none';
+            });
+        });
+    </script>
+}
+
+@functions{
+    public string GetStatusClass(int statusId)
+    {
+        // Mapping màu badge cho từng trạng thái
+        return statusId switch
+        {
+            1 => "bg-warning text-dark",    // Chờ xác nhận
+            2 => "bg-primary text-white",   // Đã xác nhận
+            3 => "bg-success text-white",   // Đã hoàn thành
+            4 => "bg-danger text-white",    // Đã hủy
+            _ => "bg-secondary text-white"
+        };
+    }
+}

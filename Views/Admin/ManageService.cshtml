@@ -1,0 +1,261 @@
+@model pet_spa_system1.Models.ServiceViewModel
+@{
+    ViewData["Title"] = "Service List";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    var selectedCategoryId = Context.Request.Query["categoryId"].ToString();
+}
+
+@section Styles {
+    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet" />
+}
+
+<div class="container-fluid" id="container-wrapper">
+    
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+       
+        <h1 class="h3 mb-0 text-gray-800">Service List</h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Service List</li>
+        </ol>
+        <button id="btnAddService" class="btn btn-primary btn-sm" type="button">
+            Add New Service <i class="fas fa-plus"></i>
+        </button>
+    </div>
+     <!-- Search & Filter -->
+    <form method="get" class="row mb-3 align-items-center">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search by service name..." value="@Context.Request.Query["search"]" />
+        </div>
+        <div class="col-md-3">
+            <select name="categoryId" class="form-control" onchange="this.form.submit()">
+                <option value="">-- All Categories --</option>
+                @foreach (var cat in Model.Categories)
+                            {
+                                if (selectedCategoryId == cat.CategoryId.ToString())
+                                {
+                                    <option value="@cat.CategoryId" selected="selected">@cat.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat.CategoryId">@cat.Name</option>
+                                }
+                            }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-info w-100"><i class="fas fa-search"></i> Search</button>
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Service Management</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th style="max-width: 180px;">Description</th> <!-- Thêm max-width -->
+                                    <th>Price</th>
+                                    <th>Duration</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model?.Services != null && Model.Services.Any())
+                                {
+                                    int stt = 1;
+                                    foreach (var item in Model.Services)
+                                    {
+                                        <tr class="@(item.IsActive ? "" : "table-danger")">
+                                            <td>@(stt++)</td>
+                                            <td>@item.Name</td>
+                                            <td style="max-width: 180px; white-space: normal; word-break: break-word;">@item.Description</td>
+                                            <td>@item.Price.ToString("N0") đ</td>
+                                            <td>@item.DurationMinutes phút</td>
+                                            <td>@item.Category?.Name</td>
+                                            <td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0);"
+                                                   class="btn btn-sm btn-warning btn-edit-service"
+                                                   data-id="@item.ServiceId"
+                                                   data-name="@item.Name"
+                                                   data-description="@item.Description"
+                                                   data-price="@item.Price"
+                                                   data-duration="@item.DurationMinutes"
+                                                   data-category="@item.CategoryId"
+                                                   title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                @if (item.IsActive)
+                                                {
+                                                    <a href="@Url.Action("SoftDeleteService", "Admin", new { id = item.ServiceId })" class="btn btn-sm btn-danger" title="Soft Delete" onclick="return confirm('Are you sure to hide this service?');"><i class="fas fa-trash"></i></a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@Url.Action("RestoreService", "Admin", new { id = item.ServiceId })" class="btn btn-sm btn-success" title="Restore"><i class="fas fa-undo"></i></a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center text-danger">No services found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Service -->
+    <div class="modal fade" id="addServiceModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="addServiceForm" class="modal-content" method="post" asp-action="AddService">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="service-name" class="form-label">Name</label>
+                        <input type="text" id="service-name" name="Name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="service-description" class="form-label">Description</label>
+                        <input type="text" id="service-description" name="Description" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="service-price" class="form-label">Price</label>
+                        <input type="number" id="service-price" name="Price" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="service-duration" class="form-label">Duration (minutes)</label>
+                        <input type="number" id="service-duration" name="DurationMinutes" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="service-category" class="form-label">Category</label>
+                        <select id="service-category" name="CategoryId" class="form-control" required>
+                            <option value="">-- Select Category --</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <option value="@cat.CategoryId">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Service</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Service -->
+    <div class="modal fade" id="editServiceModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="editServiceForm" class="modal-content" method="post" asp-action="EditService">
+                <input type="hidden" id="edit-service-id" name="ServiceId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit-service-name" class="form-label">Name</label>
+                        <input type="text" id="edit-service-name" name="Name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-service-description" class="form-label">Description</label>
+                        <input type="text" id="edit-service-description" name="Description" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-service-price" class="form-label">Price</label>
+                        <input type="number" id="edit-service-price" name="Price" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-service-duration" class="form-label">Duration (minutes)</label>
+                        <input type="number" id="edit-service-duration" name="DurationMinutes" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-service-category" class="form-label">Category</label>
+                        <select id="edit-service-category" name="CategoryId" class="form-control" required>
+                            <option value="">-- Tất cả danh mục --</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                if (selectedCategoryId == cat.CategoryId.ToString())
+                                {
+                                    <option value="@cat.CategoryId" selected="selected">@cat.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat.CategoryId">@cat.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/vendorAdmin/jquery/jquery.min.js"></script>
+    <script src="~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendorAdmin/jquery-easing/jquery.easing.min.js"></script>
+    <script src="~/jsAdmin/ruang-admin.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#btnAddService').on('click', function () {
+                $('#addServiceForm')[0].reset();
+                var addModal = new bootstrap.Modal(document.getElementById('addServiceModal'));
+                addModal.show();
+            });
+
+            // Xử lý nút Edit
+            $('.btn-edit-service').on('click', function () {
+                // Lấy dữ liệu từ data-*
+                $('#edit-service-id').val($(this).data('id'));
+                $('#edit-service-name').val($(this).data('name'));
+                $('#edit-service-description').val($(this).data('description'));
+                $('#edit-service-price').val($(this).data('price'));
+                $('#edit-service-duration').val($(this).data('duration'));
+                $('#edit-service-category').val($(this).data('category'));
+
+                // Hiển thị modal Edit
+                var editModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+                editModal.show();
+            });
+        });
+    </script>
+}

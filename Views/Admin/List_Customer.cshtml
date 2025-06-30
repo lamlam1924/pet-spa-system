@@ -6,536 +6,983 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
-  <meta name="author" content="indrijunanda">
-  <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
-  <title>petshop - Customerlist List</title>
-  <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
-  <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
+    <meta name="author" content="indrijunanda">
+    <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
+    <title>petshop - Customerlist List</title>
+    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
+    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
 </head>
 
 <body id="page-top">
-  <div id="wrapper">
-    <!-- Sidebar -->
-         <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Content("~/Admin/Index")">
-    <div class="sidebar-brand-icon">
+                <div class="sidebar-brand-icon">
                     <img src=@Url.Content("~/imgAdmin/logo/pet-logo.png")">
-    </div>
-    <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
-  </a>
-  <hr class="sidebar-divider my-0">
-  <li class="nav-item">
-                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a>
-  </li>
-  <hr class="sidebar-divider">
-  <div class="sidebar-heading">
-    Management
-  </div>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
-      aria-controls="collapseServices">
-      <i class="fas fa-fw fa-spa"></i>
-      <span>Services</span>
-    </a>
-    <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Service Management</h6>
-                        <a class="collapse-item" href="@Url.Content("~/Admin/services-list")">List Services</a>
-      
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
-      aria-controls="collapseStaff">
-      <i class="fas fa-fw fa-users"></i>
-      <span>Staff</span>
-    </a>
-    <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Staff Management</h6>
-                        <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">List Staff</a>
-       
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
-      aria-controls="collapseCustomers">
-      <i class="fas fa-fw fa-user-friends"></i>
-      <span>Customers</span>
-    </a>
-    <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Customer Management</h6>
-                        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">List Customers</a>
-    
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
-      aria-controls="collapsePets">
-      <i class="fas fa-fw fa-paw"></i>
-      <span>Pet Profiles</span>
-    </a>
-    <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Pet Management</h6>
-        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">List Pets</a>
-      
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
-      aria-controls="collapseProducts">
-      <i class="fas fa-fw fa-shopping-cart"></i>
-      <span>Products</span>
-    </a>
-    <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Product Management</h6>
-        <a class="collapse-item" href="@Url.Content("~/Admin/Products_List")">List Products</a>
-        
-       
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
-      aria-controls="collapseAppointments">
-      <i class="fas fa-fw fa-calendar-alt"></i>
-      <span>Appointments</span>
-    </a>
-    <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Appointment Management</h6>
-        <a class="collapse-item" href="@Url.Content("~/Admin/Appointments")">List Appointments</a>
-     
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
-      aria-controls="collapsePayments">
-      <i class="fas fa-fw fa-credit-card"></i>
-      <span>Payments</span>
-    </a>
-    <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Payment Management</h6>
-        <a class="collapse-item" href="@Url.Content("~/Admin/Payments")">List Payments</a>
-        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Process Refund</a>
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
-      aria-controls="collapsePromotions">
-      <i class="fas fa-fw fa-tags"></i>
-      <span>Promotions</span>
-    </a>
-    <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Promotion Management</h6>
-        <a class="collapse-item" href="@Url.Content("~/Admin/promotions-list")">List Promotions</a>
-   
-      </div>
-    </div>
-  </li>
-  <hr class="sidebar-divider">
-  <div class="sidebar-heading">
-    Reports
-  </div>
-  <li class="nav-item">
-    <a class="nav-link" href="statistics.html">
-      <i class="fas fa-fw fa-chart-area"></i>
-      <span>Statistics</span>
-    </a>
-  </li>
- 
-  <hr class="sidebar-divider">
-  <div class="version" id="version-ruangadmin">Version 1.1</div>
-</ul>
-    <!-- Sidebar -->
-    <div id="content-wrapper" class="d-flex flex-column">
-      <div id="content">
-        <!-- Topbar -->
-        <nav class="navbar navbar-expand navbar-light bg-navbar topbar mb-4 static-top">
-          <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
-            <i class="fa fa-bars"></i>
-          </button>
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown no-arrow">
-              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-search fa-fw"></i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                aria-labelledby="searchDropdown">
-                <div class="input-group">
-                  <input type="text" class="form-control bg-light border-1 small" placeholder="Search for pets..."
-                    aria-label="Search" aria-describedby="basic-addon2" style="border-color: #3f51b5;">
-                  <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
-                      <i class="fas fa-search fa-sm"></i>
-                    </button>
-                  </div>
                 </div>
-              </div>
+                <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
             </li>
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
-                <span class="badge badge-danger badge-counter">3+</span>
-              </a>
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">
-                  Alerts Center
-                </h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-primary">
-                      <i class="fas fa-file-alt text-white"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">May 25, 2025</div>
-                    <span class="font-weight-bold">Monthly pet adoption report is ready!</span>
-                  </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">
+                Management
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
+                   aria-controls="collapseServices">
+                    <i class="fas fa-fw fa-spa"></i>
+                    <span>Services</span>
                 </a>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-success">
-                      <i class="fas fa-donate text-white"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">May 20, 2025</div>
-                    $500.00 from pet food sales deposited!
-                  </div>
-                </a>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-warning">
-                      <i class="fas fa-exclamation-triangle text-white"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">May 15, 2025</div>
-                    Low stock alert: Cat litter running low!
-                  </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-envelope fa-fw"></i>
-                <span class="badge badge-warning badge-counter">2</span>
-              </a>
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="messagesDropdown">
-                <h6 class="dropdown-header">
-                  Message Center
-                </h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer1.png")" style="max-width: 60px" alt="">
-                    <div class="status-indicator bg-success"></div>
-                  </div>
-                  <div class="font-weight-bold">
-                    <div class="text-truncate">Can you recommend a good dog food brand?</div>
-                    <div class="small text-gray-500">Buddy Bark · 1h</div>
-                  </div>
-                </a>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer2.png")" style="max-width: 60px" alt="">
-                    <div class="status-indicator bg-default"></div>
-                  </div>
-                  <div>
-                    <div class="text-truncate">Do you offer grooming services for cats?</div>
-                    <div class="small text-gray-500">Whiskers Meow · 2d</div>
-                  </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-tasks fa-fw"></i>
-                <span class="badge badge-success badge-counter">3</span>
-              </a>
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="tasksDropdown">
-                <h6 class="dropdown-header">
-                  Tasks
-                </h6>
-                <a class="dropdown-item align-items-center" href="#">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Restock Dog Toys
-                      <div class="small float-right"><b>50%</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </a>
-                <a class="dropdown-item align-items-center" href="#">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Update Pet Adoption Page
-                      <div class="small float-right"><b>30%</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-warning" role="progressbar" style="width: 30%" aria-valuenow="30"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </a>
-                <a class="dropdown-item align-items-center" href="#">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Create Sales Report
-                      <div class="small float-right"><b>75%</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" aria-valuenow="75"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">View All Tasks</a>
-              </div>
-            </li>
-            <div class="topbar-divider d-none d-sm-block"></div>
-            <li class="nav-item dropdown no-arrow">
-              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <img class="img-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
-                <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Profile
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Settings
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Activity Log
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal" data-target="#logoutModal">
-                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Logout
-                </a>
-              </div>
-            </li>
-          </ul>
-        </nav>
-        <!-- Topbar -->
+                <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Service Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/services-list")">List Services</a>
 
-        <!-- Container Fluid-->
-<!-- User List Content -->
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
+                   aria-controls="collapseStaff">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Staff</span>
+                </a>
+                <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Staff Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">List Staff</a>
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
+                   aria-controls="collapseCustomers">
+                    <i class="fas fa-fw fa-user-friends"></i>
+                    <span>Customers</span>
+                </a>
+                <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Customer Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">List Customers</a>
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
+                   aria-controls="collapsePets">
+                    <i class="fas fa-fw fa-paw"></i>
+                    <span>Pet Profiles</span>
+                </a>
+                <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Pet Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">List Pets</a>
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
+                   aria-controls="collapseProducts">
+                    <i class="fas fa-fw fa-shopping-cart"></i>
+                    <span>Products</span>
+                </a>
+                <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Product Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Products_List")">List Products</a>
+
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
+                   aria-controls="collapseAppointments">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Appointments</span>
+                </a>
+                <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Appointment Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Appointments")">List Appointments</a>
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
+                   aria-controls="collapsePayments">
+                    <i class="fas fa-fw fa-credit-card"></i>
+                    <span>Payments</span>
+                </a>
+                <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Payment Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Payments")">List Payments</a>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Process Refund</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
+                   aria-controls="collapsePromotions">
+                    <i class="fas fa-fw fa-tags"></i>
+                    <span>Promotions</span>
+                </a>
+                <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Promotion Management</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/promotions-list")">List Promotions</a>
+
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">
+                Reports
+            </div>
+            <li class="nav-item">
+                <a class="nav-link" href="statistics.html">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Statistics</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="version" id="version-ruangadmin">Version 1.1</div>
+        </ul>
+        <!-- Sidebar -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-navbar topbar mb-4 static-top">
+                    <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                 aria-labelledby="searchDropdown">
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-light border-1 small" placeholder="Search for pets..."
+                                           aria-label="Search" aria-describedby="basic-addon2" style="border-color: #3f51b5;">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="button">
+                                            <i class="fas fa-search fa-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <span class="badge badge-danger badge-counter">3+</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header">
+                                    Alerts Center
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-primary">
+                                            <i class="fas fa-file-alt text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">May 25, 2025</div>
+                                        <span class="font-weight-bold">Monthly pet adoption report is ready!</span>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-success">
+                                            <i class="fas fa-donate text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">May 20, 2025</div>
+                                        $500.00 from pet food sales deposited!
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">May 15, 2025</div>
+                                        Low stock alert: Cat litter running low!
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-envelope fa-fw"></i>
+                                <span class="badge badge-warning badge-counter">2</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="messagesDropdown">
+                                <h6 class="dropdown-header">
+                                    Message Center
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer1.png")" style="max-width: 60px" alt="">
+                                        <div class="status-indicator bg-success"></div>
+                                    </div>
+                                    <div class="font-weight-bold">
+                                        <div class="text-truncate">Can you recommend a good dog food brand?</div>
+                                        <div class="small text-gray-500">Buddy Bark · 1h</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer2.png")" style="max-width: 60px" alt="">
+                                        <div class="status-indicator bg-default"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-truncate">Do you offer grooming services for cats?</div>
+                                        <div class="small text-gray-500">Whiskers Meow · 2d</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-tasks fa-fw"></i>
+                                <span class="badge badge-success badge-counter">3</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="tasksDropdown">
+                                <h6 class="dropdown-header">
+                                    Tasks
+                                </h6>
+                                <a class="dropdown-item align-items-center" href="#">
+                                    <div class="mb-3">
+                                        <div class="small text-gray-500">
+                                            Restock Dog Toys
+                                            <div class="small float-right"><b>50%</b></div>
+                                        </div>
+                                        <div class="progress" style="height: 12px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item align-items-center" href="#">
+                                    <div class="mb-3">
+                                        <div class="small text-gray-500">
+                                            Update Pet Adoption Page
+                                            <div class="small float-right"><b>30%</b></div>
+                                        </div>
+                                        <div class="progress" style="height: 12px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 30%" aria-valuenow="30"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item align-items-center" href="#">
+                                    <div class="mb-3">
+                                        <div class="small text-gray-500">
+                                            Create Sales Report
+                                            <div class="small float-right"><b>75%</b></div>
+                                        </div>
+                                        <div class="progress" style="height: 12px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" aria-valuenow="75"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">View All Tasks</a>
+                            </div>
+                        </li>
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <img class="img-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
+                                <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Settings
+                                </a>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Activity Log
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- Topbar -->
+                <!-- Container Fluid-->
+                <!-- User List Content -->
                 <div class="container-fluid" id="container-wrapper">
-  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">User List</h1>
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
-      <li class="breadcrumb-item active" aria-current="page">User Management</li>
-    </ol>
-  </div>
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">User Management</h1>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active">Users</li>
+                        </ol>
+                    </div>
 
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card shadow">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">User Profiles</h6>
-          <!-- Nút Add New User đã được loại bỏ -->
-          <!-- <button id="btnAddUser" class="btn btn-primary btn-sm">Add New User <i class="fas fa-plus"></i></button> -->
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table align-items-center table-flush">
-              <thead class="thead-light">
-                <tr>
-                  <th>User ID</th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Created At</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="userTableBody">
-                <!-- Dữ liệu user sẽ được thêm bằng JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+                    <!-- Action buttons -->
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="openAddModal()">Add New User <i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-dark btn-sm active" id="btnShowActive" onclick="toggleUserTable(true)">Active Users</button>
+                            <button class="btn btn-outline-secondary btn-sm" id="btnShowDeleted" onclick="toggleUserTable(false)">Deleted Users</button>
+                        </div>
+                    </div>
 
-  <!-- Modal Edit User -->
-  <div class="modal fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog">
-      <form id="editUserForm" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="edit-user-id">
-          <div class="mb-3">
-            <label>Username</label>
-            <input type="text" id="edit-username" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label>Email</label>
-            <input type="email" id="edit-email" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label>Role</label>
-            <select id="edit-role" class="form-control" required>
-              <option value="">-- Select Role --</option>
-              <option value="Admin">Admin</option>
-              <option value="User">User</option>
-            </select>
-          </div>
-          <div class="mb-3">
- <label>Active</label>
-  <div class="toggle-buttons">
-    <label class="radio-btn">
-      <input type="radio" name="status" value="On" required> On
-    </label>
-    <label class="radio-btn">
-      <input type="radio" name="status" value="Off"> Off
-    </label>
-  </div>
-</div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" type="submit">Save</button>
-          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+                    <!-- Search & Sort -->
+                    <div class="card mb-4 shadow">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <input type="text" id="searchInput" placeholder="Search by name or email..." class="form-control w-25" oninput="fetchUsers(this.value)">
+                                <div>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="fetchUsers('', 'name')">Sort by Name</button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="fetchUsers('', 'created')">Sort by Date</button>
+                                </div>
+                            </div>
+
+                            <!-- ACTIVE USERS TABLE -->
+                            <div class="table-responsive" id="activeUsersTable">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Full Name</th>
+                                            <th>Phone</th>
+                                            <th>Address</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Created At</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="userTableBody"></tbody>
+                                </table>
+                            </div>
+
+                            <!-- DELETED USERS TABLE -->
+                            <div class="table-responsive d-none" id="deletedUsersTable">
+                                <table class="table table-bordered table-striped">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Full Name</th>
+                                            <th>Phone</th>
+                                            <th>Address</th>
+                                            <th>Role</th>
+                                            <th>Updated At</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="deletedUserTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EDIT USER MODAL - FIXED -->
+                    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form id="editUserForm">
+                                    <div class="modal-body">
+                                        <input type="hidden" id="edit-user-id">
+                                        <div class="mb-3">
+                                            <label for="edit-username" class="form-label">Username</label>
+                                            <input type="text" id="edit-username" class="form-control" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-email" class="form-label">Email</label>
+                                            <input type="email" id="edit-email" class="form-control" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-fullname" class="form-label">Full Name</label>
+                                            <input type="text" id="edit-fullname" class="form-control" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-phone" class="form-label">Phone</label>
+                                            <input type="text" id="edit-phone" class="form-control">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-address" class="form-label">Address</label>
+                                            <input type="text" id="edit-address" class="form-control">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-role" class="form-label">Role</label>
+                                            <select class="form-select" id="edit-role" required>
+                                                <option value="">Select Role</option>
+                                                <option value="1">Admin</option>
+                                                <option value="2">Customer</option>
+                                                <option value="3">Employee</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-primary" type="submit">Save</button>
+                                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
-        <!---Container Fluid-->
-      </div>
-      <!-- Footer -->
- 
-      <!-- Footer -->
-    </div>
-  </div>
 
-  <!-- Scroll to top -->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
 
-  <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
-  <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
-  <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
-  <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
-  
-  <script>
-// Dữ liệu user mẫu
-let users = [
-  { userID: 1, username: 'admin', email: 'admin@example.com', role: 'Admin', createdAt: '2025-05-25 10:00:00' },
-  { userID: 2, username: 'john_doe', email: 'john@example.com', role: 'User', createdAt: '2025-05-26 15:00:00' }
-];
+                <!---Container Fluid-->
 
-// Hiển thị user lên bảng
-function renderUserTable() {
-  const tbody = document.getElementById('userTableBody');
-  if (!tbody) return console.error('Không tìm thấy tbody với ID userTableBody');
+            </div>
 
-  tbody.innerHTML = '';
+            <!-- Scroll to top -->
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
 
-  users.forEach(user => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${user.userID}</td>
-      <td>${user.username}</td>
-      <td>${user.email}</td>
-      <td>${user.role}</td>
-      <td>Active</td> <!-- Bạn có thể sửa hoặc thay đổi cột Status này nếu cần -->
-      <td>${user.createdAt}</td>
-      <td>
-        <button class="btn btn-sm btn-primary edit-user-btn" data-id="${user.userID}">Edit</button>
-        <button class="btn btn-sm btn-danger delete-user-btn" data-id="${user.userID}">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+            <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+            <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
+            <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
+            <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+            <!-- Font Awesome -->
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-// Mở modal edit
-document.addEventListener('click', function (e) {
-  if (e.target.classList.contains('edit-user-btn')) {
-    const userID = parseInt(e.target.dataset.id);
-    const user = users.find(u => u.userID === userID);
-    if (user) {
-      document.getElementById('edit-user-id').value = user.userID;
-      document.getElementById('edit-username').value = user.username;
-      document.getElementById('edit-email').value = user.email;
-      document.getElementById('edit-role').value = user.role;
+            <!-- Bootstrap JS -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-      new bootstrap.Modal(document.getElementById('editUserModal')).show();
-    }
-  }
+            <script>
+                        // ========== MODAL HANDLING FUNCTIONS ==========
 
-  // Xử lý xóa user
-  if (e.target.classList.contains('delete-user-btn')) {
-    const userID = parseInt(e.target.dataset.id);
-    if (confirm('Are you sure you want to delete this user?')) {
-      users = users.filter(u => u.userID !== userID);
-      renderUserTable();
-    }
-  }
-});
+                function isBootstrapReady() {
+                    return typeof bootstrap !== 'undefined' && bootstrap.Modal;
+                }
 
-// Cập nhật user
-document.getElementById('editUserForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  const id = parseInt(document.getElementById('edit-user-id').value);
-  const index = users.findIndex(u => u.userID === id);
-  if (index !== -1) {
-    users[index].username = document.getElementById('edit-username').value;
-    users[index].email = document.getElementById('edit-email').value;
-    users[index].role = document.getElementById('edit-role').value;
+                // Hàm lấy hoặc tạo modal instance an toàn
+                function safeGetOrCreateModal(element, options = {}) {
+                    try {
+                        if (!isBootstrapReady()) {
+                            console.warn('Bootstrap Modal not available');
+                            return null;
+                        }
 
-    renderUserTable();
-    bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
-  }
-});
+                        // Thử dùng getOrCreateInstance nếu có (Bootstrap 5.1+)
+                        if (bootstrap.Modal.getOrCreateInstance) {
+                            return bootstrap.Modal.getOrCreateInstance(element, options);
+                        }
 
-// Khởi tạo
-window.onload = renderUserTable;
-</script>
+                        // Fallback cho các version cũ hơn
+                        let instance = bootstrap.Modal.getInstance(element);
+                        if (!instance) {
+                            instance = new bootstrap.Modal(element, options);
+                        }
+                        return instance;
+                    } catch (error) {
+                        console.error('Error with modal:', error);
+                        return null;
+                    }
+                }
+
+                // Hàm tạo modal mới an toàn
+                function safeCreateModal(element, options = {}) {
+                    try {
+                        if (!isBootstrapReady()) {
+                            console.warn('Bootstrap Modal not available');
+                            return null;
+                        }
+                        return new bootstrap.Modal(element, options);
+                    } catch (error) {
+                        console.error('Error creating modal:', error);
+                        return null;
+                    }
+                }
+
+                // Hàm ẩn modal an toàn - CẢI THIỆN
+                function safeHideModal(modalElement) {
+                    try {
+                        // Thử Bootstrap modal instance trước
+                        if (isBootstrapReady()) {
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) {
+                                modal.hide();
+                                return;
+                            }
+                        }
+
+                        // Fallback method - manual hide
+                        modalElement.style.display = 'none';
+                        modalElement.classList.remove('show');
+                        modalElement.setAttribute('aria-hidden', 'true');
+                        modalElement.removeAttribute('aria-modal');
+                        modalElement.removeAttribute('role');
+
+                        // Remove modal-open class from body
+                        document.body.classList.remove('modal-open');
+
+                        // Remove backdrop if exists
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        backdrops.forEach(backdrop => backdrop.remove());
+
+                        // Reset body style
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+
+                    } catch (error) {
+                        console.error('Error hiding modal:', error);
+
+                        // Extreme fallback
+                        modalElement.style.display = 'none';
+                        document.body.classList.remove('modal-open');
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        backdrops.forEach(backdrop => backdrop.remove());
+                    }
+                }
+
+                // Hàm hiển thị modal an toàn
+                function safeShowModal(modalElement) {
+                    try {
+                        if (isBootstrapReady()) {
+                            const modal = safeGetOrCreateModal(modalElement);
+                            if (modal) {
+                                modal.show();
+                                return;
+                            }
+                        }
+
+                        // Fallback method
+                        modalElement.style.display = 'block';
+                        modalElement.classList.add('show');
+                        modalElement.setAttribute('aria-modal', 'true');
+                        modalElement.setAttribute('role', 'dialog');
+                        modalElement.removeAttribute('aria-hidden');
+                        document.body.classList.add('modal-open');
+
+                    } catch (error) {
+                        console.error('Error showing modal:', error);
+                    }
+                }
+
+                // ========== MAIN USER MANAGEMENT FUNCTIONS ==========
+
+                function fetchUsers(search = '', sort = '') {
+                    fetch(`/User/List?search=${search}&sort=${sort}`)
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error(`HTTP error! status: ${res.status}`);
+                            }
+                            return res.json();
+                        })
+                        .then(data => {
+                            const tbody = document.getElementById("userTableBody");
+                            if (!tbody) {
+                                console.error('userTableBody element not found');
+                                return;
+                            }
+
+                            tbody.innerHTML = "";
+                            data.forEach(user => {
+                                tbody.innerHTML += `
+                                <tr>
+                                    <td>${user.userId}</td>
+                                    <td>${escapeHtml(user.username)}</td>
+                                    <td>${escapeHtml(user.email)}</td>
+                                    <td>${escapeHtml(user.fullName || 'N/A')}</td>
+                                    <td>${escapeHtml(user.phone || 'N/A')}</td>
+                                    <td>${escapeHtml(user.address || 'N/A')}</td>
+                                    <td>${escapeHtml(user.role)}</td>
+                                    <td>${user.status}</td>
+                                    <td>${user.createdAt || 'N/A'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning" onclick="openEdit(${user.userId}, '${escapeHtml(user.username)}', '${escapeHtml(user.email)}', '${escapeHtml(user.fullName || '')}', '${escapeHtml(user.phone || '')}', '${escapeHtml(user.address || '')}', '${escapeHtml(user.role)}')">Edit</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.userId})">Delete</button>
+                                    </td>
+                                </tr>
+                                `;
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching users:', error);
+                            alert('Error loading users: ' + error.message);
+                        });
+                }
+
+                // Hàm escape HTML để tránh XSS
+                function escapeHtml(text) {
+                    if (typeof text !== 'string') return text;
+                    const map = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    };
+                    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+                }
+
+                function openAddModal() {
+                    // Reset form
+                    const form = document.getElementById("editUserForm");
+                    if (form) {
+                        form.reset();
+                    }
+
+                    // Set default values
+                    const userIdField = document.getElementById("edit-user-id");
+                    const usernameField = document.getElementById("edit-username");
+                    const emailField = document.getElementById("edit-email");
+                    const fullNameField = document.getElementById("edit-fullname");
+                    const phoneField = document.getElementById("edit-phone");
+                    const addressField = document.getElementById("edit-address");
+                    const roleField = document.getElementById("edit-role");
+
+                    if (userIdField) userIdField.value = "";
+                    if (usernameField) usernameField.value = "";
+                    if (emailField) emailField.value = "";
+                    if (fullNameField) fullNameField.value = "";
+                    if (phoneField) phoneField.value = "";
+                    if (addressField) addressField.value = "";
+                    if (roleField) roleField.value = "";
+
+                    // Show modal safely
+                    const modalElement = document.getElementById('editUserModal');
+                    if (modalElement) {
+                        safeShowModal(modalElement);
+                    } else {
+                        console.error('editUserModal element not found');
+                    }
+                }
+
+                function toggleUserTable(showActive) {
+                    const activeTable = document.getElementById('activeUsersTable');
+                    const deletedTable = document.getElementById('deletedUsersTable');
+                    const btnActive = document.getElementById('btnShowActive');
+                    const btnDeleted = document.getElementById('btnShowDeleted');
+
+                    if (showActive) {
+                        activeTable.classList.remove('d-none');
+                        deletedTable.classList.add('d-none');
+                        btnActive.classList.add('active');
+                        btnDeleted.classList.remove('active');
+                        fetchUsers();
+                    } else {
+                        activeTable.classList.add('d-none');
+                        deletedTable.classList.remove('d-none');
+                        btnDeleted.classList.add('active');
+                        btnActive.classList.remove('active');
+                        fetchDeletedUsers();
+                    }
+                }
+
+                function openEdit(id, username, email, fullName, phone, address, role) {
+                    // Set form values
+                    const userIdField = document.getElementById("edit-user-id");
+                    const usernameField = document.getElementById("edit-username");
+                    const emailField = document.getElementById("edit-email");
+                    const fullNameField = document.getElementById("edit-fullname");
+                    const phoneField = document.getElementById("edit-phone");
+                    const addressField = document.getElementById("edit-address");
+                    const roleField = document.getElementById("edit-role");
+
+                    if (userIdField) userIdField.value = id;
+                    if (usernameField) usernameField.value = username;
+                    if (emailField) emailField.value = email;
+                    if (fullNameField) fullNameField.value = fullName;
+                    if (phoneField) phoneField.value = phone;
+                    if (addressField) addressField.value = address;
+
+                    // Handle role mapping
+                    if (roleField) {
+                        let roleValue = "";
+                        if (role === "Admin") roleValue = "1";
+                        else if (role === "Customer") roleValue = "2";
+                        else if (role === "Employee") roleValue = "3";
+                        else roleValue = role; // fallback nếu đã là ID
+                        roleField.value = roleValue;
+                    }
+
+                    // Show modal safely
+                    const modalElement = document.getElementById('editUserModal');
+                    if (modalElement) {
+                        safeShowModal(modalElement);
+                    } else {
+                        console.error('editUserModal element not found');
+                    }
+                }
+
+                function deleteUser(id) {
+                    if (confirm("Are you sure you want to delete this user? (This will be a soft delete)")) {
+                        fetch('/User/Delete?id=' + id, {
+                            method: 'POST'
+                        })
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error(`HTTP error! status: ${res.status}`);
+                            }
+                            return res.text();
+                        })
+                        .then(() => {
+                            fetchUsers();
+                            alert('User deleted successfully (soft delete)');
+                        })
+                        .catch(err => {
+                            console.error('Delete error:', err);
+                            alert("Delete error: " + err.message);
+                        });
+                    }
+                }
+
+                // Hàm khôi phục user đã bị xóa mềm
+                function restoreUser(id) {
+                    if (confirm("Are you sure you want to restore this user?")) {
+                        fetch('/User/Restore?id=' + id, {
+                            method: 'POST'
+                        })
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error(`HTTP error! status: ${res.status}`);
+                            }
+                            return res.text();
+                        })
+                        .then(() => {
+                            fetchDeletedUsers(); // Refresh deleted users list
+                            alert('User restored successfully');
+                        })
+                        .catch(err => {
+                            console.error('Restore error:', err);
+                            alert("Restore error: " + err.message);
+                        });
+                    }
+                }
+
+                // Hàm lấy danh sách user đã bị xóa mềm
+                function fetchDeletedUsers() {
+                    fetch('/User/Deleted')
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error(`HTTP error! status: ${res.status}`);
+                            }
+                            return res.json();
+                        })
+                        .then(data => {
+                            const tbody = document.getElementById("deletedUserTableBody");
+                            if (!tbody) {
+                                console.error('deletedUserTableBody element not found');
+                                return;
+                            }
+
+                            tbody.innerHTML = "";
+                            data.forEach(user => {
+                                tbody.innerHTML += `
+                                <tr>
+                                    <td>${user.userId}</td>
+                                    <td>${escapeHtml(user.username)}</td>
+                                    <td>${escapeHtml(user.email)}</td>
+                                    <td>${escapeHtml(user.fullName || 'N/A')}</td>
+                                    <td>${escapeHtml(user.phone || 'N/A')}</td>
+                                    <td>${escapeHtml(user.address || 'N/A')}</td>
+                                    <td>${escapeHtml(user.role)}</td>
+                                    <td>${user.updatedAt || 'N/A'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success" onclick="restoreUser(${user.userId})">Restore</button>
+                                    </td>
+                                </tr>
+                                `;
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching deleted users:', error);
+                            alert('Error loading deleted users: ' + error.message);
+                        });
+                }
+
+                // ========== EVENT LISTENERS ==========
+
+                // Đảm bảo DOM đã load xong trước khi attach event listeners
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Setup modal close buttons - THÊM MỚI
+                    const modalCloseButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
+                    modalCloseButtons.forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const modalElement = button.closest('.modal');
+                            if (modalElement) {
+                                safeHideModal(modalElement);
+                            }
+                        });
+                    });
+
+                    // Setup modal backdrop click to close - THÊM MỚI
+                    const modals = document.querySelectorAll('.modal');
+                    modals.forEach(modal => {
+                        modal.addEventListener('click', function(e) {
+                            if (e.target === modal) {
+                                safeHideModal(modal);
+                            }
+                        });
+                    });
+
+                    // Setup ESC key to close modal - THÊM MỚI
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') {
+                            const openModals = document.querySelectorAll('.modal.show');
+                            openModals.forEach(modal => {
+                                safeHideModal(modal);
+                            });
+                        }
+                    });
+
+                    // Form submit handler
+                    const editUserForm = document.getElementById("editUserForm");
+                    if (editUserForm) {
+                        editUserForm.addEventListener("submit", function (e) {
+                            e.preventDefault();
+
+                            const userIdField = document.getElementById("edit-user-id");
+                            const usernameField = document.getElementById("edit-username");
+                            const emailField = document.getElementById("edit-email");
+                            const fullNameField = document.getElementById("edit-fullname");
+                            const phoneField = document.getElementById("edit-phone");
+                            const addressField = document.getElementById("edit-address");
+                            const roleField = document.getElementById("edit-role");
+
+                            if (!usernameField || !emailField || !fullNameField || !roleField) {
+                                alert('Please fill all required fields');
+                                return;
+                            }
+
+                            const id = userIdField ? userIdField.value : "";
+                            const isNew = id === "";
+
+                            const data = {
+                                userId: parseInt(id) || 0,
+                                username: usernameField.value,
+                                email: emailField.value,
+                                fullName: fullNameField.value,
+                                phone: phoneField ? phoneField.value : "",
+                                address: addressField ? addressField.value : "",
+                                roleId: parseInt(roleField.value)
+                            };
+
+                            // Validation
+                            if (!data.username.trim() || !data.email.trim() || !data.fullName.trim()) {
+                                alert('Username, email and full name are required');
+                                return;
+                            }
+
+                            if (!data.roleId) {
+                                alert('Please select a role');
+                                return;
+                            }
+
+                            const url = isNew ? '/User/Create' : '/User/Edit';
+
+                            fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                                },
+                                body: JSON.stringify(data)
+                            })
+                            .then(res => {
+                                if (!res.ok) {
+                                    return res.text().then(text => {
+                                        throw new Error(text || `HTTP error! status: ${res.status}`);
+                                    });
+                                }
+                                return res.text();
+                            })
+                            .then(() => {
+                                // Hide modal safely
+                                const modalElement = document.getElementById('editUserModal');
+                                if (modalElement) {
+                                    safeHideModal(modalElement);
+                                }
+
+                                // Reload user list
+                                fetchUsers();
+                                alert(isNew ? 'User created successfully' : 'User updated successfully');
+                            })
+                            .catch(err => {
+                                console.error('Save error:', err);
+                                alert("Save error: " + err.message);
+                            });
+                        });
+                    }
+
+                    // Load users when page loads
+                    fetchUsers();
+                });
+
+                // Legacy support for window.onload
+                window.onload = function() {
+                    if (document.readyState === 'loading') {
+                        // DOM hasn't loaded yet, wait for DOMContentLoaded
+                        return;
+                    }
+                    // DOM already loaded
+                    fetchUsers();
+                };
+            </script>
+
+
+
 
 
 </body>
