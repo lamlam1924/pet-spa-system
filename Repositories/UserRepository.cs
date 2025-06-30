@@ -1,9 +1,10 @@
 
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 
-namespace pet_spa_system1.Repositories
-{
+
+namespace pet_spa_system1.Repositories;
+
     public class UserRepository
 
           : GenericRepository<User>
@@ -30,5 +31,5 @@ namespace pet_spa_system1.Repositories
 
     }
 
-}
+
 

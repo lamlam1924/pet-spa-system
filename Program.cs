@@ -1,16 +1,23 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Repository;
 using pet_spa_system1.Services;
+using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 
 
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
@@ -48,6 +55,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // 🔐 Add Authentication
+
+// ✅ Cấu hình Authentication
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -58,22 +69,61 @@ builder.Services.AddAuthentication(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+
+    options.Scope.Add("email");
+    options.Scope.Add("profile"); // thêm profile để lấy tên đầy đủ
+    options.SaveTokens = true;
+
+    options.Events.OnCreatingTicket = context =>
+    {
+        var identity = context.Identity;
+
+        var email = context.User.GetProperty("email").GetString();
+        var name = context.User.GetProperty("name").GetString();
+
+        identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
+        identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
+
+        Console.WriteLine("🎯 Email nhận từ Google: " + email);
+        Console.WriteLine("🎯 Name nhận từ Google: " + name);
+        return Task.CompletedTask;
+    };
+
     options.CallbackPath = "/signin-google";
 });
 
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-
-
 var app = builder.Build();
 
-app.UseSession();
-// Configure the HTTP request pipeline.
+// ✅ Kiểm tra kết nối Database
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
+    try
+    {
+
+
+        if (db.Database.CanConnect())
+        {
+            Console.WriteLine("✅ Database connection successful.");
+        }
+        else
+        {
+            Console.WriteLine("❌ Database connection failed.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("❌ Error connecting to the database: " + ex.Message);
+    }
+}
+
+
+// ✅ Middleware pipeline
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 // 🔐 Enable middleware
@@ -84,28 +134,26 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.UseHttpsRedirection();
+
+
+
+// ✅ Phục vụ file tĩnh (CSS/JS/images...)
 app.UseStaticFiles();
+
 app.UseRouting();
+
+// ✅ Đảm bảo thứ tự đúng
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
+
+
+// ✅ Định tuyến Controller
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-// Tùy chọn: kiểm tra kết nối DB
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
-    try
-    {
-        context.Database.OpenConnection();
-        Console.WriteLine("✅ Connect Successfull!");
-        context.Database.CloseConnection();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("❌ ERROR Connect to DB: " + ex.Message);
-    }
-}
+
 app.Run();
 
 app.MapControllerRoute(

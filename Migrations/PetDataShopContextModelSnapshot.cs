@@ -18,6 +18,7 @@ namespace pet_spa_system1.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.3")
+
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -68,6 +69,7 @@ namespace pet_spa_system1.Migrations
                     b.HasKey("AppointmentId")
                         .HasName("PK__Appointm__8ECDFCA23670C808");
 
+
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("PromotionId");
@@ -104,6 +106,7 @@ namespace pet_spa_system1.Migrations
                     b.HasKey("AppointmentPetId")
                         .HasName("PK__Appointm__C8A4B64CA6DA51B6");
 
+
                     b.HasIndex("PetId");
 
                     b.HasIndex(new[] { "AppointmentId", "PetId" }, "UQ_AppointmentPet")
@@ -135,7 +138,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnName("ServiceID");
 
                     b.HasKey("AppointmentServiceId")
+
                         .HasName("PK__Appointm__3B38F2769A969488");
+
 
                     b.HasIndex("ServiceId");
 
@@ -200,6 +205,7 @@ namespace pet_spa_system1.Migrations
                     b.HasKey("BlogId")
                         .HasName("PK__Blogs__54379E5030BDEFFE");
 
+
                     b.HasIndex("ApprovedBy");
 
                     b.HasIndex("UserId");
@@ -240,6 +246,7 @@ namespace pet_spa_system1.Migrations
 
                     b.HasKey("ImageId")
                         .HasName("PK__Blog_Ima__7516F4EC38AEEF0C");
+
 
                     b.HasIndex("BlogId");
 
@@ -321,6 +328,7 @@ namespace pet_spa_system1.Migrations
                     b.HasKey("OrderId")
                         .HasName("PK__Orders__C3905BAF14803C64");
 
+
                     b.HasIndex("StatusId");
 
                     b.HasIndex("UserId");
@@ -349,7 +357,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("OrderItemId")
+
                         .HasName("PK__OrderIte__57ED06A145762658");
+
 
                     b.HasIndex("OrderId");
 
@@ -399,7 +409,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnName("UserID");
 
                     b.HasKey("PaymentId")
+
                         .HasName("PK__Payments__9B556A5894476BCB");
+
 
                     b.HasIndex("OrderId");
 
@@ -435,9 +447,11 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("PaymentMethodId")
+
                         .HasName("PK__PaymentM__DC31C1F3373BC567");
 
                     b.HasIndex(new[] { "MethodName" }, "UQ__PaymentM__218CFB177B59A092")
+
                         .IsUnique();
 
                     b.ToTable("PaymentMethods");
@@ -469,6 +483,7 @@ namespace pet_spa_system1.Migrations
                         .HasName("PK__PaymentS__34F8AC1FC01635D2");
 
                     b.HasIndex(new[] { "StatusName" }, "UQ__PaymentS__05E7698A2D1F0BC1")
+
                         .IsUnique();
 
                     b.ToTable("PaymentStatuses");
@@ -527,7 +542,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnName("UserID");
 
                     b.HasKey("PetId")
+
                         .HasName("PK__Pets__48E5380210259056");
+
 
                     b.HasIndex("SpeciesId");
 
@@ -581,6 +598,7 @@ namespace pet_spa_system1.Migrations
                     b.HasKey("ProductId")
                         .HasName("PK__Products__B40CC6ED2D221A24");
 
+
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
@@ -615,6 +633,7 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("CategoryId")
+
                         .HasName("PK__ProductC__19093A2B018DDA6A");
 
                     b.HasIndex("CateParent");
@@ -679,9 +698,11 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("date");
 
                     b.HasKey("PromotionId")
+
                         .HasName("PK__Promotio__52C42F2FD01CEAE3");
 
                     b.HasIndex(new[] { "Code" }, "UQ__Promotio__A25C5AA7756B87FD")
+
                         .IsUnique();
 
                     b.ToTable("Promotions");
@@ -710,7 +731,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnName("PromotionID");
 
                     b.HasKey("PromotionProductId")
+
                         .HasName("PK__Promotio__C7B85D3CFC1CCADF");
+
 
                     b.HasIndex("ProductId");
 
@@ -743,7 +766,8 @@ namespace pet_spa_system1.Migrations
                         .HasColumnName("ServiceID");
 
                     b.HasKey("PromotionServiceId")
-                        .HasName("PK__Promotio__1F3D2989A0791F9F");
+                    .HasName("PK__Promotio__1F3D2989A0791F9F");
+
 
                     b.HasIndex("ServiceId");
 
@@ -792,7 +816,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnName("UserID");
 
                     b.HasKey("ReviewId")
+
                         .HasName("PK__Reviews__74BC79AEE8B54A5E");
+
 
                     b.HasIndex("ProductId");
 
@@ -831,9 +857,11 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("RoleId")
+
                         .HasName("PK__Roles__8AFACE3A2AE6D04A");
 
                     b.HasIndex(new[] { "RoleName" }, "UQ__Roles__8A2B6160EF2B897A")
+
                         .IsUnique();
 
                     b.ToTable("Roles");
@@ -871,11 +899,13 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("CategoryId")
+
                         .HasName("PK__Ser_cate__19093A2B212F7B9B");
 
                     b.HasIndex("CateParent");
 
                     b.HasIndex(new[] { "Name" }, "UQ__Ser_cate__737584F65059F3BE")
+
                         .IsUnique();
 
                     b.ToTable("Ser_cate", (string)null);
@@ -919,7 +949,9 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("decimal(10, 2)");
 
                     b.HasKey("ServiceId")
+
                         .HasName("PK__Services__C51BB0EA1306BBD1");
+
 
                     b.HasIndex("CategoryId");
 
@@ -946,9 +978,11 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("SpeciesId")
+
                         .HasName("PK__Species__A938047F36AD4C1D");
 
                     b.HasIndex(new[] { "SpeciesName" }, "UQ__Species__304D4C0DF7953DBE")
+
                         .IsUnique();
 
                     b.ToTable("Species");
@@ -977,9 +1011,11 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("StatusId")
+
                         .HasName("PK__Status_A__C8EE2043C40C9C90");
 
                     b.HasIndex(new[] { "StatusName" }, "UQ__Status_A__05E7698A6AA1FB28")
+
                         .IsUnique();
 
                     b.ToTable("Status_Appointment", (string)null);
@@ -1008,9 +1044,11 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("StatusId")
+
                         .HasName("PK__StatusOr__C8EE20439110246B");
 
                     b.HasIndex(new[] { "StatusName" }, "UQ__StatusOr__05E7698A3F10F5B1")
+
                         .IsUnique();
 
                     b.ToTable("StatusOrder", (string)null);
@@ -1073,6 +1111,7 @@ namespace pet_spa_system1.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("UserId")
+
                         .HasName("PK__Users__1788CCACDAB49FBF");
 
                     b.HasIndex("RoleId");
@@ -1081,6 +1120,7 @@ namespace pet_spa_system1.Migrations
                         .IsUnique();
 
                     b.HasIndex(new[] { "Email" }, "UQ__Users__A9D10534A392ED30")
+
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -1091,24 +1131,32 @@ namespace pet_spa_system1.Migrations
                     b.HasOne("pet_spa_system1.Models.User", "Employee")
                         .WithMany("AppointmentEmployees")
                         .HasForeignKey("EmployeeId")
+
                         .HasConstraintName("FK__Appointme__Emplo__03F0984C");
+
 
                     b.HasOne("pet_spa_system1.Models.Promotion", "Promotion")
                         .WithMany("Appointments")
                         .HasForeignKey("PromotionId")
+
                         .HasConstraintName("FK__Appointme__Promo__04E4BC85");
+
 
                     b.HasOne("pet_spa_system1.Models.StatusAppointment", "Status")
                         .WithMany("Appointments")
                         .HasForeignKey("StatusId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Appointme__Statu__05D8E0BE");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("AppointmentUsers")
                         .HasForeignKey("UserId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Appointme__UserI__02FC7413");
+
 
                     b.Navigation("Employee");
 
@@ -1125,13 +1173,17 @@ namespace pet_spa_system1.Migrations
                         .WithMany("AppointmentPets")
                         .HasForeignKey("AppointmentId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Appointme__Appoi__0A9D95DB");
+
 
                     b.HasOne("pet_spa_system1.Models.Pet", "Pet")
                         .WithMany("AppointmentPets")
                         .HasForeignKey("PetId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Appointme__PetID__0B91BA14");
+
 
                     b.Navigation("Appointment");
 
@@ -1144,13 +1196,17 @@ namespace pet_spa_system1.Migrations
                         .WithMany("AppointmentServices")
                         .HasForeignKey("AppointmentId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Appointme__Appoi__10566F31");
+
 
                     b.HasOne("pet_spa_system1.Models.Service", "Service")
                         .WithMany("AppointmentServices")
                         .HasForeignKey("ServiceId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Appointme__Servi__114A936A");
+
 
                     b.Navigation("Appointment");
 
@@ -1162,14 +1218,18 @@ namespace pet_spa_system1.Migrations
                     b.HasOne("pet_spa_system1.Models.User", "ApprovedByNavigation")
                         .WithMany("BlogApprovedByNavigations")
                         .HasForeignKey("ApprovedBy")
+
                         .HasConstraintName("FK__Blogs__ApprovedB__4A8310C6");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("BlogUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__Blogs__UserID__498EEC8D");
+
 
                     b.Navigation("ApprovedByNavigation");
 
@@ -1183,7 +1243,9 @@ namespace pet_spa_system1.Migrations
                         .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__Blog_Imag__BlogI__503BEA1C");
+
 
                     b.Navigation("Blog");
                 });
@@ -1195,14 +1257,18 @@ namespace pet_spa_system1.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__Cart__ProductID__282DF8C2");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("Carts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__Cart__UserID__2739D489");
+
 
                     b.Navigation("Product");
 
@@ -1215,14 +1281,18 @@ namespace pet_spa_system1.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("StatusId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Orders__StatusID__1CBC4616");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__Orders__UserID__1BC821DD");
+
 
                     b.Navigation("Status");
 
@@ -1236,12 +1306,15 @@ namespace pet_spa_system1.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__OrderItem__Order__208CD6FA");
+
 
                     b.HasOne("pet_spa_system1.Models.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .IsRequired()
+
                         .HasConstraintName("FK__OrderItem__Produ__2180FB33");
 
                     b.Navigation("Order");
@@ -1255,25 +1328,33 @@ namespace pet_spa_system1.Migrations
                         .WithMany("Payments")
                         .HasForeignKey("OrderId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Payments__OrderI__3587F3E0");
+
 
                     b.HasOne("pet_spa_system1.Models.PaymentMethod", "PaymentMethod")
                         .WithMany("Payments")
                         .HasForeignKey("PaymentMethodId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Payments__Paymen__37703C52");
+
 
                     b.HasOne("pet_spa_system1.Models.PaymentStatus", "PaymentStatus")
                         .WithMany("Payments")
                         .HasForeignKey("PaymentStatusId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Payments__Paymen__3864608B");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("Payments")
                         .HasForeignKey("UserId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Payments__UserID__367C1819");
+
 
                     b.Navigation("Order");
 
@@ -1289,13 +1370,17 @@ namespace pet_spa_system1.Migrations
                     b.HasOne("pet_spa_system1.Models.Species", "Species")
                         .WithMany("Pets")
                         .HasForeignKey("SpeciesId")
+
                         .HasConstraintName("FK__Pets__SpeciesID__5812160E");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("Pets")
                         .HasForeignKey("UserId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Pets__UserID__571DF1D5");
+
 
                     b.Navigation("Species");
 
@@ -1308,7 +1393,9 @@ namespace pet_spa_system1.Migrations
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Products__Catego__4D94879B");
+
 
                     b.Navigation("Category");
                 });
@@ -1318,6 +1405,7 @@ namespace pet_spa_system1.Migrations
                     b.HasOne("pet_spa_system1.Models.ProductCategory", "CateParentNavigation")
                         .WithMany("InverseCateParentNavigation")
                         .HasForeignKey("CateParent")
+
                         .HasConstraintName("FK__ProductCa__Cate___46E78A0C");
 
                     b.Navigation("CateParentNavigation");
@@ -1329,13 +1417,17 @@ namespace pet_spa_system1.Migrations
                         .WithMany("PromotionProducts")
                         .HasForeignKey("ProductId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Promotion__Produ__72C60C4A");
+
 
                     b.HasOne("pet_spa_system1.Models.Promotion", "Promotion")
                         .WithMany("PromotionProducts")
                         .HasForeignKey("PromotionId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Promotion__Promo__71D1E811");
+
 
                     b.Navigation("Product");
 
@@ -1348,13 +1440,17 @@ namespace pet_spa_system1.Migrations
                         .WithMany("PromotionServices")
                         .HasForeignKey("PromotionId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Promotion__Promo__778AC167");
+
 
                     b.HasOne("pet_spa_system1.Models.Service", "Service")
                         .WithMany("PromotionServices")
                         .HasForeignKey("ServiceId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Promotion__Servi__787EE5A0");
+
 
                     b.Navigation("Promotion");
 
@@ -1367,20 +1463,26 @@ namespace pet_spa_system1.Migrations
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
+
                         .HasConstraintName("FK__Reviews__Product__40058253");
+
 
                     b.HasOne("pet_spa_system1.Models.Service", "Service")
                         .WithMany("Reviews")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
+
                         .HasConstraintName("FK__Reviews__Service__40F9A68C");
+
 
                     b.HasOne("pet_spa_system1.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
+
                         .HasConstraintName("FK__Reviews__UserID__3F115E1A");
+
 
                     b.Navigation("Product");
 
@@ -1394,7 +1496,9 @@ namespace pet_spa_system1.Migrations
                     b.HasOne("pet_spa_system1.Models.SerCate", "CateParentNavigation")
                         .WithMany("InverseCateParentNavigation")
                         .HasForeignKey("CateParent")
+
                         .HasConstraintName("FK__Ser_cate__Cate_p__5DCAEF64");
+
 
                     b.Navigation("CateParentNavigation");
                 });
@@ -1405,7 +1509,9 @@ namespace pet_spa_system1.Migrations
                         .WithMany("Services")
                         .HasForeignKey("CategoryId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Services__Catego__6477ECF3");
+
 
                     b.Navigation("Category");
                 });
@@ -1416,7 +1522,9 @@ namespace pet_spa_system1.Migrations
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .IsRequired()
+
                         .HasConstraintName("FK__Users__RoleID__412EB0B6");
+
 
                     b.Navigation("Role");
                 });
