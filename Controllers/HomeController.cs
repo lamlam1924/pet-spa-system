@@ -1,6 +1,9 @@
-using System.Diagnostics;
+
+using Abp.Web.Mvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
+using System.Diagnostics;
+
 
 namespace pet_spa_system1.Controllers
 {
@@ -26,7 +29,9 @@ namespace pet_spa_system1.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+
+            return View(new Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
+
