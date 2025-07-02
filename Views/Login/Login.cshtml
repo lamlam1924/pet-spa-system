@@ -1,7 +1,8 @@
-@page
+@model pet_spa_system1.ViewModel.LoginRegisterViewModel
+
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
-    <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=esdge">
     <title>Animal</title>
@@ -11,13 +12,13 @@
     <!-- <link rel="manifest" href="site.webmanifest"> -->
     <link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/img/Picture5.png")">
     <!-- Place favicon.ico in the root directory -->
-
     <!-- CSS here -->
     <link rel="stylesheet" href="@Url.Content("~/css/bootstrap.min.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/owl.carousel.min.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/magnific-popup.css")">
     <!-- Font Awesome CDN for full icon support -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="@Url.Content("~/css/font-awesome.min.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/themify-icons.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/nice-select.css")">
@@ -27,92 +28,86 @@
     <link rel="stylesheet" href="@Url.Content("~/css/slicknav.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/style.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/responsive.css")">
-    
+
     <link rel="stylesheet" href="@Url.Content("~/css/login.css")">
 
-        
-    </head>
-    
+
+</head>
+
 
 <body>
-    
+
 
     <div class="body-login">
-        
-    <!-- <h2>Đăng Nhập/Đăng Ký</h2> -->
-    <div class="container-login" id="container-login">
-        
-        <div class="form-container sign-up-container">
-            
-            <form class="form-login" action="#">
-                <h1>Đăng Ký</h1>
-                <div class="social-container">
-                   
-                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-                    
-                </div>
-                <span>hoặc sử dụng email của bạn để đăng ký</span>
-                <input class="input-login" type="text" placeholder="Name" />
-                <input class="input-login" type="email" placeholder="Email" />
-                <input class="input-login" type="password" placeholder="Password" />
-                <button>Đăng Ký</button>
-            </form>
-        </div>
-        <div class="form-container sign-in-container">
-            <form class="form-login" action="#">
-                <h1>Đăng Nhập</h1>
-                <div class="social-container">
-                    
-                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-                    
-                </div>
-                <span>hoặc sử dụng tài khoản của bạn</span>
-                <input class="input-login" type="email" placeholder="Email" />
-                <input class="input-login" type="password" placeholder="Password" />
-                <div style="display: flex; align-items: center;">
-                    <label style="margin: 0; display: flex; align-items: center;">
-                        <input type="checkbox" style="margin-right: 5px;" /> Ghi nhớ mật khẩu
-                    </label>
-                </div>
-                <div style="text-align: right; margin-bottom: 10px;">
-                    <a href="#">Quên mật khẩu?</a>
-                </div>
-                <button>Đăng Nhập</button>
-            </form>
-        </div>
-        <div class="overlay-container1">
-            <div class="overlay1">
-                <div class="overlay-panel overlay-left">
-                    <h1>Chào mừng trở lại!</h1>
-                    <p>Để tiếp tục kết nối với chúng tôi, vui lòng đăng nhập bằng thông tin cá nhân của bạn</p>
-                    <button class="ghost" id="signIn">Đăng Nhập</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                    <h1>Xin chào, bạn!</h1>
-                    <p>Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi</p>
-                    <button class="ghost" id="signUp">Đăng Ký</button>
+
+        <!-- <h2>Đăng Nhập/Đăng Ký</h2> -->
+        <div class="container-login" id="container-login">
+
+            <div class="form-container sign-up-container">
+
+                <form class="form-login" asp-controller="Login" asp-action="Register" method="post">
+                    <h1>Đăng Ký</h1>
+                    <div class="social-container">
+                        <a href="/login/google" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    </div>
+                    <span>hoặc sử dụng email của bạn để đăng ký</span>
+                    <input class="input-login" type="text" placeholder="Name" name="Register.Name" value="@Model.Register?.Name" />
+                    <input class="input-login" type="email" placeholder="Email" name="Register.Email" value="@Model.Register?.Email" />
+                    <input class="input-login" type="password" placeholder="Password" name="Register.Password" />
+                    <button type="submit">Đăng Ký</button>
+                </form>
+            </div>
+            <div class="form-container sign-in-container">
+                <form class="form-login" asp-controller="Login" asp-action="Login" method="post">
+                    <h1>Đăng Nhập</h1>
+                    <div class="social-container">
+                        <a href="/login/google" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    </div>
+                    <span>hoặc sử dụng tài khoản của bạn</span>
+                    <input class="input-login" type="email" placeholder="Email" name="Login.Email" value="@Model.Login?.Email" />
+                    <input class="input-login" type="password" placeholder="Password" name="Login.Password" />
+                    <div style="display: flex; align-items: center;">
+                        <label style="margin: 0; display: flex; align-items: center;">
+                            <input type="checkbox" style="margin-right: 5px;" name="Login.RememberMe" /> Ghi nhớ mật khẩu
+                        </label>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 10px;">
+                        <a href="#">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit">Đăng Nhập</button>
+                </form>
+            </div>
+            <div class="overlay-container1">
+                <div class="overlay1">
+                    <div class="overlay-panel overlay-left">
+                        <h1>Chào mừng trở lại!</h1>
+                        <p>Để tiếp tục kết nối với chúng tôi, vui lòng đăng nhập bằng thông tin cá nhân của bạn</p>
+                        <button class="ghost" id="signIn">Đăng Nhập</button>
+                    </div>
+                    <div class="overlay-panel overlay-right">
+                        <h1>Xin chào, bạn!</h1>
+                        <p>Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi</p>
+                        <button class="ghost" id="signUp">Đăng Ký</button>
+                    </div>
                 </div>
             </div>
         </div>
+        <script>
+            const signUpButton = document.getElementById('signUp');
+            const signInButton = document.getElementById('signIn');
+            const container = document.getElementById('container-login');
+
+            signUpButton.addEventListener('click', () => {
+                container.classList.add('right-panel-active');
+            });
+
+            signInButton.addEventListener('click', () => {
+                container.classList.remove('right-panel-active');
+            });
+        </script>
     </div>
-     <script>
-        const signUpButton = document.getElementById('signUp');
-        const signInButton = document.getElementById('signIn');
-        const container = document.getElementById('container-login');
 
-        signUpButton.addEventListener('click', () => {
-            container.classList.add('right-panel-active');
-        });
-
-        signInButton.addEventListener('click', () => {
-            container.classList.remove('right-panel-active');
-        });
-    </script>
-   </div>
-   
     <!-- footer_end  -->
-
-
     <!-- JS here -->
     <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>
     <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
@@ -142,26 +137,27 @@
 
     <script src="@Url.Content("~/js/main.js")"></script>
     <script>
-        $('#datepicker').datepicker({
-            iconsLibrary: 'fontawesome',
-            disableDaysOfWeek: [0, 0],
-        //     icons: {
-        //      rightIcon: '<span class="fa fa-caret-down"></span>'
-        //  }
-        });
-        $('#datepicker2').datepicker({
-            iconsLibrary: 'fontawesome',
-            icons: {
-             rightIcon: '<span class="fa fa-caret-down"></span>'
-         }
+           $('#datepicker').datepicker({
+               iconsLibrary: 'fontawesome',
+               disableDaysOfWeek: [0, 0],
+           //     icons: {
+           //      rightIcon: '<span class="fa fa-caret-down"></span>'
+           //  }
+           });
+           $('#datepicker2').datepicker({
+               iconsLibrary: 'fontawesome',
+               icons: {
+                rightIcon: '<span class="fa fa-caret-down"></span>'
+            }
 
+           });
+           var timepicker = $('#timepicker').timepicker({
+            format: 'HH.MM'
         });
-        var timepicker = $('#timepicker').timepicker({
-         format: 'HH.MM'
-     });
     </script>
 
-    
+
 </body>
 
 </html>
+    

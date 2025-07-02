@@ -1,16 +1,36 @@
 
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 
-namespace pet_spa_system1.Repositories
-{
-    public class UserRepository : IUserRepository
+
+namespace pet_spa_system1.Repositories;
+
+    public class UserRepository
+
+          : GenericRepository<User>
+
     {
         private readonly PetDataShopContext _context;
-        public UserRepository(PetDataShopContext context) { _context = context; }
+        public UserRepository(PetDataShopContext context) : base(context)
+        {
+            _context = context;
+        }
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+        public async Task<Role?> GetRoleByIdAsync(int roleId)
+        {
+            return await _context.Roles.FindAsync(roleId);
+        }
 
         public User? GetUserById(int userId)
             => _context.Users.FirstOrDefault(u => u.UserId == userId);
     }
 
-}
 

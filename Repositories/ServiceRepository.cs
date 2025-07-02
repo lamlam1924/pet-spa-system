@@ -24,9 +24,9 @@ namespace pet_spa_system1.Repositories
                 Categories = _context.SerCates
                     .Where(sc => sc.IsActive)
                     .ToList(),
-                Promotions = _context.Promotions
-                    .Where(p => p.IsActive && p.ApplicableTo != "Product")
-                    .ToList(),
+                // Promotions = _context.Promotions
+                //     .Where(p => p.IsActive && p.ApplicableTo != "Product")
+                //     .ToList(),
                 PromotionServices = _context.PromotionServices
                     .Include(ps => ps.Promotion)
                     .Include(ps => ps.Service)
@@ -56,9 +56,9 @@ namespace pet_spa_system1.Repositories
                 Categories = _context.SerCates
                     // .Where(sc => sc.IsActive)
                     .ToList(),
-                Promotions = _context.Promotions
-                    .Where(p => p.IsActive && p.ApplicableTo != "Product")
-                    .ToList(),
+                // Promotions = _context.Promotions
+                //     .Where(p => p.IsActive && p.ApplicableTo != "Product")
+                //     .ToList(),
                 PromotionServices = _context.PromotionServices
                     .Include(ps => ps.Promotion)
                     .Include(ps => ps.Service)
