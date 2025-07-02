@@ -107,12 +107,9 @@ namespace pet_spa_system1.Controllers
 
             var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
             var name = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
-
-            Console.WriteLine(email + " " + name + " khong lay duoc email");
-
+            Console.WriteLine(email + " " + name +" khong lay duoc email");
             // TODO: Check user in database, auto-register or login
             // Example: Save session
-
             var user = await _userService.GetUserByEmail(email);
             if (user == null)
             {

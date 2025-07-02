@@ -10,11 +10,13 @@ namespace pet_spa_system1.Controllers.ProductManager
     {
        
             private readonly IProductService _productService;
+            private readonly ICartService _cartService;
 
-            public ProductsController(IProductService productService)
+        public ProductsController(IProductService productService, ICartService cartService)
             {
                 _productService = productService;
-            }
+                _cartService = cartService;
+        }
 
         public async Task<IActionResult> Shop(int page = 1)
         {
@@ -121,16 +123,38 @@ namespace pet_spa_system1.Controllers.ProductManager
             }
         }
 
+        //[HttpPost]
+        //public async Task<IActionResult> Cart()
+        //{
+        //    int userId = GetCurrentUserId(); // Viết hàm này hoặc lấy từ session
 
-        public IActionResult Cart()
-            {
-                return View();
-            }
+        //    var cartItems = await _cartService.GetCartByUserIdAsync(userId);
 
-            public IActionResult Checkout()
+        //    var viewModel = new CartViewModel
+        //    {
+        //        Items = cartItems
+        //    };
+
+        //    return View(viewModel);
+        //}
+        [HttpPost]
+        public async Task<IActionResult> Cart(int id)
+        {
+            var userId = GetCurrentUserId(); // Hàm tự viết để lấy user hiện tại
+            await _cartService.AddToCartAsync(new Cart
             {
-                return View();
-            }
+                UserId = userId,
+                ProductId = id,
+                Quantity = 1, // Hoặc lấy từ input nếu có
+                AddedAt = DateTime.Now
+            });
+            return RedirectToAction("Cart");
+        }
+
+        private int GetCurrentUserId()
+    {
+        return int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+    }
         }
     }
    
