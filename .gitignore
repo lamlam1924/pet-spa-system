@@ -7,6 +7,10 @@ obj/
 *.suo
 .vs/
 
+# Rider & VSCode
+.idea/
+.vscode/
+
 # Logs
 *.log
 
