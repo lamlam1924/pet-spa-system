@@ -54,7 +54,6 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("❌ Session chưa được tạo hoặc đã bị xóa");
             }
 
-
             return RedirectToAction("Index", "Home");
         }
 
@@ -131,16 +130,13 @@ namespace pet_spa_system1.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        [HttpGet("/Login/Logout")]
-        public IActionResult Logout()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
         {
-            // Xoá tất cả session
+            await HttpContext.SignOutAsync();
+            // Xóa session nếu cần
             HttpContext.Session.Clear();
-
-            // (Nếu dùng cookie auth) SignOut
-            // await HttpContext.SignOutAsync(); // nếu dùng Identity hoặc cookie auth
-
-            // Chuyển về trang đăng nhập hoặc trang chủ
             return RedirectToAction("Index", "Home");
         }
 

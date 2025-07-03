@@ -86,6 +86,7 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("✅ Database connection successful.");
         else
             Console.WriteLine("❌ Database connection failed.");
+
     }
     catch (Exception ex)
     {

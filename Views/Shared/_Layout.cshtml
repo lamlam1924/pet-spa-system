@@ -59,25 +59,37 @@
                                 <div class="dropdown">
                                     <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
                                         id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa fa-user"></i> 
+                                        <i class="fa fa-user"></i>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <span class="ms-2">@User.Identity.Name</span>
+                                        }
                                     </a>
-
                                     <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("Login", "Login")">Đăng Nhập</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("Login", "Login")">Đăng Xuất</a>
-                                        </li>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <form method="post" action="@Url.Action("Logout", "Login")" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="dropdown-item">Đăng Xuất</button>
+                                                </form>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" href="@Url.Action("Login", "Login")">Đăng Nhập</a>
+                                            </li>
+                                        }
                                     </ul>
                                 </div>
 
