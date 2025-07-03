@@ -1,10 +1,4 @@
-﻿@using pet_spa_system1.Models
-@using pet_spa_system1.Utils
-@{
-    Layout = "_Layout";
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -38,51 +32,56 @@
             <div class="header-top_area">
                 <div class="container">
                     <div class="row">
-                        <div class="col-lg-5 col-md-5">
-                            <div class="short_contact_list">
+                        <div class="col-lg-4 col-md-4">
+                            @* <div class="short_contact_list"> *@
                                 <ul>
                                     <li><a href="#"><i class="fa fa-phone mr-1"></i>+880 4664 216</a></li>
                                     <li><a href="#"><i class="fa fa-clock-o mr-1"></i>Mon - Sat 10:00 - 7:00</a></li>
                                 </ul>
-                            </div>
+                            @* </div> *@
                         </div>
-                        <div class="col-lg-4 col-md-4">
+                        <div class="col-lg-6 col-md-6">
                             <div class="search_bar">
-                                <form action="#" method="get" class="search_container">
-                                    <input type="text" placeholder="Tìm Kiếm..." name="search" class="search_input">
-                                    <button type="submit" class="search_button">
-                                        <i class="fa fa-search"></i>
-                                    </button>
+                                <form id="searchForm" class="search-form d-flex" method="get" action="">
+                                    <select id="searchType" name="type" class="form-select" style="width: 120px;">
+                                        <option value="all">Tất cả</option>
+                                        <option value="product">Sản phẩm</option>
+                                        <option value="service">Dịch vụ</option>
+                                    </select>
+                                    <input type="text" id="searchInput" name="q" class="form-control" placeholder="Tìm kiếm...">
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
                                 </form>
 
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-3">
-                            @{
-                                var user = Context.Session.GetObjectFromJson<User>("CurrentUser");
-                            }
-                            <div class="social_media_links">
-                                @if (user != null)
-                                {
-                                    <div class="dropdown">
-                                        <a class="btn btn-secondary dropdown-toggle" href="#" id="dropdownMenuButton1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <img src="~/img/avatar.jfif" alt="@user.Username" style="width: 40px; height: 40px; border-radius: 50%;" />
-                                        </a>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                            <li><a class="dropdown-item" href="/profile"> Xem tài khoản</a></li>
-                                            <li><a class="dropdown-item" href="/Login/Logout">Đăng xuất</a></li>
-                                        </ul>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <a href="@Url.Content("~/Login/Login")">
-                                        Đăng Nhập/Đăng Ký
-                                    </a>
-                                }
-                            </div>
-                        </div>
+                        <div class="col-lg-2 col-md-2">
 
+                                <div class="dropdown">
+                                    <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
+                                        id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-user"></i> 
+                                    </a>
+
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownUser">
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("Login", "Login")">Đăng Nhập</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Action("Login", "Login")">Đăng Xuất</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                        </div>
                     </div>
 
                 </div>
@@ -100,34 +99,38 @@
                         </div>
                         <div class="col-xl-9 col-lg-9">
                             <div class="main-menu  d-none d-lg-block">
-                                <nav>
-
-                                    <nav>
-                                        <ul id="navigation">
-                                            <li><a href="@Url.Content("~/Home/Index")">trang chủ</a></li>
-                                            <!--<li><a href="../about.html">về chúng tôi</a></li>-->
-                                            <li>
+                                        <nav>
+                                            <ul id="navigation">
+                                                <li><a href="@Url.Content("~/Home/Index")">trang chủ</a></li>
+                                                <!--<li><a href="../about.html">về chúng tôi</a></li>-->
+                                                <li>
                                                 <a href="@Url.Content("~/Blogs/Blog")">bài viết <i class="ti-angle-down"></i></a>
-                                                <ul class="submenu">
-                                                    <li><a href="@Url.Content("~/Blogs/Blog")">bài viết</a></li>
-                                                    <li><a href="@Url.Content("~/Blogs/Single_Blog")">bài viết đơn</a></li>
-                                                </ul>
-                                            </li>
+                                                    <ul class="submenu">
+                                                        <li><a href="@Url.Content("~/Blogs/Blog")">bài viết</a></li>
+                                                        <li><a href="@Url.Content("~/Blogs/Single_Blog")">bài viết đơn</a></li>
+                                                    </ul>
+                                                </li>
 
-                                            <li><a href="@Url.Content("~/Service/ServicePet")">dịch vụ</a></li>
-                                            <li>
-                                                <a href="@Url.Content("~/Products/Shop")">sản phẩm <i class="ti-angle-down"></i></a>
-                                                <ul class="submenu">
-                                                    <li><a href="@Url.Content("~/Products/Cart")">Giỏ hàng</a></li>
-                                                    <li><a href="@Url.Content("~/Products/Checkout")">thanh toán</a></li>
-                                                </ul>
-                                            </li>
-                                            <li><a href="@Url.Content("~/Contact/Contact")">liên hệ</a></li>
-                                            <!-- <li><a href="../admin/index.html">ADMIN</a></li> -->
-                                        </ul>
-                                    </nav>
-
-                                </nav>
+                                                <li>
+                                                    <a href="@Url.Content("~/Service/HomeService")">dịch vụ <i class="ti-angle-down"></i></a>
+                                                    <ul class="submenu">
+                                                        <li><a href="@Url.Content("~/Service/ListService")">Danh sách dịch vụ</a></li>
+                                                        <li><a href="@Url.Content("~/Service/ListService")">Combo siêu hời</a></li>
+                                                        <li><a href="@Url.Content("~/Appointment/Book")">Đặt lịch</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <a href="@Url.Content("~/Products/Shop")">sản phẩm <i class="ti-angle-down"></i></a>
+                                                    <ul class="submenu">
+                                                        <li><a href="@Url.Content("~/Products/Cart")">Giỏ hàng</a></li>
+                                                        <li><a href="@Url.Content("~/Products/Checkout")">thanh toán</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="@Url.Content("~/Contact/Contact")">liên hệ</a></li>
+                                                <!-- <li><a href="../admin/index.html">ADMIN</a></li> -->
+                                            </ul>
+                                        </nav>
+                                    
                             </div>
                         </div>
                         <div class="col-12">
@@ -140,8 +143,7 @@
     </header>
 
     <div>
-        <main role="main">
-
+        <main role="main" >
             @RenderBody()
         </main>
     </div>
@@ -204,8 +206,7 @@
                             </p>
                             <div class="socail_links">
                                 <ul>
-                                    <li>
-
+                                    <li> 
                                         <a href="#">
                                             <i class="fa fa-facebook" style="color:blue; border-radius: 6px; border: 1px solid #3b5998; padding: 7px;"></i>
                                         </a>
@@ -251,17 +252,14 @@
         </div> *@
     </footer>
 
-    <!-- JS here - THỨ TỰ LOAD SCRIPT RẤT QUAN TRỌNG -->
-    <!-- 1. jQuery PHẢI được load TRƯỚC Bootstrap -->
-    <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
 
-    <!-- 2. Bootstrap JS với integrity để đảm bảo tính toàn vẹn -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <!-- 3. Modernizr -->
+    <!-- JS here -->
     <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>
+    <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
+    <script src="@Url.Content("~/js/popper.min.js")"></script>
+    @* <script src="@Url.Content("~/js/bootstrap.min.js")"></script> *@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- 4. Các thư viện khác -->
     <script src="@Url.Content("~/js/owl.carousel.min.js")"></script>
     <script src="@Url.Content("~/js/isotope.pkgd.min.js")"></script>
     <script src="@Url.Content("~/js/ajax-form.js")"></script>
@@ -284,76 +282,21 @@
     <script src="@Url.Content("~/js/jquery.validate.min.js")"></script>
     <script src="@Url.Content("~/js/mail-script.js")"></script>
 
-
-    <!-- 5. Main JS cuối cùng -->
     <script src="@Url.Content("~/js/main.js")"></script>
-
-    <!-- 6. Script riêng cho datepicker và timepicker -->
     <script>
-        // Đảm bảo DOM đã load xong và Bootstrap đã sẵn sàng
-        document.addEventListener('DOMContentLoaded', function() {
-            // Kiểm tra xem bootstrap có tồn tại không
-            if (typeof bootstrap !== 'undefined') {
-                console.log('Bootstrap loaded successfully');
-            } else {
-                console.error('Bootstrap not loaded');
-            }
-
-            // Datepicker initialization
-            if (typeof $('#datepicker').datepicker === 'function') {
-                $('#datepicker').datepicker({
-                    iconsLibrary: 'fontawesome',
-                    disableDaysOfWeek: [0, 0],
-                });
-            }
-
-            if (typeof $('#datepicker2').datepicker === 'function') {
-                $('#datepicker2').datepicker({
-                    iconsLibrary: 'fontawesome',
-                    icons: {
-                        rightIcon: '<span class="fa fa-caret-down"></span>'
-                    }
-                });
-            }
-
-            // Timepicker initialization
-            if (typeof $('#timepicker').timepicker === 'function') {
-                var timepicker = $('#timepicker').timepicker({
-                    format: 'HH.MM'
-                });
+        $('#datepicker').datepicker({
+            iconsLibrary: 'fontawesome',
+            disableDaysOfWeek: [0, 0],
+        });
+        $('#datepicker2').datepicker({
+            iconsLibrary: 'fontawesome',
+            icons: {
+                rightIcon: '<span class="fa fa-caret-down"></span>'
             }
         });
-
-        // Hàm helper để làm việc với Bootstrap Modal một cách an toàn
-        function safeGetModalInstance(element) {
-            try {
-                if (typeof bootstrap !== 'undefined' && bootstrap.Modal && bootstrap.Modal.getInstance) {
-                    return bootstrap.Modal.getInstance(element);
-                } else {
-                    console.warn('Bootstrap Modal.getInstance not available');
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error getting modal instance:', error);
-                return null;
-            }
-        }
-
-        // Hàm helper để tạo modal instance một cách an toàn
-        function safeCreateModal(element, options = {}) {
-            try {
-                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    return new bootstrap.Modal(element, options);
-                } else {
-                    console.warn('Bootstrap Modal not available');
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error creating modal:', error);
-                return null;
-            }
-        }
-
+        var timepicker = $('#timepicker').timepicker({
+            format: 'HH.MM'
+        });
     </script>
     <script>
         document.getElementById('searchForm').addEventListener('submit', function(e) {

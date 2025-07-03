@@ -402,7 +402,7 @@
                                                     <tr data-description="@item.Description" data-categoryid="@item.CategoryId">
                                                         <td><button class="btn btn-link btn-sm btn-product-id" data-productid="@item.ProductId">@item.ProductId</button></td>
                                                         <td>@item.Name</td>
-                                                        <td>@(item.ProductCategory?.Name ?? "No Category")</td>
+                                                        <td>@(item.Category?.Name ?? "No Category")</td>
                                                         <td>@item.Price.ToString("N0") đ</td>
                                                         <td>@item.Stock</td>
                                                         <td>@(item.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
@@ -516,8 +516,8 @@
                                             <select id="edit-category" class="form-select" name="CategoryId" required>
                                                 @{
                                                     var categories = Model
-                                                    .Where(p => p.ProductCategory != null)
-                                                    .Select(p => p.ProductCategory)
+                                                    .Where(p => p.Category != null)
+                                                    .Select(p => p.Category)
                                                     .DistinctBy(c => c.CategoryId)
                                                     .ToList();
                                                 }

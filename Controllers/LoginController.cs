@@ -13,9 +13,9 @@ namespace pet_spa_system1.Controllers
     public class LoginController : Controller
     {
 
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public LoginController(UserService userService)
+        public LoginController(IUserService userService)
         {
             _userService = userService;
         }

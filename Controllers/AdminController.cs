@@ -100,7 +100,7 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Product_Detail(int productID)
         {
             var product = await _context.Products
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productID);
 
             if (product == null)
@@ -119,7 +119,7 @@ namespace pet_spa_system1.Controllers
             var totalProducts = await _context.Products.CountAsync();
             var products = await _context.Products
                 .Include(p => p.Reviews)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -144,11 +144,11 @@ namespace pet_spa_system1.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
+         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
-           
+            ModelState.Remove("Product.Category");
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -207,7 +207,6 @@ namespace pet_spa_system1.Controllers
             }
 
         }
-        //=======================================================================================================================
 
         //Edit Products
         public async Task<IActionResult> Edit_Products(int id)

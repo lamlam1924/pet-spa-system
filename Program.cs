@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
-using pet_spa_system1.Repository;
 using pet_spa_system1.Services;
 using System;
 
@@ -13,22 +12,26 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllersWithViews();
 
+
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
 builder.Services.AddScoped<ISerCateService, SerCateService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
-//builder.Services.AddScoped<UserService>();
-//builder.Services.AddScoped<UserRepository>();
+// builder.Services.AddScoped<UserService>();
+// builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // Session
@@ -70,8 +73,8 @@ builder.Services.AddAuthentication(options =>
     };
     options.CallbackPath = "/signin-google";
 });
-
 var app = builder.Build();
+
 
 // Check DB connection
 using (var scope = app.Services.CreateScope())

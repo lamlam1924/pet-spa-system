@@ -16,7 +16,7 @@ namespace pet_spa_system1.Repositories
         {
             return await _context.Products
                 .Include(p => p.Reviews)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -36,7 +36,7 @@ namespace pet_spa_system1.Repositories
         {
             return await _context.Products
                 .Where(p => p.IsActive == true)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

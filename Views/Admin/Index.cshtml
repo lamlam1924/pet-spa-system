@@ -1,27 +1,15 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
-@section Styles {
+@* @section Styles { *@
   <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
   <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
   <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
-}
-
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
-  <meta name="author" content="indrijunanda">
   <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
-  <title>petshop - Dashboard</title>
-  <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
-  <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
-  <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
-</head>
+  
+@* } *@
 
-<body id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
     <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
@@ -50,7 +38,7 @@
     <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">Service Management</h6>
-        <a class="collapse-item" href="@Url.Content("~/Admin/Service_List")">List Services</a>
+        <a class="collapse-item" href="@Url.Content("~/Admin/ManageService")">List Services</a>
       
       </div>
     </div>
@@ -691,9 +679,9 @@
   </a>
 
 
-@section Scripts {
+@* @section Scripts { *@
 <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
 <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
 <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
 <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
-}
+@* } *@

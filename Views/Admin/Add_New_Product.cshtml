@@ -375,15 +375,51 @@
                                 </div>
 
                                 <div class="card-body">
-                                    <form id="createProductForm" enctype="multipart/form-data" method="post" asp-action="Add_New_Product" method="post">
+                                    @if (!ViewData.ModelState.IsValid)
+                                    {
+                                        <div class="alert alert-danger">
+                                            <strong>Error!</strong> Please check the form for errors.
+                                            <ul>
+                                                @foreach (var modelState in ViewData.ModelState.Values)
+                                                {
+                                                    foreach (var error in modelState.Errors)
+                                                    {
+                                                        <li>@error.ErrorMessage</li>
+                                                    }
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                    
+                                    @if (TempData["ErrorMessage"] != null)
+                                    {
+                                        <div class="alert alert-danger">
+                                            <strong>Error!</strong> @TempData["ErrorMessage"]
+                                        </div>
+                                    }
+                                    
+                                    @if (TempData["SuccessMessage"] != null)
+                                    {
+                                        <div class="alert alert-success">
+                                            <strong>Success!</strong> @TempData["SuccessMessage"]
+                                        </div>
+                                    }
+                                    
+                                    <form id="createProductForm" enctype="multipart/form-data" asp-controller="Admin" asp-action="Add_New_Product" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                         <div class="form-group">
-                                            <label asp-for="Product.CategoryId">Loại sản phẩm</label>
-                                            <select asp-for="Product.CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))" required></select>
+                                            <label asp-for="Product.CategoryId">Loại sản phẩm <span class="text-danger">*</span></label>
+                                            <select asp-for="Product.CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))" required>
+                                                <option value="">-- Chọn loại sản phẩm --</option>
+                                            </select>
+                                            <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                                         </div>
 
                                         <div class="form-group">
-                                            <label asp-for="Product.Name">Tên sản phẩm</label>
+                                            <label asp-for="Product.Name">Tên sản phẩm <span class="text-danger">*</span></label>
                                             <input asp-for="Product.Name" class="form-control" required />
+                                            <span asp-validation-for="Product.Name" class="text-danger"></span>
                                         </div>
 
                                         <div class="form-group">
@@ -393,12 +429,14 @@
 
                                         <div class="row">
                                             <div class="col-md-6 form-group">
-                                                <label asp-for="Product.Price">Giá tiền (VNĐ)</label>
+                                                <label asp-for="Product.Price">Giá tiền (VNĐ) <span class="text-danger">*</span></label>
                                                 <input asp-for="Product.Price" class="form-control" min="0" step="1000" required />
+                                                <span asp-validation-for="Product.Price" class="text-danger"></span>
                                             </div>
                                             <div class="col-md-6 form-group">
-                                                <label asp-for="Product.Stock">Số lượng</label>
+                                                <label asp-for="Product.Stock">Số lượng <span class="text-danger">*</span></label>
                                                 <input asp-for="Product.Stock" class="form-control" min="0" required />
+                                                <span asp-validation-for="Product.Stock" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <label asp-for="Product.IsActive">Trạng thái</label>
@@ -418,11 +456,12 @@
                                     </form>
 
                                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                                     <script>
                                         document.addEventListener("DOMContentLoaded", function () {
-                                            var successMessage = @Html.Raw(JsonSerializer.Serialize(TempData["SuccessMessage"]));
-                                            var errorMessage = @Html.Raw(JsonSerializer.Serialize(TempData["ErrorMessage"]));
+                                            var successMessage = @Html.Raw(JsonSerializer.Serialize<string>(TempData["SuccessMessage"]?.ToString() ?? ""));
+                                            var errorMessage = @Html.Raw(JsonSerializer.Serialize<string>(TempData["ErrorMessage"]?.ToString() ?? ""));
+                                            
+                                            
 
                                             if (successMessage) {
                                                 Swal.fire({

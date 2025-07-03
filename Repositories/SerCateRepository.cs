@@ -15,7 +15,7 @@ namespace pet_spa_system1.Repositories
 
         public List<SerCate> GetAll() => _context.SerCates.ToList();
 
-        public SerCate GetById(int id) => _context.SerCates.FirstOrDefault(c => c.CategoryId == id);
+        public SerCate? GetById(int id) => _context.SerCates.FirstOrDefault(c => c.CategoryId == id);
 
         public void Add(SerCate category)
         {
@@ -52,6 +52,6 @@ namespace pet_spa_system1.Repositories
             _context.SaveChanges();
         }
 
-        public List<SerCate> GetActiveCategories() => _context.SerCates.Where(c => c.IsActive).ToList();
+        public List<SerCate> GetActiveCategories() => _context.SerCates.Where(c => c.IsActive == true).ToList();
     }
 }

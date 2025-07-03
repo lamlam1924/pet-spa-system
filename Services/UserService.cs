@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
@@ -8,20 +7,22 @@ using System.Globalization;
 
 namespace pet_spa_system1.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(UserRepository userRepository, IPasswordHasher<User> passwordHasher)
+        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
         }
+
         public async Task<User?> GetUserByEmail(string email)
         {
             return await _userRepository.GetByEmailAsync(email);
         }
+
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
             Console.WriteLine($"Email in service: {email}, Password: {password}");
@@ -44,7 +45,6 @@ namespace pet_spa_system1.Services
             {
                 Console.WriteLine("emaill existed!");
                 return null; // hoặc throw exception
-
             }
 
 
@@ -65,8 +65,8 @@ namespace pet_spa_system1.Services
             await _userRepository.SaveChangesAsync();
 
             return await AuthenticateAsync(email, plainPassword);
-
         }
+
         public async Task<User?> RegisterByGoogle(string email, string name)
         {
             var newUser = new User
@@ -79,11 +79,8 @@ namespace pet_spa_system1.Services
             await _userRepository.AddAsync(newUser);
             await _userRepository.SaveChangesAsync();
             return await GetUserByEmail(email);
-    }
-         public User? GetUserInfo(int userId) => _userRepository.GetUserById(userId);
-        
-}
+        }
 
-        
-    
+        public User? GetUserInfo(int userId) => _userRepository.GetUserById(userId);
+    }
 }

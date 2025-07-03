@@ -439,33 +439,34 @@
                                     </form>
                                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                                     <script>
-                                        document.addEventListener("DOMContentLoaded", function () {
-                                            var successMessage = @Html.Raw(JsonSerializer.Serialize(TempData["SuccessMessage"]));
-                                            var errorMessage = @Html.Raw(JsonSerializer.Serialize(TempData["ErrorMessage"]));
+    document.addEventListener("DOMContentLoaded", function () {
+        var successMessage = @Html.Raw(JsonSerializer.Serialize<string>(TempData["SuccessMessage"]?.ToString() ?? ""));
+        var errorMessage = @Html.Raw(JsonSerializer.Serialize<string>(TempData["ErrorMessage"]?.ToString() ?? ""));
 
-                                            if (successMessage) {
-                                                Swal.fire({
-                                                    icon: 'success',
-                                                    title: 'Thành công',
-                                                    text: successMessage,
-                                                    confirmButtonText: 'OK'
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        window.location.href = '@Url.Action("Products_List", "Admin")';
-                                                    }
-                                                });
-                                            }
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: successMessage,
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("Products_List", "Admin")';
+                }
+            });
+        }
 
-                                            if (errorMessage) {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Lỗi',
-                                                    text: errorMessage,
-                                                    confirmButtonText: 'OK'
-                                                });
-                                            }
-                                        });
-                                    </script>
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: errorMessage,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+</script>
+
                                 </div>
                             </div>
                         </div>
@@ -494,7 +495,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                var message = @Html.Raw(JsonSerializer.Serialize(ViewBag.SuccessMessage));
+                var message = @Html.Raw(JsonSerializer.Serialize<string>(ViewBag.SuccessMessage?.ToString()));
                 if (message) {
                     Swal.fire({
                         icon: 'success',
