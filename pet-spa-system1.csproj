@@ -1,28 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>pet_spa_system1</RootNamespace>
-    <UserSecretsId>55eedd50-3cf3-41c8-a063-496a46a7144a</UserSecretsId>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>pet_spa_system1</RootNamespace>
+        <UserSecretsId>55eedd50-3cf3-41c8-a063-496a46a7144a</UserSecretsId>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Abp.Web.Common" Version="10.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.6" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.6" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\cssjsService\" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="wwwroot\cssjsService\" />
+    </ItemGroup>
 
 </Project>

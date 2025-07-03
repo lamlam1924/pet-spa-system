@@ -19,14 +19,14 @@ namespace pet_spa_system1.Repositories
             {
                 Services = _context.Services
                     .Include(s => s.Category)
-                    .Where(s => s.IsActive)
+                    .Where(s => s.IsActive== true)
                     .ToList(),
                 Categories = _context.SerCates
-                    .Where(sc => sc.IsActive)
+                    .Where(sc => sc.IsActive== true)
                     .ToList(),
-                Promotions = _context.Promotions
-                    .Where(p => p.IsActive && p.ApplicableTo != "Product")
-                    .ToList(),
+                // Promotions = _context.Promotions
+                //     .Where(p => p.IsActive && p.ApplicableTo != "Product")
+                //     .ToList(),
                 PromotionServices = _context.PromotionServices
                     .Include(ps => ps.Promotion)
                     .Include(ps => ps.Service)
@@ -36,12 +36,12 @@ namespace pet_spa_system1.Repositories
                     .Include(a => a.Employee)
                     .Include(a => a.Status)
                     .Include(a => a.Promotion)
-                    .Where(a => a.IsActive)
+                    .Where(a => a.IsActive== true)
                     .ToList(),
                 AppointmentServices = _context.AppointmentServices
                     .Include(aps => aps.Appointment)
                     .Include(aps => aps.Service)
-                    .Where(aps => aps.IsActive)
+                    .Where(aps => aps.IsActive== true)
                     .ToList()
             };
         }
@@ -56,9 +56,9 @@ namespace pet_spa_system1.Repositories
                 Categories = _context.SerCates
                     // .Where(sc => sc.IsActive)
                     .ToList(),
-                Promotions = _context.Promotions
-                    .Where(p => p.IsActive && p.ApplicableTo != "Product")
-                    .ToList(),
+                // Promotions = _context.Promotions
+                //     .Where(p => p.IsActive && p.ApplicableTo != "Product")
+                //     .ToList(),
                 PromotionServices = _context.PromotionServices
                     .Include(ps => ps.Promotion)
                     .Include(ps => ps.Service)
@@ -68,12 +68,12 @@ namespace pet_spa_system1.Repositories
                     .Include(a => a.Employee)
                     .Include(a => a.Status)
                     .Include(a => a.Promotion)
-                    .Where(a => a.IsActive)
+                    .Where(a => a.IsActive== true)
                     .ToList(),
                 AppointmentServices = _context.AppointmentServices
                     .Include(aps => aps.Appointment)
                     .Include(aps => aps.Service)
-                    .Where(aps => aps.IsActive)
+                    .Where(aps => aps.IsActive== true)
                     .ToList()
             };
         }
@@ -118,7 +118,7 @@ namespace pet_spa_system1.Repositories
             _context.SaveChanges();
         }
 
-        public List<Service> GetActiveServices() => _context.Services.Where(s => s.IsActive).ToList();
+        public List<Service> GetActiveServices() => _context.Services.Where(s => s.IsActive== true).ToList();
         public List<Service> GetAll()
         {
             return _context.Services.ToList();

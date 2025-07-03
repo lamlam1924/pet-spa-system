@@ -1,700 +1,742 @@
-@page
+@using pet_spa_system1.Models
+@using System.Text.Json
+@using System.Linq
+@model List<pet_spa_system1.Models.Product>
+@{
+    Layout = null; // hoặc đường dẫn layout khác
+}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
-  <meta name="author" content="indrijunanda">
-  <link href="img/logo/pet-logo.png" rel="icon">
-  <title>petshop - Product List</title>
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/ruang-admin.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
+    <meta name="author" content="indrijunanda">
+    <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
+    <title>petshop - Product List</title>
+    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
+    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
 </head>
 
 <body id="page-top">
-  <div id="wrapper">
-    <!-- Sidebar -->
-    <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-    <div class="sidebar-brand-icon">
-      <img src="img/logo/pet-logo.png">
-    </div>
-    <div class="sidebar-brand-text mx-3">petshop - Dashboard</div>
-  </a>
-  <hr class="sidebar-divider my-0">
-  <li class="nav-item">
-    <a class="nav-link" href="index.html">
-      <i class="fas fa-fw fa-tachometer-alt"></i>
-      <span>Dashboard</span></a>
-  </li>
-  <hr class="sidebar-divider">
-  <div class="sidebar-heading">
-    Management
-  </div>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
-      aria-controls="collapseServices">
-      <i class="fas fa-fw fa-spa"></i>
-      <span>Services</span>
-    </a>
-    <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Service Management</h6>
-        <a class="collapse-item" href="services-list.html">List Services</a>
-      
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
-      aria-controls="collapseStaff">
-      <i class="fas fa-fw fa-users"></i>
-      <span>Staff</span>
-    </a>
-    <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Staff Management</h6>
-        <a class="collapse-item" href="staff.html">List Staff</a>
-       
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
-      aria-controls="collapseCustomers">
-      <i class="fas fa-fw fa-user-friends"></i>
-      <span>Customers</span>
-    </a>
-    <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Customer Management</h6>
-        <a class="collapse-item" href="list-customer.html">List Customers</a>
-    
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
-      aria-controls="collapsePets">
-      <i class="fas fa-fw fa-paw"></i>
-      <span>Pet Profiles</span>
-    </a>
-    <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Pet Management</h6>
-        <a class="collapse-item" href="pets-list.html">List Pets</a>
-      
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
-      aria-controls="collapseProducts">
-      <i class="fas fa-fw fa-shopping-cart"></i>
-      <span>Products</span>
-    </a>
-    <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Product Management</h6>
-        <a class="collapse-item" href="products-list.html">List Products</a>
-        
-       
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
-      aria-controls="collapseAppointments">
-      <i class="fas fa-fw fa-calendar-alt"></i>
-      <span>Appointments</span>
-    </a>
-    <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Appointment Management</h6>
-        <a class="collapse-item" href="Appointments.html">List Appointments</a>
-     
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
-      aria-controls="collapsePayments">
-      <i class="fas fa-fw fa-credit-card"></i>
-      <span>Payments</span>
-    </a>
-    <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Payment Management</h6>
-        <a class="collapse-item" href="payment.html">List Payments</a>
-        <a class="collapse-item" href="refund.html">Process Refund</a>
-      </div>
-    </div>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
-      aria-controls="collapsePromotions">
-      <i class="fas fa-fw fa-tags"></i>
-      <span>Promotions</span>
-    </a>
-    <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Promotion Management</h6>
-        <a class="collapse-item" href="promotions-list.html">List Promotions</a>
-   
-      </div>
-    </div>
-  </li>
-  <hr class="sidebar-divider">
-  <div class="sidebar-heading">
-    Reports
-  </div>
-  <li class="nav-item">
-    <a class="nav-link" href="statistics.html">
-      <i class="fas fa-fw fa-chart-area"></i>
-      <span>Statistics</span>
-    </a>
-  </li>
- 
-  <hr class="sidebar-divider">
-  <div class="version" id="version-ruangadmin">Version 1.1</div>
-</ul>
-    <!-- Sidebar -->
-    <div id="content-wrapper" class="d-flex flex-column">
-      <div id="content">
-        <!-- Topbar -->
-        <nav class="navbar navbar-expand navbar-light bg-navbar topbar mb-4 static-top">
-          <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
-            <i class="fa fa-bars"></i>
-          </button>
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown no-arrow">
-              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-search fa-fw"></i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                aria-labelledby="searchDropdown">
-                <div class="input-group">
-                  <input type="text" class="form-control bg-light border-1 small" placeholder="Search for products..."
-                    aria-label="Search" aria-describedby="basic-addon2" style="border-color: #3f51b5;">
-                  <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
-                      <i class="fas fa-search fa-sm"></i>
-                    </button>
-                  </div>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Content("~/Admin/Index")">
+                <div class="sidebar-brand-icon">
+                    <img src="@Url.Content("~/img/logo5.png")">
                 </div>
-              </div>
+                <div class="sidebar-brand-text mx-3">Pet-Spa-Shop</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Bảng điều khiển</span>
+                </a>
             </li>
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
-                <span class="badge badge-danger badge-counter">3+</span>
-              </a>
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">
-                  Alerts Center
-                </h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-primary">
-                      <i class="fas fa-file-alt text-white"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">May 25, 2025</div>
-                    <span class="font-weight-bold">Monthly pet adoption report is ready!</span>
-                  </div>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">
+                Quản lý
+            </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
+                   aria-controls="collapseServices">
+                    <i class="fas fa-fw fa-spa"></i>
+                    <span>Dịch vụ</span>
                 </a>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-success">
-                      <i class="fas fa-donate text-white"></i>
+                <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý dịch vụ</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/List_Service")">Danh sách dịch vụ</a>
+
                     </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">May 20, 2025</div>
-                    $500.00 from pet food sales deposited!
-                  </div>
-                </a>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="mr-3">
-                    <div class="icon-circle bg-warning">
-                      <i class="fas fa-exclamation-triangle text-white"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="small text-gray-500">May 15, 2025</div>
-                    Low stock alert: Cat litter running low!
-                  </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-              </div>
+                </div>
             </li>
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-envelope fa-fw"></i>
-                <span class="badge badge-warning badge-counter">2</span>
-              </a>
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="messagesDropdown">
-                <h6 class="dropdown-header">
-                  Message Center
-                </h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/customer1.png" style="max-width: 60px" alt="">
-                    <div class="status-indicator bg-success"></div>
-                  </div>
-                  <div class="font-weight-bold">
-                    <div class="text-truncate">Can you recommend a good dog food brand?</div>
-                    <div class="small text-gray-500">Buddy Bark · 1h</div>
-                  </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
+                   aria-controls="collapseStaff">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Nhân viên</span>
                 </a>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                  <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/customer2.png" style="max-width: 60px" alt="">
-                    <div class="status-indicator bg-default"></div>
-                  </div>
-                  <div>
-                    <div class="text-truncate">Do you offer grooming services for cats?</div>
-                    <div class="small text-gray-500">Whiskers Meow · 2d</div>
-                  </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-              </div>
+                <div id="collapseStaff" class="collapse" aria-labelledby="headingStaff" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý nhân viên</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">Danh sách nhân viên</a>
+
+                    </div>
+                </div>
             </li>
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-tasks fa-fw"></i>
-                <span class="badge badge-success badge-counter">3</span>
-              </a>
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="tasksDropdown">
-                <h6 class="dropdown-header">
-                  Tasks
-                </h6>
-                <a class="dropdown-item align-items-center" href="#">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Restock Dog Toys
-                      <div class="small float-right"><b>50%</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
+                   aria-controls="collapseCustomers">
+                    <i class="fas fa-fw fa-user-friends"></i>
+                    <span>Khách hàng</span>
                 </a>
-                <a class="dropdown-item align-items-center" href="#">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Update Pet Adoption Page
-                      <div class="small float-right"><b>30%</b></div>
+                <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý khách hàng</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">Danh sách khách hàng</a>
+
                     </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-warning" role="progressbar" style="width: 30%" aria-valuenow="30"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </a>
-                <a class="dropdown-item align-items-center" href="#">
-                  <div class="mb-3">
-                    <div class="small text-gray-500">Create Sales Report
-                      <div class="small float-right"><b>75%</b></div>
-                    </div>
-                    <div class="progress" style="height: 12px;">
-                      <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" aria-valuenow="75"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">View All Tasks</a>
-              </div>
+                </div>
             </li>
-            <div class="topbar-divider d-none d-sm-block"></div>
-            <li class="nav-item dropdown no-arrow">
-              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <img class="img-profile rounded-circle" src="img/staff.png" style="max-width: 60px">
-                <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Profile
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
+                   aria-controls="collapsePets">
+                    <i class="fas fa-fw fa-paw"></i>
+                    <span>Hồ sơ thú cưng</span>
                 </a>
-                <a class="dropdown-item" href="#">
+                <div id="collapsePets" class="collapse" aria-labelledby="headingPets" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý thú cưng</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">Danh sách thú cưng</a>
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
+                   aria-controls="collapseProducts">
+                    <i class="fas fa-fw fa-shopping-cart"></i>
+                    <span>Sản phẩm</span>
+                </a>
+                <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý sản phẩm</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Products_List")">Danh sách sản phẩm</a>
+
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
+                   aria-controls="collapseAppointments">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Lịch Hẹn</span>
+                </a>
+                <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý lịch hẹn</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Appointments")">Danh sách lịch hẹn</a>
+
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
+                   aria-controls="collapsePayments">
+                    <i class="fas fa-fw fa-credit-card"></i>
+                    <span>Thanh toán</span>
+                </a>
+                <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý thanh toán</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Payment")">Danh sách thanh toán</a>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Xử lý hoàn tiền</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
+                   aria-controls="collapsePromotions">
+                    <i class="fas fa-fw fa-tags"></i>
+                    <span>Khuyến mãi</span>
+                </a>
+                <div id="collapsePromotions" class="collapse" aria-labelledby="headingPromotions" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý khuyến mãi</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Promotions_List")">Danh sách khuyến mãi</a>
+
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">
+                Báo cáo
+            </div>
+            <li class="nav-item">
+                <a class="nav-link" href="statistics.html">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Thống kê</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="version" id="version-ruangadmin">Phiên bản 1.1</div>
+        </ul>
+        <!-- Sidebar -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-navbar topbar mb-4 static-top">
+                    <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                 aria-labelledby="searchDropdown">
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-light border-1 small" placeholder="Search for products..."
+                                           aria-label="Search" aria-describedby="basic-addon2" style="border-color: #3f51b5;">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="button">
+                                            <i class="fas fa-search fa-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <span class="badge badge-danger badge-counter">3+</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header">
+                                    Alerts Center
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-primary">
+                                            <i class="fas fa-file-alt text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">May 25, 2025</div>
+                                        <span class="font-weight-bold">Monthly pet adoption report is ready!</span>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-success">
+                                            <i class="fas fa-donate text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">May 20, 2025</div>
+                                        $500.00 from pet food sales deposited!
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">May 15, 2025</div>
+                                        Low stock alert: Cat litter running low!
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-envelope fa-fw"></i>
+                                <span class="badge badge-warning badge-counter">2</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="messagesDropdown">
+                                <h6 class="dropdown-header">
+                                    Message Center
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer1.png")" style="max-width: 60px" alt="">
+                                        <div class="status-indicator bg-success"></div>
+                                    </div>
+                                    <div class="font-weight-bold">
+                                        <div class="text-truncate">Can you recommend a good dog food brand?</div>
+                                        <div class="small text-gray-500">Buddy Bark · 1h</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" src="@Url.Content("~/imgAdmin/customer2.png")" style="max-width: 60px" alt="">
+                                        <div class="status-indicator bg-default"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-truncate">Do you offer grooming services for cats?</div>
+                                        <div class="small text-gray-500">Whiskers Meow · 2d</div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-tasks fa-fw"></i>
+                                <span class="badge badge-success badge-counter">3</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="tasksDropdown">
+                                <h6 class="dropdown-header">
+                                    Tasks
+                                </h6>
+                                <a class="dropdown-item align-items-center" href="#">
+                                    <div class="mb-3">
+                                        <div class="small text-gray-500">
+                                            Restock Dog Toys
+                                            <div class="small float-right"><b>50%</b></div>
+                                        </div>
+                                        <div class="progress" style="height: 12px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item align-items-center" href="#">
+                                    <div class="mb-3">
+                                        <div class="small text-gray-500">
+                                            Update Pet Adoption Page
+                                            <div class="small float-right"><b>30%</b></div>
+                                        </div>
+                                        <div class="progress" style="height: 12px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 30%" aria-valuenow="30"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item align-items-center" href="#">
+                                    <div class="mb-3">
+                                        <div class="small text-gray-500">
+                                            Create Sales Report
+                                            <div class="small float-right"><b>75%</b></div>
+                                        </div>
+                                        <div class="progress" style="height: 12px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" aria-valuenow="75"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="#">View All Tasks</a>
+                            </div>
+                        </li>
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <img class="imgAdmin-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
+                                <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                @* <a class="dropdown-item" href="#">
                   <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                   Settings
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Activity Log
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal" data-target="#logoutModal">
-                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Logout
-                </a>
-              </div>
-            </li>
-          </ul>
-        </nav>
-        <!-- Topbar -->
+                </a> *@
+                                <a class="dropdown-item" href="@Url.Content("~/Home/Index")">
+                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Trang Web
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng Xuất
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- Topbar -->
+                <!-- Container Fluid-->
+                <div class="container-fluid" id="container-wrapper">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Product List</h1>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
+                            <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Products_List")">Products</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Product List</li>
+                        </ol>
+                    </div>
 
-        <!-- Container Fluid-->
-        <div class="container-fluid" id="container-wrapper">
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Product List</h1>
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item"><a href="products-list.html">Products</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Product List</li>
-            </ol>
-          </div>
+                    <!-- Product List Content -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Product Inventory</h6>
+                                    <a href="@Url.Content("~/Admin/Add_New_Product")" id="btnAddProduct" class="m-0 float-right btn btn-primary btn-sm" type="button">
+                                        Add New Product <i class="fas fa-plus"></i>
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Product ID</th>
+                                                    <th>Name</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Stock</th>
+                                                    <th>Created At</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
 
-          <!-- Product List Content -->
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card shadow">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Product Inventory</h6>
-              <button id="btnAddProduct" class="m-0 float-right btn btn-primary btn-sm" type="button">
-                Add New Product <i class="fas fa-plus"></i>
-              </button>
+                                                @foreach (var item in Model)
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <tr data-description="@item.Description" data-categoryid="@item.CategoryId">
+                                                        <td><button class="btn btn-link btn-sm btn-product-id" data-productid="@item.ProductId">@item.ProductId</button></td>
+                                                        <td>@item.Name</td>
+                                                        <td>@(item.Category?.Name ?? "No Category")</td>
+                                                        <td>@item.Price.ToString("N0") đ</td>
+                                                        <td>@item.Stock</td>
+                                                        <td>@(item.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                                        @if (item.IsActive == true)
+                                                        {
+                                                            <td><span class="badge badge-success">Active</span></td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td><span class="badge badge-danger">Inactive</span></td>
+                                                        }
+                                                        <td>
+                                                            <a href="@Url.Action("Edit_Products", "Admin", new { id = item.ProductId })" class="btn btn-primary btn-sm">Chỉnh Sửa</a>
+                                                            <button class="btn btn-danger btn-sm btn-delete" data-productid="@item.ProductId">Xóa</button>
+                                                            <a href="@Url.Action("Product_Detail", "Admin", new { productID = item.ProductId })" class="btn btn-info btn-sm btn-detail">Chi Tiết</a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                        @{
+                                            var totalPages = ViewBag.TotalPages ?? 0;
+                                            var currentPage = ViewBag.CurrentPage ?? 1;
+
+                                            int maxPagesToShow = 5;
+                                            int startPage = Math.Max(1, currentPage - 2);
+                                            int endPage = Math.Min(totalPages, currentPage + 2);
+
+                                            if (currentPage <= 3)
+                                            {
+                                                startPage = 1;
+                                                endPage = Math.Min(5, totalPages);
+                                            }
+                                            else if (currentPage >= totalPages - 2)
+                                            {
+                                                startPage = Math.Max(1, totalPages - 4);
+                                                endPage = totalPages;
+                                            }
+                                        }
+
+                                        <div class="col-12 pb-1">
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagination justify-content-center mb-3">
+
+                                                    <!-- Trang đầu -->
+                                                    <li class="page-item @(currentPage > 1 ? "" : "disabled")">
+                                                        <a class="page-link" href="@Url.Action("Products_List", new { page = 1 })">Trang đầu</a>
+                                                    </li>
+
+                                                    <!-- Trang trước -->
+                                                    <li class="page-item @(currentPage > 1 ? "" : "disabled")">
+                                                        <a class="page-link" href="@Url.Action("Products_List", new { page = currentPage - 1 })">«</a>
+                                                    </li>
+
+                                                    <!-- Hiển thị dấu ... nếu cần -->
+                                                    @if (startPage > 1)
+                                                    {
+                                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                    }
+
+                                                    <!-- Các trang hiển thị -->
+                                                    @for (int i = startPage; i <= endPage; i++)
+                                                    {
+                                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                                            <a class="page-link" href="@Url.Action("Products_List", new { page = i })">@i</a>
+                                                        </li>
+                                                    }
+
+                                                    <!-- Hiển thị dấu ... nếu cần -->
+                                                    @if (endPage < totalPages)
+                                                    {
+                                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                                    }
+
+                                                    <!-- Trang sau -->
+                                                    <li class="page-item @(currentPage < totalPages ? "" : "disabled")">
+                                                        <a class="page-link" href="@Url.Action("Products_List", new { page = currentPage + 1 })">»</a>
+                                                    </li>
+
+                                                    <!-- Trang cuối -->
+                                                    <li class="page-item @(currentPage < totalPages ? "" : "disabled")">
+                                                        <a class="page-link" href="@Url.Action("Products_List", new { page = totalPages })">Trang cuối</a>
+                                                    </li>
+
+                                                </ul>
+                                            </nav>
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content shadow-lg border-0 rounded-3">
+                                <form id="editForm">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title" id="editModalLabel">Chỉnh sửa sản phẩm</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                    </div>
+
+                                    <div class="modal-body px-4 py-3">
+                                        <input type="hidden" id="edit-id" />
+
+                                        <div class="mb-3">
+                                            <label for="edit-category" class="form-label">Danh mục</label>
+                                            <select id="edit-category" class="form-select" name="CategoryId" required>
+                                                @{
+                                                    var categories = Model
+                                                    .Where(p => p.Category != null)
+                                                    .Select(p => p.Category)
+                                                    .DistinctBy(c => c.CategoryId)
+                                                    .ToList();
+                                                }
+                                                @foreach (var category in categories)
+                                                {
+                                                    <option value="@category.CategoryId">@category.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit-name" class="form-label">Tên sản phẩm</label>
+                                            <input type="text" id="edit-name" class="form-control" name="Name" required />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="edit-description" class="form-label">Mô tả</label>
+                                            <textarea id="edit-description" class="form-control" name="Description" rows="3"></textarea>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="edit-price" class="form-label">Giá</label>
+                                                <input type="number" step="0.01" min="0" id="edit-price" class="form-control" name="Price" required />
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label for="edit-stock" class="form-label">Số lượng trong kho</label>
+                                                <input type="number" min="0" id="edit-stock" class="form-control" name="Stock" required />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer px-4 pb-3">
+                                        <button type="submit" class="btn btn-primary px-4">💾 Lưu</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table align-items-center table-flush">
-                      <thead class="thead-light">
-                        <tr>
-                          <th>Product ID</th>
-                          <th>Name</th>
-                          <th>Category</th>
-                          <th>Price</th>
-                          <th>Stock</th>
-                          <th>Created At</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-  <tr>
-    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
-    <td>Premium Cat Food</td>
-    <td>Food</td>
-    <td>$25.99</td>
-    <td>120</td>
-    <td>2025-05-26 08:00:00</td>
-    <td>
-      <button class="btn btn-primary btn-sm edit-btn">Edit</button>
-      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
-      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
-    </td>
-  </tr>
-  <tr>
-    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
-    <td>Premium Cat Food</td>
-    <td>Food</td>
-    <td>$25.99</td>
-    <td>120</td>
-    <td>2025-05-26 08:00:00</td>
-    <td>
-     <button class="btn btn-primary btn-sm edit-btn">Edit</button>
-      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
-      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
-    </td>
-  </tr>
-  <tr>
-    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
-    <td>Premium Cat Food</td>
-    <td>Food</td>
-    <td>$25.99</td>
-    <td>120</td>
-    <td>2025-05-26 08:00:00</td>
-    <td>
-      <button class="btn btn-primary btn-sm edit-btn">Edit</button>
-      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
-      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
-    </td>
-  </tr>
-  <tr>
-    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="1">1</button></td>
-    <td>Premium Cat Food</td>
-    <td>Food</td>
-    <td>$25.99</td>
-    <td>120</td>
-    <td>2025-05-26 08:00:00</td>
-    <td>
-      <button class="btn btn-primary btn-sm edit-btn">Edit</button>
-      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
-      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
-    </td>
-  </tr>
-  <tr>
-    <td><button class="btn btn-link btn-sm btn-product-id" data-productid="2">2</button></td>
-    <td>Dog Collar</td>
-    <td>Accessory</td>
-    <td>$12.50</td>
-    <td>50</td>
-    <td>2025-05-25 14:30:00</td>
-    <td>
-     <button class="btn btn-primary btn-sm edit-btn">Edit</button>
-      <button class="btn btn-danger btn-sm btn-delete">Delete</button>
-      <a href="product-detail.html?productID=1" class="btn btn-info btn-sm btn-detail">Detail</a>
-    </td>
-  </tr>
-</tbody>
-
-                    </table>
-                  </div>
-                </div>
-              </div>
+                <!---Container Fluid-->
             </div>
-          </div>
-          <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <form id="editForm">
-        <div class="modal-header">
-          <h5 class="modal-title">Chỉnh sửa sản phẩm</h5>
-          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-            <span>&times;</span>
-          </button>
+            <!-- Footer -->
+            <!-- Footer -->
         </div>
-
-        <div class="modal-body">
-          <input type="hidden" id="edit-id"> <!-- ProductID -->
-
-          <div class="form-group">
-            <label for="edit-category">Danh mục</label>
-            <select id="edit-category" class="form-control" required>
-              <!-- Danh sách sẽ được thêm bằng JS -->
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="edit-name">Tên sản phẩm</label>
-            <input type="text" id="edit-name" class="form-control" required>
-          </div>
-
-          <div class="form-group">
-            <label for="edit-description">Mô tả</label>
-            <textarea id="edit-description" class="form-control" rows="3"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="edit-price">Giá</label>
-            <input type="number" step="0.01" min="0" id="edit-price" class="form-control" required>
-          </div>
-
-          <div class="form-group">
-            <label for="edit-stock">Số lượng trong kho</label>
-            <input type="number" min="0" id="edit-stock" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Lưu</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
 
-<!-- Modal Add Product -->
-<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <form id="addForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addModalLabel">Thêm sản phẩm mới</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+    <!-- Scroll to top -->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
 
-      <div class="modal-body">
-        <div class="form-group mb-3">
-          <label for="add-category">Danh mục</label>
-          <select id="add-category" class="form-control" required>
-            <!-- Danh mục sẽ thêm bằng JS hoặc server -->
-          </select>
-        </div>
+    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+    <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
+    <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
+    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
 
-        <div class="form-group mb-3">
-          <label for="add-name">Tên sản phẩm</label>
-          <input type="text" id="add-name" class="form-control" required>
-        </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Bắt sự kiện xóa
+            document.querySelectorAll('.btn-delete').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const productId = this.dataset.productid;
 
-        <div class="form-group mb-3">
-          <label for="add-description">Mô tả</label>
-          <textarea id="add-description" class="form-control" rows="3"></textarea>
-        </div>
+                    Swal.fire({
+                        title: 'Bạn có chắc?',
+                        text: "Bạn có chắc muốn xóa sản phẩm này?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Tạo form để submit POST
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = '/Admin/DeleteProduct';
 
-        <div class="form-group mb-3">
-          <label for="add-price">Giá</label>
-          <input type="number" step="0.01" min="0" id="add-price" class="form-control" required>
-        </div>
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'id';
+                            input.value = productId;
 
-        <div class="form-group mb-3">
-          <label for="add-stock">Số lượng trong kho</label>
-          <input type="number" min="0" id="add-stock" class="form-control" required>
-        </div>
-      </div>
+                            // Thêm anti-forgery token nếu có
+                            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                            if (token) {
+                                const clone = token.cloneNode();
+                                form.appendChild(clone);
+                            }
 
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-      </div>
-    </form>
-  </div>
-</div>
+                            form.appendChild(input);
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    });
+                });
+            });
 
+            // Hiển thị thông báo nếu có
+            var successMessage = @Html.Raw(JsonSerializer.Serialize(TempData["SuccessMessage"]));
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: successMessage,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        });
+    </script>
+    <!-- SweetAlert2 CDN -->
+    @* <script>
+        // Chỉ xử lý nút delete
+        $(".btn-delete").click(function (e) {
+            e.preventDefault();
+            if (confirm("Bạn có chắc muốn ẩn sản phẩm này không?")) {
+                $(this).closest("tr").fadeOut();
+            }
+        });
 
-          <!-- End Product List Content -->
+        // Hàm lấy mô tả và categoryId từ thuộc tính data hoặc bảng
+        $(document).on("click", ".btn-primary.edit-btn", function (e) {
+            e.preventDefault();
 
-          <!-- Donate Link -->
+            const currentRow = $(this).closest("tr");
+            const productId = $(this).data("productid");
+            const name = currentRow.find("td:eq(1)").text().trim();
+            // Lấy description từ thuộc tính data hoặc cột bổ sung (giả định không có cột mô tả riêng)
+            const description = $(this).data("description") || ""; // Nếu không có, để trống
+            const categoryId = $(this).data("categoryid") || currentRow.find("td:eq(2)").data("categoryid") || ""; // Lấy từ data hoặc cột category
+            // Lấy price với định dạng N0 và loại bỏ " đ"
+            const priceText = currentRow.find("td:eq(3)").text().trim();
+            const price = priceText.replace(" đ", "").replace(/,/g, ""); // Loại bỏ " đ" và dấu phẩy
+            const stock = currentRow.find("td:eq(4)").text().trim();
 
-          <!-- Modal Logout -->
-        
+            // Điền dữ liệu vào form
+            $("#edit-id").val(productId);
+            $("#edit-name").val(name);
+            $("#edit-description").val(description);
+            $("#edit-price").val(price); // Gán giá trị đã xử lý
+            $("#edit-stock").val(stock);
 
-        </div>
-        <!---Container Fluid-->
-      </div>
-      <!-- Footer -->
-    
-      <!-- Footer -->
-    </div>
-  </div>
+            // Chọn danh mục dựa trên categoryId
+            const categorySelect = $("#edit-category");
+            categorySelect.val(categoryId);
 
-  <!-- Scroll to top -->
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
+            // Hiển thị modal
+            $("#editModal").modal("show");
+        });
 
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-  <script src="js/ruang-admin.min.js"></script>
- <script>
-// Chỉ xử lý nút delete
-$(".btn-delete").click(function (e) {
-  e.preventDefault();
-  if (confirm("Bạn có chắc muốn ẩn sản phẩm này không?")) {
-    $(this).closest("tr").fadeOut();
-  }
-});
-</script>
+        // Loại bỏ nút hiển thị toàn bộ danh mục vì không cần nữa
+        $(document).ready(function () {
+            // Xóa nút "Xem tất cả danh mục" nếu đã thêm
+            $("#showAllCategories").remove();
 
+            // Đảm bảo khi trang load, thêm data-description và data-categoryid cho nút Edit
+            $("table tbody tr").each(function () {
+                var $row = $(this);
+                var description = $row.data("description") || ""; // Lấy từ data-description của <tr>
+                var categoryId = $row.data("categoryid") || $row.find("td:eq(2)").data("categoryid") || $row.find("td:eq(2)").text().trim(); // Lấy từ cột category
+                var editBtn = $row.find(".edit-btn");
+                if (editBtn.length > 0 && !editBtn.attr("data-description")) {
+                    editBtn.attr("data-description", description);
+                    editBtn.attr("data-categoryid", categoryId); // Lưu categoryId
+                }
+            });
+        });
 
-<script>
-  // Danh sách danh mục giả
-  const categories = [
-    { CategoryID: 1, Name: "Accessory" },
-    { CategoryID: 2, Name: "foot" },
-  ];
+        $("#editForm").on("submit", function (e) {
+            e.preventDefault();
+            const formData = {
+                id: $("#edit-id").val(),
+                name: $("#edit-name").val(),
+                description: $("#edit-description").val(),
+                price: $("#edit-price").val(),
+                stock: $("#edit-stock").val(),
+                categoryId: $("#edit-category").val()
+            };
+            console.log("Form Data:", formData);
+            // Thêm logic gửi dữ liệu đến server (ví dụ: AJAX)
+            $.ajax({
+                url: '/Admin/Edit',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    alert('Cập nhật sản phẩm thành công!');
+                    $("#editModal").modal('hide');
+                    location.reload(); // Tải lại trang
+                },
+                error: function (xhr, status, error) {
+                    alert('Lỗi khi cập nhật sản phẩm: ' + error);
+                }
+            });
+        });
+    </script>
 
-  // Hàm đổ dữ liệu vào dropdown (dùng cho cả edit và add)
-  function populateCategoryDropdown(dropdownId) {
-    const categorySelect = document.getElementById(dropdownId);
-    categorySelect.innerHTML = ''; // Xóa dữ liệu cũ
-
-    // Tùy chọn mặc định
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = '-- Chọn danh mục --';
-    categorySelect.appendChild(defaultOption);
-
-    // Thêm từng danh mục
-    categories.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat.CategoryID;
-      option.textContent = cat.Name;
-      categorySelect.appendChild(option);
-    });
-  }
-
-  // Khi mở modal Edit
-  $(document).on("click", ".btn-primary.edit-btn", function (e) {
-    e.preventDefault();
-
-    const currentRow = $(this).closest("tr");
-    const name = currentRow.find("td:eq(1)").text().trim();
-    const price = currentRow.find("td:eq(3)").text().trim();
-
-    $("#edit-name").val(name);
-    $("#edit-price").val(price);
-
-    populateCategoryDropdown('edit-category');
-
-    $("#editModal").modal("show");
-  });
-
-  // Khi bấm nút Add New Product mở modal add
-  document.getElementById('btnAddProduct').addEventListener('click', function () {
-    // Đổ dữ liệu danh mục cho dropdown add
-    populateCategoryDropdown('add-category');
-
-    // Reset form add mới
-    document.getElementById('addForm').reset();
-
-    // Hiện modal add
-    $('#addModal').modal('show');
-  });
-
-  // Xử lý submit form add
-  document.getElementById('addForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const newProduct = {
-      categoryID: document.getElementById('add-category').value,
-      name: document.getElementById('add-name').value.trim(),
-      description: document.getElementById('add-description').value.trim(),
-      price: parseFloat(document.getElementById('add-price').value),
-      stock: parseInt(document.getElementById('add-stock').value),
-    };
-
-    if (!newProduct.categoryID) {
-      alert('Vui lòng chọn danh mục');
-      return;
-    }
-    if (!newProduct.name) {
-      alert('Vui lòng nhập tên sản phẩm');
-      return;
-    }
-    if (isNaN(newProduct.price) || newProduct.price < 0) {
-      alert('Giá không hợp lệ');
-      return;
-    }
-    if (isNaN(newProduct.stock) || newProduct.stock < 0) {
-      alert('Số lượng kho không hợp lệ');
-      return;
-    }
-
-    console.log('Thêm sản phẩm mới:', newProduct);
-
-    // TODO: Gửi lên server hoặc xử lý lưu trữ ở đây
-
-    // Đóng modal sau khi thêm
-    $('#addModal').modal('hide');
-
-    // Reset form
-    this.reset();
-
-    // TODO: Reload lại danh sách sản phẩm nếu cần
-  });
-</script>
+    @section Scripts {
+        <script>
+            // Đảm bảo jQuery và Bootstrap được tải
+            $(function () {
+                // Logic đã di chuyển lên trên
+            });
+        </script>
+    } *@
 
 
-<script>
-  
-</script>
+
+    <script>
+
+    </script>
 
 
 

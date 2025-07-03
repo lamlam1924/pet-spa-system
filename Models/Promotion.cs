@@ -25,7 +25,7 @@ public partial class Promotion
 
     public int? MaxUsage { get; set; }
 
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
