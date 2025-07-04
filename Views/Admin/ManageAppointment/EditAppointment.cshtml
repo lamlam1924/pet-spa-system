@@ -1,0 +1,95 @@
+@model pet_spa_system1.Models.Appointment
+
+@{
+    ViewData["Title"] = "Chỉnh sửa lịch hẹn";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="container py-4">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">Chỉnh sửa lịch hẹn #@Model.AppointmentId</h3>
+        </div>
+        <form asp-action="AppointmentEdit" asp-controller="Admin" method="post" class="card-body row g-3">
+            <input type="hidden" asp-for="AppointmentId" />
+
+            <div class="col-md-6">
+                <label class="form-label">Khách hàng</label>
+                <input type="text" class="form-control" value="@Model.User?.FullName" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" value="@Model.User.Phone" readonly />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Ngày giờ hẹn</label>
+                <input type="datetime-local" class="form-control" asp-for="AppointmentDate" value="@Model.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-control" asp-for="StatusId" asp-items="ViewBag.Statuses"></select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nhân viên</label>
+                <select class="form-control" asp-for="EmployeeId" asp-items="ViewBag.Employees">
+                    <option value="">-- Chưa phân công --</option>
+                </select>
+            </div>
+            <div class="col-md-6" >
+            <div id="pet-service-list">
+                <div class="row mb-2 pet-service-row">
+                    <div class="col">
+                        <select name="PetIds[]" class="form-control">
+                            @foreach (var pet in ViewBag.Pets as List<pet_spa_system1.Models.Pet>)
+                            {
+                                <option value="@pet.PetId">@pet.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select name="ServiceIds[]" class="form-control">
+                            @foreach (var service in ViewBag.Services as List<pet_spa_system1.Models.Service>)
+                            {
+                                <option value="@service.ServiceId">@service.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-danger btn-remove-row">X</button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="add-row" class="btn btn-secondary mt-2">Thêm cặp thú cưng - dịch vụ</button>
+            </div>
+
+
+            <div class="col-12">
+                <label class="form-label">Ghi chú</label>
+                <textarea class="form-control" asp-for="Notes"></textarea>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-warning" type="submit">Lưu thay đổi</button>
+                <a href="@Url.Action("AppointmentDetail", "Admin", new { id = Model.AppointmentId })" class="btn btn-outline-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+$(document).ready(function() {
+    // Thêm dòng mới
+    $('#add-row').click(function() {
+        var $row = $('#pet-service-list .pet-service-row').first().clone();
+        $row.find('select').val('');
+        $('#pet-service-list').append($row);
+    });
+
+    // Xóa dòng
+    $(document).on('click', '.btn-remove-row', function() {
+        if ($('#pet-service-list .pet-service-row').length > 1)
+            $(this).closest('.pet-service-row').remove();
+    });
+});
+</script>
+
+
+

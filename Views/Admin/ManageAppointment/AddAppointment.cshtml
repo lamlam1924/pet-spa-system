@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Tạo lịch hẹn mới";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+<div class="container py-4">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">Tạo lịch hẹn mới</h3>
+        </div>
+        <form class="card-body row g-3" method="post">
+            <div class="col-md-6">
+                <label class="form-label">Khách hàng</label>
+                <input type="text" class="form-control" placeholder="Tên khách hàng" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" placeholder="Số điện thoại" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Thú cưng</label>
+                <input type="text" class="form-control" placeholder="Tên thú cưng" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Dịch vụ</label>
+                <select class="form-select" required>
+                    <option value="">-- Chọn dịch vụ --</option>
+                    <option value="1">Tắm</option>
+                    <option value="2">Cắt móng</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Ngày</label>
+                <input type="date" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Giờ</label>
+                <input type="time" class="form-control" required />
+            </div>
+            <div class="col-12">
+                <label class="form-label">Ghi chú</label>
+                <textarea class="form-control" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-success" type="submit">Tạo lịch</button>
+                <a href="@Url.Action("AppointmentList", "Admin")" class="btn btn-outline-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>

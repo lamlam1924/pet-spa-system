@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using System.Linq;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Repositories
 {
@@ -80,7 +81,9 @@ namespace pet_spa_system1.Repositories
 
         public Service GetServiceById(int id)
         {
-            return _context.Services.FirstOrDefault(s => s.ServiceId == id);
+            return _context.Services
+                .Include(s => s.Category)
+                .FirstOrDefault(s => s.ServiceId == id);
         }
 
         public void AddService(Service service)
@@ -118,11 +121,20 @@ namespace pet_spa_system1.Repositories
             _context.SaveChanges();
         }
 
-        public List<Service> GetActiveServices() => _context.Services.Where(s => s.IsActive== true).ToList();
-        public List<Service> GetAll()
+        public List<Service> GetActiveServices()
         {
-            return _context.Services.ToList();
+            return _context.Services
+                .Include(s => s.Category)
+                .Where(s => s.IsActive==true && s.Category != null)
+                .OrderBy(s => s.CategoryId)
+                .ToList();
         }
 
+        public List<Service> GetAll()
+        {
+            return _context.Services
+                .Include(s => s.Category)
+                .ToList();
+        }
     }
 }

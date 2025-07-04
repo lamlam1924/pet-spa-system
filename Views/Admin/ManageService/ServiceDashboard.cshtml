@@ -1,0 +1,330 @@
+@{
+    ViewData["Title"] = "Quản lý dịch vụ";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsservice/service-common.css" />
+    <link rel="stylesheet" href="~/cssjsservice/service-dashboard.css" />
+    <style>
+        .btn-action {
+            transition: all 0.3s ease;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+}
+
+<div class="container-fluid p-0">
+    <div class="row mb-2 mb-xl-3">
+        <div class="col-auto d-none d-sm-block">
+            <h3><strong>Quản lý dịch vụ</strong></h3>
+        </div>
+
+        <div class="col-auto ms-auto text-end mt-n1">
+            <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-primary btn-action">
+                <i class="align-middle" data-feather="list"></i> Danh sách dịch vụ
+            </a>
+            <a href="@Url.Action("AddService", "AdminService")" class="btn btn-success btn-action">
+                <i class="align-middle" data-feather="plus"></i> Thêm dịch vụ mới
+            </a>
+            <a href="@Url.Action("ServiceCategory", "AdminService")" class="btn btn-info btn-action">
+                <i class="align-middle" data-feather="layers"></i> Quản lý danh mục
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-xxl-12 d-flex">
+            <div class="w-100">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col mt-0">
+                                        <h5 class="card-title">Tổng số dịch vụ</h5>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <div class="stat text-primary">
+                                            <i class="align-middle" data-feather="briefcase"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="mt-1 mb-3">@ViewBag.TotalServices</h1>
+                                <div class="mb-0">
+                                    <span class="badge badge-primary-light"> <i class="mdi mdi-arrow-bottom-right"></i> Tổng số </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col mt-0">
+                                        <h5 class="card-title">Dịch vụ kích hoạt</h5>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <div class="stat text-primary">
+                                            <i class="align-middle" data-feather="check-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="mt-1 mb-3">@ViewBag.ActiveServices</h1>
+                                <div class="mb-0">
+                                    <span class="badge badge-success-light"> <i class="mdi mdi-arrow-bottom-right"></i> Đang hoạt động </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col mt-0">
+                                        <h5 class="card-title">Dịch vụ tạm ngưng</h5>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <div class="stat text-primary">
+                                            <i class="align-middle" data-feather="pause-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="mt-1 mb-3">@ViewBag.InactiveServices</h1>
+                                <div class="mb-0">
+                                    <span class="badge badge-warning-light"> <i class="mdi mdi-arrow-bottom-right"></i> Đã tạm ngưng </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col mt-0">
+                                        <h5 class="card-title">Số lượng danh mục</h5>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <div class="stat text-primary">
+                                            <i class="align-middle" data-feather="folder"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="mt-1 mb-3">@ViewBag.TotalCategories</h1>
+                                <div class="mb-0">
+                                    <span class="badge badge-info-light"> <i class="mdi mdi-arrow-bottom-right"></i> Tổng danh mục </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-8 d-flex">
+            <div class="card flex-fill w-100">
+                <div class="card-header">
+                    <h5 class="card-title">Dịch vụ nổi bật</h5>
+                    <h6 class="card-subtitle text-muted">Top 10 dịch vụ được đặt nhiều nhất</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart">
+                        <canvas id="serviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 d-flex">
+            <div class="card flex-fill w-100">
+                <div class="card-header">
+                    <h5 class="card-title">Phân bố dịch vụ theo danh mục</h5>
+                </div>
+                <div class="card-body d-flex">
+                    <div class="align-self-center w-100">
+                        <div class="py-3">
+                            <div class="chart chart-xs">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-6 d-flex">
+            <div class="card flex-fill">
+                <div class="card-header">
+                    <h5 class="card-title">Dịch vụ mới thêm gần đây</h5>
+                </div>
+                <table class="table table-hover my-0">
+                    <thead>
+                        <tr>
+                            <th>Tên dịch vụ</th>
+                            <th>Danh mục</th>
+                            <th class="d-none d-xl-table-cell">Giá</th>
+                            <th class="d-none d-xl-table-cell">Ngày thêm</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.RecentServices != null)
+                        {
+                            foreach (var service in ViewBag.RecentServices)
+                            {
+                                <tr>
+                                    <td>@service.Name</td>
+                                    <td>@service.Category.Name</td>
+                                    <td class="d-none d-xl-table-cell">@service.Price.ToString("N0") đ</td>
+                                    <td class="d-none d-xl-table-cell">@service.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (service.IsActive == true)
+                                        {
+                                            <span class="badge bg-success">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">Ngưng</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 d-flex">
+            <div class="card flex-fill">
+                <div class="card-header">
+                    <h5 class="card-title">Lịch hẹn sắp tới sử dụng dịch vụ</h5>
+                </div>
+                <table class="table table-hover my-0">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Khách hàng</th>
+                            <th>Dịch vụ</th>
+                            <th>Ngày hẹn</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.UpcomingAppointments != null)
+                        {
+                            foreach (var appointment in ViewBag.UpcomingAppointments)
+                            {
+                                <tr>
+                                    <td>#@appointment.AppointmentId</td>
+                                    <td>@appointment.User.Name</td>
+                                    <td>
+                                        @if (appointment.AppointmentServices.Count > 0)
+                                        {
+                                            @appointment.AppointmentServices.FirstOrDefault().Service.Name
+                                            if (appointment.AppointmentServices.Count > 1)
+                                            {
+                                                <span class="badge bg-info">+@(appointment.AppointmentServices.Count - 1)</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @switch (appointment.StatusId)
+                                        {
+                                            case 1:
+                                                <span class="badge bg-warning">Chờ xác nhận</span>
+                                                break;
+                                            case 2:
+                                                <span class="badge bg-info">Đã xác nhận</span>
+                                                break;
+                                            case 3:
+                                                <span class="badge bg-success">Hoàn thành</span>
+                                                break;
+                                            case 4:
+                                                <span class="badge bg-danger">Đã hủy</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">Khác</span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Thư viện bên ngoài -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <!-- Theme setup cho chart.js -->
+    <script>
+        window.theme = {
+            primary: '#4e73df',
+            secondary: '#6c757d',
+            success: '#1cc88a',
+            info: '#36b9cc',
+            warning: '#f6c23e',
+            danger: '#e74a3b',
+            light: '#f8f9fc',
+            dark: '#5a5c69'
+        };
+    </script>
+    
+    <!-- JS cho trang dịch vụ -->
+    <script src="~/cssjsservice/service-utils.js"></script>
+    <script src="~/cssjsservice/service-dashboard.js"></script>
+    <script>
+        // Pass data to the external JS file
+        var serviceBookingData = @Html.Raw(Json.Serialize(ViewBag.ServiceBookingData));
+        var categoryDistributionData = @Html.Raw(Json.Serialize(ViewBag.CategoryDistributionData));
+        
+        // Khởi tạo Feather Icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+        
+        // Kiểm tra dữ liệu và cập nhật UI
+        $(document).ready(function() {
+            // Thêm hiệu ứng hover cho các nút
+            $('.btn-action').hover(
+                function() { $(this).addClass('shadow-sm'); },
+                function() { $(this).removeClass('shadow-sm'); }
+            );
+            
+            // Kiểm tra nếu dữ liệu biểu đồ không tồn tại
+            if (typeof serviceBookingData === 'undefined' || serviceBookingData === null) {
+                console.warn('serviceBookingData không được định nghĩa');
+                serviceBookingData = {
+                    labels: ['Không có dữ liệu'],
+                    data: [0]
+                };
+            }
+            
+            if (typeof categoryDistributionData === 'undefined' || categoryDistributionData === null) {
+                console.warn('categoryDistributionData không được định nghĩa');
+                categoryDistributionData = {
+                    labels: ['Không có dữ liệu'],
+                    data: [0]
+                };
+            }
+        });
+    </script>
+}

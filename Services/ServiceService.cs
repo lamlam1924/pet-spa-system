@@ -1,6 +1,7 @@
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using System.Collections.Generic;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Services
 {
@@ -22,7 +23,6 @@ namespace pet_spa_system1.Services
         {
             return _serviceRepository.GetActiveServices();
         }
-
 
         public ServiceViewModel GetAllService()
         {
@@ -53,10 +53,11 @@ namespace pet_spa_system1.Services
         {
             _serviceRepository.UpdateService(service);
         }
+
         public List<Service> GetAll()
         {
             return _serviceRepository.GetAll();
         }
-
     }
+
 }

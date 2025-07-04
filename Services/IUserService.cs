@@ -8,6 +8,6 @@ public interface IUserService
     Task<User?> AuthenticateAsync(string email, string password);
     Task<User?> RegisterAsync(string email, string userName, string plainPassword);
     Task<User?> RegisterByGoogle(string email, string name);
-    
     User? GetUserInfo(int userId);
+    List<User> GetAllStaff();
 }

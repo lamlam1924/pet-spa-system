@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.ViewModel;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Controllers
 {
@@ -10,91 +10,42 @@ namespace pet_spa_system1.Controllers
     {
         private readonly PetDataShopContext _context;
         private readonly IProductService _productService;
-        private readonly IServiceService _serviceService;
 
-
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService)
+        public AdminController(PetDataShopContext context, IProductService productService)
         {
             _context = context;
             _productService = productService;
-            _serviceService = serviceService;
-        }
-        //=======================================================================================================================
-        // SERVICE
-        public IActionResult ManageService(int? categoryId, string search)
-        {
-            var model = _serviceService.GetAllService();
-            if (categoryId.HasValue)
-            {
-                model.Services = model.Services.Where(s => s.CategoryId == categoryId.Value).ToList();
-            }
-            if (!string.IsNullOrEmpty(search))
-            {
-                model.Services = model.Services.Where(s => s.Name.Contains(search)).ToList();
-            }
-            model.SelectedCategoryId = categoryId;
-            return View(model);
         }
 
-        [HttpPost]
-        public IActionResult AddService(Service service)
+        public IActionResult Index()
         {
-            _serviceService.AddService(service);
-            _serviceService.Save();
-            return RedirectToAction("ManageService");
-        }
-
-        public IActionResult EditService(int id)
-        {
-            var service = _serviceService.GetServiceById(id);
-            var categories = _serviceService.GetAllService().Categories;
-            ViewBag.Categories = categories;
-            return View(service);
-        }
-
-        [HttpPost]
-        public IActionResult EditService(Service service)
-        {
-            _serviceService.UpdateService(service);
-            _serviceService.Save();
-            return RedirectToAction("ManageService");
-        }
-
-        public IActionResult SoftDeleteService(int id)
-        {
-            _serviceService.SoftDeleteService(id);
-            _serviceService.Save();
-            return RedirectToAction("ManageService");
-        }
-
-        public IActionResult RestoreService(int id)
-        {
-            _serviceService.RestoreService(id);
-            _serviceService.Save();
-            return RedirectToAction("ManageService");
+            return View();
         }
 
         public IActionResult Appointments()
         {
             return View();
         }
-        public IActionResult Index()
-        {
-            return View();
-        }
+
         public IActionResult Payment()
         {
             return View();
         }
+
         public IActionResult Pets_List()
         {
             return View();
         }
+
         public IActionResult List_Customer()
         {
             return View();
-
         }
+
+        
+
+        
+
         //=======================================================================================================================
         //--PRODUCT--
         public async Task<IActionResult> Product_Detail(int productID)

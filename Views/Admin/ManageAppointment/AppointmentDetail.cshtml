@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Chi tiết lịch hẹn";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+<div class="container py-4">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Chi tiết lịch hẹn #1</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Khách hàng:</dt>
+                <dd class="col-sm-9">Nguyễn Văn A (0901 234 567)</dd>
+
+                <dt class="col-sm-3">Thú cưng:</dt>
+                <dd class="col-sm-9">Meo Meo (Mèo, 2 tuổi)</dd>
+
+                <dt class="col-sm-3">Dịch vụ:</dt>
+                <dd class="col-sm-9">Tắm, Cắt móng</dd>
+
+                <dt class="col-sm-3">Thời gian:</dt>
+                <dd class="col-sm-9">28/06/2025 14:00</dd>
+
+                <dt class="col-sm-3">Trạng thái:</dt>
+                <dd class="col-sm-9"><span class="badge bg-warning text-dark">Chờ xác nhận</span></dd>
+
+                <dt class="col-sm-3">Ghi chú:</dt>
+                <dd class="col-sm-9">Không có</dd>
+            </dl>
+            <div class="mt-4">
+                <a href="@Url.Action("AppointmentEdit", "Admin", new { id = 1 })" class="btn btn-warning">Chỉnh sửa</a>
+                <button class="btn btn-success">Xác nhận lịch</button>
+                <button class="btn btn-danger">Hủy lịch</button>
+                <a href="@Url.Action("AppointmentList", "Admin")" class="btn btn-outline-secondary">Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>

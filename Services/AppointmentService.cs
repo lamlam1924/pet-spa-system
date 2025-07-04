@@ -1,6 +1,7 @@
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using System.Linq;
+using pet_spa_system1.ViewModels;
 
 
 namespace pet_spa_system1.Services
@@ -9,40 +10,44 @@ namespace pet_spa_system1.Services
     {
         private readonly IAppointmentRepository _repo;
         private readonly IEmailService _iEmailService;
+        private readonly IPetRepository _petRepository;
+        private readonly IServiceRepository _serviceRepository;
         
-        public AppointmentService(IAppointmentRepository repo, IEmailService iEmailService)
+        public AppointmentService(
+            IAppointmentRepository repo, 
+            IEmailService iEmailService,
+            IPetRepository petRepository,
+            IServiceRepository serviceRepository)
         {
             _repo = repo;
             _iEmailService = iEmailService;
+            _petRepository = petRepository;
+            _serviceRepository = serviceRepository;
         }
 
-        public bool SaveAppointment(AppointmentViewModel vm, int userId)
+        public bool SaveAppointment(AppointmentViewModel model, int userId)
         {
             try
             {
                 // DEBUG
-                Console.WriteLine($"SaveAppointment: Có {vm.SelectedServiceIds?.Count ?? 0} dịch vụ");
+                Console.WriteLine($"SaveAppointment: Có {model.SelectedServiceIds?.Count ?? 0} dịch vụ");
 
                 var appointment = new Appointment
                 {
                     UserId = userId,
-                    AppointmentDate = vm.AppointmentDate.Date.Add(vm.AppointmentTime),
+                    AppointmentDate = model.AppointmentDate.Date.Add(model.AppointmentTime),
                     StatusId = 1,
-                    Notes = vm.Notes,
+                    Notes = model.Notes,
                     IsActive = true,
                     CreatedAt = DateTime.Now
                 };
 
                 int appId = _repo.AddAppointment(appointment);
-                // foreach (var petId in vm.SelectedPetIds)
-                //     _repo.AddAppointmentPet(appId, petId);
-                // foreach (var serviceId in vm.SelectedServiceIds)
-                //     _repo.AddAppointmentService(appId, serviceId);
 
                 // Thêm thú cưng vào lịch hẹn
-                if (vm.SelectedPetIds != null)
+                if (model.SelectedPetIds != null && model.SelectedPetIds.Any())
                 {
-                    foreach (var petId in vm.SelectedPetIds)
+                    foreach (var petId in model.SelectedPetIds)
                     {
                         Console.WriteLine($"Thêm thú cưng {petId} vào lịch hẹn {appId}");
                         _repo.AddAppointmentPet(appId, petId);
@@ -50,9 +55,9 @@ namespace pet_spa_system1.Services
                 }
                 
                 // Thêm dịch vụ vào lịch hẹn
-                if (vm.SelectedServiceIds != null)
+                if (model.SelectedServiceIds != null && model.SelectedServiceIds.Any())
                 {
-                    foreach (var serviceId in vm.SelectedServiceIds)
+                    foreach (var serviceId in model.SelectedServiceIds)
                     {
                         Console.WriteLine($"Thêm dịch vụ {serviceId} vào lịch hẹn {appId}");
                         _repo.AddAppointmentService(appId, serviceId);
@@ -62,33 +67,60 @@ namespace pet_spa_system1.Services
                 _repo.Save(); // Lưu tất cả thay đổi
                 
                 // GỬI EMAIL XÁC NHẬN ở đây
-                if (!string.IsNullOrWhiteSpace(vm.Email))
+                if (!string.IsNullOrWhiteSpace(model.Email))
                 {
                     try
                     {
-                        Console.WriteLine($"[Email] Bắt đầu gửi email xác nhận đến {vm.Email}");
+                        Console.WriteLine($"[Email] Bắt đầu gửi email xác nhận đến {model.Email}");
                         
-                        var petNames = vm.SelectedPetIds != null ? GetPetNames(vm.SelectedPetIds) : new List<string>();
+                        // Lấy chi tiết về thú cưng và dịch vụ
+                        if (model.SelectedPetIds != null && model.SelectedPetIds.Any())
+                        {
+                            model.SelectedPets = new List<Pet>();
+                            foreach (var petId in model.SelectedPetIds)
+                            {
+                                var pet = _petRepository.GetById(petId);
+                                if (pet != null)
+                                {
+                                    model.SelectedPets.Add(pet);
+                                }
+                            }
+                        }
+                        
+                        if (model.SelectedServiceIds != null && model.SelectedServiceIds.Any())
+                        {
+                            model.SelectedServices = new List<Service>();
+                            foreach (var serviceId in model.SelectedServiceIds)
+                            {
+                                var service = _serviceRepository.GetServiceById(serviceId);
+                                if (service != null)
+                                {
+                                    model.SelectedServices.Add(service);
+                                }
+                            }
+                        }
+                            
+                        var petNames = model.SelectedPets.Select(p => p.Name).ToList();
+                        var serviceNames = model.SelectedServices.Select(s => s.Name).ToList();
+                        
                         Console.WriteLine($"[Email] Danh sách thú cưng: {string.Join(", ", petNames)}");
-                        
-                        var serviceNames = vm.SelectedServiceIds != null ? GetServiceNames(vm.SelectedServiceIds) : new List<string>();
                         Console.WriteLine($"[Email] Danh sách dịch vụ: {string.Join(", ", serviceNames)}");
                         
                         _iEmailService.SendBookingConfirmation(
-                            vm.Email,
-                            vm.CustomerName,
+                            model.Email,
+                            model.CustomerName,
                             appointment.AppointmentDate,
-                            vm.Notes,
+                            model.Notes,
                             petNames: petNames,
                             serviceNames: serviceNames
                         );
                         
-                        Console.WriteLine($"[Email] Đã gửi email thành công đến {vm.Email}");
+                        Console.WriteLine($"[Email] Đã gửi email thành công đến {model.Email}");
                     }
                     catch (Exception emailEx)
                     {
                         // Log chi tiết lỗi để dễ debug
-                        Console.WriteLine($"[Email Error] Không gửi được email xác nhận cho {vm.Email}: {emailEx.Message}");
+                        Console.WriteLine($"[Email Error] Không gửi được email xác nhận cho {model.Email}: {emailEx.Message}");
                         Console.WriteLine($"[Email Error] Chi tiết: {emailEx.StackTrace}");
                         
                         if (emailEx.InnerException != null)
@@ -135,7 +167,7 @@ namespace pet_spa_system1.Services
                     AppointmentDate = a.AppointmentDate,
                     StatusId = a.StatusId,
                     StatusName = a.Status?.StatusName ?? "",
-                    Notes = a.Notes,
+                    Notes = a.Notes ?? "",
                     Services = a.AppointmentServices?.Select(asv => new ServiceHistoryInfo
                     {
                         Name = asv.Service?.Name ?? "",

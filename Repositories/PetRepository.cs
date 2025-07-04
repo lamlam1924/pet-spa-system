@@ -12,11 +12,16 @@ namespace pet_spa_system1.Repositories
         public List<Pet> GetPetsByUserId(int userId)
             => _context.Pets.Where(p => p.UserId == userId && p.IsActive == true).ToList();
 
+        public List<Pet> GetAllPets()
+            => _context.Pets.Where(p => p.IsActive == true).ToList();
+
         public void AddPet(Pet pet)
         {
             _context.Pets.Add(pet);
             _context.SaveChanges();
         }
+        
+        public Pet GetById(int id)
+            => _context.Pets.FirstOrDefault(p => p.PetId == id);
     }
-
 }

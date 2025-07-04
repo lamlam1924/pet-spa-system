@@ -1,0 +1,141 @@
+@model pet_spa_system1.ViewModels.AppointmentViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xác nhận đặt lịch thành công</title>
+    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/email-confirmation.css")" />
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>SPA THÚ CƯNG</h1>
+            <p>Chăm sóc chuyên nghiệp - Tình cảm trọn vẹn</p>
+        </div>
+        
+        <div class="email-body">
+            <div class="greeting">
+                Xin chào @Model.CustomerName,
+            </div>
+            
+            <div class="message">
+                Cảm ơn bạn đã đặt lịch tại SPA Thú Cưng. Chúng tôi xác nhận thông tin đặt lịch của bạn như sau:
+            </div>
+            
+            <div class="appointment-details">
+                <div class="section-title">Thông tin lịch hẹn</div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Ngày hẹn:</div>
+                    <div class="detail-value">@Model.AppointmentDate.ToString("dddd, dd/MM/yyyy") (VN)</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Giờ hẹn:</div>
+                    <div class="detail-value">@Model.AppointmentTime.ToString(@"hh\:mm")</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Khách hàng:</div>
+                    <div class="detail-value">@Model.CustomerName</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Điện thoại:</div>
+                    <div class="detail-value">@Model.Phone</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">@Model.Email</div>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="notes-section">
+                        <strong>Ghi chú:</strong>
+                        <p>@Model.Notes</p>
+                    </div>
+                }
+                
+                <div class="pets-section">
+                    <div class="section-title">Thú cưng được chọn</div>
+                    @if (Model.SelectedPets != null && Model.SelectedPets.Any())
+                    {
+                        foreach (var pet in Model.SelectedPets)
+                        {
+                            <div class="pet-item">
+                                <div>
+                                    <i class="fa fa-paw"></i>
+                                    <strong>@pet.Name</strong>
+                                    <span> - @pet.Breed</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="note">Không có thông tin thú cưng</p>
+                    }
+                </div>
+                
+                <div class="services-section">
+                    <div class="section-title">Dịch vụ được chọn</div>
+                    @if (Model.SelectedServices != null && Model.SelectedServices.Any())
+                    {
+                        decimal totalPrice = 0;
+                        
+                        foreach (var service in Model.SelectedServices)
+                        {
+                            totalPrice += service.Price;
+                            <div class="service-item">
+                                <div>@service.Name</div>
+                                <div class="service-price">@service.Price.ToString("N0") đ</div>
+                            </div>
+                        }
+                        
+                        <div class="total-price">
+                            Tổng cộng: @totalPrice.ToString("N0") đ
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="note">Không có thông tin dịch vụ</p>
+                    }
+                </div>
+            </div>
+            
+            <div class="message">
+                Xin vui lòng đến đúng giờ hẹn. Nếu bạn cần thay đổi hoặc hủy lịch hẹn, vui lòng liên hệ với chúng tôi trước 24 giờ để được hỗ trợ.
+            </div>
+            
+            <div class="call-to-action">
+                <a href="tel:+84123456789" class="cta-button">
+                    Gọi Hỗ Trợ
+                </a>
+            </div>
+        </div>
+        
+        <div class="email-footer">
+            <div class="footer-logo">SPA THÚ CƯNG</div>
+            
+            <div class="footer-contact">
+                <p>123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh</p>
+                <p>Email: contact@spathucung.com | Điện thoại: 0123 456 789</p>
+            </div>
+            
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2025 SPA Thú Cưng. Tất cả quyền được bảo lưu.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

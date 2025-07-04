@@ -1,0 +1,393 @@
+@model pet_spa_system1.ViewModels.ServiceViewModel
+@{
+    ViewData["Title"] = "Quản lý dịch vụ";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    var selectedCategoryId = Context.Request.Query["categoryId"].ToString();
+    var currentSort = Context.Request.Query["sort"].ToString();
+    var currentFilter = Context.Request.Query["search"].ToString();
+    var currentStatus = Context.Request.Query["status"].ToString();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsservice/service-common.css" />
+    <link rel="stylesheet" href="~/cssjsservice/service-list.css" />
+}
+
+<div class="container-fluid" id="container-wrapper">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý dịch vụ</h1>
+        <div class="d-flex align-items-center">
+            <a href="@Url.Action("AddService", "AdminService")" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Thêm dịch vụ mới
+            </a>
+            <a href="@Url.Action("ServiceCategory", "AdminService")" class="btn btn-info ml-2">
+                <i class="fas fa-folder"></i> Quản lý danh mục
+            </a>
+        </div>
+    </div>
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "AdminService")">Quản lý dịch vụ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách dịch vụ</li>
+        </ol>
+    </nav>
+
+    <!-- Service Stats Cards -->
+    <div class="row mb-4">
+        <!-- Total Services -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng số dịch vụ</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Services.Count()</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stat-icon bg-primary text-white">
+                                <i class="fas fa-spa fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Services -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Dịch vụ hoạt động</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Services.Count(s => s.IsActive == true)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stat-icon bg-success text-white">
+                                <i class="fas fa-check fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inactive Services -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Dịch vụ tạm ngưng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Services.Count(s => s.IsActive != true)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stat-icon bg-danger text-white">
+                                <i class="fas fa-pause fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="@Url.Action("ServiceCategory", "AdminService")" class="card border-left-info shadow h-100 py-2 dashboard-card text-decoration-none" role="button" tabindex="0">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Danh mục</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Categories.Count()</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="stat-icon bg-info text-white">
+                                <i class="fas fa-list fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="@Url.Action("AddService", "AdminService")" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Thêm dịch vụ mới
+            </a>
+            <a href="@Url.Action("ServiceCategory", "AdminService")" class="btn btn-info ml-2">
+                <i class="fas fa-tags"></i> Quản lý danh mục
+            </a>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card mb-4 search-bar">
+        <div class="card-header py-3 bg-gradient-primary">
+            <h6 class="m-0 font-weight-bold text-white">Tìm kiếm & Lọc</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-controller="AdminService" asp-action="ServiceList" class="row g-3 align-items-center">
+                <div class="col-md-4 mb-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Tìm theo tên dịch vụ..." value="@currentFilter" />
+                    </div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select name="categoryId" class="form-control">
+                        <option value="">-- Tất cả danh mục --</option>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            if (selectedCategoryId == cat.CategoryId.ToString())
+                            {
+                                <option value="@cat.CategoryId" selected="selected">@cat.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@cat.CategoryId">@cat.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <select name="status" class="form-control">
+                        <option value="">-- Trạng thái --</option>
+                        @if (currentStatus == "active")
+                        {
+                            <option value="active" selected="selected">Đang hoạt động</option>
+                        }
+                        else
+                        {
+                            <option value="active">Đang hoạt động</option>
+                        }
+                        @if (currentStatus == "inactive")
+                        {
+                            <option value="inactive" selected="selected">Tạm ngưng</option>
+                        }
+                        else
+                        {
+                            <option value="inactive">Tạm ngưng</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-filter"></i> Lọc kết quả
+                    </button>
+                </div>
+                <div class="col-md-9">
+                    <fieldset class="btn-group btn-group-sm" aria-label="Sắp xếp">
+                        <a href="@Url.Action("ServiceList", "AdminService", new { sort = "name_asc", categoryId = selectedCategoryId, search = currentFilter, status = currentStatus })" 
+                           class="btn @(currentSort == "name_asc" ? "btn-primary" : "btn-outline-primary")">
+                            <i class="fas fa-sort-alpha-down"></i> Tên A-Z
+                        </a>
+                        <a href="@Url.Action("ServiceList", "AdminService", new { sort = "name_desc", categoryId = selectedCategoryId, search = currentFilter, status = currentStatus })" 
+                           class="btn @(currentSort == "name_desc" ? "btn-primary" : "btn-outline-primary")">
+                            <i class="fas fa-sort-alpha-up"></i> Tên Z-A
+                        </a>
+                        <a href="@Url.Action("ServiceList", "AdminService", new { sort = "price_asc", categoryId = selectedCategoryId, search = currentFilter, status = currentStatus })" 
+                           class="btn @(currentSort == "price_asc" ? "btn-primary" : "btn-outline-primary")">
+                            <i class="fas fa-sort-numeric-down"></i> Giá thấp-cao
+                        </a>
+                        <a href="@Url.Action("ServiceList", "AdminService", new { sort = "price_desc", categoryId = selectedCategoryId, search = currentFilter, status = currentStatus })" 
+                           class="btn @(currentSort == "price_desc" ? "btn-primary" : "btn-outline-primary")">
+                            <i class="fas fa-sort-numeric-up"></i> Giá cao-thấp
+                        </a>
+                    </fieldset>
+                </div>
+                <div class="col-md-3 text-right">
+                    <div class="text-muted">Hiển thị: @Model.Services.Count() dịch vụ</div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Service List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách dịch vụ</h6>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="actionDropdown" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-cog"></i> Tùy chọn
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="actionDropdown">
+                    <a class="dropdown-item" href="#" id="btnExportExcel">
+                        <i class="fas fa-file-excel fa-sm fa-fw mr-2 text-success"></i> Xuất Excel
+                    </a>
+                    <a class="dropdown-item" href="#" id="btnPrintList">
+                        <i class="fas fa-print fa-sm fa-fw mr-2 text-primary"></i> In danh sách
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="@Url.Action("AddService", "AdminService")">
+                        <i class="fas fa-plus fa-sm fa-fw mr-2 text-info"></i> Thêm dịch vụ
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover w-100" id="serviceTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Tên dịch vụ</th>
+                            <th>Danh mục</th>
+                            <th>Giá</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model?.Services != null && Model.Services.Any())
+                        {
+                            int stt = 1;
+                            foreach (var item in Model.Services)
+                            {
+                                <tr class="@(item.IsActive == true ? "" : "table-secondary")">
+                                    <td class="text-center">@(stt++)</td>
+                                    <td>
+                                        <a href="@Url.Action("ServiceDetail", "AdminService", new { id = item.ServiceId })" class="font-weight-bold text-primary">
+                                            @item.Name
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info service-badge">
+                                            @item.Category?.Name
+                                        </span>
+                                    </td>
+                                    <td class="text-right price-column">@item.Price.ToString("N0") đ</td>
+                                    <td class="text-center">@item.DurationMinutes phút</td>
+                                    <td class="text-center">
+                                        @if (item.IsActive == true)
+                                        {
+                                            <span class="badge badge-success service-badge">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary service-badge">Tạm ngưng</span>
+                                        }
+                                    </td>
+                                    <td class="text-center service-actions">
+                                        <a href="@Url.Action("ServiceDetail", "AdminService", new { id = item.ServiceId })" 
+                                           class="btn btn-sm btn-info" data-toggle="tooltip" title="Chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("EditService", "AdminService", new { id = item.ServiceId })" 
+                                           class="btn btn-sm btn-primary" data-toggle="tooltip" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        @if (item.IsActive == true)
+                                        {
+                                            <a href="javascript:void(0);" onclick="confirmStatusChange(@item.ServiceId, false)" 
+                                               class="btn btn-sm btn-danger" data-toggle="tooltip" title="Tạm ngưng">
+                                                <i class="fas fa-ban"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);" onclick="confirmStatusChange(@item.ServiceId, true)" 
+                                               class="btn btn-sm btn-success" data-toggle="tooltip" title="Kích hoạt">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted mb-2">
+                                        <i class="fas fa-search fa-3x"></i>
+                                    </div>
+                                    <h5 class="text-muted">Không tìm thấy dịch vụ nào</h5>
+                                    <p class="mb-0">Thử thay đổi điều kiện tìm kiếm hoặc thêm dịch vụ mới</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/cssjsservice/service-utils.js"></script>
+    <script src="~/cssjsservice/service-list.js"></script>
+    <script>
+        // Hiển thị thông báo nếu có
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            $(document).ready(function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: '@TempData["SuccessMessage"]',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+            </text>
+        }
+        
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+            $(document).ready(function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: '@TempData["ErrorMessage"]'
+                });
+            });
+            </text>
+        }
+        
+        // Function to invoke confirmStatusChange with URLs
+        function confirmStatusChange(serviceId, activateService) {
+            const restoreUrl = '@Url.Action("RestoreService", "AdminService")';
+            const softDeleteUrl = '@Url.Action("SoftDeleteService", "AdminService")';
+            
+            window.confirmStatusChange(serviceId, activateService, restoreUrl, softDeleteUrl);
+        }
+    </script>
+}

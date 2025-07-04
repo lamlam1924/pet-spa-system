@@ -38,4 +38,11 @@ public class UserRepository : IUserRepository
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
     }
+
+    public List<User> GetAllStaff()
+    {
+        return _context.Users
+            .Where(u => u.RoleId == 2 && u.IsActive == true)
+            .ToList();
+    }
 }

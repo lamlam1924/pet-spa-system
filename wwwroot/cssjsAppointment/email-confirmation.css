@@ -1,0 +1,225 @@
+/* 
+ * email-confirmation.css
+ * Styles for appointment confirmation email template
+ */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+.email-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.email-header {
+    background: linear-gradient(135deg, #f14437 0%, #ff6b6b 100%);
+    padding: 30px;
+    text-align: center;
+    color: white;
+}
+
+.email-header img {
+    max-width: 180px;
+    height: auto;
+}
+
+.email-header h1 {
+    margin: 15px 0 5px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.email-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 16px;
+}
+
+.email-body {
+    padding: 35px;
+}
+
+.greeting {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #2d3142;
+}
+
+.message {
+    margin-bottom: 30px;
+    font-size: 16px;
+    color: #4a4a4a;
+}
+
+.appointment-details {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-left: 4px solid #f14437;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f14437;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.detail-label {
+    width: 120px;
+    font-weight: 600;
+    color: #555;
+}
+
+.detail-value {
+    flex: 1;
+}
+
+.pets-section, .services-section {
+    margin-top: 25px;
+}
+
+.pet-item, .service-item {
+    background-color: white;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-left: 3px solid #6c757d;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pet-item {
+    border-left-color: #4caf50;
+}
+
+.service-item {
+    border-left-color: #2196f3;
+}
+
+.service-price {
+    font-weight: 600;
+    color: #f14437;
+}
+
+.total-price {
+    text-align: right;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f14437;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px dashed #e9ecef;
+}
+
+.notes-section {
+    background-color: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 15px 20px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    border-radius: 4px;
+}
+
+.call-to-action {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.cta-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #f14437 0%, #ff6b6b 100%);
+    color: white;
+    text-decoration: none;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(241, 68, 55, 0.25);
+}
+
+.email-footer {
+    background-color: #2d3142;
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.footer-logo {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.footer-contact {
+    margin-bottom: 20px;
+}
+
+.footer-contact p {
+    margin: 5px 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.social-links {
+    margin-top: 20px;
+}
+
+.social-link {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    margin: 0 8px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.copyright {
+    margin-top: 25px;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.note {
+    font-style: italic;
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+@media only screen and (max-width: 600px) {
+    .email-body {
+        padding: 20px;
+    }
+    
+    .detail-item {
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}

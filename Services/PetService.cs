@@ -9,6 +9,7 @@ namespace pet_spa_system1.Services
         private readonly IPetRepository _petRepo;
         public PetService(IPetRepository repo) { _petRepo = repo; }
         public List<Pet> GetPetsByUserId(int userId) => _petRepo.GetPetsByUserId(userId);
+        public List<Pet> GetAllPets() => _petRepo.GetAllPets();
         public void AddPet(Pet pet) => _petRepo.AddPet(pet);
     }
 }

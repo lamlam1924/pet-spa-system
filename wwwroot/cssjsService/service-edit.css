@@ -1,0 +1,110 @@
+/* CSS for Service Edit Form */
+.form-card {
+    border-left: 4px solid #4e73df;
+    border-radius: 0.35rem;
+    transition: all 0.3s ease;
+}
+.form-card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.required-field::after {
+    content: " *";
+    color: #e74a3b;
+}
+.preview-card {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 1rem;
+    background-color: #f8f9fc;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+.preview-card:hover {
+    box-shadow: 0 0.15rem 0.5rem rgba(58, 59, 69, 0.15);
+}
+.preview-title {
+    color: #4e73df;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+.preview-service-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #5a5c69;
+}
+.preview-service-category {
+    color: #4e73df;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+.preview-service-price {
+    font-weight: 700;
+    color: #1cc88a;
+    font-size: 1.1rem;
+}
+.preview-service-duration {
+    font-size: 0.9rem;
+    color: #858796;
+}
+.preview-service-description {
+    font-size: 0.9rem;
+    color: #6e707e;
+    margin-top: 1rem;
+}
+.help-text {
+    color: #858796;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+.sticky-container {
+    position: sticky;
+    top: 1rem;
+}
+.input-group-text {
+    background-color: #4e73df;
+    color: white;
+    border: 1px solid #4e73df;
+}
+.changelog-item {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 15px;
+}
+.changelog-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #4e73df;
+}
+.changelog-item::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 15px;
+    width: 2px;
+    height: calc(100% + 5px);
+    background-color: #e3e6f0;
+}
+.changelog-item:last-child::after {
+    display: none;
+}
+.changelog-date {
+    font-size: 0.8rem;
+    color: #858796;
+}
+.changelog-user {
+    font-weight: 600;
+    color: #4e73df;
+}
+.changelog-content {
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #f8f9fc;
+    border-radius: 0.35rem;
+}

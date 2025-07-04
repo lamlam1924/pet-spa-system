@@ -6,23 +6,30 @@ using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Services;
 using System;
+using AppointmentService = pet_spa_system1.Services.AppointmentService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
 
+// Add database context
+builder.Services.AddDbContext<PetDataShopContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register repositories
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
-builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
-builder.Services.AddScoped<ISerCateService, SerCateService>();
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
-builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
+// Register services
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<ISerCateService, SerCateService>();
+builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
@@ -41,10 +48,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
-// DbContext
-builder.Services.AddDbContext<PetDataShopContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Authentication
 builder.Services.AddAuthentication(options =>

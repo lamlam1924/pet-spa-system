@@ -9,4 +9,5 @@ public interface IUserRepository
     Task<Role?> GetRoleByIdAsync(int roleId);
     User? GetUserById(int userId);
     Task AddAsync(User user);
+    List<User> GetAllStaff();
 }

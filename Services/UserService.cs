@@ -82,5 +82,9 @@ namespace pet_spa_system1.Services
         }
 
         public User? GetUserInfo(int userId) => _userRepository.GetUserById(userId);
+        public List<User> GetAllStaff()
+        {
+            return _userRepository.GetAllStaff();
+        }
     }
 }
