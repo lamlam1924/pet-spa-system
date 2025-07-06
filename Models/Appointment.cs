@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace pet_spa_system1.Models;
 
@@ -27,11 +28,15 @@ public partial class Appointment
 
     public virtual ICollection<AppointmentService> AppointmentServices { get; set; } = new List<AppointmentService>();
 
+    [ValidateNever]
     public virtual User? Employee { get; set; }
 
+    [ValidateNever]
     public virtual Promotion? Promotion { get; set; }
 
+    [ValidateNever]
     public virtual StatusAppointment Status { get; set; } = null!;
 
+    [ValidateNever]
     public virtual User User { get; set; } = null!;
 }
