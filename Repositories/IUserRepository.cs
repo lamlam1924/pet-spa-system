@@ -9,4 +9,9 @@ public interface IUserRepository
     Task<Role?> GetRoleByIdAsync(int roleId);
     User? GetUserById(int userId);
     Task AddAsync(User user);
+    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null);
+    Task<List<User>> GetDeletedUsersAsync();
+    Task<List<Role>> GetActiveRolesAsync();
+    Task UpdateAsync(User user);
+    Task<User?> GetByIdAsync(int userId);
 }

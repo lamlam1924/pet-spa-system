@@ -10,4 +10,13 @@ public interface IUserService
     Task<User?> RegisterByGoogle(string email, string name);
     
     User? GetUserInfo(int userId);
+
+    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null);
+    Task<List<User>> GetDeletedUsersAsync();
+    Task<List<Role>> GetActiveRolesAsync();
+    Task<(bool Success, string? Message, string? DefaultPassword)> CreateUserAsync(User user);
+    Task<(bool Success, string? Message)> EditUserAsync(User updated);
+    Task<(bool Success, string? Message)> DeleteUserAsync(int id);
+    Task<(bool Success, string? Message)> RestoreUserAsync(int id);
+    Task<(bool Success, string? Message, string? NewPassword)> ResetPasswordAsync(int id);
 }

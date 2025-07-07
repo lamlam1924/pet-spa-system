@@ -63,6 +63,12 @@
                     <span>Khách hàng</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "AdminStaffSchedule")">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Lịch làm việc nhân viên</span>
+                </a>
+            </li>
             <hr class="sidebar-divider d-none d-md-block" />
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -145,9 +151,15 @@
 
     @* JS chung *@
     <script src="~/vendorAdmin/jquery/jquery.min.js"></script>
-    <script src="~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="~/vendorAdmin/jquery-easing/jquery.easing.min.js"></script>
     <script src="~/jsAdmin/ruang-admin.min.js"></script>
+    <!-- SweetAlert2 CSS & JS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("Scripts", required: false)
+    <!-- Thêm vào <head> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.css">
 </body>
 </html>

@@ -38,4 +38,45 @@ public class UserRepository : IUserRepository
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null)
+    {
+        var users = _context.Users.Include(u => u.Role)
+            .Where(u => u.IsActive == true && (u.Role == null || u.Role.IsActive == true));
+        if (!string.IsNullOrEmpty(search))
+        {
+            users = users.Where(u => u.Username.Contains(search) || u.Email.Contains(search));
+        }
+        if (sort == "name")
+            users = users.OrderBy(u => u.Username);
+        else if (sort == "created")
+            users = users.OrderByDescending(u => u.CreatedAt);
+        return await users.ToListAsync();
+    }
+
+    public async Task<List<User>> GetDeletedUsersAsync()
+    {
+        return await _context.Users.Include(u => u.Role)
+            .Where(u => u.IsActive == false)
+            .ToListAsync();
+    }
+
+    public async Task<List<Role>> GetActiveRolesAsync()
+    {
+        return await _context.Roles
+            .Where(r => r.IsActive == true)
+            .OrderBy(r => r.RoleName)
+            .ToListAsync();
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetByIdAsync(int userId)
+    {
+        return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
+    }
 }
