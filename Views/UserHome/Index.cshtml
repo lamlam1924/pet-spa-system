@@ -1,0 +1,271 @@
+﻿@using pet_spa_system1.ViewModel
+
+@model UserViewModel
+{
+    @Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Hồ sơ - Nông sản Tươi Sạch</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            min-height: 0;
+        }
+
+        .sidebar {
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .content-main {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .account-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+            .account-info img {
+                margin: 15px;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                border: 3px solid #27ae60;
+                transition: transform 0.3s ease;
+            }
+
+                .account-info img:hover {
+                    transform: scale(1.1);
+                }
+
+            .account-info .username {
+                font-size: 18px;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .account-info .edit-profile {
+                font-size: 13px;
+                color: #27ae60;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .account-info .edit-profile:hover {
+                    color: #ee4d2d;
+                }
+
+        .sidebar .nav {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar .nav-link {
+            color: #555;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+            .sidebar .nav-link:hover,
+            .sidebar .nav-link.active {
+                background-color: #f0f9f4;
+                color: #27ae60;
+                font-weight: 500;
+            }
+
+            .sidebar .nav-link .bi {
+                margin-right: 12px;
+                font-size: 18px;
+            }
+
+        .collapse-content .nav-link {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+            .collapse-content .nav-link:hover {
+                color: #27ae60;
+            }
+
+        .profile-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .profile-header p {
+            font-size: 15px;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+            .form-group > label {
+                width: 120px;
+                font-weight: 500;
+                color: #34495e;
+                margin-right: 20px;
+            }
+
+            .form-group .input-wrapper {
+                flex: 1;
+            }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+            .form-control:focus {
+                border-color: #27ae60;
+                box-shadow: 0 0 8px rgba(39, 174, 96, 0.3);
+                outline: none;
+            }
+
+            .form-control[readonly] {
+                background: #f9f9f9;
+                color: #666;
+                border: none;
+            }
+
+        .form-group small {
+            color: #27ae60;
+            font-size: 13px;
+        }
+
+            .form-group small.text-muted {
+                color: #7f8c8d;
+            }
+
+        .save-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            margin-left: 500px;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+        }
+
+            .save-btn:hover {
+                background-color: #c0392b;
+                box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+            }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg">
+                <a class="navbar-brand text-white" href="@Url.Action("Index", "Home")">Back</a>
+                <div class="ms-auto">
+                    <a href="@Url.Action("Logout", "Login")" class="text-white">Đăng xuất</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="account-info">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <img src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+                             alt="Avatar">
+                        <div>
+                            <div class="username">@Model.UserName</div>
+                            <a href="#" class="edit-profile" hx-get="@Url.Action("Hoso", "User")" hx-target="#content-main" hx-swap="innerHTML"><i class="bi bi-pencil"></i> Sửa Hồ Sơ</a>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="nav flex-column">
+                    <a href="#collapseAccount" class="nav-link active" data-bs-toggle="collapse" aria-expanded="true" aria-controls="collapseAccount">
+                        <i class="bi bi-person"></i> Tài Khoản Của Tôi
+                    </a>
+                    <div class="collapse show" id="collapseAccount">
+                        <div class="collapse-content">
+                            <a href="#" class="nav-link"  hx-target="#content-main" hx-swap="innerHTML"><i class="bi bi-house"></i> Hồ Sơ</a>
+                            <a href="#" class="nav-link"  hx-target="#content-main" hx-swap="innerHTML"><i class="bi bi-shield-lock"></i> Đổi Mật Khẩu</a>
+                            <a href="#" class="nav-link"  hx-target="#content-main" hx-swap="innerHTML"><i class="bi bi-wallet"></i> Cài Đặt Thông Báo</a>
+                        </div>
+                    </div>
+                    <a href="#" class="nav-link" hx-get="@Url.Action("Notifications", "User")" hx-target="#content-main" hx-swap="innerHTML">
+                        <i class="bi bi-bell"></i> Thông Báo
+                    </a>
+                    <a href="#" class="nav-link" hx-get="@Url.Action("DonHang", "User")" hx-target="#content-main" hx-swap="innerHTML">
+                        <i class="bi bi-cart"></i> Đơn mua
+                    </a>
+                </nav>
+            </div>
+            <!-- Nội dung chính -->
+            <div class="content-main" id="content-main">
+                <!-- Initial content loaded by HTMX or server -->
+                @* @Html.Partial("Hoso") *@
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+</body>
+</html>
