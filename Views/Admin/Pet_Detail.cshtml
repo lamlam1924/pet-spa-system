@@ -1,0 +1,164 @@
+﻿@model pet_spa_system1.ViewModel.PetDetailViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
+    <meta name="author" content="indrijunanda">
+    <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
+    <title>petshop - Chi tiết thú cưng</title>
+    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
+    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
+    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Content("~/Admin/Index")">
+                <div class="sidebar-brand-icon">
+                    <img src="@Url.Content("~/imgAdmin/logo/pet-logo.png")">
+                </div>
+                <div class="sidebar-brand-text mx-3">Pet-Spa-Shop</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Admin/Index")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Bảng điều khiển</span>
+                </a>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Quản lý</div>
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true" aria-controls="collapsePets">
+                    <i class="fas fa-fw fa-paw"></i>
+                    <span>Hồ sơ thú cưng</span>
+                </a>
+                <div id="collapsePets" class="collapse show" aria-labelledby="headingPets" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Quản lý thú cưng</h6>
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Pets_List")">Danh sách thú cưng</a>
+                        <a class="collapse-item active" href="@Url.Action("Pet_Detail", new { petId = Model.Pet.PetId })">Chi tiết thú cưng</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <!-- Sidebar -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-navbar topbar mb-4 static-top">
+                    <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="imgAdmin-profile rounded-circle" src="@Url.Content("~/imgAdmin/staff.png")" style="max-width: 60px">
+                                <span class="ml-2 d-none d-lg-inline text-white small">Paw Patrol</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <a class="dropdown-item" href="@Url.Content("~/Home/Index")">
+                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Trang Web
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Đăng Xuất
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- Topbar -->
+                <div class="container-fluid" id="container-wrapper">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Chi tiết thú cưng</h1>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
+                            <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Pets_List")">Thú cưng</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Chi tiết thú cưng</li>
+                        </ol>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h4 class="m-0 font-weight-bold text-primary">Thông tin thú cưng</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>ID:</strong> @Model.Pet.PetId</p>
+                                            <p><strong>Tên:</strong> @Model.Pet.Name</p>
+                                            <p><strong>Giống:</strong> @(Model.Pet.Breed ?? "N/A")</p>
+                                            <p><strong>Loài:</strong> @Model.SpeciesName</p>
+                                            <p><strong>Tuổi:</strong> @(Model.Pet.Age?.ToString() ?? "N/A")</p>
+                                            <p><strong>Giới tính:</strong> @(Model.Pet.Gender ?? "N/A")</p>
+                                            <p><strong>Chủ sở hữu:</strong> @Model.OwnerName</p>
+                                            <p><strong>Trạng thái:</strong> @((Model.IsActive) ? "Active" : "Inactive")</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Tình trạng sức khỏe:</strong> @(Model.Pet.HealthCondition ?? "N/A")</p>
+                                            <p><strong>Ghi chú đặc biệt:</strong> @(Model.Pet.SpecialNotes ?? "N/A")</p>
+                                            <p><strong>Lần spa gần nhất:</strong> @(Model.LastSpaVisit?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                                            <p><strong>Số lượng cuộc hẹn:</strong> @Model.AppointmentCount</p>
+                                        </div>
+                                    </div>
+                                    <h5 class="mt-4">Thú cưng gợi ý</h5>
+                                    @if (Model.SuggestedPets != null && Model.SuggestedPets.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table align-items-center table-flush">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Tên</th>
+                                                        <th>Loài</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var pet in Model.SuggestedPets)
+                                                    {
+                                                        <tr>
+                                                            <td>@pet.PetId</td>
+                                                            <td>@pet.Name</td>
+                                                            <td>@(pet.Species?.SpeciesName ?? "N/A")</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p>Không có thú cưng gợi ý nào.</p>
+                                    }
+                                    <div class="mt-3">
+                                        <a href="@Url.Action("Pets_List")" class="btn btn-secondary">Quay lại</a>
+                                        <a href="@Url.Action("Edit_Pet", new { id = Model.Pet.PetId })" class="btn btn-primary">Chỉnh sửa</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="scroll-to-top rounded" href="#page-top">
+                        <i class="fas fa-angle-up"></i>
+                    </a>
+                    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+                    <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
+                    <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
+                    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
+</body>
+</html>

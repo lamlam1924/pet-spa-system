@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -11,14 +10,10 @@ using pet_spa_system1.Repository;
 using pet_spa_system1.Services;
 using System;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-
 
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
@@ -26,15 +21,12 @@ builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
 builder.Services.AddScoped<ISerCateService, SerCateService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
-//builder.Services.AddScoped<IUserRepository, UserRepository>();
-//builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<UserService>();
@@ -43,23 +35,16 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Session
+// Session
 builder.Services.AddSession();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<PetDataShopContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-// 🔐 Add Authentication
 
-// ✅ Cấu hình Authentication
-
-
+// Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -72,19 +57,16 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
 
     options.Scope.Add("email");
-    options.Scope.Add("profile"); // thêm profile để lấy tên đầy đủ
+    options.Scope.Add("profile");
     options.SaveTokens = true;
 
     options.Events.OnCreatingTicket = context =>
     {
         var identity = context.Identity;
-
         var email = context.User.GetProperty("email").GetString();
         var name = context.User.GetProperty("name").GetString();
-
         identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
         identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
-
         Console.WriteLine("🎯 Email nhận từ Google: " + email);
         Console.WriteLine("🎯 Name nhận từ Google: " + name);
         return Task.CompletedTask;
@@ -95,15 +77,12 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// ✅ Kiểm tra kết nối Database
-
+// Kiểm tra kết nối Database
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
     try
     {
-
-
         if (db.Database.CanConnect())
         {
             Console.WriteLine("✅ Database connection successful.");
@@ -119,64 +98,43 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
-// ✅ Middleware pipeline
-
+// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-// 🔐 Enable middleware
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.UseHttpsRedirection();
-
-
-
-// ✅ Phục vụ file tĩnh (CSS/JS/images...)
-app.UseStaticFiles();
 
 app.UseRouting();
-
-// ✅ Đảm bảo thứ tự đúng
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+app.UseStaticFiles();
+app.UseHttpsRedirection();
 
-
-// ✅ Định tuyến Controller
-
+// Định tuyến Controller
+app.MapControllerRoute(
+    name: "Admin",
+    pattern: "Admin/{action=Index}/{id?}",
+    defaults: new { controller = "Admin" });
+app.MapControllerRoute(
+    name: "PetManagement",
+    pattern: "Admin/Pets/{action}/{id?}",
+    defaults: new { controller = "Admin", action = "Pets_List" });
+app.MapControllerRoute(
+    name: "ProductManagement",
+    pattern: "Products/{action}/{id?}",
+    defaults: new { controller = "Products", action = "Shop" });
+app.MapControllerRoute(
+    name: "productDetail",
+    pattern: "Admin/Product_Detail/{productID}",
+    defaults: new { controller = "Products", action = "Product_Detail" });
+app.MapControllerRoute(
+    name: "Detail",
+    pattern: "Products/Detail/{productID}",
+    defaults: new { controller = "Products", action = "Detail" });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "ProductManagement",
-    pattern: "Products/{action}/{id?}",
-    defaults: new { controller = "Products", action = "Shop" });
-
-app.MapControllerRoute(
-    name: "productDetail",
-    pattern: "Admin/Product_Detail/{productID}",
-    defaults: new { controller = "Products", action = "Product_Detail" });
-
-app.MapControllerRoute(
-    name: "Detail",
-    pattern: "Products/Detail/{productID}",
-    defaults: new { controller = "Products", action = "Detail" });
-
-//app.MapControllerRoute(
-//    name: "products",
-//    pattern: "Products/{action}/{id?}",
-//    defaults: new { controller = "Products", action = "Shop" });

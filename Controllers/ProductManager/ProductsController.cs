@@ -33,66 +33,6 @@ namespace pet_spa_system1.Controllers.ProductManager
 
         
 
-            //public async Task<IActionResult> Product_List(int id)
-            //{
-            //    var product = await _productService.GetProductByIdAsync(id);
-            //    if (product == null)
-            //    {
-            //        return NotFound();
-            //    }
-            //    ViewBag.Categories = await _productService.GetAllProductCategoriesAsync();
-            //    return View(product);
-            //}
-
-            //[HttpPost]
-            //[ValidateAntiForgeryToken]
-            //public async Task<IActionResult> Product_List(int id, [Bind("ProductId,CategoryId,Name,Description,Price,ImageUrl,Stock,IsActive,CreatedAt")] Product product)
-            //{
-            //    if (id != product.ProductId)
-            //    {
-            //        return NotFound();
-            //    }
-
-            //    if (ModelState.IsValid)
-            //    {
-            //        try
-            //        {
-            //            await _productService.UpdateProductAsync(product);
-            //        }
-            //        catch (DbUpdateConcurrencyException)
-            //        {
-            //            if (!await Task.Run(() => _productService.ProductExists(id)))
-            //            {
-            //                return NotFound();
-            //            }
-            //            else
-            //            {
-            //                throw;
-            //            }
-            //        }
-            //        return RedirectToAction(nameof(Shop));
-            //    }
-            //    ViewBag.Categories = await _productService.GetAllProductCategoriesAsync();
-            //    return View(product);
-            //}
-
-            //public async Task<IActionResult> Delete(int id)
-            //{
-            //    var product = await _productService.GetProductByIdAsync(id);
-            //    if (product == null)
-            //    {
-            //        return NotFound();
-            //    }
-            //    return View(product);
-            //}
-
-            //[HttpPost, ActionName("Delete")]
-            //[ValidateAntiForgeryToken]
-            //public async Task<IActionResult> DeleteConfirmed(int id)
-            //{
-            //    await _productService.DeleteProductAsync(id);
-            //    return RedirectToAction(nameof(Shop));
-            //}
 
         public async Task<IActionResult> Detail(int productID)
         {
@@ -123,20 +63,7 @@ namespace pet_spa_system1.Controllers.ProductManager
             }
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Cart()
-        //{
-        //    int userId = GetCurrentUserId(); // Viết hàm này hoặc lấy từ session
-
-        //    var cartItems = await _cartService.GetCartByUserIdAsync(userId);
-
-        //    var viewModel = new CartViewModel
-        //    {
-        //        Items = cartItems
-        //    };
-
-        //    return View(viewModel);
-        //}
+       
         [HttpPost]
         public async Task<IActionResult> Cart(int id)
         {
