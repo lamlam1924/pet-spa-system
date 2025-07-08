@@ -1,23 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace pet_spa_system1.Controllers
 {
     public class AdminServiceController : Controller
     {
-        private readonly PetDataShopContext _context;
         private readonly IServiceService _serviceService;
+        
+        // Constants
+        private const string ServiceListAction = "ServiceList";
+        private const string ServiceCategoryAction = "ServiceCategory";
+        private const string ServiceDetailAction = "ServiceDetail";
+        private const string SuccessMessageKey = "SuccessMessage";
+        private const string ErrorMessageKey = "ErrorMessage";
+        private const string InvalidDataMessage = "Dữ liệu không hợp lệ";
 
-        public AdminServiceController(PetDataShopContext context, IServiceService serviceService)
+        public AdminServiceController(IServiceService serviceService)
         {
-            _context = context;
             _serviceService = serviceService;
         }
 
@@ -25,12 +29,19 @@ namespace pet_spa_system1.Controllers
         // Danh sách dịch vụ
         public IActionResult ServiceList(int? categoryId, string search, string sort, string status, int page = 1)
         {
-            var model = _serviceService.GetAllService();
+            // For GET actions with primitive types, just log the error and continue with default values
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("Warning: ModelState invalid for ServiceList, but proceeding with request");
+            }
+            
+            var serviceViewModel = _serviceService.GetAllService();
+            var services = serviceViewModel.Services.ToList();
             
             // Lọc theo danh mục
             if (categoryId.HasValue)
             {
-                model.Services = model.Services.Where(s => s.CategoryId == categoryId.Value).ToList();
+                services = services.Where(s => s.CategoryId == categoryId.Value).ToList();
             }
             
             // Lọc theo trạng thái
@@ -38,183 +49,260 @@ namespace pet_spa_system1.Controllers
             {
                 if (status == "active")
                 {
-                    model.Services = model.Services.Where(s => s.IsActive==true).ToList();
+                    services = services.Where(s => s.IsActive == true).ToList();
                 }
                 else if (status == "inactive")
                 {
-                    model.Services = model.Services.Where(s => !s.IsActive==true).ToList();
+                    services = services.Where(s => s.IsActive != true).ToList();
                 }
             }
             
             // Tìm kiếm theo tên
             if (!string.IsNullOrEmpty(search))
             {
-                model.Services = model.Services.Where(s => s.Name.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+                services = services.Where(s => s.Name.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
             }
             
             // Sắp xếp
             switch (sort)
             {
                 case "name_asc":
-                    model.Services = model.Services.OrderBy(s => s.Name).ToList();
+                    services = services.OrderBy(s => s.Name).ToList();
                     break;
                 case "name_desc":
-                    model.Services = model.Services.OrderByDescending(s => s.Name).ToList();
+                    services = services.OrderByDescending(s => s.Name).ToList();
                     break;
                 case "price_asc":
-                    model.Services = model.Services.OrderBy(s => s.Price).ToList();
+                    services = services.OrderBy(s => s.Price).ToList();
                     break;
                 case "price_desc":
-                    model.Services = model.Services.OrderByDescending(s => s.Price).ToList();
+                    services = services.OrderByDescending(s => s.Price).ToList();
+                    break;
+                case "newest":
+                    services = services.OrderByDescending(s => s.ServiceId).ToList();
                     break;
                 default:
-                    model.Services = model.Services.OrderBy(s => s.ServiceId).ToList();
+                    services = services.OrderBy(s => s.Name).ToList();
                     break;
             }
             
-            return View("~/Views/Admin/ManageService/ServiceList.cshtml", model);
+            // Remove PageInfo setup since ServiceViewModel doesn't have this property
+            // Just update the services with filtered and sorted results
+            serviceViewModel.Services = services;
+            
+            ViewBag.Categories = serviceViewModel.Categories;
+            
+            return View("~/Views/Admin/ManageService/ServiceList.cshtml", serviceViewModel);
         }
         
         // Chi tiết dịch vụ
         public IActionResult ServiceDetail(int id)
         {
-            var service = _serviceService.GetServiceById(id);
-            if (service == null)
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(ServiceListAction);
+            }
+            
+            // Lấy thông tin chi tiết dịch vụ qua ViewModel
+            var serviceDetailModel = _serviceService.GetServiceDetailData(id);
+            if (serviceDetailModel == null || serviceDetailModel.Service == null)
             {
                 return NotFound();
             }
             
-            // Thống kê đặt lịch
-            var appointmentServices = _context.AppointmentServices
-                .Include(a => a.Appointment)
-                .ThenInclude(a => a.User)
-                .Include(a => a.Appointment.Status)
-                .Where(a => a.ServiceId == id)
-                .OrderByDescending(a => a.Appointment.AppointmentDate)
-                .ToList();
-                
-            ViewBag.AppointmentHistory = appointmentServices.Take(10).ToList();
-            
-            // Thống kê cơ bản
-            ViewBag.BookingCount = appointmentServices.Count;
-            ViewBag.Revenue = appointmentServices.Sum(a => service.Price);
-            ViewBag.CustomerCount = appointmentServices.Select(a => a.Appointment.UserId).Distinct().Count();
-            
-            // Các dịch vụ liên quan (cùng danh mục)
-            ViewBag.RelatedServices = _serviceService.GetAllService()
-                .Services.Where(s => s.CategoryId == service.CategoryId && s.ServiceId != service.ServiceId)
-                .Take(4)
-                .ToList();
-                
-            // Lịch hẹn sắp tới
-            ViewBag.UpcomingAppointments = _context.Appointments
-                .Include(a => a.User)
-                .Include(a => a.AppointmentServices)
-                .Where(a => a.AppointmentServices.Any(s => s.ServiceId == id) && 
-                          a.AppointmentDate > DateTime.Now &&
-                          a.StatusId != 4) // Không phải trạng thái đã hủy
-                .OrderBy(a => a.AppointmentDate)
-                .Take(5)
-                .ToList();
-                
-            return View("~/Views/Admin/ManageService/ServiceDetail.cshtml", service);
+            // Trả về view với ViewModel đầy đủ
+            return View("~/Views/Admin/ManageService/ServiceDetail.cshtml", serviceDetailModel);
         }
         
         // Thêm mới dịch vụ (GET)
         [HttpGet]
         public IActionResult AddService()
         {
-            ViewBag.Categories = _serviceService.GetAllService().Categories;
-            ViewBag.CategoryName = "Chọn danh mục"; // Add default category name for new services
-            return View("~/Views/Admin/ManageService/AddService.cshtml", new Service { IsActive = true });
+            // Tạo mới ServiceFormViewModel chứa cả dịch vụ và danh sách danh mục
+            var viewModel = new ServiceFormViewModel
+            {
+                Service = new Service { IsActive = true, DurationMinutes = 30 },
+                Categories = _serviceService.GetAllService().Categories,
+                CategoryName = "Chọn danh mục"
+            };
+            
+            return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
         }
         
         // Thêm mới dịch vụ (POST)
         [HttpPost]
-        public IActionResult AddService(Service service)
+        public IActionResult AddService(ServiceFormViewModel viewModel)
         {
-            _serviceService.AddService(service);
-            _serviceService.Save();
-            return RedirectToAction("ServiceList");
+            var service = viewModel.Service;
+            
+            // Đảm bảo các giá trị null được xử lý đúng
+            if (service.CreatedAt == null)
+            {
+                service.CreatedAt = DateTime.Now;
+            }
+            
+            // Ensure IsActive has a default value if it's still null
+            if (!service.IsActive.HasValue)
+            {
+                service.IsActive = true; // Default to active if not specified
+            }
+            
+            // Ensure DurationMinutes has a default value if it's still null
+            if (!service.DurationMinutes.HasValue)
+            {
+                service.DurationMinutes = 30; // Default to 30 minutes if not specified
+            }
+            
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _serviceService.AddService(service);
+                    _serviceService.Save();
+                    TempData[SuccessMessageKey] = "Thêm dịch vụ thành công!";
+                    return RedirectToAction(ServiceListAction);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Lỗi khi lưu dịch vụ: " + ex.Message);
+                }
+            }
+            
+            // Nếu có lỗi, hiển thị lại form với lỗi
+            viewModel.Categories = _serviceService.GetAllService().Categories;
+            viewModel.CategoryName = "Chọn danh mục";
+            return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
         }
         
         // Chỉnh sửa dịch vụ (GET)
         [HttpGet]
         public IActionResult EditService(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(ServiceListAction);
+            }
+            
             var service = _serviceService.GetServiceById(id);
             if (service == null)
             {
                 return NotFound();
             }
             
-            ViewBag.Categories = _serviceService.GetAllService().Categories;
-            
-            // Add the category name directly to ViewBag to avoid lambda in view
+            var serviceDetail = _serviceService.GetServiceDetailData(id);
             var category = _serviceService.GetAllService().Categories.FirstOrDefault(c => c.CategoryId == service.CategoryId);
-            ViewBag.CategoryName = category?.Name ?? "Danh mục dịch vụ";
             
-            // Giả lập lịch sử thay đổi (trong thực tế nên lấy từ database)
-            var changeHistory = new List<object>
+            var viewModel = new ServiceFormViewModel
             {
-                new 
-                {
-                    ChangeDate = DateTime.Now.AddDays(-5),
-                    UserName = "Admin",
-                    ChangeDescription = "Thay đổi giá dịch vụ từ 250,000đ thành 300,000đ"
-                },
-                new 
-                {
-                    ChangeDate = DateTime.Now.AddDays(-10),
-                    UserName = "Manager",
-                    ChangeDescription = "Cập nhật mô tả dịch vụ"
-                }
+                Service = service,
+                Categories = _serviceService.GetAllService().Categories,
+                CategoryName = category?.Name ?? "Danh mục dịch vụ",
+                ChangeHistory = serviceDetail?.ChangeHistory ?? new List<ServiceChangeHistoryItem>()
             };
             
-            ViewBag.ChangeHistory = changeHistory;
-            
-            return View("~/Views/Admin/ManageService/EditService.cshtml", service);
+            return View("~/Views/Admin/ManageService/EditService.cshtml", viewModel);
         }
         
         // Chỉnh sửa dịch vụ (POST)
         [HttpPost]
-        public IActionResult EditService(Service service)
+        public IActionResult EditService(ServiceFormViewModel viewModel)
         {
-            _serviceService.UpdateService(service);
-            _serviceService.Save();
-            return RedirectToAction("ServiceList");
+            if (ModelState.IsValid)
+            {
+                _serviceService.UpdateService(viewModel.Service);
+                _serviceService.Save();
+                TempData[SuccessMessageKey] = "Cập nhật dịch vụ thành công!";
+                return RedirectToAction(ServiceListAction);
+            }
+            
+            // Nếu có lỗi, hiển thị lại form với lỗi
+            viewModel.Categories = _serviceService.GetAllService().Categories;
+            var category = _serviceService.GetAllService().Categories.FirstOrDefault(c => c.CategoryId == viewModel.Service.CategoryId);
+            viewModel.CategoryName = category?.Name ?? "Danh mục dịch vụ";
+            return View("~/Views/Admin/ManageService/EditService.cshtml", viewModel);
         }
         
         // Xóa tạm thời dịch vụ (Soft Delete)
-        public IActionResult SoftDeleteService(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SoftDeleteService(int serviceId)
         {
-            _serviceService.SoftDeleteService(id);
-            _serviceService.Save();
+            try
+            {
+                if (serviceId <= 0)
+                {
+                    TempData["ErrorMessage"] = "ID dịch vụ không hợp lệ";
+                    return RedirectToAction("ServiceList");
+                }
+                
+                var service = _serviceService.GetServiceById(serviceId);
+                if (service == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy dịch vụ";
+                    return RedirectToAction("ServiceList");
+                }
+                
+                _serviceService.SoftDeleteService(serviceId);
+                _serviceService.Save();
+                
+                // Fix encoding cho tiếng Việt
+                TempData["SuccessMessage"] = "Tạm ngưng dịch vụ thành công";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in SoftDeleteService: {ex.Message}");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi tạm ngưng dịch vụ";
+            }
+            
             return RedirectToAction("ServiceList");
         }
         
         // Khôi phục dịch vụ đã xóa tạm thời
-        public IActionResult RestoreService(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RestoreService(int serviceId)
         {
-            _serviceService.RestoreService(id);
-            _serviceService.Save();
+            try
+            {
+                if (serviceId <= 0)
+                {
+                    TempData["ErrorMessage"] = "ID dịch vụ không hợp lệ";
+                    return RedirectToAction("ServiceList");
+                }
+                
+                var service = _serviceService.GetServiceById(serviceId);
+                if (service == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy dịch vụ";
+                    return RedirectToAction("ServiceList");
+                }
+                
+                _serviceService.RestoreService(serviceId);
+                _serviceService.Save();
+                
+                // Fix encoding cho tiếng Việt
+                TempData["SuccessMessage"] = "Kích hoạt dịch vụ thành công";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in RestoreService: {ex.Message}");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi kích hoạt dịch vụ";
+            }
+            
             return RedirectToAction("ServiceList");
         }
         
         // Quản lý danh mục dịch vụ
         public IActionResult ServiceCategory()
         {
-            var categories = _serviceService.GetAllService().Categories.ToList();
+            // Sử dụng ServiceCategoryViewModel thay vì ViewBag
+            var viewModel = new ServiceCategoryViewModel
+            {
+                Categories = _serviceService.GetAllCategories(),
+                ServiceCountsByCategory = _serviceService.GetServiceCountsByCategory()
+            };
             
-            // Thống kê số lượng dịch vụ theo danh mục
-            var serviceCounts = _context.Services
-                .GroupBy(s => s.CategoryId)
-                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
-                .ToDictionary(x => x.CategoryId, x => x.Count);
-                
-            ViewBag.ServiceCounts = serviceCounts;
-            
-            return View("~/Views/Admin/ManageService/ServiceCategory.cshtml", categories);
+            return View("~/Views/Admin/ManageService/ServiceCategory.cshtml", viewModel);
         }
         
         // Thêm danh mục dịch vụ
@@ -225,19 +313,16 @@ namespace pet_spa_system1.Controllers
             {
                 try
                 {
-                    category.CreatedAt = DateTime.Now;
-                    _context.SerCates.Add(category);
-                    _context.SaveChanges();
-                    
-                    TempData["SuccessMessage"] = "Đã thêm danh mục dịch vụ thành công!";
+                    _serviceService.AddCategory(category);
+                    TempData[SuccessMessageKey] = "Đã thêm danh mục dịch vụ thành công!";
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Lỗi khi thêm danh mục: " + ex.Message;
+                    TempData[ErrorMessageKey] = "Lỗi khi thêm danh mục: " + ex.Message;
                 }
             }
             
-            return RedirectToAction("ServiceCategory");
+            return RedirectToAction(ServiceCategoryAction);
         }
         
         // Cập nhật danh mục dịch vụ
@@ -248,80 +333,96 @@ namespace pet_spa_system1.Controllers
             {
                 try
                 {
-                    var existingCategory = _context.SerCates.Find(category.CategoryId);
+                    var existingCategory = _serviceService.GetCategoryById(category.CategoryId);
                     if (existingCategory == null)
                     {
                         return NotFound();
                     }
                     
-                    existingCategory.Name = category.Name;
-                    existingCategory.Description = category.Description;
-                    existingCategory.IsActive = category.IsActive;
+                    _serviceService.UpdateCategory(category);
                     
-                    _context.SerCates.Update(existingCategory);
-                    _context.SaveChanges();
-                    
-                    TempData["SuccessMessage"] = "Đã cập nhật danh mục dịch vụ thành công!";
+                    TempData[SuccessMessageKey] = "Đã cập nhật danh mục dịch vụ thành công!";
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Lỗi khi cập nhật danh mục: " + ex.Message;
+                    TempData[ErrorMessageKey] = "Lỗi khi cập nhật danh mục: " + ex.Message;
                 }
             }
             
-            return RedirectToAction("ServiceCategory");
+            return RedirectToAction(ServiceCategoryAction);
         }
         
         // Xóa danh mục dịch vụ
         [HttpPost]
         public IActionResult DeleteServiceCategory(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(InvalidDataMessage);
+            }
+            
             try
             {
-                var category = _context.SerCates.Find(id);
+                // Kiểm tra xem danh mục có tồn tại không
+                var category = _serviceService.GetCategoryById(id);
                 if (category == null)
                 {
                     return NotFound();
                 }
                 
                 // Kiểm tra xem danh mục có dịch vụ không
-                var hasServices = _context.Services.Any(s => s.CategoryId == id);
-                if (hasServices)
+                if (_serviceService.CategoryHasServices(id))
                 {
-                    TempData["ErrorMessage"] = "Không thể xóa danh mục này vì có dịch vụ đang sử dụng!";
-                    return RedirectToAction("ServiceCategory");
+                    TempData[ErrorMessageKey] = "Không thể xóa danh mục này vì có dịch vụ đang sử dụng!";
+                    return RedirectToAction(ServiceCategoryAction);
                 }
                 
-                _context.SerCates.Remove(category);
-                _context.SaveChanges();
-                
-                TempData["SuccessMessage"] = "Đã xóa danh mục dịch vụ thành công!";
+                var result = _serviceService.DeleteCategory(id);
+                if (result)
+                {
+                    TempData[SuccessMessageKey] = "Đã xóa danh mục dịch vụ thành công!";
+                }
+                else
+                {
+                    TempData[ErrorMessageKey] = "Không thể xóa danh mục.";
+                }
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi khi xóa danh mục: " + ex.Message;
+                TempData[ErrorMessageKey] = "Lỗi khi xóa danh mục: " + ex.Message;
             }
             
-            return RedirectToAction("ServiceCategory");
+            return RedirectToAction(ServiceCategoryAction);
         }
         
         // API cập nhật thứ tự hiển thị danh mục
         [HttpPost]
         public IActionResult UpdateCategoryOrder([FromBody] List<CategoryOrderItem> categories)
         {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ" });
+            }
+            
             try
             {
+                if (categories == null || !categories.Any())
+                {
+                    return Json(new { success = false, message = "Không có dữ liệu danh mục để cập nhật" });
+                }
+                
                 foreach (var item in categories)
                 {
-                    var category = _context.SerCates.Find(item.CategoryId);
+                    // Sử dụng ServiceService để cập nhật thứ tự hiển thị
+                    var category = _serviceService.GetCategoryById(item.CategoryId);
                     if (category != null)
                     {
-                        // Trong thực tế, bạn cần thêm trường DisplayOrder vào model SerCate
-                        // category.DisplayOrder = item.DisplayOrder;
-                        _context.SerCates.Update(category);
+                        // Tính năng này sẽ được triển khai sau khi thêm trường DisplayOrder vào model SerCate
+                        // Hiện tại chỉ log thông tin
+                        Console.WriteLine($"Category {item.CategoryId} would be updated to order {item.DisplayOrder}");
                     }
                 }
-                _context.SaveChanges();
+                _serviceService.Save();
                 
                 return Json(new { success = true, message = "Đã cập nhật thứ tự danh mục thành công!" });
             }
@@ -335,6 +436,12 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult DeleteService(int id)
         {
+            if (!ModelState.IsValid || id <= 0)
+            {
+                TempData[ErrorMessageKey] = "ID dịch vụ không hợp lệ";
+                return RedirectToAction(ServiceListAction);
+            }
+            
             try
             {
                 var service = _serviceService.GetServiceById(id);
@@ -344,98 +451,66 @@ namespace pet_spa_system1.Controllers
                 }
                 
                 // Kiểm tra xem dịch vụ có đang được sử dụng không
-                var isInUse = _context.AppointmentServices.Any(a => a.ServiceId == id);
-                if (isInUse)
+                var appointmentServices = _serviceService.GetAppointmentServicesByServiceId(id);
+                if (appointmentServices != null && appointmentServices.Any())
                 {
-                    TempData["ErrorMessage"] = "Không thể xóa dịch vụ này vì đã có lịch hẹn sử dụng nó!";
-                    return RedirectToAction("ServiceDetail", new { id });
+                    TempData[ErrorMessageKey] = "Không thể xóa dịch vụ này vì đã có lịch hẹn sử dụng nó!";
+                    return RedirectToAction(ServiceDetailAction, new { id });
                 }
                 
-                _context.Services.Remove(service);
-                _context.SaveChanges();
+                // Gọi đến service để xóa dịch vụ
+                _serviceService.DeleteService(service);
+                _serviceService.Save();
                 
-                TempData["SuccessMessage"] = "Đã xóa dịch vụ thành công!";
-                return RedirectToAction("ServiceList");
+                TempData[SuccessMessageKey] = "Đã xóa dịch vụ thành công!";
+                return RedirectToAction(ServiceListAction);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi khi xóa dịch vụ: " + ex.Message;
-                return RedirectToAction("ServiceDetail", new { id });
+                TempData[ErrorMessageKey] = "Lỗi khi xóa dịch vụ: " + ex.Message;
+                return RedirectToAction(ServiceDetailAction, new { id });
             }
         }
         
         // Hiển thị trang index dịch vụ - trang tổng quan
         public IActionResult Index()
         {
-            // Thống kê tổng số dịch vụ
-            var allServices = _context.Services.ToList();
-            ViewBag.TotalServices = allServices.Count;
-            ViewBag.ActiveServices = allServices.Count(s => s.IsActive == true);
-            ViewBag.InactiveServices = allServices.Count(s => s.IsActive != true);
+            // Removed unnecessary ModelState validation for GET action
+            // Sử dụng ViewModel thay vì ViewBag
+            var dashboardData = _serviceService.GetServiceDashboardData();
             
-            // Thống kê danh mục
-            var categories = _context.SerCates.ToList();
-            ViewBag.TotalCategories = categories.Count;
+            return View("~/Views/Admin/ManageService/Index.cshtml", dashboardData);
+        }
+
+        // SERVICE DASHBOARD
+        public IActionResult ServiceDashboard()
+        {
+            var dashboardModel = _serviceService.GetServiceDashboardData();
             
-            // Dịch vụ mới thêm gần đây
-            ViewBag.RecentServices = _context.Services
-                .Include(s => s.Category)
-                .OrderByDescending(s => s.CreatedAt)
-                .Take(5)
-                .ToList();
-                
-            // Lịch hẹn sắp tới
-            ViewBag.UpcomingAppointments = _context.Appointments
-                .Include(a => a.User)
-                .Include(a => a.AppointmentServices)
-                .ThenInclude(a => a.Service)
-                .Include(a => a.Status)
-                .Where(a => a.AppointmentDate > DateTime.Now && a.StatusId != 4)
-                .OrderBy(a => a.AppointmentDate)
-                .Take(5)
-                .ToList();
-                
-            // Dữ liệu cho biểu đồ top 10 dịch vụ được đặt nhiều nhất
-            var topServices = _context.AppointmentServices
-                .GroupBy(a => a.ServiceId)
-                .Select(g => new { ServiceId = g.Key, Count = g.Count() })
-                .OrderByDescending(x => x.Count)
-                .Take(10)
-                .ToList();
-                
-            var serviceBookingData = new
+            // Extract data for the charts in a format that doesn't use lambda expressions in the view
+            if (dashboardModel.TopServiceBooking != null)
             {
-                labels = topServices.Select(s => 
-                {
-                    var serviceName = _context.Services.FirstOrDefault(x => x.ServiceId == s.ServiceId)?.Name ?? "";
-                    return serviceName.Length > 15 ? serviceName.Substring(0, 15) + "..." : serviceName;
-                }).ToList(),
-                data = topServices.Select(s => s.Count).ToList()
-            };
-            
-            ViewBag.ServiceBookingData = serviceBookingData;
-            
-            // Dữ liệu cho biểu đồ phân bố dịch vụ theo danh mục
-            var categoryDistribution = _context.Services
-                .GroupBy(s => s.CategoryId)
-                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
-                .OrderByDescending(x => x.Count)
-                .Take(10)
-                .ToList();
-                
-            var categoryDistributionData = new
+                ViewBag.TopServiceLabels = dashboardModel.TopServiceBooking.Select(kvp => kvp.Value).ToArray();
+                ViewBag.TopServiceData = dashboardModel.TopServiceBooking.Select(kvp => kvp.Key).ToArray();
+            }
+            else
             {
-                labels = categoryDistribution.Select(c => 
-                {
-                    var categoryName = _context.SerCates.FirstOrDefault(x => x.CategoryId == c.CategoryId)?.Name ?? "";
-                    return categoryName.Length > 15 ? categoryName.Substring(0, 15) + "..." : categoryName;
-                }).ToList(),
-                data = categoryDistribution.Select(c => c.Count).ToList()
-            };
+                ViewBag.TopServiceLabels = new string[] { };
+                ViewBag.TopServiceData = new int[] { };
+            }
             
-            ViewBag.CategoryDistributionData = categoryDistributionData;
+            if (dashboardModel.CategoryDistribution != null)
+            {
+                ViewBag.CategoryLabels = dashboardModel.CategoryDistribution.Select(kvp => kvp.Value).ToArray();
+                ViewBag.CategoryData = dashboardModel.CategoryDistribution.Select(kvp => kvp.Key).ToArray();
+            }
+            else
+            {
+                ViewBag.CategoryLabels = new string[] { };
+                ViewBag.CategoryData = new int[] { };
+            }
             
-            return View("~/Views/Admin/ManageService/ServiceDashboard.cshtml");
+            return View("~/Views/Admin/ManageService/ServiceDashboard.cshtml", dashboardModel);
         }
 
         // Helper class for category ordering

@@ -17,11 +17,42 @@
 @section Styles {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/services-list.css")">
+    <link rel="stylesheet" href="@Url.Content("~/cssjsservice/service-common.css")">
     <style>
         .opacity-0 { opacity: 0; }
         .fade-transition {
             transition: all 0.5s;
             opacity: 0.5;
+        }
+        
+        /* Reset text decoration cho header */
+        .header-area a,
+        .main-header-area a,
+        #navigation li a,
+        #navigation .submenu li a,
+        #sticky-header a,
+        #navigation > li > a,
+        #navigation > li > ul.submenu > li > a,
+        .dropdown-menu a,
+        .dropdown a,
+        nav a {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        /* Reset hover states */
+        .header-area a:hover,
+        .main-header-area a:hover,
+        #navigation li a:hover,
+        #navigation .submenu li a:hover,
+        #sticky-header a:hover {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        /* Override specific Bootstrap styles that might be causing issues */
+        .navbar-nav a, .navbar a, .nav a {
+            text-decoration: none !important;
         }
     </style>
 }
@@ -152,4 +183,28 @@
 
 @section Scripts {
     <script src="@Url.Content("~/cssjsAppointment/services-list.js")"></script>
+    <script src="@Url.Content("~/cssjsservice/remove-underline.js")"></script>
+    <script>
+        // Script chỉ để loại bỏ text-decoration
+        (function() {
+            // Xử lý ngay khi phân tích HTML
+            var style = document.createElement('style');
+            style.innerHTML = `
+                .header-area a, .main-header-area a, #navigation li a, 
+                .dropdown-menu a, #sticky-header a, nav a {
+                    text-decoration: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Xử lý khi DOM đã sẵn sàng
+            document.addEventListener('DOMContentLoaded', function() {
+                // Áp dụng trực tiếp vào các liên kết
+                var headerLinks = document.querySelectorAll('#navigation a, .header-area a');
+                headerLinks.forEach(function(link) {
+                    link.style.textDecoration = 'none';
+                });
+            });
+        })();
+    </script>
 }

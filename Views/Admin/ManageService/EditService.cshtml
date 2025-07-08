@@ -1,24 +1,17 @@
-@model pet_spa_system1.Models.Service
+@model pet_spa_system1.ViewModels.ServiceFormViewModel
 @{
     ViewData["Title"] = "Chỉnh sửa dịch vụ";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/cssjsservice/service-common.css" />
-    <link rel="stylesheet" href="~/cssjsservice/service-edit.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/service-form.css" />
 }
 
 <div class="container-fluid" id="container-wrapper">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa dịch vụ</h1>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="@Url.Action("ServiceList", "AdminService")">Dịch vụ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
-        </ol>
-    </div>
+    <!-- Sử dụng partial view navigation chung -->
+    @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
 
     <div class="row">
         <!-- Form Column -->
@@ -27,58 +20,56 @@
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Chỉnh sửa thông tin dịch vụ</h6>
                     <div>
-                        <span class="badge @(Model.IsActive == true ? "badge-success" : "badge-danger")">
-                            @(Model.IsActive == true ? "Đang hoạt động" : "Đã tạm ngưng")
+                        <span class="badge @(Model.Service.IsActive == true ? "badge-success" : "badge-danger")">
+                            @(Model.Service.IsActive == true ? "Đang hoạt động" : "Đã tạm ngưng")
                         </span>
                     </div>
                 </div>
                 <div class="card-body">
-                    <form id="editServiceForm" asp-controller="AdminService" asp-action="EditService" method="post">
-                        <input type="hidden" asp-for="ServiceId" />
-                        <input type="hidden" asp-for="CreatedAt" />
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
-
+                    <form id="editServiceForm" action="@Url.Action("EditService", "AdminService")" method="post">
+                        <input type="hidden" name="Service.ServiceId" value="@Model.Service.ServiceId" />
+                        <input type="hidden" name="Service.CreatedAt" value="@Model.Service.CreatedAt?.ToString("o")" />
+                        
                         <!-- Tên dịch vụ -->
                         <div class="form-group">
-                            <label for="Name" class="form-label required-field">Tên dịch vụ</label>
-                            <input asp-for="Name" class="form-control" id="serviceName" required 
-                                   placeholder="Nhập tên dịch vụ" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <label for="serviceName" class="form-label required-field">Tên dịch vụ</label>
+                            <input type="text" name="Service.Name" class="form-control" id="serviceName" required 
+                                   value="@Model.Service.Name" />
                             <small class="help-text">Tên nên ngắn gọn và dễ nhớ (tối đa 100 ký tự)</small>
                         </div>
-
+                        
                         <!-- Danh mục -->
                         <div class="form-group">
-                            <label for="CategoryId" class="form-label required-field">Danh mục</label>
-                            <select asp-for="CategoryId" class="form-control" id="serviceCategory" required>
+                            <label for="serviceCategory" class="form-label required-field">Danh mục</label>
+                            <!-- Thay thế option tag helper có chứa C# -->
+                            <select name="Service.CategoryId" class="form-control" id="serviceCategory" required>
                                 <option value="">-- Chọn danh mục --</option>
-                                @foreach (var cat in ViewBag.Categories)
+                                @foreach (var cat in Model.Categories)
                                 {
-                                    <option value="@cat.CategoryId" selected="@(Model.CategoryId == cat.CategoryId)">
-                                        @cat.Name
-                                    </option>
+                                    if (cat.CategoryId == Model.Service.CategoryId)
+                                    {
+                                        <option value="@cat.CategoryId" selected>@cat.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@cat.CategoryId">@cat.Name</option>
+                                    }
                                 }
                             </select>
-                            <span asp-validation-for="CategoryId" class="text-danger"></span>
-                            <div class="d-flex justify-content-between">
-                                <small class="help-text">Chọn danh mục phù hợp cho dịch vụ</small>
-                                <a href="@Url.Action("ServiceCategory", "Admin")" class="text-info">
-                                    <i class="fas fa-plus-circle"></i> Quản lý danh mục
-                                </a>
-                            </div>
+                            <small class="help-text">Chọn danh mục phù hợp cho dịch vụ</small>
                         </div>
 
                         <!-- Giá -->
                         <div class="form-group">
                             <label for="Price" class="form-label required-field">Giá dịch vụ</label>
                             <div class="input-group">
-                                <input asp-for="Price" type="number" class="form-control" id="servicePrice" required 
-                                       min="0" step="1000" placeholder="Nhập giá dịch vụ" />
+                                <input type="number" class="form-control" id="servicePrice" name="Service.Price" required 
+                                       min="0" step="1000" placeholder="Nhập giá dịch vụ" value="@Model.Service.Price" />
                                 <div class="input-group-append">
                                     <span class="input-group-text">VNĐ</span>
                                 </div>
                             </div>
-                            <span asp-validation-for="Price" class="text-danger"></span>
+                            <span class="text-danger" data-valmsg-for="Service.Price"></span>
                             <small class="help-text">Giá đã bao gồm thuế VAT (nếu có)</small>
                         </div>
 
@@ -86,38 +77,42 @@
                         <div class="form-group">
                             <label for="DurationMinutes" class="form-label required-field">Thời gian thực hiện</label>
                             <div class="input-group">
-                                <input asp-for="DurationMinutes" type="number" class="form-control" id="serviceDuration" required 
-                                       min="5" step="5" placeholder="Nhập thời gian thực hiện" />
+                                <input type="number" class="form-control" id="serviceDuration" name="Service.DurationMinutes" required 
+                                       min="5" step="5" placeholder="Nhập thời gian thực hiện" value="@Model.Service.DurationMinutes" />
                                 <div class="input-group-append">
                                     <span class="input-group-text">Phút</span>
                                 </div>
                             </div>
-                            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                            <span class="text-danger" data-valmsg-for="Service.DurationMinutes"></span>
                             <small class="help-text">Thời gian dự kiến để hoàn thành dịch vụ</small>
                         </div>
 
                         <!-- Mô tả -->
                         <div class="form-group">
                             <label for="Description" class="form-label">Mô tả chi tiết</label>
-                            <textarea asp-for="Description" class="form-control" id="serviceDescription" rows="5"
-                                      placeholder="Mô tả chi tiết về dịch vụ..."></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
+                            <textarea class="form-control" id="serviceDescription" name="Service.Description" rows="5" 
+                                      placeholder="Mô tả chi tiết về dịch vụ...">@Model.Service.Description</textarea>
+                            <span class="text-danger" data-valmsg-for="Service.Description"></span>
                             <small class="help-text">Mô tả chi tiết giúp khách hàng hiểu rõ hơn về dịch vụ</small>
                         </div>
 
                         <!-- Trạng thái -->
                         <div class="form-group">
                             <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" asp-for="IsActive" id="serviceStatus">
+                                <input type="hidden" name="Service.IsActive" value="@(Model.Service.IsActive == true ? "true" : "false")" />
+                                <input type="checkbox" class="custom-control-input" id="serviceStatus" 
+                                       @(Model.Service.IsActive == true ? "checked" : "")
+                                       onchange="document.getElementsByName('Service.IsActive')[0].value = this.checked ? 'true' : 'false'">
                                 <label class="custom-control-label" for="serviceStatus">
-                                    @(Model.IsActive == true ? "Dịch vụ đang hoạt động" : "Dịch vụ đang tạm ngưng")
+                                    @(Model.Service.IsActive == true ? "Dịch vụ đang hoạt động" : "Dịch vụ đang tạm ngưng")
                                 </label>
                             </div>
                             <small class="help-text">Dịch vụ sẽ hiển thị và có thể đặt lịch nếu được kích hoạt</small>
                         </div>
 
+                        <!-- Nút submit -->
                         <div class="form-group mt-4 d-flex justify-content-between">
-                            <a href="@Url.Action("ServiceDetail", "Admin", new { id = Model.ServiceId })" class="btn btn-secondary">
+                            <a href="@Url.Action("ServiceDetail", "AdminService", new { id = Model.Service.ServiceId })" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Quay lại
                             </a>
                             <div>
@@ -132,6 +127,30 @@
                     </form>
                 </div>
             </div>
+            
+            <!-- Lịch sử thay đổi -->
+            @if (Model.ChangeHistory != null && Model.ChangeHistory.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lịch sử thay đổi</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            @foreach (var change in Model.ChangeHistory)
+                            {
+                                <div class="timeline-item">
+                                    <div class="timeline-item-date">@change.ChangeDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                    <div class="timeline-item-content">
+                                        <div class="user">@change.UserName</div>
+                                        <div class="change">@change.ChangeDescription</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
 
         <!-- Preview Column -->
@@ -146,59 +165,33 @@
                             <div class="preview-title">
                                 <i class="fas fa-eye"></i> Xem trước dịch vụ
                             </div>
-                            <div class="preview-service-name" id="previewName">@Model.Name</div>
+                            <div class="preview-service-name" id="previewName">@Html.DisplayFor(m => m.Service.Name)</div>
                             <div class="preview-service-category" id="previewCategory">
-                                @ViewBag.CategoryName
+                                @Html.Raw(ViewBag.CategoryName?.ToString())
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="preview-service-price" id="previewPrice">@Model.Price.ToString("N0") đ</div>
-                                <div class="preview-service-duration" id="previewDuration">@Model.DurationMinutes phút</div>
+                                <div class="preview-service-price" id="previewPrice">@Model.Service.Price.ToString("N0") đ</div>
+                                <div class="preview-service-duration" id="previewDuration">@Model.Service.DurationMinutes phút</div>
                             </div>
                             <div class="preview-service-description" id="previewDescription">
-                                @(string.IsNullOrEmpty(Model.Description) ? "Chưa có mô tả chi tiết cho dịch vụ này." : Model.Description)
+                                @if (string.IsNullOrEmpty(Model.Service.Description))
+                                {
+                                    <text>Chưa có mô tả chi tiết cho dịch vụ này.</text>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(m => m.Service.Description)
+                                }
                             </div>
                             <div class="mt-3 text-right">
-                                <span class="badge @(Model.IsActive == true ? "badge-success" : "badge-secondary")" id="previewStatus">
-                                    @(Model.IsActive == true ? "Hoạt động" : "Tạm ngưng")
+                                <span class="badge @(Model.Service.IsActive == true ? "badge-success" : "badge-secondary")" id="previewStatus">
+                                    @(Model.Service.IsActive == true ? "Hoạt động" : "Tạm ngưng")
                                 </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- History Card -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-info">
-                            <i class="fas fa-history"></i> Lịch sử thay đổi
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        @if (ViewBag.ChangeHistory != null && ViewBag.ChangeHistory.Count > 0)
-                        {
-                            <div class="changelog">
-                                @foreach (var change in ViewBag.ChangeHistory)
-                                {
-                                    <div class="changelog-item">
-                                        <div class="changelog-date">@change.ChangeDate.ToString("dd/MM/yyyy HH:mm")</div>
-                                        <div class="changelog-user">@change.UserName</div>
-                                        <div class="changelog-content">
-                                            @change.ChangeDescription
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-3">
-                                <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
-                                <p class="mb-0">Chưa có lịch sử thay đổi</p>
-                            </div>
-                        }
-                    </div>
-                </div>
-                
                 <!-- Danger Zone -->
                 <div class="card shadow mb-4 border-left-danger">
                     <div class="card-header py-3">
@@ -229,12 +222,13 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="mb-3">Bạn có chắc chắn muốn xóa dịch vụ <strong>@Model.Name</strong>?</p>
+                <p class="mb-3">Bạn có chắc chắn muốn xóa dịch vụ <strong>@Html.DisplayFor(m => m.Service.Name)</strong>?</p>
                 <p class="text-danger mb-0">Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan đến dịch vụ này!</p>
             </div>
             <div class="modal-footer">
-                <form id="deleteServiceForm" asp-controller="AdminService" asp-action="DeleteService" method="post">
-                    <input type="hidden" name="id" value="@Model.ServiceId" />
+                <form id="deleteServiceForm" action="@Url.Action("DeleteService", "AdminService")" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Service.ServiceId" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy bỏ</button>
                     <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
                 </form>
@@ -245,53 +239,25 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/cssjsservice/service-utils.js"></script>
-    <script src="~/cssjsservice/service-edit.js"></script>
+    <script src="~/cssjsService/js/service-common.js"></script>
+    <script src="~/cssjsService/js/service-form.js"></script>
     <script>
-        // Hiển thị thông báo nếu có
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <text>
-            $(document).ready(function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công!',
-                    text: '@TempData["SuccessMessage"]',
-                    confirmButtonText: 'OK'
-                });
-            });
-            </text>
-        }
+        // Pass data to the form.js
+        var successMessage = '@Html.Raw(TempData["SuccessMessage"]?.ToString())';
+        var errorMessage = '@Html.Raw(TempData["ErrorMessage"]?.ToString())';
+        var formType = 'edit';
         
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <text>
-            $(document).ready(function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: '@TempData["ErrorMessage"]'
-                });
-            });
-            </text>
-        }
-        
-        // Initialize service data for reset function
-        const serviceData = {
-            name: '@Model.Name',
-            categoryId: '@Model.CategoryId',
-            price: '@Model.Price',
-            duration: '@Model.DurationMinutes',
-            description: '@(Model.Description?.Replace("\n", "\\n"))',
-            isActive: @(Model.IsActive == true ? "true" : "false"),
-            categoryName: '@Html.Raw(ViewBag.CategoryName)',
-            formattedPrice: '@Model.Price.ToString("N0") đ'
+        // Initialize service data for reset function - Sửa encoding
+        var serviceData = {
+            name: @Html.Raw(Json.Serialize(Model.Service.Name)),
+            categoryId: '@Model.Service.CategoryId',
+            price: '@Model.Service.Price',
+            duration: '@Model.Service.DurationMinutes',
+            description: @Html.Raw(Json.Serialize(Model.Service.Description ?? "")),
+            isActive: @(Model.Service.IsActive == true ? "true" : "false"),
+            categoryName: @Html.Raw(Json.Serialize(ViewBag.CategoryName?.ToString() ?? "")),
+            formattedPrice: '@Model.Service.Price.ToString("N0") đ'
         };
-        
-        // Call resetForm on page load to initialize the preview
-        $(document).ready(function() {
-            resetForm(serviceData);
-        });
     </script>
     
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -1,234 +1,218 @@
-@model List<pet_spa_system1.Models.SerCate>
+@model pet_spa_system1.ViewModels.ServiceCategoryViewModel
 @{
-    ViewData["Title"] = "Quản lý danh mục dịch vụ";
+    ViewData["Title"] = "Quản lý dịch vụ";
+    ViewData["SubTitle"] = "Danh mục dịch vụ";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
 @section Styles {
-    <style>
-        .category-card {
-            transition: all 0.3s;
-            border-left: 3px solid #36b9cc;
-        }
-        .category-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .category-card.inactive {
-            border-left: 3px solid #e74a3b;
-            opacity: 0.8;
-        }
-        .category-count {
-            background-color: #36b9cc;
-            color: white;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.75rem;
-        }
-        .category-actions {
-            visibility: visible;
-            transition: all 0.2s;
-            opacity: 0.7;
-        }
-        .category-card:hover .category-actions {
-            opacity: 1;
-        }
-        .sortable-ghost {
-            background-color: #f8f9fc;
-            border: 2px dashed #4e73df;
-        }
-        .sortable-drag {
-            opacity: 0.8;
-        }
-        .sortable-handle {
-            cursor: move;
-            color: #858796;
-        }
-        .sortable-handle:hover {
-            color: #4e73df;
-        }
-        .category-description {
-            color: #858796;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            white-space: pre-line;
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/service-category.css" />
 }
 
 <div class="container-fluid" id="container-wrapper">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Quản lý danh mục dịch vụ</h1>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="@Url.Action("ServiceList", "Admin")">Dịch vụ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Danh mục</li>
-        </ol>
-    </div>
+    <!-- Sử dụng partial view navigation chung -->
+    @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
 
-    <div class="row">
-        <!-- Danh sách danh mục -->
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Danh sách danh mục dịch vụ</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Tùy chọn:</div>
-                            <a class="dropdown-item" href="@Url.Action("ServiceCategory", "Admin")">
-                                <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i> Làm mới
-                            </a>
-                            <a class="dropdown-item" href="#" id="btnSaveOrder">
-                                <i class="fas fa-save fa-sm fa-fw mr-2 text-gray-400"></i> Lưu thứ tự
-                            </a>
-                        </div>
-                    </div>
-                </div>
+    <div class="row mb-4">
+        <!-- Thông tin tổng quan -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100 border-left-primary">
                 <div class="card-body">
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal">
-                            <i class="fas fa-plus-circle"></i> Thêm danh mục mới
-                        </button>
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Kéo và thả các danh mục để sắp xếp thứ tự hiển thị. Nhấn "Lưu thứ tự" sau khi hoàn tất.
-                    </div>
-
-                    @if (Model != null && Model.Any())
-                    {
-                        <div id="sortableCategoryList">
-                            @foreach (var category in Model)
-                            {
-                                <div class="card mb-3 @(category.IsActive == true ? "category-card" : "category-card inactive")" data-id="@category.CategoryId">
-                                    <div class="card-body py-3">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="sortable-handle">
-                                                    <i class="fas fa-grip-vertical fa-lg"></i>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <h6 class="font-weight-bold mb-1 text-primary">
-                                                    @category.Name
-                                                    <span class="category-count ml-2">
-                                                        @(ViewBag.ServiceCounts != null && ViewBag.ServiceCounts.ContainsKey(category.CategoryId) 
-                                                            ? ViewBag.ServiceCounts[category.CategoryId] : 0) dịch vụ
-                                                    </span>
-                                                </h6>
-                                                <div class="category-description">
-                                                    @(string.IsNullOrEmpty(category.Description) ? "Không có mô tả" : category.Description)
-                                                </div>
-                                                <small class="text-muted">
-                                                    @(category.IsActive == true ? "Đang hoạt động" : "Tạm ngưng")
-                                                </small>
-                                            </div>
-                                            <div class="col-auto category-actions">
-                                                <button type="button" class="btn btn-sm btn-primary btn-edit-category" 
-                                                        data-id="@category.CategoryId"
-                                                        data-name="@category.Name"
-                                                        data-description="@category.Description"
-                                                        data-is-active="@category.IsActive">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger btn-delete-category"
-                                                        data-id="@category.CategoryId" 
-                                                        data-name="@category.Name"
-                                                        data-count="@(ViewBag.ServiceCounts != null && ViewBag.ServiceCounts.ContainsKey(category.CategoryId) 
-                                                                    ? ViewBag.ServiceCounts[category.CategoryId] : 0)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle"></i> Chưa có danh mục dịch vụ nào. Vui lòng tạo danh mục mới.
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Thống kê danh mục -->
-        <div class="col-lg-4">
-            <!-- Biểu đồ phân bố -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Phân bố dịch vụ theo danh mục</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="categoryDistributionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tóm tắt thông tin -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Tóm tắt thông tin</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row align-items-center mb-3">
-                        <div class="col">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count()</div>
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng số danh mục</div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng danh mục
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCategories</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-folder fa-2x text-gray-300"></i>
                         </div>
                     </div>
-                    <div class="row align-items-center mb-3">
-                        <div class="col">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count(c => c.IsActive == true)</div>
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Danh mục hoạt động</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="row align-items-center mb-3">
-                        <div class="col">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count(c => c.IsActive != true)</div>
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Danh mục tạm ngưng</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-ban fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @(ViewBag.ServiceCounts?.Values.Sum() ?? 0)
+                </div>
+            </div>
+        </div>
+        
+        <!-- Danh mục đang hoạt động -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100 border-left-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Đang kích hoạt
                             </div>
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tổng số dịch vụ</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ActiveCategories</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-spa fa-2x text-info"></i>
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Danh mục tạm ngưng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100 border-left-warning">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Tạm ngưng
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.TotalCategories - Model.ActiveCategories)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-pause-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tổng số dịch vụ -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100 border-left-info">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tổng số dịch vụ
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.ServiceCountsByCategory.Values.Sum()
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <!-- Nút quay lại -->
-            <a href="@Url.Action("ServiceList", "Admin")" class="btn btn-secondary btn-block mb-4">
-                <i class="fas fa-arrow-left"></i> Quay lại danh sách dịch vụ
-            </a>
+    <div class="row">
+        <!-- Danh sách danh mục -->
+        <div class="col-lg-8">
+            <div class="card mb-4 shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách danh mục</h6>
+                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addCategoryModal">
+                        <i class="fas fa-plus"></i> Thêm danh mục
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover w-100" id="categoryTable">
+                            <thead>
+                                <tr>
+                                    <th class="w-10">ID</th>
+                                    <th class="w-35">Tên danh mục</th>
+                                    <th class="w-15">Số dịch vụ</th>
+                                    <th class="w-15">Trạng thái</th>
+                                    <th class="w-25">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    var serviceCount = Model.ServiceCountsByCategory.ContainsKey(category.CategoryId) 
+                                        ? Model.ServiceCountsByCategory[category.CategoryId] 
+                                        : 0;
+                                        
+                                    <tr data-id="@category.CategoryId">
+                                        <td>@category.CategoryId</td>
+                                        <td class="font-weight-bold">@category.Name</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-light">@serviceCount dịch vụ</span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (category.IsActive == true)
+                                            {
+                                                <span class="badge badge-success">Đang hoạt động</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger">Tạm ngưng</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-info btn-edit-category" 
+                                                    data-id="@category.CategoryId"
+                                                    data-name="@category.Name"
+                                                    data-description="@category.Description"
+                                                    data-is-active="@category.IsActive">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger btn-delete-category"
+                                                    data-id="@category.CategoryId" 
+                                                    data-name="@category.Name"
+                                                    data-count="@serviceCount">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Biểu đồ phân bố -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố dịch vụ theo danh mục</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="categoryDistributionChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        @foreach (var category in Model.Categories.Take(6))
+                        {
+                            <span class="mr-2">
+                                <i class="fas fa-circle category-icon" data-category-id="@category.CategoryId"></i> @category.Name
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sắp xếp danh mục -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Sắp xếp thứ tự</h6>
+                    <button id="btnSaveOrder" class="btn btn-sm btn-primary">
+                        <i class="fas fa-save"></i> Lưu thứ tự
+                    </button>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">
+                        Kéo và thả để thay đổi thứ tự hiển thị danh mục trong hệ thống
+                    </p>
+                    <ul class="list-group" id="sortableCategoryList">
+                        @foreach (var category in Model.Categories)
+                        {
+                            <li class="list-group-item category-card d-flex justify-content-between align-items-center" data-id="@category.CategoryId">
+                                <div>
+                                    <i class="fas fa-grip-vertical sortable-handle mr-2 text-muted"></i>
+                                    <span class="font-weight-bold">@category.Name</span>
+                                </div>
+                                @if (category.IsActive != true)
+                                {
+                                    <span class="badge badge-danger badge-pill">Tạm ngưng</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -243,7 +227,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="addCategoryForm" asp-action="AddServiceCategory" method="post">
+            <form id="addCategoryForm" action="@Url.Action("AddServiceCategory", "AdminService")" method="post">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="Name" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
@@ -281,7 +266,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="editCategoryForm" asp-action="UpdateServiceCategory" method="post">
+            <form id="editCategoryForm" action="@Url.Action("UpdateServiceCategory", "AdminService")" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" id="editCategoryId" name="CategoryId">
                 <div class="modal-body">
                     <div class="form-group">
@@ -322,14 +308,15 @@
             </div>
             <div class="modal-body">
                 <p>Bạn có chắc chắn muốn xóa danh mục "<span id="deleteCategoryName"></span>"?</p>
-                <div id="categoryHasServices" class="alert alert-warning" style="display: none;">
+                <div id="categoryHasServices" class="alert alert-warning d-none">
                     <i class="fas fa-exclamation-triangle"></i> Danh mục này đang có <strong><span id="serviceCount"></span></strong> dịch vụ.
                     Bạn cần chuyển các dịch vụ sang danh mục khác hoặc xóa trước khi có thể xóa danh mục này.
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                <form id="deleteCategoryForm" asp-action="DeleteServiceCategory" method="post">
+                <form id="deleteCategoryForm" action="@Url.Action("DeleteServiceCategory", "AdminService")" method="post">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" id="deleteCategoryId" name="id">
                     <button type="submit" id="btnConfirmDelete" class="btn btn-danger">Xác nhận xóa</button>
                 </form>
@@ -342,170 +329,32 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="~/cssjsService/js/service-common.js"></script>
+    <script src="~/cssjsService/js/service-category.js"></script>
     <script>
-        $(document).ready(function() {
-            // Khởi tạo Sortable
-            var sortable = new Sortable(document.getElementById('sortableCategoryList'), {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                handle: '.sortable-handle'
-            });
-            
-            // Xử lý nút lưu thứ tự
-            $('#btnSaveOrder').on('click', function() {
-                // Lấy thứ tự hiện tại
-                var categories = [];
-                $('.category-card').each(function(index) {
-                    categories.push({
-                        CategoryId: parseInt($(this).data('id')),
-                        DisplayOrder: index + 1
-                    });
-                });
-                
-                // Gửi AJAX request để cập nhật thứ tự
-                $.ajax({
-                    url: '@Url.Action("UpdateCategoryOrder", "Admin")',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(categories),
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công',
-                                text: response.message,
-                                timer: 2000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: 'Đã xảy ra lỗi khi cập nhật thứ tự danh mục.'
-                        });
-                    }
-                });
-            });
-            
-            // Xử lý nút chỉnh sửa danh mục
-            $('.btn-edit-category').on('click', function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var description = $(this).data('description');
-                var isActive = $(this).data('is-active');
-                
-                $('#editCategoryId').val(id);
-                $('#editCategoryName').val(name);
-                $('#editCategoryDescription').val(description);
-                $('#editCategoryIsActive').prop('checked', isActive === 'True');
-                
-                $('#editCategoryModal').modal('show');
-            });
-            
-            // Xử lý nút xóa danh mục
-            $('.btn-delete-category').on('click', function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var count = parseInt($(this).data('count'));
-                
-                $('#deleteCategoryId').val(id);
-                $('#deleteCategoryName').text(name);
-                
-                if (count > 0) {
-                    $('#serviceCount').text(count);
-                    $('#categoryHasServices').show();
-                    $('#btnConfirmDelete').prop('disabled', true);
-                } else {
-                    $('#categoryHasServices').hide();
-                    $('#btnConfirmDelete').prop('disabled', false);
-                }
-                
-                $('#deleteCategoryModal').modal('show');
-            });
-            
-            // Hiển thị biểu đồ phân bố
-            var ctx = document.getElementById('categoryDistributionChart').getContext('2d');
-            var categoryDistributionChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: [@Html.Raw(string.Join(", ", Model.Select(c => $"'{c.Name}'")))],
-                    datasets: [{
-                        data: [
-                            @Html.Raw(string.Join(", ", 
-                                Model.Select(c => 
-                                    ViewBag.ServiceCounts != null && ViewBag.ServiceCounts.ContainsKey(c.CategoryId) 
-                                        ? ViewBag.ServiceCounts[c.CategoryId] 
-                                        : 0
-                                )
-                            ))
-                        ],
-                        backgroundColor: [
-                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796',
-                            '#6f42c1', '#20c9a6', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'
-                        ],
-                        hoverBackgroundColor: [
-                            '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#6e707e',
-                            '#5a33a0', '#169b80', '#444550', '#2246b1', '#128f60', '#25808e'
-                        ],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12
-                        }
-                    },
-                    tooltips: {
-                        callbacks: {
-                            label: function(tooltipItem, data) {
-                                var dataset = data.datasets[tooltipItem.datasetIndex];
-                                var currentValue = dataset.data[tooltipItem.index];
-                                var percentage = Math.round((currentValue / dataset.data.reduce((a, b) => a + b, 0)) * 100);
-                                return data.labels[tooltipItem.index] + ': ' + currentValue + ' dịch vụ (' + percentage + '%)';
-                            }
-                        }
-                    },
-                    cutoutPercentage: 60
-                }
-            });
-            
-            // Hiển thị thông báo nếu có
-            @if (TempData["SuccessMessage"] != null)
+        // Define messages from TempData
+        var successMessage = '@TempData["SuccessMessage"]';
+        var errorMessage = '@TempData["ErrorMessage"]';
+        
+        // Chart data for category distribution
+        var chartLabels = [
+            @foreach (var cat in Model.Categories)
             {
-                <text>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: '@TempData["SuccessMessage"]',
-                    timer: 3000,
-                    timerProgressBar: true
-                });
-                </text>
+                <text>'@cat.Name',</text>
             }
-            
-            @if (TempData["ErrorMessage"] != null)
+        ];
+        
+        var chartData = [
+            @foreach (var cat in Model.Categories)
             {
-                <text>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: '@TempData["ErrorMessage"]'
-                });
-                </text>
+                var count = Model.ServiceCountsByCategory.ContainsKey(cat.CategoryId) 
+                    ? Model.ServiceCountsByCategory[cat.CategoryId] 
+                    : 0;
+                <text>@count,</text>
             }
-        });
+        ];
+        
+        // Category update order URL
+        var updateCategoryOrderUrl = '@Url.Action("UpdateCategoryOrder", "AdminService")';
     </script>
 }

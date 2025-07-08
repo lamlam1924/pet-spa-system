@@ -8,7 +8,7 @@ public interface IAppointmentRepository
     void AddAppointmentPet(int appointmentId, int petId);
     void AddAppointmentService(int appointmentId, int serviceId);
     //List<Appointment> GetByUserId(int userId);
-    Appointment GetById(int id);
+    Appointment? GetById(int id);
     void Save();
     List<Appointment> GetByUserIdWithDetail(int userId); // Thêm hàm này
     List<StatusAppointment> GetAllStatuses();

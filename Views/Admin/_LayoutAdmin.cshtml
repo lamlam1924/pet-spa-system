@@ -3,7 +3,7 @@
     Layout dùng chung cho tất cả trang admin.
 *@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,8 +34,7 @@
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Quản lý</div>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="true"
-                   aria-controls="collapseStaff">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="false">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Nhân viên</span>
                 </a>
@@ -47,8 +46,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="true"
-                   aria-controls="collapseCustomers">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="false">
                     <i class="fas fa-fw fa-user-friends"></i>
                     <span>Khách hàng</span>
                 </a>
@@ -60,8 +58,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="true"
-                   aria-controls="collapsePets">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="false">
                     <i class="fas fa-fw fa-paw"></i>
                     <span>Hồ sơ thú cưng</span>
                 </a>
@@ -73,8 +70,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="true"
-                   aria-controls="collapseProducts">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="false">
                     <i class="fas fa-fw fa-shopping-cart"></i>
                     <span>Sản phẩm</span>
                 </a>
@@ -86,39 +82,45 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="true"
-                   aria-controls="collapseServices">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="false">
                     <i class="fas fa-fw fa-spa"></i>
                     <span>Dịch vụ</span>
                 </a>
                 <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Quản lý dịch vụ</h6>
-                        <a class="collapse-item" href="@Url.Content("~/AdminService/Index")">Tổng quan dịch vụ</a>
-                        <a class="collapse-item" href="@Url.Content("~/AdminService/ServiceList")">Danh sách dịch vụ</a>
-                        <a class="collapse-item" href="@Url.Content("~/AdminService/AddService")">Thêm dịch vụ mới</a>
-                        <a class="collapse-item" href="@Url.Content("~/AdminService/ServiceCategory")">Quản lý danh mục</a>
+                        <a class="collapse-item" href="@Url.Action("Index", "AdminService")">Tổng quan dịch vụ</a>
+                        <a class="collapse-item" href="@Url.Action("ServiceList", "AdminService")">Danh sách dịch vụ</a>
+                        <a class="collapse-item" href="@Url.Action("AddService", "AdminService")">Thêm dịch vụ mới</a>
+                        <a class="collapse-item" href="@Url.Action("ServiceCategory", "AdminService")">Quản lý danh mục</a>
                     </div>
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="true"
-                   aria-controls="collapseAppointments">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="false">
                     <i class="fas fa-fw fa-calendar-alt"></i>
                     <span>Lịch Hẹn</span>
                 </a>
                 <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Quản lý lịch hẹn</h6>
-                        <a class="collapse-item" href="@Url.Action("AppointmentList", "Admin")">Danh sách lịch hẹn</a>
-                        <a class="collapse-item" href="@Url.Action("AppointmentCalendar", "Admin")">Xem dạng lịch</a>
-                        <a class="collapse-item" href="@Url.Action("AppointmentCreate", "Admin")">Tạo lịch mới</a>
+                        <a class="collapse-item" href="@Url.Action("AppointmentList", "Admin")">
+                            <i class="fas fa-list fa-fw mr-1"></i>Danh sách lịch hẹn
+                        </a>
+                        <a class="collapse-item" href="@Url.Action("AppointmentCalendar", "Admin")">
+                            <i class="fas fa-calendar fa-fw mr-1"></i>Xem dạng lịch
+                        </a>
+                        <a class="collapse-item" href="@Url.Action("AppointmentCreate", "Admin")">
+                            <i class="fas fa-plus fa-fw mr-1"></i>Tạo lịch hẹn mới
+                        </a>
+                        <a class="collapse-item" href="@Url.Action("AppointmentStats", "Admin")">
+                            <i class="fas fa-chart-bar fa-fw mr-1"></i>Thống kê lịch hẹn
+                        </a>
                     </div>
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="true"
-                   aria-controls="collapsePayments">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="false">
                     <i class="fas fa-fw fa-credit-card"></i>
                     <span>Thanh toán</span>
                 </a>
@@ -131,8 +133,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="true"
-                   aria-controls="collapsePromotions">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="false">
                     <i class="fas fa-fw fa-tags"></i>
                     <span>Khuyến mãi</span>
                 </a>
@@ -214,11 +215,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="logoutModalLabel">Bạn có chắc muốn đăng xuất?</h5>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Đóng">
+                        <span aria-hidden="true">×</span>
+                    </button>
                 </div>
                 <div class="modal-body">Chọn "Đăng xuất" bên dưới nếu bạn muốn kết thúc phiên làm việc hiện tại.</div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Hủy</button>
                     <a class="btn btn-primary" href="/Account/Logout">Đăng xuất</a>
                 </div>
             </div>

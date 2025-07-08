@@ -1,4 +1,230 @@
-@* Mình muốn tạo 1 trang để hiện thì lịch dạng calendar để xem lịch hẹn dễ hơn, xem cho hôm nay, xem ngày mai, xem tuần tới, tháng tới, và dùng layoutadmin ở view/admin, hãy tách style và scrip vào đúng file nhé *@
+@model List<pet_spa_system1.Models.Appointment>
+@{
+    ViewData["Title"] = "Lịch hẹn theo thời gian";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0 fw-bold">
+            <i class="fas fa-calendar-alt me-2"></i>Lịch hẹn
+        </h3>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("AppointmentList", "Admin")" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-1"></i>Xem dạng danh sách
+            </a>
+            <a href="@Url.Action("AppointmentCreate", "Admin")" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Tạo lịch mới
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" id="btn-today" class="btn btn-sm btn-primary">Hôm nay</button>
+                        <button type="button" id="btn-tomorrow" class="btn btn-sm btn-outline-primary">Ngày mai</button>
+                        <button type="button" id="btn-week" class="btn btn-sm btn-outline-primary">Tuần này</button>
+                        <button type="button" id="btn-month" class="btn btn-sm btn-outline-primary">Tháng này</button>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h5 class="m-0 fw-bold" id="calendar-title">Tháng 7, 2025</h5>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" id="btn-prev" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" id="btn-next" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <style>
+        #calendar {
+            height: 700px;
+        }
+        .fc-event {
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .fc-event-time {
+            font-weight: bold;
+        }
+        .fc-event.status-pending {
+            background-color: #FFC107;
+            border-color: #FFC107;
+            color: #212529;
+        }
+        .fc-event.status-confirmed {
+            background-color: #28A745;
+            border-color: #28A745;
+        }
+        .fc-event.status-completed {
+            background-color: #6C757D;
+            border-color: #6C757D;
+        }
+        .fc-event.status-cancelled {
+            background-color: #DC3545;
+            border-color: #DC3545;
+            text-decoration: line-through;
+        }
+        .fc-day-today {
+            background-color: rgba(13, 110, 253, 0.05) !important;
+        }
+        .fc-day-past {
+            background-color: #f8f9fa;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: false,
+                dayMaxEvents: true,
+                locale: 'vi',
+                firstDay: 1, // Bắt đầu từ thứ 2
+                navLinks: true,
+                editable: false,
+                selectable: true,
+                businessHours: {
+                    daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+                    startTime: '08:00',
+                    endTime: '18:00',
+                },
+                events: [
+                    // Các sự kiện mẫu, sẽ được thay thế bằng dữ liệu thật từ API
+                    {
+                        id: '1',
+                        title: 'Mèo Meo - Tắm & cắt móng',
+                        start: '2025-07-10T14:00:00',
+                        end: '2025-07-10T15:00:00',
+                        className: 'status-confirmed',
+                        extendedProps: {
+                            status: 'Đã xác nhận',
+                            customer: 'Nguyễn Văn A',
+                            phone: '0901234567',
+                            petName: 'Meo Meo',
+                            services: ['Tắm', 'Cắt móng']
+                        }
+                    },
+                    {
+                        id: '2',
+                        title: 'Chó Milu - Spa toàn diện',
+                        start: '2025-07-12T10:30:00',
+                        end: '2025-07-12T12:30:00',
+                        className: 'status-pending',
+                        extendedProps: {
+                            status: 'Chờ xác nhận',
+                            customer: 'Trần Thị B',
+                            phone: '0909123456',
+                            petName: 'Milu',
+                            services: ['Spa toàn diện']
+                        }
+                    }
+                ],
+                eventClick: function(info) {
+                    // Chuyển đến trang chi tiết lịch hẹn
+                    window.location.href = '@Url.Action("AppointmentDetail", "Admin")/' + info.event.id;
+                },
+                dateClick: function(info) {
+                    // Có thể mở modal tạo lịch mới cho ngày này
+                    const clickedDate = info.dateStr;
+                    // window.location.href = `/Admin/AppointmentCreate?date=${clickedDate}`;
+                }
+            });
+            
+            calendar.render();
+            
+            // Cập nhật tiêu đề
+            function updateTitle() {
+                const view = calendar.view;
+                const title = new Intl.DateTimeFormat('vi-VN', {
+                    month: 'long',
+                    year: 'numeric'
+                }).format(view.currentStart);
+                document.getElementById('calendar-title').textContent = title;
+            }
+            
+            updateTitle();
+            
+            // Xử lý các nút điều hướng
+            document.getElementById('btn-prev').addEventListener('click', function() {
+                calendar.prev();
+                updateTitle();
+            });
+            
+            document.getElementById('btn-next').addEventListener('click', function() {
+                calendar.next();
+                updateTitle();
+            });
+            
+            document.getElementById('btn-today').addEventListener('click', function() {
+                calendar.today();
+                calendar.changeView('dayGridDay');
+                updateTitle();
+                this.classList.add('btn-primary');
+                this.classList.remove('btn-outline-primary');
+                resetOtherButtons(this);
+            });
+            
+            document.getElementById('btn-tomorrow').addEventListener('click', function() {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                calendar.gotoDate(tomorrow);
+                calendar.changeView('dayGridDay');
+                updateTitle();
+                this.classList.add('btn-primary');
+                this.classList.remove('btn-outline-primary');
+                resetOtherButtons(this);
+            });
+            
+            document.getElementById('btn-week').addEventListener('click', function() {
+                calendar.changeView('dayGridWeek');
+                updateTitle();
+                this.classList.add('btn-primary');
+                this.classList.remove('btn-outline-primary');
+                resetOtherButtons(this);
+            });
+            
+            document.getElementById('btn-month').addEventListener('click', function() {
+                calendar.changeView('dayGridMonth');
+                updateTitle();
+                this.classList.add('btn-primary');
+                this.classList.remove('btn-outline-primary');
+                resetOtherButtons(this);
+            });
+            
+            function resetOtherButtons(exceptButton) {
+                const buttons = ['btn-today', 'btn-tomorrow', 'btn-week', 'btn-month'];
+                buttons.forEach(btnId => {
+                    if (document.getElementById(btnId) !== exceptButton) {
+                        document.getElementById(btnId).classList.remove('btn-primary');
+                        document.getElementById(btnId).classList.add('btn-outline-primary');
+                    }
+                });
+            }
+        });
+    </script>
+}
 
 
 

@@ -1,0 +1,167 @@
+/* service-common.css - Styles chung cho tất cả trang quản lý dịch vụ */
+
+:root {
+    --primary: #4e73df;
+    --success: #1cc88a;
+    --warning: #f6c23e;
+    --danger: #e74a3b;
+    --info: #36b9cc;
+    --dark: #5a5c69;
+    --light-gray: #f8f9fc;
+    --border-color: #e3e6f0;
+}
+
+/* Card styling */
+.card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-3px);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.25rem 0.75rem;
+}
+
+/* Navigation tabs */
+.nav-tabs-service {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: var(--light-gray);
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.nav-tabs-service .nav-link {
+    padding: 0.85rem 1.25rem;
+    font-weight: 600;
+    color: var(--dark);
+    border: none;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+    margin-right: 2px;
+}
+
+.nav-tabs-service .nav-link:hover:not(.active) {
+    color: var(--primary);
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+.nav-tabs-service .nav-link.active {
+    color: #fff;
+    font-weight: 700;
+    background-color: var(--primary);
+}
+
+.nav-tabs-service .nav-link i {
+    margin-right: 8px;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: var(--light-gray);
+    border-top: none;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--dark);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 0.75rem 1rem;
+    border-color: var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    border-radius: 0.5rem;
+}
+
+/* Buttons */
+.btn-action {
+    transition: all 0.3s;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form elements */
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+}
+
+.required-field::after {
+    content: " *";
+    color: var(--danger);
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Colorful borders */
+.border-left-primary {
+    border-left: 0.25rem solid var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid var(--success) !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid var(--info) !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid var(--warning) !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid var(--danger) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+}

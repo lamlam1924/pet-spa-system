@@ -7,7 +7,7 @@ namespace pet_spa_system1.Repositories
     {
         
             List<SerCate> GetAll();
-            SerCate GetById(int id);
+            SerCate? GetById(int id);
             void Add(SerCate category);
             void Update(SerCate category);
             void SoftDelete(int id);
