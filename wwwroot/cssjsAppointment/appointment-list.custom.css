@@ -1,0 +1,49 @@
+/* Avatar cải tiến */
+.avatar-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+}
+
+/* Badge dịch vụ/thú cưng có tooltip */
+.badge-service, .badge-pet {
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+.badge-service:hover, .badge-pet:hover {
+    box-shadow: 0 2px 8px rgba(33,147,176,0.15);
+    background: #e3f6ff;
+}
+
+/* Badge trạng thái có icon */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-weight: 600;
+    font-size: 1em;
+}
+
+/* Tổng tiền */
+.total-price {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+/* Loading spinner */
+#loading-spinner {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+}
+
+/* Responsive table cải tiến */
+@media (max-width: 768px) {
+    .table-responsive { font-size: 0.95em; }
+    .avatar-sm { font-size: 1em; }
+}

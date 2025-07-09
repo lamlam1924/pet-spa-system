@@ -27,29 +27,39 @@
                 </div>
                 <div class="card-body">
                     <form id="addServiceForm" action="@Url.Action("AddService", "AdminService")" method="post">
-                        <div class="text-danger mb-4"></div>
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Validation Summary -->
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger mb-4" })
                         
                         <!-- Trường ẩn cho CreatedAt -->
-                        <input type="hidden" name="Service.CreatedAt" value="@currentDateTime.ToString("o")" />
+                        <input type="hidden" name="Input.CreatedAt" value="@currentDateTime.ToString("o")" />
                         
                         <!-- Tên dịch vụ -->
                         <div class="form-group">
                             <label for="serviceName" class="form-label required-field">Tên dịch vụ</label>
-                            <input type="text" name="Service.Name" class="form-control" id="serviceName" required 
-                                   placeholder="Nhập tên dịch vụ" />
+                            <input type="text" name="Input.Name" class="form-control" id="serviceName" required 
+                                   placeholder="Nhập tên dịch vụ" value="@Model.Input.Name" />
+                            @Html.ValidationMessageFor(m => m.Input.Name, "", new { @class = "text-danger" })
                             <small class="help-text">Tên nên ngắn gọn và dễ nhớ (tối đa 100 ký tự)</small>
                         </div>
 
                         <!-- Danh mục -->
                         <div class="form-group">
                             <label for="serviceCategory" class="form-label required-field">Danh mục</label>
-                            <select name="Service.CategoryId" class="form-control" id="serviceCategory" required>
+                            <select name="Input.CategoryId" class="form-control" id="serviceCategory" required>
                                 <option value="">-- Chọn danh mục --</option>
-                                @foreach (var cat in Model.Categories)
-                                {
-                                    <option value="@cat.CategoryId">@cat.Name</option>
+                                @{
+                                    var options = new System.Text.StringBuilder();
+                                    foreach (var cat in Model.Categories)
+                                    {
+                                        var selected = Model.Input.CategoryId == cat.CategoryId ? " selected=\"selected\"" : "";
+                                        options.Append($"<option value=\"{cat.CategoryId}\"{selected}>{cat.Name}</option>");
+                                    }
                                 }
+                                @Html.Raw(options.ToString())
                             </select>
+                            @Html.ValidationMessageFor(m => m.Input.CategoryId, "", new { @class = "text-danger" })
                             <div class="d-flex justify-content-between">
                                 <small class="help-text">Chọn danh mục phù hợp cho dịch vụ</small>
                                 <a href="@Url.Action("ServiceCategory", "AdminService")" class="text-info">
@@ -62,13 +72,13 @@
                         <div class="form-group">
                             <label for="servicePrice" class="form-label required-field">Giá dịch vụ</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="servicePrice" name="Service.Price" required 
-                                       min="0" step="1000" placeholder="Nhập giá dịch vụ" />
+                                <input type="number" class="form-control" id="servicePrice" name="Input.Price" required 
+                                       min="0" step="1000" placeholder="Nhập giá dịch vụ" value="@Model.Input.Price" />
                                 <div class="input-group-append">
                                     <span class="input-group-text">VNĐ</span>
                                 </div>
                             </div>
-                            <span class="text-danger" data-valmsg-for="Service.Price"></span>
+                            @Html.ValidationMessageFor(m => m.Input.Price, "", new { @class = "text-danger" })
                             <small class="help-text">Giá đã bao gồm thuế VAT (nếu có)</small>
                         </div>
 
@@ -76,33 +86,34 @@
                         <div class="form-group">
                             <label for="serviceDuration" class="form-label required-field">Thời gian thực hiện</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="serviceDuration" name="Service.DurationMinutes" required 
+                                <input type="number" class="form-control" id="serviceDuration" name="Input.DurationMinutes" required 
                                        min="5" step="5" placeholder="Nhập thời gian thực hiện" 
-                                       value="@(Model.Service?.DurationMinutes ?? defaultDurationMinutes)" />
+                                       value="@(Model.Input.DurationMinutes ?? defaultDurationMinutes)" />
                                 <div class="input-group-append">
                                     <span class="input-group-text">Phút</span>
                                 </div>
                             </div>
-                            <span class="text-danger" data-valmsg-for="Service.DurationMinutes"></span>
+                            @Html.ValidationMessageFor(m => m.Input.DurationMinutes, "", new { @class = "text-danger" })
                             <small class="help-text">Thời gian dự kiến để hoàn thành dịch vụ</small>
                         </div>
 
                         <!-- Mô tả -->
                         <div class="form-group">
                             <label for="serviceDescription" class="form-label">Mô tả chi tiết</label>
-                            <textarea class="form-control" id="serviceDescription" name="Service.Description" rows="5"
-                                      placeholder="Mô tả chi tiết về dịch vụ...">@Model.Service?.Description</textarea>
-                            <span class="text-danger" data-valmsg-for="Service.Description"></span>
+                            <textarea class="form-control" id="serviceDescription" name="Input.Description" rows="5"
+                                      placeholder="Mô tả chi tiết về dịch vụ...">@Model.Input.Description</textarea>
+                            @Html.ValidationMessageFor(m => m.Input.Description, "", new { @class = "text-danger" })
                             <small class="help-text">Mô tả chi tiết giúp khách hàng hiểu rõ hơn về dịch vụ</small>
                         </div>
 
                         <!-- Trạng thái -->
                         <div class="form-group">
                             <div class="custom-control custom-switch">
-                                <input type="hidden" name="Service.IsActive" value="true" />
+                                <input type="hidden" name="Input.IsActive" value="false" />
                                 <input type="checkbox" class="custom-control-input" id="serviceStatus" 
-                                       checked
-                                       onchange="document.getElementsByName('Service.IsActive')[0].value = this.checked ? 'true' : 'false'">
+                                       name="Input.IsActive" value="true"
+                                       @(Model.Input.IsActive == true ? "checked" : "")
+                                       onchange="this.previousElementSibling.value = this.checked ? 'true' : 'false'">
                                 <label class="custom-control-label" for="serviceStatus">Kích hoạt dịch vụ ngay</label>
                             </div>
                             <small class="help-text">Dịch vụ sẽ hiển thị và có thể đặt lịch nếu được kích hoạt</small>

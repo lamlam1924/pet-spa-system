@@ -19,6 +19,7 @@ builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
 builder.Services.AddScoped<ISerCateService, SerCateService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
+builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();

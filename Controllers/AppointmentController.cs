@@ -30,7 +30,7 @@ namespace pet_spa_system1.Controllers
             var viewModel = new AppointmentViewModel
             {
                 Pets = _petService.GetAllPets(),
-                Services = _serviceService.GetActiveServices(),
+                Services = _serviceService.GetActiveServices().ToList(),
                 AppointmentDate = DateTime.Today.AddDays(1),
                 AppointmentTime = new TimeSpan(9, 0, 0) // Default to 9:00 AM
             };
@@ -46,7 +46,7 @@ namespace pet_spa_system1.Controllers
             if (!ModelState.IsValid)
             {
                 model.Pets = _petService.GetAllPets();
-                model.Services = _serviceService.GetActiveServices();
+                model.Services = _serviceService.GetActiveServices().ToList();
                 
                 // Return JSON for AJAX requests
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -92,7 +92,7 @@ namespace pet_spa_system1.Controllers
             }
 
             model.Pets = _petService.GetAllPets();
-            model.Services = _serviceService.GetActiveServices();
+            model.Services = _serviceService.GetActiveServices().ToList();
             return View(model);
         }
         
@@ -110,10 +110,27 @@ namespace pet_spa_system1.Controllers
             // Tạm thời hardcode userId = 2
             int userId = 2;
             var model = _appointmentService.GetAppointmentHistory(userId);
-            return View("History-Grouped", model);
+            return View("History", model);
         }
 
-        // Đã loại bỏ action HistoryGrouped vì đã hợp nhất với History
+        // POST: /Appointment/RequestCancel
+        [HttpPost]
+        public IActionResult RequestCancel(int appointmentId)
+        {
+            // Tạm thời hardcode userId = 2, thực tế lấy từ session hoặc identity
+            int userId = 2;
+
+            var result = _appointmentService.RequestCancelAppointment(appointmentId, userId);
+
+            if (result)
+            {
+                return Json(new { success = true, message = "Yêu cầu hủy lịch đã được gửi, chờ admin duyệt." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
+            }
+        }
     }
 }
 

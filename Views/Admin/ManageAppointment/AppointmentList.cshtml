@@ -1,15 +1,16 @@
 @model List<pet_spa_system1.Models.Appointment>
 
+
 @functions{
-    public string GetStatusColor(int statusId)
+    public (string color, string icon) GetStatusInfo(int statusId)
     {
         switch(statusId)
         {
-            case 1: return "warning text-dark";   // Chờ xác nhận
-            case 2: return "success";             // Đã xác nhận
-            case 3: return "secondary";           // Đã hoàn thành
-            case 4: return "danger";              // Đã hủy
-            default: return "light";
+            case 1: return ("warning text-dark", "<i class='fas fa-hourglass-half text-warning me-1'></i>");   // Chờ xác nhận
+            case 2: return ("success", "<i class='fas fa-check-circle text-success me-1'></i>");                 // Đã xác nhận
+            case 3: return ("secondary", "<i class='fas fa-check-double text-secondary me-1'></i>");             // Đã hoàn thành
+            case 4: return ("danger", "<i class='fas fa-times-circle text-danger me-1'></i>");                   // Đã hủy
+            default: return ("light", "<i class='fas fa-question-circle text-muted me-1'></i>");
         }
     }
 }
@@ -22,14 +23,14 @@
 <div class="container-fluid py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h3 class="mb-0 fw-bold">
-            <i class="fas fa-calendar-check me-2"></i>Danh sách lịch hẹn
+            Danh sách lịch hẹn
         </h3>
         <div class="d-flex gap-2">
             <a href="@Url.Action("AppointmentCalendar", "Admin")" class="btn btn-outline-secondary">
-                <i class="fas fa-calendar-alt me-1"></i>Xem dạng lịch
+                Xem dạng lịch
             </a>
             <a href="@Url.Action("AppointmentCreate", "Admin")" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Tạo lịch mới
+                Tạo lịch mới
             </a>
         </div>
     </div>
@@ -100,12 +101,14 @@
                             </th>
                             <th>Trạng thái</th>
                             <th>Nhân viên</th>
+                            <th class="text-end">Tổng tiền</th>
                             <th class="text-center pe-3">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                     @foreach (var item in Model)
                     {
+                        var statusInfo = GetStatusInfo(item.StatusId);
                         <tr>
                             <td class="ps-3 fw-medium">@item.AppointmentId</td>
                             <td>
@@ -118,7 +121,20 @@
                                 <ul class="list-unstyled mb-0">
                                     @foreach (var pet in item.AppointmentPets)
                                     {
-                                        <li><span class="badge rounded-pill bg-light text-dark">@pet.Pet.Name</span></li>
+                                        <li>
+                                            @if (pet.Pet.Species != null)
+                                            {
+                                                <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
+                                                    @pet.Pet.Name
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge rounded-pill badge-pet bg-light text-dark">
+                                                    @pet.Pet.Name
+                                                </span>
+                                            }
+                                        </li>
                                     }
                                 </ul>
                             </td>
@@ -126,28 +142,28 @@
                                 <ul class="list-unstyled mb-0">
                                     @foreach (var service in item.AppointmentServices)
                                     {
-                                        <li><span class="badge rounded-pill bg-light text-dark">@service.Service.Name</span></li>
+                                        <li><span class="badge rounded-pill badge-service bg-light text-dark" data-bs-toggle="tooltip" title="@service.Service.Description">@service.Service.Name</span></li>
                                     }
                                 </ul>
                             </td>
-                            <td>
+                            <td class="time-col">
                                 <div class="d-flex flex-column">
                                     <span>@item.AppointmentDate.ToString("dd/MM/yyyy")</span>
                                     <span class="text-muted small">@item.AppointmentDate.ToString("HH:mm")</span>
                                 </div>
                             </td>
-                            <td>
-                                <span class="badge bg-@GetStatusColor(item.StatusId)">
-                                    @item.Status.StatusName
+                            <td class="status-col">
+                                <span class="badge badge-status bg-@statusInfo.color" data-statusid="@item.StatusId">
+                                    @Html.Raw(statusInfo.icon) @item.Status.StatusName
                                 </span>
                             </td>
                             <td>
                                 @if (item.Employee != null)
                                 {
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-2 bg-light rounded-circle text-center" 
+                                        <div class="avatar-sm me-2 rounded-circle text-center" 
                                              style="width: 32px; height: 32px; line-height: 32px;">
-                                            @item.Employee.FullName.Substring(0, 1)
+                                            @(string.IsNullOrEmpty(item.Employee.FullName) ? "?" : item.Employee.FullName.Substring(0, 1))
                                         </div>
                                         <span>@item.Employee.FullName</span>
                                     </div>
@@ -156,6 +172,11 @@
                                 {
                                     <span class="text-muted"><i class="fas fa-user-clock me-1"></i>Chưa phân công</span>
                                 }
+                            </td>
+                            <td class="text-end">
+                                <span class="total-price">
+                                    @item.AppointmentServices.Sum(s => s.Service.Price).ToString("N0") đ
+                                </span>
                             </td>
                             <td class="text-center pe-3">
                                 <div class="dropdown">
@@ -227,93 +248,9 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Xử lý khi mở modal xóa
-            $('#deleteModal').on('show.bs.modal', function (event) {
-                const button = $(event.relatedTarget);
-                const id = button.data('id');
-                $('#deleteAppointmentId').val(id);
-            });
-            
-            // Xử lý tìm kiếm
-            $('#search-input').on('keyup', function() {
-                const value = $(this).val().toLowerCase();
-                $("#appointment-table tbody tr").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
-            
-            // Xử lý lọc theo trạng thái
-            $('#status-filter').on('change', function() {
-                const value = $(this).val();
-                if (value === '') {
-                    $("#appointment-table tbody tr").show();
-                } else {
-                    $("#appointment-table tbody tr").filter(function() {
-                        // Tìm trạng thái trong các phần tử con
-                        const hasStatus = $(this).find('td:nth-child(6) .badge').text()
-                            .includes(['Chờ xác nhận', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy'][parseInt(value) - 1]);
-                        $(this).toggle(hasStatus);
-                    });
-                }
-            });
-            
-            // Xử lý lọc theo ngày
-            $('#date-filter').on('change', function() {
-                const value = $(this).val();
-                if (value === '') {
-                    $("#appointment-table tbody tr").show();
-                } else {
-                    const selectedDate = new Date(value);
-                    $("#appointment-table tbody tr").filter(function() {
-                        const dateText = $(this).find('td:nth-child(5)').text().trim().split('\n')[0];
-                        const parts = dateText.split('/');
-                        // Đổi từ dd/MM/yyyy sang MM/dd/yyyy để khớp định dạng JS
-                        const rowDate = new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
-                        
-                        // So sánh chỉ ngày tháng năm, không quan tâm giờ
-                        const isSameDate = rowDate.getDate() === selectedDate.getDate() &&
-                                          rowDate.getMonth() === selectedDate.getMonth() &&
-                                          rowDate.getFullYear() === selectedDate.getFullYear();
-                        
-                        $(this).toggle(isSameDate);
-                    });
-                }
-            });
-            
-            // Reset bộ lọc
-            $('#btn-reset-filter').on('click', function() {
-                $('#search-input').val('');
-                $('#status-filter').val('');
-                $('#date-filter').val('');
-                $('#employee-filter').val('');
-                $("#appointment-table tbody tr").show();
-            });
-        });
-    </script>
+    <script src="~/cssjsappointment/appointment-list.custom.js"></script>
 }
 
 @section Styles {
-    <style>
-        .avatar-sm {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-        }
-        
-        .badge.rounded-pill {
-            font-weight: 500;
-        }
-        
-        .sort-link {
-            text-decoration: none;
-        }
-        
-        .sort-link:hover {
-            text-decoration: none;
-            color: #0d6efd !important;
-        }
-    </style>
+    <link rel="stylesheet" href="~/cssjsappointment/appointment-list.custom.css" />
 }

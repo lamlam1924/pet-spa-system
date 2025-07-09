@@ -1,3 +1,34 @@
+/* ===================== FILTER BADGE COLORS ===================== */
+.filter-badge-pending {
+    background-color: #fff3cd;
+    color: #b08500;
+    border-color: #fff3cd;
+}
+.filter-badge-confirmed {
+    background-color: #e3f0ff;
+    color: #1565c0;
+    border-color: #e3f0ff;
+}
+.filter-badge-inprogress {
+    background-color: #e0f7fa;
+    color: #00838f;
+    border-color: #e0f7fa;
+}
+.filter-badge-completed {
+    background-color: #d4edda;
+    color: #218838;
+    border-color: #d4edda;
+}
+.filter-badge-cancelled {
+    background-color: #f8d7da;
+    color: #c82333;
+    border-color: #f8d7da;
+}
+.filter-badge-pendingcancel {
+    background-color: #ffe5b4;
+    color: #b85c00;
+    border-color: #ffe5b4;
+}
 /**
  * appointment-history.css - Thiết kế cho trang lịch sử đặt lịch
  */
@@ -239,24 +270,37 @@
     font-size: 0.9rem;
 }
 
+
+/* ===================== STATUS COLORS ===================== */
+/* 1: Chờ xác nhận */
 .status-pending {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: #fff3cd; /* vàng nhạt */
+    color: #b08500;           /* vàng đậm */
 }
-
+/* 2: Đã xác nhận */
 .status-confirmed {
-    background-color: #cce5ff;
-    color: #004085;
+    background-color: #e3f0ff; /* xanh dương nhạt */
+    color: #1565c0;            /* xanh dương đậm */
 }
-
+/* 3: Đang thực hiện */
+.status-inprogress {
+    background-color: #e0f7fa; /* xanh ngọc nhạt */
+    color: #00838f;            /* xanh ngọc đậm */
+}
+/* 4: Hoàn thành */
 .status-completed {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #d4edda; /* xanh lá nhạt */
+    color: #218838;            /* xanh lá đậm */
 }
-
+/* 5: Đã hủy */
 .status-cancelled {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #f8d7da; /* đỏ nhạt */
+    color: #c82333;            /* đỏ đậm */
+}
+/* 6: Chờ duyệt hủy */
+.status-pendingcancel {
+    background-color: #ffe5b4; /* cam nhạt */
+    color: #b85c00;            /* cam đậm */
 }
 
 .appointment-services {
@@ -302,37 +346,137 @@
     margin-top: 15px;
 }
 
-.btn-review {
-    background: linear-gradient(135deg, #f14437 0%, #ff6b6b 100%);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    font-weight: 500;
+
+/* ===================== BUTTONS ===================== */
+/* Nút đánh giá và nút yêu cầu hủy đồng nhất với các nút trong history */
+.btn-review, .btn-cancel-request {
+    background: #fff;
+    color: #f14437;
+    border: 1.5px solid #f14437;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    transition: all 0.3s;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(241,68,55,0.07);
+    transition: all 0.2s;
 }
-
-.btn-review:hover {
-    background: linear-gradient(135deg, #d93a2d 0%, #f55b5b 100%);
+.btn-review:hover, .btn-review:focus,
+.btn-cancel-request:hover, .btn-cancel-request:focus {
+    background: #f14437;
+    color: #fff;
+    border-color: #f14437;
     transform: translateY(-2px);
 }
+.btn-review i, .btn-cancel-request i {
+    margin-right: 4px;
+    font-size: 1.1em;
+}
+/* Style riêng cho nút yêu cầu hủy để phân biệt nhẹ với nút đánh giá */
 
-.btn-review i {
-    margin-right: 5px;
+/* Nút yêu cầu hủy lịch: màu cam đậm hơn, khác biệt rõ với pending */
+.btn-cancel-request {
+    color: #fff;
+    border-color: #ff8800;
+    background: #ff8800;
+    box-shadow: 0 2px 8px rgba(255,136,0,0.10);
+    /* Đậm hơn, nổi bật hơn, không trùng với badge pending */
+}
+.btn-cancel-request:hover, .btn-cancel-request:focus {
+    background: #a04a00;
+    color: #fff;
+    border-color: #a04a00;
+    /* Hover cam nâu đậm, chữ trắng */
 }
 
-/* Modal Review */
+/* ===================== MODAL REVIEW ===================== */
 .modal-review .modal-header {
     background: linear-gradient(135deg, #f14437 0%, #ff6b6b 100%);
     color: white;
     border-radius: 10px 10px 0 0;
+    border-bottom: 1.5px solid #f14437;
 }
-
+.modal-review .modal-title {
+    color: #fff;
+    font-weight: 700;
+}
 .modal-review .modal-body {
-    padding: 20px;
+    padding: 24px 20px 20px 20px;
+    background: #f8f9fa;
+}
+.modal-review .form-label {
+    color: #2d3142;
+    font-weight: 600;
+}
+.modal-review .star-rating label {
+    color: #e0e0e0;
+    font-size: 2.1rem;
+    padding: 0 6px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.modal-review .star-rating input:checked ~ label {
+    color: #ffc107;
+}
+.modal-review .star-rating label:hover,
+.modal-review .star-rating label:hover ~ label {
+    color: #ffed85;
+}
+.modal-review textarea.form-control {
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    font-size: 1rem;
+    background: #fff;
+    color: #495057;
+    margin-bottom: 10px;
+}
+.modal-review .review-photo-upload {
+    border: 2px dashed #f14437;
+    background: #fff;
+    color: #f14437;
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 18px;
+    transition: border-color 0.2s;
+}
+.modal-review .review-photo-upload:hover {
+    border-color: #d93a2d;
+}
+.modal-review .review-photo-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+.modal-review .photo-preview-item {
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+.modal-review .photo-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.modal-review .photo-remove {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #dc3545;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
 }
 
 .star-rating {

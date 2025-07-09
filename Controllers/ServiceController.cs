@@ -8,30 +8,23 @@ namespace pet_spa_system1.Controllers
     public class ServiceController : Controller
     {
         private readonly IServiceService _serviceService;
-        private readonly ISerCateService _serCateService;
 
-        public ServiceController(IServiceService serviceService, ISerCateService serCateService)
+        public ServiceController(IServiceService serviceService)
         {
             _serviceService = serviceService;
-            _serCateService = serCateService;
         }
 
         public IActionResult ListService()
         {
-            var services = _serviceService.GetActiveServices();
-            var categories = _serCateService.GetActiveCategories();
-            // Trả về view với model phù hợp
-            return View(new ServiceViewModel
-            {
-                Services = services,
-                Categories = categories
-            });
+            // Sử dụng IServiceService để lấy ServiceListViewModel
+            var viewModel = _serviceService.GetServiceListViewModel(new ServiceFilterModel(), 1);
+            
+            return View(viewModel);
         }
 
         public IActionResult HomeService()
         {
             return View();
         }
-        
     }
 }

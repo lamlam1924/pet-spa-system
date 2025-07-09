@@ -68,7 +68,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <h1 class="mt-1 mb-3">@ViewBag.InactiveServices</h1>
+                                <h1 class="mt-1 mb-3">@Model.InactiveServices</h1> <!--✅ Sửa từ ViewBag thành Model-->
                                 <div class="mb-0">
                                     <span class="badge badge-warning-light"> <i class="mdi mdi-arrow-bottom-right"></i> Đã tạm ngưng </span>
                                 </div>
@@ -89,7 +89,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <h1 class="mt-1 mb-3">@ViewBag.TotalCategories</h1>
+                                <h1 class="mt-1 mb-3">@Model.TotalCategories</h1> <!--✅ Sửa từ ViewBag thành Model-->
                                 <div class="mb-0">
                                     <span class="badge badge-info-light"> <i class="mdi mdi-arrow-bottom-right"></i> Tổng danh mục </span>
                                 </div>
@@ -119,28 +119,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var service in Model.RecentServices)
+                        @if (Model.RecentServices?.Any() == true)
                         {
-                            <tr>
-                                <td>
-                                    <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })">
-                                        @service.Name
-                                    </a>
-                                </td>
-                                <td class="d-none d-xl-table-cell">@service.Category?.Name</td>
-                                <td class="d-none d-xl-table-cell">@(service.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                                <td>@service.Price.ToString("N0") đ</td>
-                                <td class="d-none d-md-table-cell">
-                                    @if (service.IsActive == true)
-                                    {
-                                        <span class="badge bg-success">Hoạt động</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">Tạm ngưng</span>
-                                    }
-                                </td>
-                            </tr>
+                            @foreach (var service in Model.RecentServices)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })">
+                                            @service.Name
+                                        </a>
+                                    </td>
+                                    <!-- ✅ FIX: Lookup category name từ CategoryStats -->
+                                    <td class="d-none d-xl-table-cell">
+                                        @{
+                                            var categoryName = Model.CategoryStats?.FirstOrDefault(c => c.CategoryId == service.CategoryId)?.CategoryName ?? "Chưa phân loại";
+                                        }
+                                        @categoryName
+                                    </td>
+                                    <td class="d-none d-xl-table-cell">@(service.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td>@service.Price.ToString("N0") đ</td>
+                                    <td class="d-none d-md-table-cell">
+                                        @if (service.IsActive == true)
+                                        {
+                                            <span class="badge bg-success">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Tạm ngưng</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -168,6 +177,65 @@
         
         <!-- Biểu đồ khác -->
         <!-- ... (giữ nguyên phần này) ... -->
+    </div>
+
+    <!-- Top Services Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Dịch Vụ</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.TopServices?.Any() == true)
+                    {
+                        <div class="recent-services">
+                            @foreach (var service in Model.TopServices.Take(5))
+                            {
+                                <div class="service-item">
+                                    <span>@service.ServiceName</span>
+                                    <span>@service.BookingCount lượt đặt</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>Không có dịch vụ nào được liệt kê.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Distribution Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Phân bố dịch vụ theo danh mục</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CategoryStats?.Any() == true)
+                    {
+                        <div class="category-distribution">
+                            @foreach (var item in Model.CategoryStats)
+                            {
+                                <div class="category-item">
+                                    <span>@item.CategoryName</span>
+                                    <span>@item.ServiceCount dịch vụ</span>
+                                    <span>@item.Percentage.ToString("F1")%</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>Không có dữ liệu phân bố danh mục.</p>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -210,4 +278,3 @@
         });
     </script>
 }
-</div>

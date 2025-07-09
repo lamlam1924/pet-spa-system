@@ -6,6 +6,54 @@
 console.log("Grouped Timeline JS loaded");
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Sự kiện gửi yêu cầu hủy lịch
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-cancel-request') || e.target.closest('.btn-cancel-request')) {
+            const button = e.target.classList.contains('btn-cancel-request') ? e.target : e.target.closest('.btn-cancel-request');
+            const appointmentId = button.getAttribute('data-id');
+            if (!appointmentId) return;
+            if (!confirm('Bạn chắc chắn muốn gửi yêu cầu hủy lịch này?')) return;
+
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang gửi...';
+
+            fetch('/Appointment/RequestCancel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ appointmentId: appointmentId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    // Cập nhật UI: đổi badge trạng thái, disable nút
+                    button.classList.add('disabled');
+                    button.innerHTML = '<i class="fas fa-clock"></i> Đã gửi yêu cầu hủy';
+                    // Đổi badge trạng thái nếu có
+                    const card = button.closest('.appointment-card');
+                    if (card) {
+                        const statusBadge = card.querySelector('.appointment-status');
+                        if (statusBadge) {
+                            statusBadge.textContent = 'Chờ duyệt hủy';
+                            statusBadge.className = 'appointment-status status-pendingcancel';
+                        }
+                    }
+                } else {
+                    showToast(data.message || 'Gửi yêu cầu thất bại', 'error');
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-times-circle"></i> Yêu cầu hủy lịch';
+                }
+            })
+            .catch(err => {
+                showToast('Có lỗi xảy ra, vui lòng thử lại!', 'error');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-times-circle"></i> Yêu cầu hủy lịch';
+            });
+        }
+    });
     // Các biến cần thiết
     const timelineContainer = document.querySelector('.history-timeline');
     const searchInput = document.querySelector('.search-box input');
@@ -170,17 +218,20 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="time-group-content" data-month="${monthYear}">
         `;
-        
-        // Tạo các card lịch hẹn trong nhóm
+
         appointments.forEach((appointment, index) => {
-            // Xác định vị trí trái/phải trong nhóm này
             const position = index % 2 === 0 ? 'left' : 'right';
             const animateClass = position === 'left' ? 'animate-left' : 'animate-right';
-            
+            const allowCancel = [1,2,5].includes(appointment.statusId) && !appointment.isPendingCancel;
+            let cancelBadge = '';
+            if (appointment.isPendingCancel) {
+                cancelBadge = '<span class="badge bg-warning text-dark ms-2">Chờ duyệt hủy</span>';
+            }
             html += `
             <div class="appointment-card ${position} status-${appointment.statusId} ${animateClass}" data-status="${appointment.statusId}">
                 <div class="appointment-content">
                     <span class="appointment-status ${getStatusClass(appointment.statusId)}">${appointment.statusName}</span>
+                    ${cancelBadge}
                     <div class="appointment-date">
                         <span class="appointment-date-badge">
                             <i class="far fa-calendar-alt"></i> ${formatDate(appointment.appointmentDate)}
@@ -202,12 +253,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             `<button class="btn-review" data-id="${appointment.appointmentId}">
                                 <i class="fas fa-star"></i> Đánh giá
                             </button>` : ''}
+                        ${allowCancel ? `<button class="btn btn-outline-danger btn-cancel-request" data-id="${appointment.appointmentId}"><i class="fas fa-times-circle"></i> Yêu cầu hủy lịch</button>` : ''}
                     </div>
                 </div>
             </div>
             `;
         });
-        
+
         html += `
             </div>
         </div>`;
@@ -258,8 +310,10 @@ document.addEventListener('DOMContentLoaded', function() {
         switch (status) {
             case 1: return 'status-pending';
             case 2: return 'status-confirmed';
-            case 3: return 'status-completed';
-            case 4: return 'status-cancelled';
+            case 3: return 'status-inprogress';
+            case 4: return 'status-completed';
+            case 5: return 'status-pendingcancel';
+            case 6: return 'status-cancelled';
             default: return '';
         }
     }

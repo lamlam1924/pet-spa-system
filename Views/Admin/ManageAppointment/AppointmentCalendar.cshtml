@@ -5,40 +5,42 @@
 }
 
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="m-0 fw-bold">
-            <i class="fas fa-calendar-alt me-2"></i>Lịch hẹn
-        </h3>
-        <div class="d-flex gap-2">
-            <a href="@Url.Action("AppointmentList", "Admin")" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-1"></i>Xem dạng danh sách
-            </a>
-            <a href="@Url.Action("AppointmentCreate", "Admin")" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>Tạo lịch mới
-            </a>
+    <div class="row mb-4 align-items-center g-2">
+        <div class="col-12 col-md-6">
+            <h2 class="fw-bold mb-2 mb-md-0 text-primary">
+                
+                Lịch hẹn
+            </h2>
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <a href="@Url.Action("Dashboard", "AdminAppointment")" class="btn btn-outline-secondary shadow-sm">Tổng quan</a>
+                <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary shadow-sm">Xem dạng danh sách</a>
+                <a href="@Url.Action("Create", "AdminAppointment")" class="btn btn-primary shadow-sm">Tạo lịch mới</a>
+            </div>
         </div>
     </div>
 
     <div class="card shadow border-0">
         <div class="card-header bg-white py-3">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="btn-group" role="group">
+            <div class="row align-items-center g-2">
+                <div class="col-12 col-md-4 mb-2 mb-md-0">
+                    <div class="btn-group w-100" role="group">
                         <button type="button" id="btn-today" class="btn btn-sm btn-primary">Hôm nay</button>
                         <button type="button" id="btn-tomorrow" class="btn btn-sm btn-outline-primary">Ngày mai</button>
                         <button type="button" id="btn-week" class="btn btn-sm btn-outline-primary">Tuần này</button>
                         <button type="button" id="btn-month" class="btn btn-sm btn-outline-primary">Tháng này</button>
                     </div>
                 </div>
-                <div class="col-md-4 text-center">
-                    <h5 class="m-0 fw-bold" id="calendar-title">Tháng 7, 2025</h5>
+                <div class="col-12 col-md-4 text-center mb-2 mb-md-0">
+                    <h5 class="m-0 fw-bold text-primary" id="calendar-title">Tháng 7, 2025</h5>
                 </div>
-                <div class="col-md-4 text-end">
+                <div class="col-12 col-md-4 text-end">
                     <div class="btn-group" role="group">
-                        <button type="button" id="btn-prev" class="btn btn-sm btn-outline-secondary">
+                        <button type="button" id="btn-prev" class="btn btn-sm btn-outline-secondary" title="Tháng trước">
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <button type="button" id="btn-next" class="btn btn-sm btn-outline-secondary">
+                        <button type="button" id="btn-next" class="btn btn-sm btn-outline-secondary" title="Tháng sau">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -51,178 +53,57 @@
     </div>
 </div>
 
+<!-- Modal chi tiết nhanh -->
+<div class="modal fade" id="quickViewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết lịch hẹn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="quickViewContent">
+                <div class="placeholder-glow">
+                    <div class="placeholder col-12 mb-2" style="height: 24px;"></div>
+                    <div class="placeholder col-8 mb-3" style="height: 20px;"></div>
+                    <div class="placeholder col-10 mb-2" style="height: 18px;"></div>
+                    <div class="placeholder col-9 mb-2" style="height: 18px;"></div>
+                    <div class="placeholder col-11 mb-2" style="height: 18px;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <a href="#" id="viewDetailBtn" class="btn btn-primary">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Styles {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-    <style>
-        #calendar {
-            height: 700px;
-        }
-        .fc-event {
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .fc-event-time {
-            font-weight: bold;
-        }
-        .fc-event.status-pending {
-            background-color: #FFC107;
-            border-color: #FFC107;
-            color: #212529;
-        }
-        .fc-event.status-confirmed {
-            background-color: #28A745;
-            border-color: #28A745;
-        }
-        .fc-event.status-completed {
-            background-color: #6C757D;
-            border-color: #6C757D;
-        }
-        .fc-event.status-cancelled {
-            background-color: #DC3545;
-            border-color: #DC3545;
-            text-decoration: line-through;
-        }
-        .fc-day-today {
-            background-color: rgba(13, 110, 253, 0.05) !important;
-        }
-        .fc-day-past {
-            background-color: #f8f9fa;
-        }
-    </style>
+    <link rel="stylesheet" href="~/cssjsappointment/appointment-calendar.custom.css" />
 }
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const calendarEl = document.getElementById('calendar');
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: false,
-                dayMaxEvents: true,
-                locale: 'vi',
-                firstDay: 1, // Bắt đầu từ thứ 2
-                navLinks: true,
-                editable: false,
-                selectable: true,
-                businessHours: {
-                    daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-                    startTime: '08:00',
-                    endTime: '18:00',
-                },
-                events: [
-                    // Các sự kiện mẫu, sẽ được thay thế bằng dữ liệu thật từ API
-                    {
-                        id: '1',
-                        title: 'Mèo Meo - Tắm & cắt móng',
-                        start: '2025-07-10T14:00:00',
-                        end: '2025-07-10T15:00:00',
-                        className: 'status-confirmed',
-                        extendedProps: {
-                            status: 'Đã xác nhận',
-                            customer: 'Nguyễn Văn A',
-                            phone: '0901234567',
-                            petName: 'Meo Meo',
-                            services: ['Tắm', 'Cắt móng']
-                        }
-                    },
-                    {
-                        id: '2',
-                        title: 'Chó Milu - Spa toàn diện',
-                        start: '2025-07-12T10:30:00',
-                        end: '2025-07-12T12:30:00',
-                        className: 'status-pending',
-                        extendedProps: {
-                            status: 'Chờ xác nhận',
-                            customer: 'Trần Thị B',
-                            phone: '0909123456',
-                            petName: 'Milu',
-                            services: ['Spa toàn diện']
-                        }
-                    }
-                ],
-                eventClick: function(info) {
-                    // Chuyển đến trang chi tiết lịch hẹn
-                    window.location.href = '@Url.Action("AppointmentDetail", "Admin")/' + info.event.id;
-                },
-                dateClick: function(info) {
-                    // Có thể mở modal tạo lịch mới cho ngày này
-                    const clickedDate = info.dateStr;
-                    // window.location.href = `/Admin/AppointmentCreate?date=${clickedDate}`;
-                }
-            });
-            
-            calendar.render();
-            
-            // Cập nhật tiêu đề
-            function updateTitle() {
-                const view = calendar.view;
-                const title = new Intl.DateTimeFormat('vi-VN', {
-                    month: 'long',
-                    year: 'numeric'
-                }).format(view.currentStart);
-                document.getElementById('calendar-title').textContent = title;
-            }
-            
-            updateTitle();
-            
-            // Xử lý các nút điều hướng
-            document.getElementById('btn-prev').addEventListener('click', function() {
-                calendar.prev();
-                updateTitle();
-            });
-            
-            document.getElementById('btn-next').addEventListener('click', function() {
-                calendar.next();
-                updateTitle();
-            });
-            
-            document.getElementById('btn-today').addEventListener('click', function() {
-                calendar.today();
-                calendar.changeView('dayGridDay');
-                updateTitle();
-                this.classList.add('btn-primary');
-                this.classList.remove('btn-outline-primary');
-                resetOtherButtons(this);
-            });
-            
-            document.getElementById('btn-tomorrow').addEventListener('click', function() {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                calendar.gotoDate(tomorrow);
-                calendar.changeView('dayGridDay');
-                updateTitle();
-                this.classList.add('btn-primary');
-                this.classList.remove('btn-outline-primary');
-                resetOtherButtons(this);
-            });
-            
-            document.getElementById('btn-week').addEventListener('click', function() {
-                calendar.changeView('dayGridWeek');
-                updateTitle();
-                this.classList.add('btn-primary');
-                this.classList.remove('btn-outline-primary');
-                resetOtherButtons(this);
-            });
-            
-            document.getElementById('btn-month').addEventListener('click', function() {
-                calendar.changeView('dayGridMonth');
-                updateTitle();
-                this.classList.add('btn-primary');
-                this.classList.remove('btn-outline-primary');
-                resetOtherButtons(this);
-            });
-            
-            function resetOtherButtons(exceptButton) {
-                const buttons = ['btn-today', 'btn-tomorrow', 'btn-week', 'btn-month'];
-                buttons.forEach(btnId => {
-                    if (document.getElementById(btnId) !== exceptButton) {
-                        document.getElementById(btnId).classList.remove('btn-primary');
-                        document.getElementById(btnId).classList.add('btn-outline-primary');
-                    }
-                });
-            }
-        });
+    <script src="~/cssjsappointment/appointment-calendar.custom.js"></script>
+    <script id="calendar-data-script" type="application/json">
+        @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            (Model ?? new List<pet_spa_system1.Models.Appointment>())
+                .Where(a => a != null)
+                .Select(a => new {
+                    id = a.AppointmentId,
+                    title = (((a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Any())
+                        ? string.Join(", ", (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? ""))
+                        : "Lịch hẹn"),
+                    start = a.AppointmentDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = (a.AppointmentDate.AddHours(1)).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    status = a.Status?.StatusName ?? "",
+                    customer = a.User?.FullName ?? "",
+                    phone = a.User?.Phone ?? "",
+                    petNames = (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? "").ToList(),
+                    services = (a.AppointmentServices ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentService>()).Select(s => s.Service?.Name ?? "").ToList()
+                })
+        ))
     </script>
 }
 

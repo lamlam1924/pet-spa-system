@@ -36,7 +36,7 @@
                                     @(Model.Service.IsActive == true ? "Đang hoạt động" : "Tạm ngưng")
                                 </div>
                                 
-                                <h1 class="service-title">@Model.Service.Name</h1
+                                <h1 class="service-title">@Model.Service.Name</h1>
                                 
                                 <div class="service-meta-enhanced">
                                     <span class="service-category-tag">
@@ -211,7 +211,7 @@
                             </div>
                             <div class="tab-content">
                                 <span class="tab-title">Liên quan</span>
-                                <span class="tab-subtitle">@Model.RelatedServices?.Count dịch vụ</span>
+                                <span class="tab-subtitle">@(Model.RelatedServices?.Count ?? 0) dịch vụ</span>
                             </div>
                         </a>
                     </li>
@@ -318,7 +318,7 @@
                 <!-- Related Tab -->
                 <div class="tab-pane fade" id="related" role="tabpanel">
                     <h6 class="font-weight-bold">Dịch vụ cùng danh mục:</h6>
-                    @if (Model.RelatedServices != null && Model.RelatedServices.Count > 0)
+                    @if (Model.RelatedServices?.Any() == true)
                     {
                         <div class="row">
                             @foreach (var service in Model.RelatedServices)

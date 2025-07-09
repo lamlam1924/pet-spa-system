@@ -13,45 +13,61 @@ namespace pet_spa_system1.Repositories
             _context = context;
         }
 
-        public List<SerCate> GetAll() => _context.SerCates.ToList();
+        // ===== BASIC CRUD =====
+        public SerCate? GetById(int id) => _context.SerCates.Find(id);
+        public IEnumerable<SerCate> GetAll() => _context.SerCates.ToList();
+        public List<SerCate> GetAllAsList() => _context.SerCates.ToList(); // Cần thiết cho SerCateService
+        public SerCate GetByIdNotNull(int id) => _context.SerCates.Find(id) ?? new SerCate(); // Cần thiết cho SerCateService
+        public List<SerCate> GetActiveCategories() => _context.SerCates.Where(c => c.IsActive == true).ToList(); // Cần thiết cho SerCateService
+        public void Add(SerCate category) => _context.SerCates.Add(category);
+        public void Update(SerCate category) => _context.SerCates.Update(category);
 
-        public SerCate? GetById(int id) => _context.SerCates.FirstOrDefault(c => c.CategoryId == id);
-
-        public void Add(SerCate category)
+        public bool DeleteById(int id)
         {
-            _context.SerCates.Add(category);
+            try
+            {
+                var category = _context.SerCates.Find(id);
+                if (category != null)
+                {
+                    _context.SerCates.Remove(category);
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public void Update(SerCate category)
-        {
-            _context.SerCates.Update(category);
-        }
+        // ===== BUSINESS CHECKS =====
+        public bool HasServices(int categoryId)
+            => _context.Services.Any(s => s.CategoryId == categoryId);
 
+        public Dictionary<int, int> GetServiceCountsByCategory()
+            => _context.Services.GroupBy(s => s.CategoryId).ToDictionary(g => g.Key, g => g.Count());
+
+        // ===== SOFT DELETE OPERATIONS =====
         public void SoftDelete(int id)
         {
-            var cate = GetById(id);
-            if (cate != null)
+            var category = _context.SerCates.Find(id);
+            if (category != null)
             {
-                cate.IsActive = false;
-                Update(cate);
+                category.IsActive = false;
+                _context.SerCates.Update(category);
             }
         }
 
         public void Restore(int id)
         {
-            var cate = GetById(id);
-            if (cate != null)
+            var category = _context.SerCates.Find(id);
+            if (category != null)
             {
-                cate.IsActive = true;
-                Update(cate);
+                category.IsActive = true;
+                _context.SerCates.Update(category);
             }
         }
 
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
-
-        public List<SerCate> GetActiveCategories() => _context.SerCates.Where(c => c.IsActive == true).ToList();
+        public void Save() => _context.SaveChanges();
     }
 }
