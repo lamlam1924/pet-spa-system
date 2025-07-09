@@ -1,0 +1,297 @@
+﻿@model pet_spa_system1.ViewModel.CartViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Giỏ Hàng</title>
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="@Url.Content("~/img/favicon.ico")" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap&subset=vietnamese" rel="stylesheet">
+
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Libraries Stylesheet -->
+    <link href="@Url.Content("~/lib/owlcarousel/assets/owl.carousel.min.css")" rel="stylesheet">
+    <!--------------------------------------------------->
+    <link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/img/Picture5.png")">
+    <link rel="stylesheet" href="@Url.Content("~/css/style.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/bootstrap.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/owl.carousel.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/magnific-popup.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/font-awesome.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/themify-icons.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/nice-select.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/flaticon.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/gijgo.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/animate.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/slicknav.css")">
+    <script src="@Url.Content("~/js/includeHeader.js")"></script>
+    <!----------------------------->
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="@Url.Content("~/cssProducts/style.css")" rel="stylesheet">
+</head>
+
+<body>
+    <!-- header Start -->
+    
+    <!-- header End -->
+    <!-- Page Header Start -->
+    <div class="bradcam_area breadcam_bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="bradcam_text text-center">
+                        <h3>Giỏ Hàng</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Header End -->
+    <!-- Cart Start -->
+    <div class="container-fluid pt-5">
+        <div class="row px-xl-5">
+             @if (Model.Items == null || !Model.Items.Any())
+                {
+                    <img src="@Url.Content("~/imgProducts/empty_cart2.png")" alt="Empty Cart" class="img-fluid mx-auto d-block" style="max-width: 1000px; margin-top: 50px;margin:50px;max-height:1000px">
+                }
+                else
+                {
+            <div class="col-lg-8 table-responsive mb-5">
+               
+                    <table class="table table-bordered text-center mb-0">
+                        <thead class="bg-secondary text-dark">
+                            <tr>
+                                <th>Sản Phẩm</th>
+                                <th>Giá</th>
+                                <th>Số Lượng</th>
+                                <th>Tổng tiền</th>
+                                <th>Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody class="align-middle">
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="align-middle">
+                                        <img src="@Url.Content(string.IsNullOrEmpty(item.Product.ImageUrl) ? "~/imgProducts/default.png" : item.Product.ImageUrl)" alt="" style="width: 50px;">
+                                        @item.Product.Name
+                                    </td>
+                                    <td class="align-middle">@item.Product.Price.ToString("N0") đ</td>
+                                    <td class="align-middle">
+                                      <div class="input-group quantity mx-auto" style="width: 100px;">
+                                          <div class="input-group-btn">
+                                             <button class="btn btn-sm btn-primary btn-minus" onclick="updateQuantity(@item.ProductId, 'decrease')">
+                                                    <i class="fa fa-minus"></i>
+                                             </button>
+                                      </div>
+
+                                    <input type="text" id="qty-@item.ProductId" class="form-control form-control-sm bg-secondary text-center" value="@item.Quantity" readonly>
+
+                                         <div class="input-group-btn">
+                                         <button class="btn btn-sm btn-primary btn-plus" onclick="updateQuantity(@item.ProductId, 'increase')">
+                                         <i class="fa fa-plus"></i>
+                                            </button>
+                                         </div>
+                                      </div>
+                                    </td>
+                                        <td class="align-middle">
+                                        <span id="total-@item.ProductId">@((item.Quantity * item.Product.Price).ToString("N0")) đ</span>
+                                        </td>
+                                    <td class="align-middle">
+                                        <form method="post" asp-action="RemoveFromCart" asp-controller="Cart" id="removeForm-@item.ProductId">
+                                            <input type="hidden" name="productId" value="@item.ProductId" />
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="confirmRemove(@item.ProductId)">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+               
+            </div>
+            
+            <div class="col-lg-4">
+                
+                <div class="card border-secondary mb-5">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">Tổng hợp</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3 pt-1">
+                            <h6 class="font-weight-medium">Tổng tiền</h6>
+                            <h6 class="font-weight-medium"  id="cartSubTotalAmount" >@Model.TotalAmount.ToString("N0") đ</h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h6 class="font-weight-medium">Phí giao hàng</h6>
+                            <h6 class="font-weight-medium">30,000 đ</h6>
+                        </div>
+                    </div>
+                    <div class="card-footer border-secondary bg-transparent">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5 class="font-weight-bold">Tổng cộng </h5>
+                            <h5 class="font-weight-bold"  id="cartTotalAmount" data-has-shipping-fee="false" >@((Model.TotalAmount + 30000).ToString("N0")) đ</h5>
+                        </div>
+                       <a class="btn btn-block btn-primary my-3 py-3" href="@Url.Action("Checkout", "Checkout")">Thanh Toán</a>
+
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    <!-- Cart End -->
+   
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+
+    <script src="@Url.Content("~/lib/easing/easing.min.js")"></script>
+    <script src="@Url.Content("~/lib/owlcarousel/owl.carousel.min.js")"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="@Url.Content("~/mail/jqBootstrapValidation.min.js")"></script>
+    <script src="@Url.Content("~/mail/contact.js")"></script>
+
+    <!-- Template Javascript -->
+    <script src="@Url.Content("~/js/main.js")"></script>
+
+    <!-- JS here -->
+    <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>
+    <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
+    <script src="@Url.Content("~/js/popper.min.js")"></script>
+    <script src="@Url.Content("~/js/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/js/owl.carousel.min.js")"></script>
+    <script src="@Url.Content("~/js/isotope.pkgd.min.js")"></script>
+    <script src="@Url.Content("~/js/ajax-form.js")"></script>
+    <script src="@Url.Content("~/js/waypoints.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.counterup.min.js")"></script>
+    <script src="@Url.Content("~/js/imagesloaded.pkgd.min.js")"></script>
+    <script src="@Url.Content("~/js/scrollIt.js")"></script>
+    <script src="@Url.Content("~/js/jquery.scrollUp.min.js")"></script>
+    <script src="@Url.Content("~/js/wow.min.js")"></script>
+    <script src="@Url.Content("~/js/nice-select.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.slicknav.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.magnific-popup.min.js")"></script>
+    <script src="@Url.Content("~/js/plugins.js")"></script>
+    <script src="@Url.Content("~/js/gijgo.min.js")"></script>
+
+    <!--contact js-->
+    <script src="@Url.Content("~/js/contact.js")"></script>
+    <script src="@Url.Content("~/js/jquery.ajaxchimp.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.form.js")"></script>
+    <script src="@Url.Content("~/js/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/js/mail-script.js")"></script>
+
+    <script src="@Url.Content("~/js/main.js")"></script>
+    <script>
+        function confirmRemove(productId) {
+            Swal.fire({
+                title: 'Bạn chắc chắn?',
+                text: "Sản phẩm sẽ bị xóa khỏi giỏ hàng!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('removeForm-' + productId).submit();
+                }
+            });
+        }
+    </script>
+    
+<script>
+    function parseCurrencyToNumber(value) {
+    // Loại bỏ dấu phẩy, khoảng trắng và đ ký tự tiền tệ
+    if (typeof value === "string") {
+        value = value.replace(/[^0-9.-]+/g, "");
+    }
+    return parseFloat(value);
+}
+function formatVND(amount) {
+    return amount.toLocaleString('vi-VN') + ' đ';
+}
+
+
+function updateQuantity(productId, action) {
+    $.ajax({
+        url: `/Cart/${action === 'increase' ? 'IncreaseQuantityAjax' : 'DecreaseQuantityAjax'}`,
+        method: 'POST',
+        data: { productId: productId },
+        success: function (result) {
+            // Cập nhật số lượng
+            $(`#qty-${productId}`).val(result.newQuantity);
+
+            // Cập nhật tổng tiền sản phẩm
+            $(`#total-${productId}`).text(formatVND(result.itemTotal));
+
+            // Cập nhật tổng tiền giỏ hàng
+            if (result.cartTotal) {
+                const shippingFee = 30000;
+                const cartTotal = parseCurrencyToNumber(result.cartTotal); // chắc chắn là số
+
+                const totalWithFee = cartTotal + shippingFee;
+
+                // Cập nhật giao diện
+                $('#cartSubTotalAmount').text(formatVND(cartTotal));
+                $('#cartTotalAmount').text(formatVND(totalWithFee));
+            }
+        },
+        error: function () {
+            alert("Có lỗi xảy ra!");
+        }
+    });
+}
+
+
+</script>
+
+
+    <script>
+           $('#datepicker').datepicker({
+               iconsLibrary: 'fontawesome',
+               disableDaysOfWeek: [0, 0],
+           //     icons: {
+           //      rightIcon: '<span class="fa fa-caret-down"></span>'
+           //  }
+           });
+           $('#datepicker2').datepicker({
+               iconsLibrary: 'fontawesome',
+               icons: {
+                rightIcon: '<span class="fa fa-caret-down"></span>'
+            }
+
+           });
+           var timepicker = $('#timepicker').timepicker({
+            format: 'HH.MM'
+        });
+    </script>
+
+
+
+</body>
+
+</html>

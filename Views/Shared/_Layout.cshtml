@@ -64,6 +64,11 @@
                                         </a>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                             <li><a class="dropdown-item" href="/profile"> Xem tài khoản</a></li>
+                                            @if(user.RoleId == 1)
+                                            {
+                                                <li><a class="dropdown-item" href="/Admin/Index">Quản trị</a></li>
+                                            }
+    
                                             <li><a class="dropdown-item" href="/Login/Logout">Đăng xuất</a></li>
                                         </ul>
                                     </div>
@@ -112,12 +117,13 @@
                                             <li>
                                                 <a href="@Url.Content("~/Products/Shop")">sản phẩm <i class="ti-angle-down"></i></a>
                                                 <ul class="submenu">
-                                                    <li><a href="@Url.Content("~/Products/Cart")">Giỏ hàng</a></li>
+                                                    <li><a href="@Url.Content("~/Cart/Cart")">Giỏ hàng</a></li>
                                                     <li><a href="@Url.Content("~/Products/Checkout")">thanh toán</a></li>
                                                 </ul>
                                             </li>
                                             <li><a href="@Url.Content("~/Contact/Contact")">liên hệ</a></li>
                                             <!-- <li><a href="../admin/index.html">ADMIN</a></li> -->
+                                            <li><a href="@Url.Content("~/Views/Cart/Cart")">🛒</a></li>
                                         </ul>
                                     </nav>
 

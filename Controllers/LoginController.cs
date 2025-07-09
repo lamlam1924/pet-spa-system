@@ -13,9 +13,9 @@ namespace pet_spa_system1.Controllers
     public class LoginController : Controller
     {
 
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public LoginController(UserService userService)
+        public LoginController(IUserService userService)
         {
             _userService = userService;
         }
@@ -42,18 +42,25 @@ namespace pet_spa_system1.Controllers
                 return View(model);
             }
 
-            // 🔐 Lưu user vào session
+            // Lưu user vào session
             HttpContext.Session.SetObjectAsJson("CurrentUser", user);
             var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+
             if (currentUser != null)
             {
-                Console.WriteLine("✅ Session chứa object CurrentUser");
+                Console.WriteLine($"✅ Session chứa object CurrentUser: UserId = {user.UserId}, Email = {user.Email}");
             }
             else
             {
                 Console.WriteLine("❌ Session chưa được tạo hoặc đã bị xóa");
             }
 
+            // Kiểm tra ReturnUrl từ TempData hoặc QueryString
+            string returnUrl = TempData["ReturnUrl"]?.ToString() ?? HttpContext.Request.Query["ReturnUrl"].ToString();
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToAction("Index", "Home");
         }
@@ -123,6 +130,7 @@ namespace pet_spa_system1.Controllers
             if (currentUser != null)
             {
                 Console.WriteLine("✅ Session chứa object CurrentUser");
+                Console.WriteLine($"✅ Đã đăng nhập: UserId = {user.UserId}, Email = {user.Email}");
             }
             else
             {

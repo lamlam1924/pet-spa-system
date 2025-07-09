@@ -1,10 +1,10 @@
-﻿using pet_spa_system1.Models;
+﻿using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.ViewModel
 {
     public class ProductDetailViewModel
     {
-        public Product Product { get; set; }
-        public List<Product> SuggestedProducts { get; set; }
+        public ProductWithRatingViewModel ProductWithRating { get; set; } = null!;
+        public List<ProductWithRatingViewModel> SuggestedProducts { get; set; } = new();
     }
 }

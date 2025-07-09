@@ -17,9 +17,14 @@ namespace pet_spa_system1.Services
             return _repository.GetCartByUserIdAsync(userId);
         }
 
-        public Task AddToCartAsync(Cart cart)
+        public async Task AddToCartAsync(int userId, int productId, int quantity)
         {
-            return _repository.AddToCartAsync(cart);
+            await _repository.AddToCartAsync(userId, productId, quantity);
+        }
+
+        public async Task AddToCartAsync(int productId, int quantity)
+        {
+            await _repository.AddToCartAsync(1, productId, quantity);
         }
 
         public Task RemoveFromCartAsync(int cartId)
@@ -35,6 +40,25 @@ namespace pet_spa_system1.Services
         public Task ClearCartAsync(int userId)
         {
             return _repository.ClearCartAsync(userId);
+        }
+        public Task RemoveProductFromCart(int productId,int userId)
+        {
+            return _repository.RemoveProductFromCart(productId,userId);
+
+        }
+
+        public Task<Cart> IncreaseQuantityAsync(int productId, int userId)
+        {
+            return _repository.IncreaseQuantityAsync(productId, userId);
+        }
+        public Task<Cart> DecreaseQuantityAsync(int productId, int userId)
+        {
+            return _repository.DecreaseQuantityAsync(productId, userId);
+
+        }
+        public Task<decimal> GetTotalAmountAsync(int userId)
+        {
+            return _repository.GetTotalAmountAsync(userId);
         }
     }
 }

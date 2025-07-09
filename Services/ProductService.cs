@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Services
 {
@@ -60,6 +61,11 @@ namespace pet_spa_system1.Services
             await _repository.DisableProductAsync(id);
         }
 
+        public async Task EnableProductAsync(int id)
+        {
+            await _repository.EnsableProductAsync(id);
+        }
+
         public bool ProductExists(int id)
         {
             return _repository.ProductExists(id);
@@ -81,6 +87,16 @@ namespace pet_spa_system1.Services
         public async Task<int> GetTotalProductCountAsync()
         {
             return await _repository.GetTotalProductCountAsync();
+        }
+
+        public async Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize)
+        {
+            return await _repository.GetActiveProductsWithRatingAsync(page, pageSize);
+        }
+
+        public async Task<Product?> GetProductWithReviewsByIdAsync(int productId)
+        {
+            return await _repository.GetProductWithReviewsByIdAsync(productId);
         }
     }
 }

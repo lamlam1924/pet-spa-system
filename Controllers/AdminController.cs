@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModel;
+using System.Security.Claims;
 
 namespace pet_spa_system1.Controllers
 {
@@ -11,35 +13,408 @@ namespace pet_spa_system1.Controllers
         private readonly PetDataShopContext _context;
         private readonly IProductService _productService;
         private readonly IServiceService _serviceService;
+        private readonly IPetService _petService;
 
-
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService)
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IPetService petService)
         {
             _context = context;
             _productService = productService;
             _serviceService = serviceService;
+            _petService = petService;
         }
-        public IActionResult Appointments()
-        {
-            return View();
-        }
+        
         public IActionResult Index()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+            }
+            ViewBag.Title = "Admin Dashboard";
             return View();
         }
+        
         public IActionResult Payment()
         {
             return View();
         }
-        public IActionResult Pets_List()
+        //=======================================================================================================================
+        //Hiển thị PET
+
+        public async Task<IActionResult> Pets_List(int page = 1, string searchName = "", string searchOwner = "", bool? isActive = null, string sortOrder = "name", string speciesName = "")
         {
-            return View();
+            Console.WriteLine($"[AdminController] Pets_List called, page: {page}, searchName: {searchName}, searchOwner: {searchOwner}, isActive: {isActive}, sortOrder: {sortOrder}, speciesName: {speciesName}");
+            const int pageSize = 10;
+
+            // Khai báo query là IQueryable<Pet> và áp dụng Include trước
+            IQueryable<Pet> query = _context.Pets
+                .Include(p => p.User)
+                .Include(p => p.Species);
+
+            // Áp dụng bộ lọc
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                query = query.Where(p => p.Name.Contains(searchName));
+            }
+            if (!string.IsNullOrEmpty(searchOwner))
+            {
+                query = query.Where(p => p.User.FullName != null && p.User.FullName.Contains(searchOwner));
+            }
+            if (isActive.HasValue)
+            {
+                query = query.Where(p => p.IsActive == isActive);
+            }
+            if (!string.IsNullOrEmpty(speciesName))
+            {
+                query = query.Where(p => p.Species.SpeciesName == speciesName);
+            }
+
+            // Tự động sắp xếp theo tên thú cưng mặc định, có thể thay đổi sortOrder
+            ViewBag.NameSortParam = sortOrder == "name" ? "name_desc" : "name";
+            ViewBag.OwnerSortParam = sortOrder == "owner" ? "owner_desc" : "owner";
+            ViewBag.ActiveSortParam = sortOrder == "active" ? "active_desc" : "active";
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    query = query.OrderByDescending(p => p.Name);
+                    break;
+                case "owner":
+                    query = query.OrderBy(p => p.User.FullName);
+                    break;
+                case "owner_desc":
+                    query = query.OrderByDescending(p => p.User.FullName);
+                    break;
+                case "active":
+                    query = query.OrderBy(p => p.IsActive);
+                    break;
+                case "active_desc":
+                    query = query.OrderByDescending(p => p.IsActive);
+                    break;
+                default:
+                    query = query.OrderBy(p => p.Name); // Mặc định sắp xếp theo tên thú cưng
+                    break;
+            }
+
+            var totalPets = await query.CountAsync();
+            var pets = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalPets / pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.SearchName = searchName;
+            ViewBag.SearchOwner = searchOwner;
+            ViewBag.IsActive = isActive;
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.SpeciesName = speciesName;
+
+            Console.WriteLine($"[AdminController] Retrieved {pets.Count} pets for page {page}");
+            return View(pets);
         }
+
+        public async Task<IActionResult> Pet_Detail(int petId)
+        {
+            var (pet, suggestedPets) = await _petService.GetPetDetailWithSuggestionsAsync(petId);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new PetDetailViewModel
+            {
+                Pet = pet,
+                SuggestedPets = suggestedPets,
+                LastSpaVisit = pet.LastSpaVisit,
+                AppointmentCount = pet.AppointmentPets?.Count ?? 0,
+                SpeciesName = pet.Species?.SpeciesName ?? "N/A",
+                OwnerName = pet.User?.FullName ?? "N/A",
+                IsActive = pet.IsActive ?? true
+            };
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> Add_New_Pet()
+        {
+            Console.WriteLine("[AdminController] Add_New_Pet called");
+            var species = await _petService.GetAllSpeciesAsync();
+            if (species == null || !species.Any())
+            {
+                Console.WriteLine("[AdminController] Warning: No species data available.");
+            }
+            var emailClaim = User?.FindFirstValue(ClaimTypes.Email);
+            int? defaultUserId = null;
+            if (!string.IsNullOrEmpty(emailClaim))
+            {
+                Console.WriteLine($"[AdminController] EmailClaim received: {emailClaim}");
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailClaim);
+                if (user != null)
+                {
+                    defaultUserId = user.UserId;
+                    Console.WriteLine($"[AdminController] Default UserId mapped: {defaultUserId}");
+                }
+                else
+                {
+                    Console.WriteLine("[AdminController] Warning: Email not found in database, using default 1.");
+                    defaultUserId = 1;
+                }
+            }
+            else
+            {
+                Console.WriteLine("[AdminController] Warning: No EmailClaim, using default 1.");
+                defaultUserId = 1;
+            }
+            var users = await _context.Users.ToListAsync();
+            ViewBag.Users = new SelectList(users, "UserId", "FullName");
+            ViewBag.DefaultUserId = defaultUserId;
+            var viewModel = new PetDetailViewModel
+            {
+                Pet = new Pet(),
+                SpeciesList = species
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add_New_Pet(PetDetailViewModel viewModel)
+        {
+            Console.WriteLine("[AdminController] Add_New_Pet POST called");
+            Console.WriteLine($"[AdminController] Received data: Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}");
+
+            ModelState.Remove("OwnerName");
+            ModelState.Remove("SpeciesName");
+            ModelState.Remove("SuggestedPets");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
+                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
+                var users = await _context.Users.ToListAsync();
+                ViewBag.Users = new SelectList(users, "UserId", "FullName");
+                ViewBag.DefaultUserId = 1;
+                return View(viewModel);
+            }
+
+            var pet = viewModel.Pet;
+            Console.WriteLine($"[AdminController] Validated Pet data: Name={pet.Name}, SpeciesId={pet.SpeciesId}, Gender={pet.Gender}, UserId={pet.UserId}");
+
+            if (pet.SpeciesId == null)
+            {
+                ModelState.AddModelError("Pet.SpeciesId", "Loài là trường bắt buộc.");
+                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
+                var users = await _context.Users.ToListAsync();
+                ViewBag.Users = new SelectList(users, "UserId", "FullName");
+                ViewBag.DefaultUserId = 1;
+                return View(viewModel);
+            }
+
+            if (pet.UserId == null || pet.UserId == 0)
+            {
+                Console.WriteLine("[AdminController] Warning: No valid UserId selected, using default 1.");
+                pet.UserId = 1;
+            }
+
+            pet.CreatedAt = DateTime.Now;
+            pet.IsActive = true;
+
+            try
+            {
+                Console.WriteLine("[AdminController] Attempting to create pet...");
+                await _petService.CreatePetAsync(pet);
+                Console.WriteLine("[AdminController] Pet created successfully, PetId: {pet.PetId}");
+                TempData["SuccessMessage"] = "Thêm thú cưng thành công!";
+                return RedirectToAction("Pets_List");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AdminController] Error creating pet: {ex.Message} - StackTrace: {ex.StackTrace}");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
+                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
+                var users = await _context.Users.ToListAsync();
+                ViewBag.Users = new SelectList(users, "UserId", "FullName");
+                ViewBag.DefaultUserId = 1;
+                return View(viewModel);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchOwners(string term)
+        {
+            var users = await _context.Users
+                .Where(u => (u.Email != null && u.Email.Contains(term)) ||
+                           (u.FullName != null && u.FullName.Contains(term)) ||
+                           (u.Username != null && u.Username.Contains(term)))
+                .Select(u => new { userId = u.UserId, fullName = u.FullName ?? "Chưa có tên", email = u.Email, username = u.Username })
+                .ToListAsync();
+            return Json(users);
+        }
+
+        public async Task<IActionResult> Edit_Pet(int id)
+        {
+            var pet = await _petService.GetPetByIdAsync(id);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            var species = await _petService.GetAllSpeciesAsync();
+            var users = await _context.Users.ToListAsync();
+            var viewModel = new PetDetailViewModel
+            {
+                Pet = pet,
+                SpeciesList = species,
+                SuggestedPets = await _petService.GetSuggestedPetsAsync(pet.SpeciesId ?? 0, pet.PetId, 3),
+                OwnerName = pet.User?.FullName ?? "Chưa có thông tin",
+                SpeciesName = pet.Species?.SpeciesName ?? "Chưa có thông tin"
+            };
+            ViewBag.Users = new SelectList(users, "UserId", "FullName", pet.UserId);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit_Pet(PetDetailViewModel viewModel)
+        {
+            Console.WriteLine("[AdminController] Edit_Pet POST called");
+            Console.WriteLine($"Received data: PetId={viewModel.Pet.PetId}, Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, " +
+                              $"Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}, IsActive={viewModel.Pet.IsActive}, " +
+                              $"OwnerName={viewModel.OwnerName}, SpeciesName={viewModel.SpeciesName}");
+
+            ModelState.Remove("OwnerName");
+            ModelState.Remove("SpeciesName");
+            ModelState.Remove("SuggestedPets");
+            ModelState.Remove("LastSpaVisit");
+            ModelState.Remove("AppointmentCount");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
+                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
+                var users = await _context.Users.ToListAsync();
+                ViewBag.Users = new SelectList(users, "UserId", "FullName", viewModel.Pet.UserId);
+                return View(viewModel);
+            }
+
+            var pet = viewModel.Pet;
+            Console.WriteLine($"[AdminController] Validated Pet data: Name={pet.Name}, SpeciesId={pet.SpeciesId}, Gender={pet.Gender}, UserId={pet.UserId}");
+
+            if (pet.SpeciesId == null)
+            {
+                ModelState.AddModelError("Pet.SpeciesId", "Loài là trường bắt buộc.");
+                ModelState.Remove("OwnerName");
+                ModelState.Remove("SpeciesName");
+                ModelState.Remove("SuggestedPets");
+                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
+                var users = await _context.Users.ToListAsync();
+                ViewBag.Users = new SelectList(users, "UserId", "FullName", viewModel.Pet.UserId);
+                return View(viewModel);
+            }
+
+            if (pet.UserId == null || pet.UserId == 0)
+            {
+                Console.WriteLine("[AdminController] Warning: No valid UserId selected, using default 1.");
+                pet.UserId = 1;
+            }
+
+            pet.CreatedAt = DateTime.Now;
+
+            try
+            {
+                Console.WriteLine("[AdminController] Attempting to process pet...");
+                // Chỉ cập nhật trạng thái mà không xóa
+                Console.WriteLine("[AdminController] Updating pet status...");
+                await _petService.UpdatePetAsync(pet);
+                Console.WriteLine("[AdminController] Pet updated successfully, PetId: {pet.PetId}");
+                TempData["SuccessMessage"] = "Cập nhật thú cưng thành công!";
+                return RedirectToAction("Pets_List");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AdminController] Error processing pet: {ex.Message} - StackTrace: {ex.StackTrace}");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
+                ModelState.Remove("OwnerName");
+                ModelState.Remove("SpeciesName");
+                ModelState.Remove("SuggestedPets");
+                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
+                var users = await _context.Users.ToListAsync();
+                ViewBag.Users = new SelectList(users, "UserId", "FullName", viewModel.Pet.UserId);
+                return View(viewModel);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DisablePet(int id)
+        {
+            var pet = await _petService.GetPetByIdAsync(id);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            Console.WriteLine($"[AdminController] Disabling pet, PetId: {id}");
+            pet.IsActive = false;
+            await _petService.UpdatePetAsync(pet); // Cập nhật trạng thái thành Inactive
+            Console.WriteLine("[AdminController] Pet disabled successfully, PetId: {id}");
+            TempData["SuccessMessage"] = "Thú cưng đã được vô hiệu hóa thành công!";
+            return RedirectToAction("Pets_List");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RestorePet(int id)
+        {
+            var pet = await _petService.GetPetByIdAsync(id);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            Console.WriteLine($"[AdminController] Restoring pet, PetId: {id}");
+            pet.IsActive = true;
+            await _petService.UpdatePetAsync(pet); // Cập nhật trạng thái thành Active
+            Console.WriteLine("[AdminController] Pet restored successfully, PetId: {id}");
+            TempData["SuccessMessage"] = "Thú cưng đã được khôi phục thành công!";
+            return RedirectToAction("Pets_List");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePet(int id)
+        {
+            await _petService.DeletePetAsync(id);
+            TempData["SuccessMessage"] = "Xóa thú cưng thành công!";
+            return RedirectToAction("Pets_List");
+        }
+
+
+      
         public IActionResult List_Customer()
         {
             return View();
-
         }
+      
         //=======================================================================================================================
         // Hiển thị danh sách sản phẩm
         public async Task<IActionResult> Product_Detail(int productID)
@@ -277,10 +652,7 @@ namespace pet_spa_system1.Controllers
             {
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
                 return RedirectToAction("Edit_Products", new { id = product.ProductId });
-            }
-
-
-           
+            }        
         }
 
 
@@ -289,24 +661,34 @@ namespace pet_spa_system1.Controllers
         // Disable Product
 
         [HttpPost]
-        public async Task<IActionResult> DisableProduct(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             await _productService.DisableProductAsync(id);
             TempData["SuccessMessage"] = "Đã ngừng kích hoạt sản phẩm.";
             return RedirectToAction("Products_List");
         }
 
+        //Enable Product
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnableProduct(int id)
+        {
+            await _productService.EnableProductAsync(id);
+            TempData["SuccessMessage"] = "Đã kích hoạt sản phẩm.";
+            return RedirectToAction("Products_List");
+        }
         //=======================================================================================================================
 
         // Delete Product
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteProduct(int id)
-        {
-            await _productService.DeleteProductAsync(id);
-            TempData["SuccessMessage"] = "Xóa sản phẩm thành công!";
-            return RedirectToAction("Products_List");
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteProduct(int id)
+        //{
+        //    await _productService.DeleteProductAsync(id);
+        //    TempData["SuccessMessage"] = "Xóa sản phẩm thành công!";
+        //    return RedirectToAction("Products_List");
+        //}
 
         //=======================================================================================================================
 
@@ -321,6 +703,10 @@ namespace pet_spa_system1.Controllers
             return View();
         }
 
-       
+        public IActionResult StaffSchedule()
+        {
+            return View("StaffSchedule");
+        }
+
     }
 }

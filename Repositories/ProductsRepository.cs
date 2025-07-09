@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Repositories
 {
@@ -81,6 +82,16 @@ namespace pet_spa_system1.Repositories
             }
         }
 
+        public async Task EnsableProductAsync(int id)
+        {
+            var product = await GetProductByIdAsync(id);
+            if (product != null)
+            {
+                product.IsActive = true;
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.ProductId == id);
@@ -97,6 +108,37 @@ namespace pet_spa_system1.Repositories
                 .Where(p => p.CategoryId == categoryId && p.ProductId != excludeProductId && (p.IsActive ?? true))
                 .Take(count)
                 .ToListAsync();
+        }
+
+        public async Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize)
+        {
+            return await _context.Products
+                .Where(p => p.IsActive == true)
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductWithRatingViewModel
+                {
+                    ProductId = p.ProductId,
+                    Name = p.Name,
+                    ImageUrl = p.ImageUrl,
+                    Price = p.Price,
+                    CategoryName = p.ProductCategory.Name,
+                    AverageRating = p.Reviews
+                        .Where(r => r.Status == "Approved")
+                        .Any() ? (int)Math.Round(p.Reviews
+                        .Where(r => r.Status == "Approved")
+                        .Average(r => r.Rating)) : 0,
+                    ReviewCount = p.Reviews.Count(r => r.Status == "Approved")
+                })
+                .ToListAsync();
+        }
+        public async Task<Product?> GetProductWithReviewsByIdAsync(int productId)
+        {
+            return await _context.Products
+                .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+
         }
     }
 }

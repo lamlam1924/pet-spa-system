@@ -36,8 +36,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cNDA0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PRN212/PRJ_PET1/Views/Admin/Add_New_Pet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkX05ld19QZXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PRN212/PRJ_PET1/Views/Admin/Add_New_Product.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkX05ld19Qcm9kdWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Deleted.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXERlbGV0ZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Appointments.cshtml]
@@ -78,6 +106,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Pets_List.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUGV0c19MaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/Pet_Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUGV0X0RldGFpbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Products_List.cshtml]
@@ -128,6 +160,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcU2luZ2xlX0Jsb2cuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PRN212/PRJ_PET1/Views/Cart/Cart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxDYXJ0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Checkout/Checkout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hlY2tvdXRcQ2hlY2tvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PRN212/PRJ_PET1/Views/Contact/contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udGFjdFxjb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -142,14 +182,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Login/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cTG9naW4uY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Products/Cart.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcQ2FydC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Products/Checkout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcQ2hlY2tvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Products/Detail.cshtml]
