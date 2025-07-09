@@ -77,6 +77,69 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(int userId)
     {
-        return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
+        return await _context.Users.FindAsync(userId);
+    }
+
+    public async Task<List<Pet>> GetPetsByUserIdAsync(int userId)
+    {
+        return await _context.Pets.Where(p => p.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Appointment>> GetAppointmentsByUserIdAsync(int userId)
+    {
+        return await _context.Appointments
+            .Include(a => a.Status)
+            .Where(a => a.UserId == userId)
+            .ToListAsync();
+    }
+
+    public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
+    {
+        return await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Review>> GetReviewsByUserIdAsync(int userId)
+    {
+        return await _context.Reviews.Where(r => r.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Payment>> GetPaymentsByUserIdAsync(int userId)
+    {
+        return await _context.Payments.Where(p => p.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Appointment>> GetAppointmentsByStaffIdAsync(int staffId)
+    {
+        return await _context.Appointments
+            .Include(a => a.User)
+            .Include(a => a.Status)
+            .Where(a => a.EmployeeId == staffId)
+            .ToListAsync();
+    }
+
+    // TODO: Triển khai hàm lấy hiệu suất làm việc
+    public async Task<StaffPerformanceStats> GetStaffPerformanceStatsAsync(int staffId)
+    {
+        // Tính toán hiệu suất từ bảng Appointment, Order, ...
+        return new StaffPerformanceStats();
+    }
+
+    // TODO: Triển khai hàm lấy tài liệu của nhân viên
+    public async Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId)
+    {
+        return new List<StaffDocument>();
+    }
+
+    // TODO: Triển khai hàm upload tài liệu
+    public async Task AddStaffDocumentAsync(StaffDocument doc)
+    {
+        // Thêm doc vào DB
+    }
+
+    // TODO: Triển khai hàm reset mật khẩu nhân viên
+    public async Task<string> ResetStaffPasswordAsync(int staffId)
+    {
+        // Sinh mật khẩu mới, cập nhật DB, trả về mật khẩu mới
+        return "newpassword123";
     }
 }

@@ -23,6 +23,7 @@ D:\ki5\main_final\bin\Debug\net9.0\Castle.Core.dll
 D:\ki5\main_final\bin\Debug\net9.0\Castle.Core.AsyncInterceptor.dll
 D:\ki5\main_final\bin\Debug\net9.0\Castle.Facilities.Logging.dll
 D:\ki5\main_final\bin\Debug\net9.0\Castle.Windsor.dll
+D:\ki5\main_final\bin\Debug\net9.0\CloudinaryDotNet.dll
 D:\ki5\main_final\bin\Debug\net9.0\Humanizer.dll
 D:\ki5\main_final\bin\Debug\net9.0\JetBrains.Annotations.dll
 D:\ki5\main_final\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.Google.dll

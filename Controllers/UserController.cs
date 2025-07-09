@@ -5,6 +5,10 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using pet_spa_system1.Services;
+using System;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using System.Collections.Generic;
 
 namespace pet_spa_system1.Controllers
 {
@@ -17,9 +21,11 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List(string search = "", string sort = "")
+        public async Task<IActionResult> List(string search = "", string sort = "", int? roleId = null)
         {
             var users = await _userService.GetActiveUsersAsync(search, sort);
+            if (roleId.HasValue)
+                users = users.Where(u => u.RoleId == roleId.Value).ToList();
             return Json(users.Select(u => new
             {
                 u.UserId,
@@ -31,7 +37,8 @@ namespace pet_spa_system1.Controllers
                 Role = u.Role != null ? u.Role.RoleName : "N/A",
                 RoleId = u.RoleId,
                 Status = u.IsActive == true ? "On" : "Off",
-                CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null
+                CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
+                IsActive = u.IsActive
             }));
         }
 
@@ -91,11 +98,13 @@ namespace pet_spa_system1.Controllers
 
         [HttpGet]
         [Route("User/Deleted")]
-        public async Task<IActionResult> GetDeletedUsers()
+        public async Task<IActionResult> GetDeletedUsers(int? roleId = null)
         {
             try
             {
                 var deletedUsers = await _userService.GetDeletedUsersAsync();
+                if (roleId.HasValue)
+                    deletedUsers = deletedUsers.Where(u => u.RoleId == roleId.Value).ToList();
                 var result = deletedUsers.Select(u => new
                 {
                     u.UserId,
@@ -125,6 +134,284 @@ namespace pet_spa_system1.Controllers
             if (!result.Success)
                 return NotFound(result.Message);
             return Ok(new { message = result.Message, newPassword = result.NewPassword });
+        }
+
+        // ========== STAFF MANAGEMENT ========== //
+
+        [HttpGet]
+        [Route("User/StaffList")]
+        public async Task<IActionResult> StaffList(string search = "", string sort = "")
+        {
+            var staff = await _userService.GetStaffListAsync(search, sort);
+            return Json(staff.Select(u => new
+            {
+                u.UserId,
+                u.Username,
+                u.Email,
+                u.FullName,
+                u.Phone,
+                u.Address,
+                u.ProfilePictureUrl,
+                u.IsActive,
+             
+                u.CreatedAt,
+                u.UpdatedAt,
+                Role = u.Role != null ? u.Role.RoleName : "N/A",
+                RoleId = u.RoleId
+            }));
+        }
+
+        [HttpPost]
+        [Route("User/StaffCreate")]
+        public async Task<IActionResult> StaffCreate([FromBody] User user)
+        {
+            user.RoleId = 3; // Đảm bảo là staff
+            var result = await _userService.CreateUserAsync(user);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message, defaultPassword = result.DefaultPassword });
+        }
+
+        [HttpPost]
+        [Route("User/StaffEdit")]
+        public async Task<IActionResult> StaffEdit([FromBody] User updated)
+        {
+            updated.RoleId = 3; // Đảm bảo là staff
+            var result = await _userService.EditUserAsync(updated);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost]
+        [Route("User/StaffDelete")]
+        public async Task<IActionResult> StaffDelete(int id)
+        {
+            var result = await _userService.DeleteUserAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost]
+        [Route("User/StaffRestore")]
+        public async Task<IActionResult> StaffRestore(int id)
+        {
+            var result = await _userService.RestoreUserAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost]
+        [Route("User/StaffToggleLock")]
+        public async Task<IActionResult> StaffToggleLock(int id)
+        {
+            var result = await _userService.ToggleLockStaffAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpGet]
+        [Route("Admin/StaffDetail/{id}")]
+        public async Task<IActionResult> StaffDetail(int id, [FromServices] IAdminStaffScheduleService scheduleService)
+        {
+            var staff = await _userService.GetStaffDetailAsync(id);
+            if (staff == null) return NotFound();
+            var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
+            var now = DateTime.Now;
+            var todayCount = appointments.Count(a => a.AppointmentDate.Date == now.Date);
+            var monthCount = appointments.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
+            var allAppointments = await _userService.GetAppointmentsByStaffIdAsync(id);
+            // Tính hiệu suất làm việc
+            int totalAppointments = allAppointments.Count;
+            int completedAppointments = allAppointments.Count(a => a.Status?.StatusName == "Hoàn thành" || a.Status?.StatusName == "Completed");
+            int cancelledAppointments = allAppointments.Count(a => a.Status?.StatusName == "Đã hủy" || a.Status?.StatusName == "Cancelled");
+            int uniqueCustomers = allAppointments.Select(a => a.UserId).Distinct().Count();
+            var vm = new pet_spa_system1.ViewModel.StaffDetailViewModel
+            {
+                UserId = staff.UserId,
+                FullName = staff.FullName,
+                Email = staff.Email,
+                Phone = staff.Phone,
+                Address = staff.Address,
+                IsActive = staff.IsActive ?? false,
+                TodayCount = todayCount,
+                MonthCount = monthCount,
+                ProfilePictureUrl = staff.ProfilePictureUrl,
+                AllAppointments = allAppointments,
+                // Hiệu suất làm việc
+                PerformanceStats = new pet_spa_system1.Models.StaffPerformanceStats
+                {
+                    TotalAppointments = totalAppointments,
+                    CompletedAppointments = completedAppointments,
+                    CancelledAppointments = cancelledAppointments,
+                    UniqueCustomers = uniqueCustomers,
+                    TotalRevenue = 0 // Nếu muốn tính doanh thu, cần join thêm bảng Order
+                }
+            };
+            return View("~/Views/Admin/StaffDetail.cshtml", vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> StaffDetail(pet_spa_system1.ViewModel.StaffDetailViewModel model, IFormFile imageFile, [FromServices] IAdminStaffScheduleService scheduleService)
+        {
+            var staff = await _userService.GetStaffDetailAsync(model.UserId);
+            if (staff == null) return NotFound();
+            // Upload ảnh nếu có
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var account = new Account(
+                    "dprp1jbd9", // cloud_name
+                    "584135338254938", // api_key
+                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                );
+                var cloudinary = new Cloudinary(account);
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream())
+                };
+                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                string imageUrl = uploadResult.SecureUrl.ToString();
+                if (staff.ProfilePictureUrl != imageUrl)
+                {
+                    staff.ProfilePictureUrl = imageUrl;
+                }
+            }
+            // Cập nhật thông tin nếu có thay đổi
+            if (staff.FullName != model.FullName)
+                staff.FullName = model.FullName;
+            if (staff.Email != model.Email)
+                staff.Email = model.Email;
+            if (staff.Phone != model.Phone)
+                staff.Phone = model.Phone;
+            if (staff.Address != model.Address)
+                staff.Address = model.Address;
+            await _userService.EditUserAsync(staff);
+            // Sau khi lưu, redirect lại chính trang StaffDetail
+            return RedirectToAction("StaffDetail", new { id = model.UserId });
+        }
+
+        [HttpGet]
+        [Route("User/StaffStats")]
+        public async Task<IActionResult> StaffStats(int id)
+        {
+            var stats = await _userService.GetStaffStatsAsync(id);
+            return Json(stats);
+        }
+
+        [HttpPost]
+        [Route("User/StaffSetActive")]
+        public async Task<IActionResult> StaffSetActive(int id, bool isActive)
+        {
+            var result = await _userService.SetUserActiveAsync(id, isActive);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpGet]
+        public IActionResult StaffUploadImage(int userId)
+        {
+            return View("~/Views/Admin/StaffUploadImage.cshtml", userId);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> StaffUploadImage(int userId, IFormFile imageFile)
+        {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var account = new Account(
+                    "dprp1jbd9", // cloud_name
+                    "584135338254938", // api_key
+                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                );
+                var cloudinary = new Cloudinary(account);
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream())
+                };
+                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                string imageUrl = uploadResult.SecureUrl.ToString();
+                // Lưu imageUrl vào DB
+                var user = await _userService.GetStaffDetailAsync(userId);
+                if (user != null)
+                {
+                    user.ProfilePictureUrl = imageUrl;
+                    await _userService.EditUserAsync(user);
+                }
+                return RedirectToAction("StaffDetail", new { id = userId });
+            }
+            return View("~/Views/Admin/StaffUploadImage.cshtml", userId);
+        }
+
+        [HttpGet]
+        [Route("Admin/UserDetail/{id}")]
+        public async Task<IActionResult> UserDetail(int id, [FromServices] IUserService userService)
+        {
+            var user = await userService.GetUserByIdAsync(id);
+            if (user == null) return NotFound();
+            var pets = await userService.GetPetsByUserIdAsync(id);
+            var appointments = await userService.GetAppointmentsByUserIdAsync(id);
+            var orders = await userService.GetOrdersByUserIdAsync(id);
+            var reviews = await userService.GetReviewsByUserIdAsync(id);
+            var payments = await userService.GetPaymentsByUserIdAsync(id);
+            var vm = new pet_spa_system1.ViewModel.UserDetailViewModel
+            {
+                User = user,
+                Pets = pets,
+                Appointments = appointments,
+                Orders = orders,
+                Reviews = reviews,
+                Payments = payments
+            };
+            return View("~/Views/Admin/UserDetail.cshtml", vm);
+        }
+
+        [HttpPost]
+        [Route("Admin/UserDetail/{id}")]
+        public async Task<IActionResult> UserDetail(int id, [FromForm] string FullName, [FromForm] string Email, [FromForm] string Phone, [FromForm] string Address, IFormFile AvatarFile, [FromServices] IUserService userService)
+        {
+            var user = await userService.GetUserByIdAsync(id);
+            if (user == null) return NotFound();
+            // Upload avatar if provided
+            if (AvatarFile != null && AvatarFile.Length > 0)
+            {
+                var account = new CloudinaryDotNet.Account(
+                    "dprp1jbd9", // cloud_name
+                    "584135338254938", // api_key
+                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                );
+                var cloudinary = new CloudinaryDotNet.Cloudinary(account);
+                var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
+                {
+                    File = new CloudinaryDotNet.FileDescription(AvatarFile.FileName, AvatarFile.OpenReadStream())
+                };
+                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                string imageUrl = uploadResult.SecureUrl.ToString();
+                if (user.ProfilePictureUrl != imageUrl)
+                {
+                    user.ProfilePictureUrl = imageUrl;
+                }
+            }
+            // Update info
+            if (user.FullName != FullName) user.FullName = FullName;
+            if (user.Email != Email) user.Email = Email;
+            if (user.Phone != Phone) user.Phone = Phone;
+            if (user.Address != Address) user.Address = Address;
+            await userService.EditUserAsync(user);
+            return RedirectToAction("UserDetail", new { id = user.UserId });
+        }
+
+        [HttpGet]
+        [Route("Admin/List_Customer")]
+        public async Task<IActionResult> List_Customer()
+        {
+            var users = await _userService.GetActiveUsersAsync();
+            var customers = users.Where(u => u.RoleId == 2).ToList();
+            // Chỉ định rõ đường dẫn view
+            return View("~/Views/Admin/List_Customer.cshtml", customers);
         }
     }
 }
