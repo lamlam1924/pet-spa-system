@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Register repositories and services
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
@@ -32,10 +33,17 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddDbContext<PetDataShopContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Thêm Staff module
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IStaffService, StaffService>();
 
-// Session
+// Configure DbContext
+builder.Services.AddDbContext<PetDataShopContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .EnableSensitiveDataLogging() // Hữu ích để debug, chỉ dùng trong Development
+           .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Tối ưu hiệu suất
+
+// Configure Session
 builder.Services.AddSession();
 builder.Services.AddSession(options =>
 {
@@ -44,13 +52,20 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Authentication
+// Configure Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 })
-.AddCookie()
+.AddCookie(options =>
+{
+    options.Events.OnValidatePrincipal = context =>
+    {
+        // Xử lý validation session nếu cần
+        return Task.CompletedTask;
+    };
+})
 .AddGoogle(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
@@ -65,19 +80,35 @@ builder.Services.AddAuthentication(options =>
         var identity = context.Identity;
         var email = context.User.GetProperty("email").GetString();
         var name = context.User.GetProperty("name").GetString();
+        if (string.IsNullOrEmpty(email))
+        {
+            Console.WriteLine("❌ Không lấy được email từ Google.");
+            return Task.FromException(new Exception("Email không hợp lệ từ Google."));
+        }
         identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, email));
         identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, name));
-        Console.WriteLine("🎯 Email nhận từ Google: " + email);
-        Console.WriteLine("🎯 Name nhận từ Google: " + name);
+        Console.WriteLine($"🎯 Email nhận từ Google: {email}");
+        Console.WriteLine($"🎯 Name nhận từ Google: {name}");
         return Task.CompletedTask;
     };
 
     options.CallbackPath = "/signin-google";
 });
 
+// Add other services
+builder.Services.AddHttpContextAccessor();
+
+// Add MVC services with validation
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true;
+    });
+
+// Build the application
 var app = builder.Build();
 
-// Kiểm tra kết nối Database
+// Check Database connection
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PetDataShopContext>();
@@ -94,45 +125,55 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Console.WriteLine("❌ Error connecting to the database: " + ex.Message);
+        Console.WriteLine($"❌ Error connecting to the database: {ex.Message}");
     }
 }
 
-// Middleware pipeline
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
-app.UseStaticFiles();
-app.UseHttpsRedirection();
 
-// Định tuyến Controller
+// Configure routing
 app.MapControllerRoute(
     name: "Admin",
     pattern: "Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" });
+
 app.MapControllerRoute(
     name: "PetManagement",
     pattern: "Admin/Pets/{action}/{id?}",
     defaults: new { controller = "Admin", action = "Pets_List" });
+
 app.MapControllerRoute(
     name: "ProductManagement",
     pattern: "Products/{action}/{id?}",
     defaults: new { controller = "Products", action = "Shop" });
+
 app.MapControllerRoute(
     name: "productDetail",
     pattern: "Admin/Product_Detail/{productID}",
     defaults: new { controller = "Products", action = "Product_Detail" });
+
 app.MapControllerRoute(
     name: "Detail",
     pattern: "Products/Detail/{productID}",
     defaults: new { controller = "Products", action = "Detail" });
+
+app.MapControllerRoute(
+    name: "Staff",
+    pattern: "Staff/{action=Profile}/{id?}",
+    defaults: new { controller = "Staff" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
