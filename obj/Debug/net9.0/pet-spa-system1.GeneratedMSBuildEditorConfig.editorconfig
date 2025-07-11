@@ -192,6 +192,30 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/ki5/main_final/Views/UserHome/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ki5/main_final/Views/UserHome/_ChangePasswordPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0NoYW5nZVBhc3N3b3JkUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ki5/main_final/Views/UserHome/_HosoPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0hvc29QYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ki5/main_final/Views/UserHome/_ListOrderPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0xpc3RPcmRlclBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ki5/main_final/Views/UserHome/_ListPetPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0xpc3RQZXRQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ki5/main_final/Views/UserHome/_NotificationPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX05vdGlmaWNhdGlvblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/ki5/main_final/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
