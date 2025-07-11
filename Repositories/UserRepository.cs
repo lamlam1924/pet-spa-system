@@ -32,6 +32,11 @@ public class UserRepository : IUserRepository
 
     public User? GetUserById(int userId)
         => _context.Users.FirstOrDefault(u => u.UserId == userId);
+    public async Task<User?> GetUserByIdAsync(int userId)
+    {
+        return await _context.Users
+                             .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
 
     public async Task AddAsync(User user)
     {

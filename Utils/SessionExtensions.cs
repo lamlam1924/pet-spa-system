@@ -1,20 +1,19 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+
 namespace pet_spa_system1.Utils
 {
     public static class SessionExtensions
     {
         public static void SetObjectAsJson(this ISession session, string key, object value)
         {
-            var json = JsonConvert.SerializeObject(value);
-            session.SetString(key, json);
+            session.SetString(key, JsonConvert.SerializeObject(value));
         }
 
         public static T? GetObjectFromJson<T>(this ISession session, string key)
         {
-            var json = session.GetString(key);
-            return json == null ? default : JsonConvert.DeserializeObject<T>(json);
+            var value = session.GetString(key);
+            return value == null ? default : JsonConvert.DeserializeObject<T>(value);
         }
     }
 }

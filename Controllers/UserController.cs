@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
-using System.Linq;
-using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
 using pet_spa_system1.Services;
+using pet_spa_system1.Utils;
+using pet_spa_system1.ViewModel;
+using System.Linq;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Controllers
 {
@@ -126,5 +129,39 @@ namespace pet_spa_system1.Controllers
                 return NotFound(result.Message);
             return Ok(new { message = result.Message, newPassword = result.NewPassword });
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserProfile(UserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
+                return RedirectToAction("Index", "UserHome");
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var user = await _userService.GetUserByIdAsync(userId.Value);
+            if (user == null)
+                return NotFound("User not found");
+
+            user.FullName = model.FullName;
+            user.Username = model.UserName;
+            user.Address = model.Address;
+            user.Phone = model.PhoneNumber;
+
+            var result = await _userService.EditUserAsync(user);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.Message ?? "Cập nhật thất bại.";
+                return RedirectToAction("Index", "UserHome");
+            }
+
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("Index", "UserHome");
+        }
+
+
+
     }
 }

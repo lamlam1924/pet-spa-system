@@ -19,4 +19,5 @@ public interface IUserService
     Task<(bool Success, string? Message)> DeleteUserAsync(int id);
     Task<(bool Success, string? Message)> RestoreUserAsync(int id);
     Task<(bool Success, string? Message, string? NewPassword)> ResetPasswordAsync(int id);
+    Task<User?> GetUserByIdAsync(int userId);
 }
