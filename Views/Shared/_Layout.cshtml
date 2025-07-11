@@ -69,6 +69,9 @@
                                         @if (User.Identity.IsAuthenticated)
                                         {
                                             <li>
+                                                <a class="dropdown-item" href="@Url.Action("Index", "UserHome")">Trang cá nhân</a>
+                                            </li>
+                                            <li>
                                                 <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
                                             </li>
                                             <li>

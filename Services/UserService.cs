@@ -64,6 +64,10 @@ namespace pet_spa_system1.Services
         }
 
         public User? GetUserInfo(int userId) => _userRepository.GetUserById(userId);
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _userRepository.GetByIdAsync(userId);
+        }
 
         // Lấy danh sách user active
         public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null)

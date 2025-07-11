@@ -19,11 +19,13 @@ public interface IUserService
     Task<(bool Success, string? Message)> DeleteUserAsync(int id);
     Task<(bool Success, string? Message)> RestoreUserAsync(int id);
     Task<(bool Success, string? Message, string? NewPassword)> ResetPasswordAsync(int id);
+    // Staff management
     Task<List<User>> GetStaffListAsync(string? search = null, string? sort = null);
     Task<User?> GetStaffDetailAsync(int id);
     Task<(bool Success, string? Message)> ToggleLockStaffAsync(int id);
     Task<object> GetStaffStatsAsync(int id);
     Task<(bool Success, string? Message)> SetUserActiveAsync(int id, bool isActive);
+    // User detail
     Task<User?> GetUserByIdAsync(int userId);
     Task<List<Pet>> GetPetsByUserIdAsync(int userId);
     Task<List<Appointment>> GetAppointmentsByUserIdAsync(int userId);
