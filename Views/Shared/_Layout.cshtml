@@ -60,13 +60,17 @@
                                     <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
                                         id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fa fa-user"></i>
-                                        @if (User.Identity.IsAuthenticated)
+                                        @{
+                                            var userId = Context.Session.GetInt32("CurrentUserId");
+                                            var userName = Context.Session.GetString("CurrentUserName");
+                                        }
+                                        @if (userId != null)
                                         {
-                                            <span class="ms-2">@User.Identity.Name</span>
+                                            <span class="ms-2">@userName</span>
                                         }
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                                        @if (User.Identity.IsAuthenticated)
+                                        @if (userId != null)
                                         {
                                             <li>
                                                 <a class="dropdown-item" href="@Url.Action("Index", "UserHome")">Trang cá nhân</a>

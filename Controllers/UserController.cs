@@ -380,19 +380,8 @@ namespace pet_spa_system1.Controllers
             // Upload avatar if provided
             if (AvatarFile != null && AvatarFile.Length > 0)
             {
-                var account = new CloudinaryDotNet.Account(
-                    "dprp1jbd9", // cloud_name
-                    "584135338254938", // api_key
-                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
-                );
-                var cloudinary = new CloudinaryDotNet.Cloudinary(account);
-                var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
-                {
-                    File = new CloudinaryDotNet.FileDescription(AvatarFile.FileName, AvatarFile.OpenReadStream())
-                };
-                var uploadResult = await cloudinary.UploadAsync(uploadParams);
-                string imageUrl = uploadResult.SecureUrl.ToString();
-                if (user.ProfilePictureUrl != imageUrl)
+                string imageUrl = await userService.UploadAvatarAsync(AvatarFile);
+                if (!string.IsNullOrEmpty(imageUrl) && user.ProfilePictureUrl != imageUrl)
                 {
                     user.ProfilePictureUrl = imageUrl;
                 }

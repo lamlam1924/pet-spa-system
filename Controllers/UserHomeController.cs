@@ -17,17 +17,24 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-            //var currentUser = await _userService.
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
             var currentUser = await _userService.GetUserByIdAsync(userId.Value);
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
             var userModel = new UserViewModel
             {
                 UserName = currentUser.Username,
                 Email = currentUser.Email,
                 PhoneNumber = currentUser.Phone,
                 Address = currentUser.Address,
-                FullName = currentUser.FullName
+                FullName = currentUser.FullName,
+                ProfilePictureUrl = currentUser.ProfilePictureUrl
             };
-
             return View(userModel); // truyền model vào view
         }
         public async Task<IActionResult> Hoso()
@@ -178,6 +185,48 @@ namespace pet_spa_system1.Controllers
     };
 
             return PartialView("_ListOrderPartial", orders);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile Avatar)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
+                return RedirectToAction("Index");
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var user = await _userService.GetUserByIdAsync(userId.Value);
+            if (user == null)
+                return NotFound("User not found");
+
+            user.FullName = model.FullName;
+            user.Username = model.UserName;
+            user.Address = model.Address;
+            user.Phone = model.PhoneNumber;
+
+            // Xử lý upload avatar nếu có
+            if (Avatar != null && Avatar.Length > 0)
+            {
+                string imageUrl = await _userService.UploadAvatarAsync(Avatar);
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    user.ProfilePictureUrl = imageUrl;
+                }
+            }
+            // Đảm bảo luôn gán lại user.ProfilePictureUrl trước khi gọi EditUserAsync
+            var result = await _userService.EditUserAsync(user);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.Message ?? "Cập nhật thất bại.";
+                return RedirectToAction("Index");
+            }
+
+            HttpContext.Session.SetString("CurrentUserName", user.Username);
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("Index");
         }
 
 

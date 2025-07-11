@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using System.Globalization;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace pet_spa_system1.Services
 {
@@ -82,7 +84,7 @@ namespace pet_spa_system1.Services
         }
 
         // Lấy danh sách role active
-        public async Task<List<Role>> GetActiveRolesAsync()
+        public async Task<List<pet_spa_system1.Models.Role>> GetActiveRolesAsync()
         {
             return await _userRepository.GetActiveRolesAsync();
         }
@@ -141,6 +143,10 @@ namespace pet_spa_system1.Services
             user.Phone = updated.Phone;
             user.Address = updated.Address;
             user.RoleId = updated.RoleId;
+            if (!string.IsNullOrEmpty(updated.ProfilePictureUrl))
+            {
+                user.ProfilePictureUrl = updated.ProfilePictureUrl;
+            }
             user.UpdatedAt = DateTime.Now;
             await _userRepository.UpdateAsync(user);
             return (true, "User updated successfully");
@@ -238,10 +244,6 @@ namespace pet_spa_system1.Services
             return (true, isActive ? "Staff activated" : "Staff deactivated");
         }
 
-        public async Task<User?> GetUserByIdAsync(int userId)
-        {
-            return await _userRepository.GetByIdAsync(userId);
-        }
         public async Task<List<Pet>> GetPetsByUserIdAsync(int userId)
         {
             return await _userRepository.GetPetsByUserIdAsync(userId);
@@ -281,6 +283,22 @@ namespace pet_spa_system1.Services
         public async Task<string> ResetStaffPasswordAsync(int staffId)
         {
             return await _userRepository.ResetStaffPasswordAsync(staffId);
+        }
+
+        public async Task<string> UploadAvatarAsync(Microsoft.AspNetCore.Http.IFormFile avatarFile)
+        {
+            var account = new Account(
+                "dprp1jbd9", // cloud_name
+                "584135338254938", // api_key
+                "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+            );
+            var cloudinary = new Cloudinary(account);
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(avatarFile.FileName, avatarFile.OpenReadStream())
+            };
+            var uploadResult = await cloudinary.UploadAsync(uploadParams);
+            return uploadResult.SecureUrl?.ToString();
         }
     }
 }

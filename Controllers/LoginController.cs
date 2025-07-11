@@ -37,6 +37,7 @@ namespace pet_spa_system1.Controllers
             }
 
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
+            HttpContext.Session.SetString("CurrentUserName", user.Username);
 
             return RedirectToAction("Index", "Home");
         }
@@ -59,6 +60,7 @@ namespace pet_spa_system1.Controllers
             }
 
             HttpContext.Session.SetInt32("CurrentUserId", newUser.UserId);
+            HttpContext.Session.SetString("CurrentUserName", newUser.Username);
 
 
             return RedirectToAction("Index", "Home");
@@ -100,6 +102,7 @@ namespace pet_spa_system1.Controllers
             }
             //var user = new User { Email = email, FullName = name };
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
+            HttpContext.Session.SetString("CurrentUserName", user.Username);
 
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
 

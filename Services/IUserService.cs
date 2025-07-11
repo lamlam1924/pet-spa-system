@@ -37,4 +37,5 @@ public interface IUserService
     Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId);
     Task AddStaffDocumentAsync(StaffDocument doc);
     Task<string> ResetStaffPasswordAsync(int staffId);
+    Task<string> UploadAvatarAsync(Microsoft.AspNetCore.Http.IFormFile avatarFile);
 }

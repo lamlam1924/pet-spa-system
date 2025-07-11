@@ -1,6 +1,6 @@
 ﻿@model pet_spa_system1.ViewModel.UserViewModel
 
-<form id="profile-form" asp-action="UpdateUserProfile" asp-controller="User" method="post" enctype="multipart/form-data">
+<form id="profile-form" asp-action="UpdateUserProfile" asp-controller="UserHome" method="post" enctype="multipart/form-data">
     <div class="card shadow p-4">
         <h4 class="mb-4">Cập nhật Hồ sơ</h4>
 
@@ -31,12 +31,17 @@
 
             <div class="col-md-4 text-center">
                 <div class="mb-3">
-                    <img id="avatarPreview"
-                         src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
-                         alt="Avatar"
-                         class="img-thumbnail rounded-circle mb-3"
-                         style="width: 150px; height: 150px; object-fit: cover;" />
-                    <input type="file" class="form-control" name="Avatar" id="avatarInput" accept="image/*" />
+                    <div class="position-relative d-inline-block">
+                        <img id="avatarPreview"
+                             src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" : Model.ProfilePictureUrl)"
+                             alt="Avatar"
+                             class="img-thumbnail rounded-circle mb-3"
+                             style="width: 150px; height: 150px; object-fit: cover;" />
+                        <label for="avatarInput" class="position-absolute bottom-0 end-0 bg-primary rounded-circle p-2 shadow-sm" style="cursor:pointer;">
+                            <i class="fas fa-camera text-white"></i>
+                            <input type="file" class="d-none" name="Avatar" id="avatarInput" accept="image/*" />
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -54,6 +59,7 @@
                 document.getElementById('avatarPreview').src = e.target.result;
             };
             reader.readAsDataURL(file);
+            // KHÔNG tự động submit form ở đây
         }
     });
 </script>
