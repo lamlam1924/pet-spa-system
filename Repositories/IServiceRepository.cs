@@ -13,10 +13,12 @@ namespace pet_spa_system1.Repositories
         void DeleteService(Service service);
         void SoftDeleteService(int id);
         void RestoreService(int id);
-        
+
         // ===== SERVICE BUSINESS CHECKS =====
         bool ServiceHasAppointments(int serviceId);
-        
+
         void Save();
+
+        public IEnumerable<Service> GetRecentServices(int count);
     }
 }

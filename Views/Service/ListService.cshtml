@@ -16,8 +16,9 @@
 
 @section Styles {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/services-list.css")">
-    <link rel="stylesheet" href="@Url.Content("~/cssjsservice/service-common.css")">
+    <link rel="stylesheet" href="@Url.Content("~/cssjsservice/css/service-common.css")">
+    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/css/services-list.css")">
+
     <style>
         .opacity-0 { opacity: 0; }
         .fade-transition {
@@ -163,6 +164,26 @@
                 </div>
             }
         </div>
+        <!-- Pagination -->
+        @if (Model.Pagination.TotalPages > 1)
+        {
+            <nav aria-label="Phân trang dịch vụ" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item @(Model.Pagination.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="?page=@(Model.Pagination.CurrentPage - 1)@(Context.Request.Query["categoryId"].Count > 0 ? "&categoryId=" + Context.Request.Query["categoryId"] : "")">&laquo;</a>
+                    </li>
+                    @for (int i = 1; i <= Model.Pagination.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.Pagination.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" href="?page=@i@(Context.Request.Query["categoryId"].Count > 0 ? "&categoryId=" + Context.Request.Query["categoryId"] : "")">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.Pagination.CurrentPage == Model.Pagination.TotalPages ? "disabled" : "")">
+                        <a class="page-link" href="?page=@(Model.Pagination.CurrentPage + 1)@(Context.Request.Query["categoryId"].Count > 0 ? "&categoryId=" + Context.Request.Query["categoryId"] : "")">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        }
         
         <!-- No Results Message -->
         <div id="no-results" class="text-center py-4 mt-3" style="display: none;">
@@ -182,8 +203,7 @@
 </section>
 
 @section Scripts {
-    <script src="@Url.Content("~/cssjsAppointment/services-list.js")"></script>
-    <script src="@Url.Content("~/cssjsservice/remove-underline.js")"></script>
+    <script src="@Url.Content("~/cssjsAppointment/js/services-list.js")"></script>
     <script>
         // Script chỉ để loại bỏ text-decoration
         (function() {

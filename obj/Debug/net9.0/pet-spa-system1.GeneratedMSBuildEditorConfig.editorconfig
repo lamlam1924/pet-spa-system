@@ -76,6 +76,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnRMaXN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Code/VSCode/C\#/pet-spa-system/Views/Admin/ManageAppointment/ApprovalList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwcm92YWxMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Code/VSCode/C\#/pet-spa-system/Views/Admin/ManageAppointment/EditAppointment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcRWRpdEFwcG9pbnRtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -86,10 +90,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Code/VSCode/C\#/pet-spa-system/Views/Admin/ManageService/EditService.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxFZGl0U2VydmljZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Code/VSCode/C\#/pet-spa-system/Views/Admin/ManageService/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Code/VSCode/C\#/pet-spa-system/Views/Admin/ManageService/ServiceCategory.cshtml]
@@ -180,8 +180,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udGFjdFxjb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Code/VSCode/C\#/pet-spa-system/Views/Emails/AppointmentConfirmation.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1haWxzXEFwcG9pbnRtZW50Q29uZmlybWF0aW9uLmNzaHRtbA==
+[D:/Code/VSCode/C\#/pet-spa-system/Views/Email/SuccessEmail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1haWxcU3VjY2Vzc0VtYWlsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Code/VSCode/C\#/pet-spa-system/Views/Home/Index.cshtml]

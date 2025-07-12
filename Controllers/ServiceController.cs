@@ -14,11 +14,13 @@ namespace pet_spa_system1.Controllers
             _serviceService = serviceService;
         }
 
-        public IActionResult ListService()
+        public IActionResult ListService(int page = 1, int? categoryId = null)
         {
-            // Sử dụng IServiceService để lấy ServiceListViewModel
-            var viewModel = _serviceService.GetServiceListViewModel(new ServiceFilterModel(), 1);
-            
+            var filter = new ServiceFilterModel();
+            if (categoryId.HasValue)
+                filter.CategoryId = categoryId.Value;
+
+            var viewModel = _serviceService.GetServiceListViewModel(filter, page);
             return View(viewModel);
         }
 

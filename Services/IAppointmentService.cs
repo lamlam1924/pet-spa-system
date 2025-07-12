@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace pet_spa_system1.Services
 {
+
     public interface IAppointmentService
     {
         bool SaveAppointment(AppointmentViewModel vm, int userId);
@@ -13,10 +14,12 @@ namespace pet_spa_system1.Services
         Appointment GetAppointmentById(int appointmentId);
         List<string> GetPetNames(List<int> petIds);
         List<string> GetServiceNames(List<int> serviceIds);
-        
+
         AppointmentDashboardViewModel GetDashboardData();
         AppointmentDashboardViewModel GetDashboardStats();
-        
+        List<AdminAppointmentDetailViewModel> GetPendingAppointments();
+        List<AdminAppointmentDetailViewModel> GetPendingCancelAppointments();
+
         List<Appointment> GetAppointments(
             string searchTerm = "",
             int statusId = 0,
@@ -24,29 +27,29 @@ namespace pet_spa_system1.Services
             int employeeId = 0,
             int page = 1,
             int pageSize = 10);
-            
+
         int CountAppointments(
             string searchTerm = "",
             int statusId = 0,
             DateTime? date = null,
             int employeeId = 0);
-            
+
         List<StatusAppointment> GetAllStatuses();
         List<User> GetEmployees();
-        
+
         List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
-        
+
         Appointment GetAppointmentDetails(int id);
-        
+
         AdminAppointmentViewModel PrepareCreateViewModel();
         bool CreateAppointment(AdminAppointmentViewModel model);
-        
+
         AdminAppointmentViewModel PrepareEditViewModel(int id);
         bool UpdateAppointment(AdminAppointmentViewModel model);
-        
+
         bool UpdateAppointmentStatus(int id, int statusId);
         bool DeleteAppointment(int id);
-        
+
         List<Pet> GetCustomerPets(int userId);
 
         /// <summary>
@@ -56,5 +59,14 @@ namespace pet_spa_system1.Services
         /// <param name="userId"></param>
         /// <returns>true nếu thành công, false nếu thất bại</returns>
         bool RequestCancelAppointment(int appointmentId, int userId);
+
+        AdminAppointmentDetailViewModel GetAdminAppointmentDetail(int id);
+
+        /// <summary>
+        /// Lấy danh sách lịch hẹn cần duyệt (status 6 hoặc 7)
+        /// </summary>
+        List<Appointment> GetPendingApprovalAppointments();
+        // Gửi mail khi duyệt lịch hoặc duyệt hủy
+        bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
     }
 }

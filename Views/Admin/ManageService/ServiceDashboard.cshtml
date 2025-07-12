@@ -1,139 +1,87 @@
+@model pet_spa_system1.ViewModels.ServiceDashboardViewModel
+
 @{
     ViewData["Title"] = "Quản lý dịch vụ";
-    ViewData["SubTitle"] = "Tổng quan";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
     <link rel="stylesheet" href="~/cssjsService/css/service-dashboard.css" />
 }
 
 <div class="container-fluid" id="container-wrapper">
-    <!-- Sử dụng partial view navigation chung -->
     @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
+    <div class="dashboard-header mb-4">
+        <h2 class="dashboard-title mb-1">
+            <i class="fas fa-spa text-primary me-2"></i> Quản lý dịch vụ
+        </h2>
+        <div class="dashboard-subtitle text-muted">Tổng quan hoạt động dịch vụ của hệ thống</div>
+    </div>
 
-    <!-- Thẻ thống kê với spacing tốt hơn -->
-    <div class="row mb-5">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100 border-left-primary shadow-sm hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Tổng số dịch vụ
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalServices</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-briefcase fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+    <!-- Stats Cards: chỉ giữ 4 thẻ -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-primary shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalServices</div>
+                    <div class="text-xs text-primary text-uppercase mt-1">Tổng dịch vụ</div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100 border-left-success shadow-sm hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Dịch vụ hoạt động
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.ActiveServices</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-success shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-check-circle fa-2x text-success"></i></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ActiveServices</div>
+                    <div class="text-xs text-success text-uppercase mt-1">Đang hoạt động</div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100 border-left-warning shadow-sm hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Dịch vụ tạm ngưng
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.InactiveServices</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-pause-circle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-warning shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-pause-circle fa-2x text-warning"></i></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.InactiveServices</div>
+                    <div class="text-xs text-warning text-uppercase mt-1">Tạm ngưng</div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card h-100 border-left-info shadow-sm hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Danh mục dịch vụ
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalCategories</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-folder fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-left-info shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-list-alt fa-2x text-info"></i></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCategories</div>
+                    <div class="text-xs text-info text-uppercase mt-1">Danh mục</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Biểu đồ với spacing cải thiện -->
-    <div class="row mb-5">
-        <div class="col-xl-8 col-lg-7 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Dịch vụ nổi bật</h6>
-                    <!-- Loại bỏ dropdown menu dư thừa -->
-                </div>
-                <div class="card-body">
-                    <div class="chart-area" style="height: 300px;">
-                        <canvas id="serviceChart"></canvas>
-                    </div>
-                </div>
-            </div>
+    <!-- Cảnh báo dịch vụ tạm ngưng -->
+    @if (Model.InactiveServices > 0)
+    {
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Có @Model.InactiveServices dịch vụ đang tạm ngưng hoạt động!
         </div>
+    }
 
-        <div class="col-xl-4 col-lg-5 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Phân bố dịch vụ</h6>
-                </div>
-                <div class="card-body">
-                    <!-- Tăng kích thước biểu đồ tròn -->
-                    <div class="chart-pie pt-2 pb-2" style="height: 300px;">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bảng dữ liệu với UI cải thiện -->
     <div class="row">
-        <div class="col-lg-6 mb-4">
+        <!-- Bảng dịch vụ mới -->
+        <div class="col-lg-7 mb-4">
             <div class="card shadow-sm h-100">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Dịch vụ mới thêm gần đây</h6>
-                    <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-sm btn-primary btn-rounded">
-                        <i class="fas fa-eye me-1"></i> Xem tất cả
-                    </a>
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-plus-circle me-1"></i> Dịch vụ mới thêm gần đây
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
+                                    <th class="text-center" style="width:40px;">ID</th>
                                     <th>Tên dịch vụ</th>
                                     <th>Danh mục</th>
                                     <th class="text-end">Giá</th>
@@ -141,107 +89,43 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (ViewBag.RecentServices != null)
+                                @if (Model.RecentServices != null && Model.RecentServices.Any())
                                 {
-                                    foreach (var service in ViewBag.RecentServices)
+                                    var stt = 1;
+                                    foreach (var service in Model.RecentServices)
                                     {
                                         <tr>
-                                            <td>
-                                                <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })" 
-                                                   class="text-decoration-none fw-medium">
-                                                    @service.Name
-                                                </a>
-                                            </td>
+                                            <td class="text-center">@service.ServiceId</td>
+                                            <td class="fw-semibold" title="@service.Name">@service.Name</td>
                                             <td>
                                                 @if (service.Category?.Name != null)
                                                 {
-                                                    <span class="badge bg-light text-dark">@service.Category.Name</span>
+                                                    <span class="badge bg-info text-white">@service.Category.Name</span>
                                                 }
                                                 else
                                                 {
                                                     <span class="text-muted">—</span>
                                                 }
                                             </td>
-                                            <td class="text-end fw-bold">@service.Price.ToString("N0") đ</td>
+                                            <td class="fw-bold ">@service.Price.ToString("N0") đ</td>
                                             <td class="text-center">
                                                 @if (service.IsActive == true)
                                                 {
-                                                    <span class="badge bg-success">Hoạt động</span>
+                                                    <span class="badge bg-success text-white px-3 py-2">Hoạt động</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-danger">Tạm ngưng</span>
+                                                    <span class="badge bg-danger text-white px-3 py-2">Tạm ngưng</span>
                                                 }
                                             </td>
                                         </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn sắp tới</h6>
-                    <a href="@Url.Action("Index", "Appointment")" class="btn btn-sm btn-primary btn-rounded">
-                        <i class="fas fa-calendar me-1"></i> Xem tất cả
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <!-- Loại bỏ cột "Mã" dư thừa -->
-                                    <th>Khách hàng</th>
-                                    <th>Dịch vụ</th>
-                                    <th>Ngày</th>
-                                    <th class="text-center">Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (ViewBag.UpcomingAppointments != null && ViewBag.UpcomingAppointments.Count > 0)
-                                {
-                                    foreach (var appointment in ViewBag.UpcomingAppointments)
-                                    {
-                                        <tr>
-                                            <td class="fw-medium">@appointment.CustomerName</td>
-                                            <td>@appointment.MainServiceName</td>
-                                            <td class="text-muted">@appointment.AppointmentDate.ToString("dd/MM")</td>
-                                            <td class="text-center">
-                                                @switch (appointment.StatusId)
-                                                {
-                                                    case 1:
-                                                        <span class="badge bg-warning text-dark">Chờ xác nhận</span>
-                                                        break;
-                                                    case 2:
-                                                        <span class="badge bg-info">Đã xác nhận</span>
-                                                        break;
-                                                    case 3:
-                                                        <span class="badge bg-success">Hoàn thành</span>
-                                                        break;
-                                                    case 4:
-                                                        <span class="badge bg-danger">Đã hủy</span>
-                                                        break;
-                                                    default:
-                                                        <span class="badge bg-secondary">Khác</span>
-                                                        break;
-                                                }
-                                            </td>
-                                        </tr>
+                                        stt++;
                                     }
                                 }
                                 else
                                 {
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">
-                                            <i class="fas fa-calendar-times fa-2x mb-2 d-block"></i>
-                                            Không có lịch hẹn nào sắp tới
-                                        </td>
+                                        <td colspan="5" class="text-center text-muted">Không có dịch vụ mới nào.</td>
                                     </tr>
                                 }
                             </tbody>
@@ -250,23 +134,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Chart dịch vụ nổi bật -->
+        <div class="col-lg-5 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-1"></i> Top dịch vụ nổi bật
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="serviceChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/cssjsService/js/service-common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="~/cssjsService/js/service-dashboard.js"></script>
     <script>
-        // Chart data for the service dashboard
-        var topServiceLabels = @Html.Raw(Json.Serialize(ViewBag.TopServiceLabels));
-        var topServiceData = @Html.Raw(Json.Serialize(ViewBag.TopServiceData));
-        var categoryLabels = @Html.Raw(Json.Serialize(ViewBag.CategoryLabels));
-        var categoryData = @Html.Raw(Json.Serialize(ViewBag.CategoryData));
-        
-        // Success and error messages
-        var successMessage = '@TempData["SuccessMessage"]';
-        var errorMessage = '@TempData["ErrorMessage"]';
+        // Truyền dữ liệu từ Razor sang JS
+        var topServiceLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopServices.Select(s => s.ServiceName)));
+        var topServiceData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.TopServices.Select(s => s.BookingCount)));
     </script>
 }

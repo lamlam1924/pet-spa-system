@@ -9,6 +9,9 @@
     var currentSort = Context.Request.Query["sort"].ToString() ?? "name_asc";
     var currentStatus = Context.Request.Query["status"].ToString();
     var selectedCategoryId = Context.Request.Query["categoryId"].ToString();
+    var priceOrder = Context.Request.Query["priceOrder"].ToString();
+    var nameOrder = Context.Request.Query["nameOrder"].ToString();
+    var dateOrder = Context.Request.Query["dateOrder"].ToString();
     
     // ===== STATIC RESOURCES =====
     var defaultImages = new string[] { 
@@ -35,121 +38,154 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
+    @* <link rel="stylesheet" href="~/cssjsService/css/service-common.css" /> *@
     <link rel="stylesheet" href="~/cssjsService/css/service-list.css" />
 }
 
 <div class="container-fluid" id="container-wrapper">
     @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
-
-    <!-- ===== PAGE HEADER ===== -->
-    <div class="page-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1">Quản lý dịch vụ</h6>
-                <p class="mb-0">
-                    <span id="resultCount">@totalItems</span> dịch vụ
-                    @if (!string.IsNullOrEmpty(currentFilter))
-                    {
-                        <span>cho "@currentFilter"</span>
-                    }
-                </p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="@Url.Action("AddService", "AdminService")" class="btn btn-primary btn-sm px-3">
-                    <i class="fas fa-plus me-2"></i> Thêm dịch vụ
-                </a>
-            </div>
-        </div>
-    </div>
-
+    
     <!-- ===== FILTER SECTION ===== -->
-    <div class="filter-section">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body p-3">
-                <form method="get" action="@Url.Action("ServiceList", "AdminService")" id="filterForm">
-                    <div class="row g-3 align-items-end">
-                        <!-- Search Input -->
-                        <div class="col-md-4">
-                            <div class="search-box position-relative">
-                                <input type="text" 
-                                       class="form-control form-control-sm ps-4" 
-                                       name="search" 
-                                       value="@currentFilter" 
-                                       placeholder="Tìm theo tên dịch vụ..."
-                                       id="searchInput">
-                                <i class="fas fa-search position-absolute search-icon"></i>
-                                @if (!string.IsNullOrEmpty(currentFilter))
+    @{
+        var sort = currentSort ?? "name_asc";
+    }
+    <div class="filter-section mb-3">
+        <form method="get" action="@Url.Action("ServiceList", "AdminService")" id="filterForm">
+            <!-- DÒNG 1: Search + Giá + Button -->
+            <div class="row gy-2 gx-3 align-items-end mb-2">
+                <div class="col-md-4">
+                    <div class="search-box w-100">
+                        <input type="text" class="form-control form-control-sm" name="search"
+                               value="@Model.Filter.Search" placeholder="Tìm theo tên, ID hoặc mô tả..." id="searchInput" autocomplete="off" />
+                        <i class="fas fa-search search-icon"></i>
+                        <button type="button" class="btn-clear" id="clearSearch" tabindex="-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control form-control-sm price-input" name="priceFrom"
+                           value="@(Model.Filter.PriceFrom > 0 ? Model.Filter.PriceFrom?.ToString("N0") : "")"
+                           placeholder="Giá từ" autocomplete="off" />
+                </div>
+                <div class="col-auto d-flex align-items-center justify-content-center px-0">
+                    <span class="mx-1 text-secondary" style="font-size: 1.2rem;">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control form-control-sm price-input" name="priceTo"
+                           value="@(Model.Filter.PriceTo > 0 ? Model.Filter.PriceTo?.ToString("N0") : "")"
+                           placeholder="Giá đến" autocomplete="off" />
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-filter me-1"></i> Lọc
+                    </button>
+                    @if (hasFilter)
+                    {
+                        <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary btn-sm w-100" title="Xóa lọc">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+            <!-- DÒNG 2: Filter & Sort -->
+            <div class="row gy-2 gx-3 align-items-end">
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" name="categoryId" id="categoryFilter">
+                        <option value="">Tất cả danh mục</option>
+                        @if (Model?.Categories != null)
+                        {
+                            foreach (var category in Model.Categories)
+                            {
+                                if (selectedCategoryId == category.CategoryId.ToString())
                                 {
-                                    <button type="button" class="btn-clear position-absolute" id="clearSearch">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                }
-                            </div>
-                        </div>
-                        
-                        <!-- Category Filter -->
-                        <div class="col-md-3">
-                            <select class="form-select form-select-sm" name="categoryId" id="categoryFilter">
-                                <option value="">Tất cả danh mục</option>
-                                @if (Model?.Categories != null)
-                                {
-                                    @foreach (var category in Model.Categories) 
-                                    {
-                                        var isSelected = selectedCategoryId == category.CategoryId.ToString();
-                                        if (isSelected)
-                                        {
-                                            <option value="@category.CategoryId" selected="selected">@category.Name</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@category.CategoryId">@category.Name</option>
-                                        }
-                                    }
-                                }
-                            </select>
-                        </div>
-                        
-                        <!-- Status Filter -->
-                        <div class="col-md-2">
-                            <select class="form-select form-select-sm" name="status" id="statusFilter">
-                                <option value="">Tất cả trạng thái</option>
-                                @if (currentStatus == "active")
-                                {
-                                    <option value="active" selected="selected">Hoạt động</option>
-                                    <option value="inactive">Tạm ngưng</option>
-                                }
-                                else if (currentStatus == "inactive")
-                                {
-                                    <option value="active">Hoạt động</option>
-                                    <option value="inactive" selected="selected">Tạm ngưng</option>
+                                    <option value="@category.CategoryId" selected="selected">@category.Name</option>
                                 }
                                 else
                                 {
-                                    <option value="active">Hoạt động</option>
-                                    <option value="inactive">Tạm ngưng</option>
+                                    <option value="@category.CategoryId">@category.Name</option>
                                 }
-                            </select>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="col-md-3">
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary btn-sm flex-fill">
-                                    <i class="fas fa-filter me-1"></i> Lọc
-                                </button>
-                                @if (hasFilter)
-                                {
-                                    <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary btn-sm">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" name="status" id="statusFilter">
+                        <option value="">Tất cả trạng thái</option>
+                        @if (currentStatus == "active")
+                        {
+                            <option value="active" selected="selected">Hoạt động</option>
+                        }
+                        else
+                        {
+                            <option value="active">Hoạt động</option>
+                        }
+                        @if (currentStatus == "inactive")
+                        {
+                            <option value="inactive" selected="selected">Tạm ngưng</option>
+                        }
+                        else
+                        {
+                            <option value="inactive">Tạm ngưng</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" name="sort" id="sortOrder">
+                        @if (sort == "name_asc")
+                        {
+                            <option value="name_asc" selected="selected">Tên A → Z</option>
+                        }
+                        else
+                        {
+                            <option value="name_asc">Tên A → Z</option>
+                        }
+                        @if (sort == "name_desc")
+                        {
+                            <option value="name_desc" selected="selected">Tên Z → A</option>
+                        }
+                        else
+                        {
+                            <option value="name_desc">Tên Z → A</option>
+                        }
+                        @if (sort == "price_asc")
+                        {
+                            <option value="price_asc" selected="selected">Giá tăng dần</option>
+                        }
+                        else
+                        {
+                            <option value="price_asc">Giá tăng dần</option>
+                        }
+                        @if (sort == "price_desc")
+                        {
+                            <option value="price_desc" selected="selected">Giá giảm dần</option>
+                        }
+                        else
+                        {
+                            <option value="price_desc">Giá giảm dần</option>
+                        }
+                        @if (sort == "date_desc")
+                        {
+                            <option value="date_desc" selected="selected">Mới nhất</option>
+                        }
+                        else
+                        {
+                            <option value="date_desc">Mới nhất</option>
+                        }
+                        @if (sort == "date_asc")
+                        {
+                            <option value="date_asc" selected="selected">Cũ nhất</option>
+                        }
+                        else
+                        {
+                            <option value="date_asc">Cũ nhất</option>
+                        }
+                    </select>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- ===== DATA TABLE ===== -->
@@ -158,101 +194,33 @@
             <table class="table table-hover align-middle mb-0" id="serviceTable">
                 <thead class="table-light">
                     <tr>
-                        <!-- Service Name Column -->
-                        <th class="ps-4" style="width: 40%;">
-                            <a href="@Url.Action("ServiceList", "AdminService", new { 
-                                search = currentFilter, 
-                                status = currentStatus, 
-                                categoryId = selectedCategoryId,
-                                sort = currentSort == "name_asc" ? "name_desc" : "name_asc",
-                                page = currentPage 
-                            })" class="text-decoration-none text-dark fw-bold">
-                                Tên dịch vụ
-                                @if (currentSort == "name_asc")
-                                {
-                                    <i class="fas fa-sort-up ms-1"></i>
-                                }
-                                else if (currentSort == "name_desc")
-                                {
-                                    <i class="fas fa-sort-down ms-1"></i>
-                                }
-                                else
-                                {
-                                    <i class="fas fa-sort ms-1 text-muted"></i>
-                                }
-                            </a>
-                        </th>
-                        
-                        <!-- Category Column -->
-                        <th style="width: 15%;">Danh mục</th>
-                        
-                        <!-- Price Column -->
-                        <th class="text-end" style="width: 15%;">
-                            <a href="@Url.Action("ServiceList", "AdminService", new { 
-                                search = currentFilter, 
-                                status = currentStatus, 
-                                categoryId = selectedCategoryId,
-                                sort = currentSort == "price_asc" ? "price_desc" : "price_asc",
-                                page = currentPage 
-                            })" class="text-decoration-none text-dark fw-bold">
-                                Giá
-                                @if (currentSort == "price_asc")
-                                {
-                                    <i class="fas fa-sort-up ms-1"></i>
-                                }
-                                else if (currentSort == "price_desc")
-                                {
-                                    <i class="fas fa-sort-down ms-1"></i>
-                                }
-                                else
-                                {
-                                    <i class="fas fa-sort ms-1 text-muted"></i>
-                                }
-                            </a>
-                        </th>
-                        
-                        <!-- Status Column -->
-                        <th class="text-center" style="width: 10%;">Trạng thái</th>
-                        
-                        <!-- Actions Column -->
-                        <th class="text-center pe-4" style="width: 20%;">Thao tác</th>
+                        <th class="text-center" style="width:100px;">ID</th>
+                        <th>Tên dịch vụ</th>
+                        <th>Danh mục</th>
+                        <th class="text-center">Giá</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center" style="width:110px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (currentPageServices != null && currentPageServices.Any())
                     {
-                        @foreach (var service in currentPageServices)
+                        foreach (var service in currentPageServices)
                         {
-                            var serviceImage = defaultImages[service.ServiceId % defaultImages.Length];
-                            <tr class="service-row" data-service-id="@service.ServiceId">
-                                <!-- Service Info -->
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="service-image-container">
-                                            <img src="@serviceImage" 
-                                                 alt="@service.Name" 
-                                                 class="service-thumb"
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div class="service-thumb-placeholder" style="display: none;">
-                                                <i class="fas fa-briefcase"></i>
-                                            </div>
+                            <tr>
+                                <td class="text-center">SV-@service.ServiceId.ToString("D4")</td>
+                                <td>
+                                    <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })"
+                                       class="service-name-link">
+                                        @service.Name
+                                    </a>
+                                    @if (!string.IsNullOrEmpty(service.Description))
+                                    {
+                                        <div class="small text-muted text-truncate" style="max-width:220px;">
+                                            @service.Description
                                         </div>
-                                        <div class="service-content">
-                                            <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })" 
-                                               class="service-name">
-                                                @service.Name
-                                            </a>
-                                            @if (!string.IsNullOrEmpty(service.Description))
-                                            {
-                                                <div class="service-desc small text-muted">
-                                                    @(service.Description.Length > 50 ? service.Description.Substring(0, 47) + "..." : service.Description)
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
+                                    }
                                 </td>
-                                
-                                <!-- Category -->
                                 <td>
                                     @if (!string.IsNullOrEmpty(service.CategoryName))
                                     {
@@ -263,76 +231,45 @@
                                         <span class="text-muted">—</span>
                                     }
                                 </td>
-                                
-                                <!-- Price -->
-                                <td class="text-end">
-                                    <span class="fw-bold text-primary">
-                                        @{
-                                            string priceText = "";
-                                            if (service.Price >= 1000000)
-                                            {
-                                                priceText = (service.Price / 1000000).ToString("0.#") + "M VNĐ";
-                                            }
-                                            else
-                                            {
-                                                priceText = service.Price.ToString("N0") + " VNĐ";
-                                            }
-                                        }
-                                        @priceText
-                                    </span>
-                                </td>
-                                
-                                <!-- Status -->
+                                <td class="text-end fw-bold text-primary">@service.Price.ToString("N0") đ</td>
                                 <td class="text-center">
                                     @if (service.IsActive == true)
                                     {
-                                        <span class="badge badge-success">
-                                            <i class="fas fa-check-circle me-1"></i> Hoạt động
-                                        </span>
+                                        <span class="badge badge-success">Hoạt động</span>
                                     }
                                     else
                                     {
-                                        <span class="badge badge-danger">
-                                            <i class="fas fa-pause-circle me-1"></i> Tạm ngưng
-                                        </span>
+                                        <span class="badge badge-danger">Tạm ngưng</span>
                                     }
                                 </td>
-                                
-                                <!-- Actions -->
-                                <td class="text-center pe-4">
-                                    <div class="action-buttons">
-                                        <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })" 
-                                           class="btn btn-outline-primary" 
-                                           data-toggle="tooltip" 
-                                           title="Xem chi tiết">
-                                            <i class="fas fa-eye"></i>
+                                <td class="text-center">
+                                    <div class="action-buttons d-flex justify-content-center gap-1">
+                                        <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })"
+                                           class="btn btn-light btn-sm border" title="Xem chi tiết">
+                                            <i class="fas fa-eye text-primary"></i>
                                         </a>
-                                        <a href="@Url.Action("EditService", "AdminService", new { id = service.ServiceId })" 
-                                           class="btn btn-outline-secondary"
-                                           data-toggle="tooltip" 
-                                           title="Chỉnh sửa">
-                                            <i class="fas fa-edit"></i>
+                                        <a href="@Url.Action("EditService", "AdminService", new { id = service.ServiceId })"
+                                           class="btn btn-light btn-sm border" title="Sửa">
+                                            <i class="fas fa-edit text-secondary"></i>
                                         </a>
                                         @if (service.IsActive == true)
                                         {
-                                            <button type="button" 
-                                                    class="btn btn-outline-warning btn-status-toggle"
+                                            <button type="button"
+                                                    class="btn btn-light btn-sm border btn-status-toggle"
                                                     data-service-id="@service.ServiceId"
                                                     data-current-status="true"
-                                                    data-toggle="tooltip" 
                                                     title="Tạm ngưng">
-                                                <i class="fas fa-pause"></i>
+                                                <i class="fas fa-pause text-warning"></i>
                                             </button>
                                         }
                                         else
                                         {
-                                            <button type="button" 
-                                                    class="btn btn-outline-success btn-status-toggle"
+                                            <button type="button"
+                                                    class="btn btn-light btn-sm border btn-status-toggle"
                                                     data-service-id="@service.ServiceId"
                                                     data-current-status="false"
-                                                    data-toggle="tooltip" 
                                                     title="Kích hoạt">
-                                                <i class="fas fa-play"></i>
+                                                <i class="fas fa-play text-success"></i>
                                             </button>
                                         }
                                     </div>
@@ -343,13 +280,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="empty-state">
-                                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                                    <h6 class="text-muted">Không tìm thấy dịch vụ nào</h6>
-                                    <p class="text-muted">Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác</p>
-                                </div>
-                            </td>
+                            <td colspan="6" class="text-center text-muted">Không có dịch vụ nào.</td>
                         </tr>
                     }
                 </tbody>
@@ -358,67 +289,62 @@
     </div>
 
     <!-- ===== PAGINATION ===== -->
-    <div class="pagination-container">
-        @if (totalPages > 1)
-        {
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <div class="text-muted small">
-                    Hiển thị @startItem - @endItem trong tổng số @totalItems dịch vụ
-                </div>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        @if (Model?.Pagination?.HasPreviousPage == true)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("ServiceList", "AdminService", new { 
-                                    search = currentFilter, 
-                                    status = currentStatus, 
-                                    categoryId = selectedCategoryId,
-                                    sort = currentSort,
-                                    page = currentPage - 1 
-                                })">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-                        }
-                        
-                        @{
-                            var startPage = Math.Max(1, currentPage - 2);
-                            var endPage = Math.Min(totalPages, currentPage + 2);
-                        }
-                        
-                        @for (int i = startPage; i <= endPage; i++)
-                        {
-                            <li class="page-item @(i == currentPage ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("ServiceList", "AdminService", new { 
-                                    search = currentFilter, 
-                                    status = currentStatus, 
-                                    categoryId = selectedCategoryId,
-                                    sort = currentSort,
-                                    page = i 
-                                })">@i</a>
-                            </li>
-                        }
-                        
-                        @if (Model?.Pagination?.HasNextPage == true)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("ServiceList", "AdminService", new { 
-                                    search = currentFilter, 
-                                    status = currentStatus, 
-                                    categoryId = selectedCategoryId,
-                                    sort = currentSort,
-                                    page = currentPage + 1 
-                                })">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted small">
+                Hiển thị @startItem - @endItem trong tổng số @totalItems dịch vụ
             </div>
-        }
-    </div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @if (Model?.Pagination?.HasPreviousPage == true)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("ServiceList", "AdminService", new { 
+                                search = currentFilter, 
+                                status = currentStatus, 
+                                categoryId = selectedCategoryId,
+                                sort = currentSort,
+                                page = currentPage - 1 
+                            })">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    }
+                    @{
+                        var startPage = Math.Max(1, currentPage - 2);
+                        var endPage = Math.Min(totalPages, currentPage + 2);
+                    }
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("ServiceList", "AdminService", new { 
+                                search = currentFilter, 
+                                status = currentStatus, 
+                                categoryId = selectedCategoryId,
+                                sort = currentSort,
+                                page = i 
+                            })">@i</a>
+                        </li>
+                    }
+                    @if (Model?.Pagination?.HasNextPage == true)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("ServiceList", "AdminService", new { 
+                                search = currentFilter, 
+                                status = currentStatus, 
+                                categoryId = selectedCategoryId,
+                                sort = currentSort,
+                                page = currentPage + 1 
+                            })">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
 
     <!-- ===== HIDDEN FORM FOR STATUS TOGGLE ===== -->
     <form id="statusToggleForm" method="post" action="" style="display: none;">

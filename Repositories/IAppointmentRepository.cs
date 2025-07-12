@@ -1,3 +1,4 @@
+        
 using pet_spa_system1.Models;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,10 @@ namespace pet_spa_system1.Repositories
         int CountAppointmentsByDate(DateTime date);
         int CountUpcomingAppointments(DateTime fromDate);
         int CountAppointmentsByStatus(int statusId);
+        List<Appointment> GetPendingAppointments();
+        List<Appointment> GetPendingCancelAppointments();
+
+        List<Appointment> GetPendingApprovalAppointments();
 
         List<Appointment> GetAppointments(
             string searchTerm = "",
@@ -64,5 +69,6 @@ namespace pet_spa_system1.Repositories
         public int TotalAppointments { get; set; }
         public int CompletedAppointments { get; set; }
         public int CancelledAppointments { get; set; }
+
     }
 }

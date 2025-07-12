@@ -1,4 +1,3 @@
-
 using pet_spa_system1.Models;
 using System;
 using System.Collections.Generic;
@@ -91,6 +90,7 @@ namespace pet_spa_system1.ViewModels
         public int TotalCategories { get; set; }
         public int TotalBookings { get; set; }
         public decimal TotalRevenue { get; set; }
+        
 
         // ===== CHART DATA =====
         public ChartDataViewModel TopServiceChart { get; set; } = new ChartDataViewModel();
@@ -106,6 +106,7 @@ namespace pet_spa_system1.ViewModels
         public Dictionary<string, int> CategoryDistribution { get; set; } = new Dictionary<string, int>();
     }
 
+    
     public class TopServiceItem
     {
         public int ServiceId { get; set; }
@@ -162,6 +163,8 @@ namespace pet_spa_system1.ViewModels
     {
         public int? CategoryId { get; set; }
         public string? Search { get; set; }
+        public decimal? PriceFrom { get; set; }
+        public decimal? PriceTo { get; set; }
         public string? Sort { get; set; } = "name_asc";
         public string? Status { get; set; }
         public DateTime? CreatedFrom { get; set; }

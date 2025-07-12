@@ -1,4 +1,5 @@
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Repositories
 {
@@ -48,5 +49,19 @@ namespace pet_spa_system1.Repositories
         }
 
         public void Save() => _context.SaveChanges();
+        
+        // Thêm hàm chuyển đổi mã trạng thái sang tên
+        private string GetStatusName(int? status)
+        {
+            return status switch
+            {
+                1 => "Chờ xác nhận",
+                2 => "Đã xác nhận",
+                3 => "Đang thực hiện",
+                4 => "Hoàn thành",
+                5 => "Đã hủy",
+                _ => "Không xác định"
+            };
+        }
     }
 }

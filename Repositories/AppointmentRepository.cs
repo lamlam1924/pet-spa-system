@@ -239,13 +239,11 @@ namespace pet_spa_system1.Repositories
         {
             return _context.Appointments
                 .Include(a => a.User)
-                .Include(a => a.Status)
                 .Include(a => a.Employee)
-                .Include(a => a.AppointmentPets)
-                    .ThenInclude(ap => ap.Pet)
-                .Include(a => a.AppointmentServices)
-                    .ThenInclude(as_ => as_.Service)
-                    .ThenInclude(s => s.Category)
+                .Include(a => a.Status)
+                .Include(a => a.Promotion)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet).ThenInclude(p => p.Species)
+                .Include(a => a.AppointmentServices).ThenInclude(asv => asv.Service).ThenInclude(s => s.Category)
                 .FirstOrDefault(a => a.AppointmentId == id);
         }
 
@@ -321,6 +319,45 @@ namespace pet_spa_system1.Repositories
         public List<Pet> GetAllPets()
         {
             return _context.Pets.ToList();
+        }
+
+        public List<Appointment> GetPendingApprovalAppointments()
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.Employee)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
+                .Where(a => a.StatusId == 6 || a.StatusId == 7)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ToList();
+        }
+        
+        public List<Appointment> GetPendingAppointments()
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.Employee)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
+                .Where(a => a.StatusId == 1)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ToList();
+        }
+
+        public List<Appointment> GetPendingCancelAppointments()
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.Employee)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
+                .Where(a => a.StatusId == 6)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ToList();
         }
     }
 }

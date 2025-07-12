@@ -69,14 +69,12 @@ namespace pet_spa_system1.Controllers
 
                 if (_appointmentService.SaveAppointment(model, userId))
                 {
-                    TempData["SuccessMessage"] = "Đặt lịch thành công! Vui lòng kiểm tra email để xem chi tiết.";
-                    
+                    TempData["SuccessMessage"] = "Đặt lịch thành công!";
                     // Return JSON for AJAX requests
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
                         return Json(new { success = true, redirectUrl = Url.Action("Success") });
                     }
-                    
                     return RedirectToAction(nameof(Success));
                 }
             }
@@ -115,12 +113,14 @@ namespace pet_spa_system1.Controllers
 
         // POST: /Appointment/RequestCancel
         [HttpPost]
-        public IActionResult RequestCancel(int appointmentId)
+        public IActionResult RequestCancel([FromBody] RequestCancelDto dto)
         {
             // Tạm thời hardcode userId = 2, thực tế lấy từ session hoặc identity
             int userId = 2;
 
-            var result = _appointmentService.RequestCancelAppointment(appointmentId, userId);
+            Console.WriteLine($"[RequestCancel] appointmentId nhận được từ client: {dto?.appointmentId}");
+
+            var result = _appointmentService.RequestCancelAppointment(dto?.appointmentId ?? 0, userId);
 
             if (result)
             {
@@ -131,6 +131,11 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
             }
         }
+    }
+
+    public class RequestCancelDto
+    {
+        public int appointmentId { get; set; }
     }
 }
 

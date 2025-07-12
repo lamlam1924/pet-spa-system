@@ -15,91 +15,29 @@
         </div>
         <h1 class="success-title">Đặt lịch thành công!</h1>
         <p class="success-message">
-            Cảm ơn bạn đã đặt lịch dịch vụ tại Pet Spa. Chúng tôi đã gửi email xác nhận đến địa chỉ email của bạn.
+            Cảm ơn bạn đã lựa chọn <strong>Pet Spa</strong>.<br>
+            Chúng tôi đã nhận được thông tin và sẽ liên hệ xác nhận sớm nhất.<br>
+            Vui lòng kiểm tra email để xem chi tiết lịch hẹn.
         </p>
-        <div class="success-details">
-            <p>Nhân viên của chúng tôi sẽ liên hệ với bạn để xác nhận lại thời gian đặt lịch.</p>
-            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua số điện thoại <strong>0123.456.789</strong>.</p>
-        </div>
         <div class="success-actions">
             <a href="@Url.Action("History", "Appointment")" class="btn btn-primary">
-                <i class="fa fa-calendar"></i> Xem lịch sử đặt lịch
+                <i class="fa fa-calendar"></i> Xem lịch sử
             </a>
             <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
-                <i class="fa fa-home"></i> Về trang chủ
+                <i class="fa fa-home"></i> Trang chủ
             </a>
         </div>
     </div>
 </div>
 
-<!-- Toast container để hiển thị thông báo -->
 <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
 @section Styles {
-    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/success.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/css/success.css")" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 }
 
 @section Scripts {
-    <!-- Thêm thư viện confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script src="@Url.Content("~/cssjsAppointment/success.js")"></script>
-    
-    <script>
-        $(document).ready(function() {
-            // Hiển thị thông báo toast nếu có
-            if ($('#successMessage').length > 0 && $('#successMessage').val()) {
-                showToast($('#successMessage').val(), 'success');
-            }
-            
-            // Hàm hiển thị toast
-            function showToast(message, type = 'info') {
-                let bgColor, iconClass, borderColor;
-                
-                switch(type) {
-                    case 'success':
-                        bgColor = 'bg-success bg-opacity-75';
-                        iconClass = 'fas fa-check-circle';
-                        borderColor = 'border-success';
-                        break;
-                    case 'warning':
-                        bgColor = 'bg-warning bg-opacity-75';
-                        iconClass = 'fas fa-exclamation-triangle';
-                        borderColor = 'border-warning';
-                        break;
-                    case 'error':
-                        bgColor = 'bg-danger bg-opacity-75';
-                        iconClass = 'fas fa-times-circle';
-                        borderColor = 'border-danger';
-                        break;
-                    default: // info
-                        bgColor = 'bg-info bg-opacity-75';
-                        iconClass = 'fas fa-info-circle';
-                        borderColor = 'border-info';
-                }
-                
-                const toastId = 'toast-' + new Date().getTime();
-                const toast = $(`
-                    <div id="${toastId}" class="toast ${borderColor} border-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
-                        <div class="toast-header ${bgColor} text-white">
-                            <i class="${iconClass} me-2"></i>
-                            <strong class="me-auto">${type === 'success' ? 'Thành công' : 'Thông báo'}</strong>
-                            <small>${new Date().toLocaleTimeString()}</small>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                    </div>
-                `);
-                
-                $('#toastContainer').prepend(toast);
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-                
-                toast.on('hidden.bs.toast', function() {
-                    $(this).remove();
-                });
-            }
-        });
-    </script>
+    <script src="@Url.Content("~/cssjsAppointment/js/success.js")"></script>
 }

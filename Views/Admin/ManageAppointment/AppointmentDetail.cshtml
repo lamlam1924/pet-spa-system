@@ -1,13 +1,18 @@
-@model pet_spa_system1.Models.Appointment
+@model pet_spa_system1.ViewModels.AdminAppointmentDetailViewModel
+
 @{
     ViewData["Title"] = "Chi tiết lịch hẹn #" + Model.AppointmentId;
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-detail.css" />
+}
+
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="m-0 fw-bold">
-            <i class="fas fa-calendar-alt me-2"></i>Chi tiết lịch hẹn #@Model.AppointmentId
+            <i class="fas fa-calendar-alt me-2"></i> Chi tiết lịch hẹn #@Model.AppointmentId
         </h3>
         <div class="d-flex gap-2">
             <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary">
@@ -52,24 +57,22 @@
                                         _ => "light"
                                     };
                                 }
-                                <span class="badge bg-@badgeClass me-2">@Model.Status.StatusName</span>
+                                <span class="badge bg-@badgeClass me-2">@Model.StatusName</span>
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Thay đổi
                                     </button>
-                                    <ul class="dropdown-menu shadow">
+                                    <div class="dropdown-menu dropdown-menu-right shadow">
                                         @foreach (var status in ViewBag.Statuses ?? new List<pet_spa_system1.Models.StatusAppointment>())
                                         {
-                                            <li>
-                                                <a class="dropdown-item status-change" 
-                                                   href="#" 
-                                                   data-status-id="@status.StatusId" 
-                                                   data-appointment-id="@Model.AppointmentId">
-                                                    @status.StatusName
-                                                </a>
-                                            </li>
+                                            <a class="dropdown-item status-change" 
+                                               href="#" 
+                                               data-status-id="@status.StatusId" 
+                                               data-appointment-id="@Model.AppointmentId">
+                                                @status.StatusName
+                                            </a>
                                         }
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -93,7 +96,7 @@
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-muted mb-2">Cập nhật gần nhất</h6>
-                            <p class="mb-0">Cập nhật lần cuối: @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p class="mb-0">Cập nhật lần cuối: @Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
                         </div>
                     </div>
 
@@ -111,10 +114,10 @@
                             <h5 class="m-0 fw-bold">Thú cưng</h5>
                         </div>
                         <div class="card-body">
-                            @if (Model.AppointmentPets.Any())
+                            @if (Model.Pets.Any())
                             {
                                 <div class="list-group list-group-flush">
-                                    @foreach (var pet in Model.AppointmentPets)
+                                    @foreach (var pet in Model.Pets)
                                     {
                                         <div class="list-group-item px-0">
                                             <div class="d-flex">
@@ -124,10 +127,10 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-1">@pet.Pet.Name</h6>
+                                                    <h6 class="mb-1">@pet.Name</h6>
                                                     <p class="mb-0 text-muted small">
-                                                        @pet.Pet.Species?.SpeciesName • @pet.Pet.Breed • 
-                                                        @(pet.Pet.Age > 0 ? $"{pet.Pet.Age} tuổi" : "Chưa rõ tuổi")
+                                                        @pet.SpeciesName • @pet.Breed • 
+                                                        @(pet.Age > 0 ? $"{pet.Age} tuổi" : "Chưa rõ tuổi")
                                                     </p>
                                                 </div>
                                             </div>
@@ -152,20 +155,20 @@
                             <h5 class="m-0 fw-bold">Dịch vụ</h5>
                         </div>
                         <div class="card-body">
-                            @if (Model.AppointmentServices.Any())
+                            @if (Model.Services.Any())
                             {
                                 <div class="list-group list-group-flush">
-                                    @foreach (var service in Model.AppointmentServices)
+                                    @foreach (var service in Model.Services)
                                     {
                                         <div class="list-group-item px-0">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <h6 class="mb-1">@service.Service.Name</h6>
+                                                    <h6 class="mb-1">@service.Name</h6>
                                                     <p class="mb-0 text-muted small">
-                                                        @service.Service.Category.Name • @service.Service.DurationMinutes phút
+                                                        @service.CategoryName • @service.DurationMinutes phút
                                                     </p>
                                                 </div>
-                                                <span class="text-success">@service.Service.Price.ToString("N0") VNĐ</span>
+                                                <span class="text-success">@service.Price.ToString("N0") VNĐ</span>
                                             </div>
                                         </div>
                                     }
@@ -173,7 +176,7 @@
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                     <h6 class="mb-0">Tổng cộng:</h6>
                                     <h5 class="text-success mb-0">
-                                        @Model.AppointmentServices.Sum(s => s.Service.Price).ToString("N0") VNĐ
+                                        @Model.TotalPrice.ToString("N0") VNĐ
                                     </h5>
                                 </div>
                             }
@@ -199,11 +202,11 @@
                     <div class="d-flex mb-3">
                         <div class="flex-shrink-0 me-3">
                             <div class="bg-primary text-white rounded-circle text-center" style="width: 64px; height: 64px; line-height: 64px; font-size: 1.5rem;">
-                                @(Model.User.FullName[0])
+                                @(Model.CustomerName?[0])
                             </div>
                         </div>
                         <div>
-                            <h5 class="mb-1">@Model.User.FullName</h5>
+                            <h5 class="mb-1">@Model.CustomerName</h5>
                             <p class="mb-0 text-muted">Khách hàng</p>
                         </div>
                     </div>
@@ -212,7 +215,7 @@
                         <h6 class="text-muted mb-2">Số điện thoại</h6>
                         <p class="mb-0">
                             <i class="fas fa-phone-alt me-2 text-primary"></i>
-                            <a href="tel:@Model.User.Phone" class="text-decoration-none">@Model.User.Phone</a>
+                            <a href="tel:@Model.CustomerPhone" class="text-decoration-none">@Model.CustomerPhone</a>
                         </p>
                     </div>
 
@@ -220,7 +223,7 @@
                         <h6 class="text-muted mb-2">Email</h6>
                         <p class="mb-0">
                             <i class="fas fa-envelope me-2 text-primary"></i>
-                            <a href="mailto:@Model.User.Email" class="text-decoration-none">@Model.User.Email</a>
+                            <a href="mailto:@Model.CustomerEmail" class="text-decoration-none">@Model.CustomerEmail</a>
                         </p>
                     </div>
 
@@ -228,7 +231,7 @@
                         <h6 class="text-muted mb-2">Địa chỉ</h6>
                         <p class="mb-0">
                             <i class="fas fa-map-marker-alt me-2 text-primary"></i>
-                            @(string.IsNullOrEmpty(Model.User.Address) ? "Chưa cập nhật" : Model.User.Address)
+                            @(string.IsNullOrEmpty(Model.CustomerAddress) ? "Chưa cập nhật" : Model.CustomerAddress)
                         </p>
                     </div>
 
@@ -243,16 +246,16 @@
                     <h5 class="m-0 fw-bold">Nhân viên phụ trách</h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.Employee != null)
+                    @if (!string.IsNullOrEmpty(Model.EmployeeName))
                     {
                         <div class="d-flex mb-3">
                             <div class="flex-shrink-0 me-3">
                                 <div class="bg-info text-white rounded-circle text-center" style="width: 64px; height: 64px; line-height: 64px; font-size: 1.5rem;">
-                                    @(Model.Employee.FullName[0])
+                                    @(Model.EmployeeName?[0])
                                 </div>
                             </div>
                             <div>
-                                <h5 class="mb-1">@Model.Employee.FullName</h5>
+                                <h5 class="mb-1">@Model.EmployeeName</h5>
                                 <p class="mb-0 text-muted">Nhân viên</p>
                             </div>
                         </div>
@@ -261,7 +264,7 @@
                             <h6 class="text-muted mb-2">Số điện thoại</h6>
                             <p class="mb-0">
                                 <i class="fas fa-phone-alt me-2 text-info"></i>
-                                <a href="tel:@Model.Employee.Phone" class="text-decoration-none">@Model.Employee.Phone</a>
+                                <a href="tel:@Model.EmployeePhone" class="text-decoration-none">@Model.EmployeePhone</a>
                             </p>
                         </div>
 
@@ -269,7 +272,7 @@
                             <h6 class="text-muted mb-2">Email</h6>
                             <p class="mb-0">
                                 <i class="fas fa-envelope me-2 text-info"></i>
-                                <a href="mailto:@Model.Employee.Email" class="text-decoration-none">@Model.Employee.Email</a>
+                                <a href="mailto:@Model.EmployeeEmail" class="text-decoration-none">@Model.EmployeeEmail</a>
                             </p>
                         </div>
 
@@ -336,44 +339,6 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Thay đổi trạng thái
-            $('.status-change').on('click', function(e) {
-                e.preventDefault();
-                
-                const statusId = $(this).data('status-id');
-                const appointmentId = $(this).data('appointment-id');
-                
-                $.ajax({
-                    url: '@Url.Action("QuickUpdateStatus", "AdminAppointment")',
-                    type: 'POST',
-                    data: { id: appointmentId, statusId: statusId },
-                    success: function(response) {
-                        if (response.success) {
-                            // Reload page to see changes
-                            location.reload();
-                        } else {
-                            alert(response.message || 'Có lỗi xảy ra khi cập nhật trạng thái.');
-                        }
-                    },
-                    error: function() {
-                        alert('Đã xảy ra lỗi khi kết nối với máy chủ.');
-                    }
-                });
-            });
-            
-            // Gửi email xác nhận
-            $('#btnSendConfirmation').on('click', function() {
-                // In a real application, this would connect to an API endpoint to send an email
-                $(this).html('<i class="fas fa-spinner fa-spin me-1"></i>Đang gửi...');
-                $(this).attr('disabled', true);
-                
-                setTimeout(() => {
-                    $(this).html('<i class="fas fa-check-circle me-1"></i>Đã gửi email');
-                    $(this).removeClass('btn-outline-success').addClass('btn-success');
-                }, 2000);
-            });
-        });
-    </script>
+    <script src="~/cssjsAppointment/js/appointment-detail.js"></script>
+    
 }

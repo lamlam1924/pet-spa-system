@@ -34,7 +34,7 @@ namespace pet_spa_system1.Services
                 var filteredServices = ApplyFilters(allServices, filter);
                 
                 // Áp dụng sorting
-                var sortedServices = ApplySorting(filteredServices, filter?.Sort);
+                var sortedServices = ApplySorting(filteredServices, filter);
                 
                 // Tính toán phân trang
                 var totalItems = sortedServices.Count();
@@ -91,20 +91,32 @@ namespace pet_spa_system1.Services
 
                 var totalServices = allServices.Count();
                 var activeServices = allServices.Count(s => s.IsActive == true);
+                var inactiveServices = totalServices - activeServices;
+                var totalCategories = categories.Count();
+
                 var totalBookings = _appointmentServiceRepository.GetTotalBookings();
                 var totalRevenue = _appointmentServiceRepository.GetTotalRevenue();
 
-                var topServices = allServices.Select(s => new TopServiceItem
-                {
-                    ServiceId = s.ServiceId,
-                    ServiceName = s.Name ?? "",
-                    CategoryName = GetCategoryName(s.CategoryId),
-                    BookingCount = _appointmentServiceRepository.GetBookingCountByServiceId(s.ServiceId),
-                    Revenue = _appointmentServiceRepository.GetRevenueByServiceId(s.ServiceId),
-                    Price = s.Price,
-                    IsActive = s.IsActive == true
-                }).OrderByDescending(s => s.BookingCount).Take(5);
+                // Lấy dịch vụ mới nhất
+                var recentServices = _serviceRepository.GetRecentServices(5);
 
+                // Top dịch vụ nổi bật
+                var topServices = allServices
+                    .Select(s => new TopServiceItem
+                    {
+                        ServiceId = s.ServiceId,
+                        ServiceName = s.Name ?? "",
+                        CategoryName = GetCategoryName(s.CategoryId),
+                        BookingCount = _appointmentServiceRepository.GetBookingCountByServiceId(s.ServiceId),
+                        Revenue = _appointmentServiceRepository.GetRevenueByServiceId(s.ServiceId),
+                        Price = s.Price,
+                        IsActive = s.IsActive == true
+                    })
+                    .OrderByDescending(s => s.BookingCount)
+                    .Take(5)
+                    .ToList();
+
+                // Thống kê theo danh mục (nếu cần)
                 var categoryStats = categories.Select(c => new CategoryStatsItem
                 {
                     CategoryId = c.CategoryId,
@@ -116,16 +128,17 @@ namespace pet_spa_system1.Services
                                         .Sum(s => _appointmentServiceRepository.GetRevenueByServiceId(s.ServiceId)),
                     Percentage = totalServices > 0 ? 
                         (decimal)allServices.Count(s => s.CategoryId == c.CategoryId) / totalServices * 100 : 0
-                });
+                }).ToList();
 
                 return new ServiceDashboardViewModel
                 {
                     TotalServices = totalServices,
                     ActiveServices = activeServices,
-                    InactiveServices = totalServices - activeServices,
-                    TotalCategories = categories.Count(),
+                    InactiveServices = inactiveServices,
+                    TotalCategories = totalCategories,
                     TotalBookings = totalBookings,
                     TotalRevenue = totalRevenue,
+                    RecentServices = recentServices,
                     TopServices = topServices,
                     CategoryStats = categoryStats
                 };
@@ -260,7 +273,20 @@ namespace pet_spa_system1.Services
                 query = query.Where(s => s.CategoryId == filter.CategoryId.Value);
 
             if (!string.IsNullOrEmpty(filter.Search))
-                query = query.Where(s => s.Name != null && s.Name.Contains(filter.Search, StringComparison.OrdinalIgnoreCase));
+            {
+                var keyword = filter.Search.Trim();
+                query = query.Where(s =>
+                    (!string.IsNullOrEmpty(s.Name) && s.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(s.Description) && s.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    s.ServiceId.ToString().Contains(keyword)
+                );
+            }
+
+            if (filter.PriceFrom.HasValue)
+                query = query.Where(s => s.Price >= filter.PriceFrom.Value);
+
+            if (filter.PriceTo.HasValue)
+                query = query.Where(s => s.Price <= filter.PriceTo.Value);
 
             if (!string.IsNullOrEmpty(filter.Status))
             {
@@ -279,17 +305,23 @@ namespace pet_spa_system1.Services
             return query;
         }
 
-        private static IOrderedEnumerable<Service> ApplySorting(IEnumerable<Service> services, string? sort)
+        private static IEnumerable<Service> ApplySorting(IEnumerable<Service> services, ServiceFilterModel filter)
         {
-            return sort switch
+            switch (filter.Sort)
             {
-                "name_desc" => services.OrderByDescending(s => s.Name ?? ""),
-                "price_asc" => services.OrderBy(s => s.Price),
-                "price_desc" => services.OrderByDescending(s => s.Price),
-                "created_asc" => services.OrderBy(s => s.CreatedAt ?? DateTime.MinValue),
-                "created_desc" => services.OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue),
-                _ => services.OrderBy(s => s.Name ?? "")
-            };
+                case "name_desc":
+                    return services.OrderByDescending(s => s.Name ?? "");
+                case "price_asc":
+                    return services.OrderBy(s => s.Price);
+                case "price_desc":
+                    return services.OrderByDescending(s => s.Price);
+                case "date_asc":
+                    return services.OrderBy(s => s.CreatedAt ?? DateTime.MinValue);
+                case "date_desc":
+                    return services.OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue);
+                default:
+                    return services.OrderBy(s => s.Name ?? "");
+            }
         }
     }
 }

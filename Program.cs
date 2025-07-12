@@ -8,6 +8,8 @@ using pet_spa_system1.Services;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+// Đăng ký IHttpContextAccessor cho DI container
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container
 builder.Services.AddControllersWithViews();

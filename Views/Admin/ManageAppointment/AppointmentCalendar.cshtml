@@ -53,26 +53,26 @@
     </div>
 </div>
 
-<!-- Modal chi tiết nhanh -->
+<!-- Modal Quick View -->
 <div class="modal fade" id="quickViewModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Chi tiết lịch hẹn</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content shadow-sm">
+            <div class="modal-header bg-light border-0 pb-2">
+                <h5 class="modal-title text-primary fw-bold" id="quickViewTitle">
+                    <i class="far fa-calendar-alt me-2"></i>Chi tiết lịch hẹn
+                </h5>
+                <button type="button" class="close" data-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="quickViewContent">
-                <div class="placeholder-glow">
-                    <div class="placeholder col-12 mb-2" style="height: 24px;"></div>
-                    <div class="placeholder col-8 mb-3" style="height: 20px;"></div>
-                    <div class="placeholder col-10 mb-2" style="height: 18px;"></div>
-                    <div class="placeholder col-9 mb-2" style="height: 18px;"></div>
-                    <div class="placeholder col-11 mb-2" style="height: 18px;"></div>
-                </div>
+                <!-- Nội dung sẽ được render động từ JS -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <a href="#" id="viewDetailBtn" class="btn btn-primary">Xem chi tiết</a>
+            <div class="modal-footer bg-light border-0 pt-2">
+                <a id="addAppointmentBtn" href="#" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Thêm lịch mới
+                </a>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    Ở lại trang lịch
+                </button>
             </div>
         </div>
     </div>
@@ -80,12 +80,12 @@
 
 @section Styles {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-    <link rel="stylesheet" href="~/cssjsappointment/appointment-calendar.custom.css" />
+    <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-calendar.css" />
 }
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-    <script src="~/cssjsappointment/appointment-calendar.custom.js"></script>
+    <script src="~/cssjsAppointment/js/appointment-calendar.js"></script>
     <script id="calendar-data-script" type="application/json">
         @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
             (Model ?? new List<pet_spa_system1.Models.Appointment>())

@@ -50,15 +50,13 @@ namespace pet_spa_system1.Controllers
             try
             {
                 var dashboardModel = _serviceService.GetServiceDashboardViewModel();
-                
-                // Prepare chart data cho JavaScript (không dùng ViewBag)
+                // Trả về view dashboard cùng dữ liệu tổng hợp
                 return View("~/Views/Admin/ManageService/ServiceDashboard.cshtml", dashboardModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi tải dashboard dịch vụ");
                 TempData["ErrorMessage"] = "Có lỗi xảy ra khi tải dashboard.";
-                
                 var emptyDashboard = new ServiceDashboardViewModel();
                 return View("~/Views/Admin/ManageService/ServiceDashboard.cshtml", emptyDashboard);
             }
@@ -304,12 +302,7 @@ namespace pet_spa_system1.Controllers
             try
             {
                 var dashboardData = _serviceService.GetServiceDashboardViewModel();
-                
-                // ❌ Xóa tất cả ViewBag - dùng Model properties thay thế:
-                // ViewBag.InactiveServices = dashboardData.InactiveServices;
-                // ViewBag.TotalCategories = dashboardData.TotalCategories;
-                
-                return View("~/Views/Admin/ManageService/Index.cshtml", dashboardData);
+                return RedirectToAction("ServiceDashboard");
             }
             catch (Exception ex)
             {

@@ -4,18 +4,12 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Debug info -->
-@if (Model != null)
-{
-    <div style="display:none;">
-        <h4>Debug Info</h4>
-        <p>Appointments count: @(Model.Appointments?.Count ?? 0)</p>
-        <p>Statuses count: @(Model.Statuses?.Count ?? 0)</p>
-    </div>
-}
+
 
 <!-- CSS -->
-<link rel="stylesheet" href="~/cssjsAppointment/appointment-history.css" />
+<link rel="stylesheet" href="~/cssjsAppointment/css/appointment-common.css" />
+<link rel="stylesheet" href="~/cssjsAppointment/css/appointment-history.css" />
+<link rel="stylesheet" href="~/cssjsAppointment/css/toast-custom.css" />
 
 <section class="history-section">
     <div class="container">
@@ -31,7 +25,6 @@
         <div class="row">
             <div class="col-12">
                 <div class="filter-section timeline-controls">
-                    <!-- Tìm kiếm -->
                     <div class="search-sort-container">
                         <div class="search-box">
                             <i class="fas fa-search"></i>
@@ -42,36 +35,40 @@
                             <select class="sort-select">
                                 <option value="newest">Mới nhất</option>
                                 <option value="oldest">Cũ nhất</option>
-                                <option value="status">Trạng thái</option>
                             </select>
                         </div>
                     </div>
-
-                    <!-- Lọc trạng thái -->
                     <div class="filter-options">
                         <span class="filter-label me-2">Lọc theo trạng thái:</span>
-                        <div class="filter-badge filter-badge-all active" data-status="all">
-                            <i class="fas fa-th-large"></i> Tất cả
-                        </div>
-                        <div class="filter-badge filter-badge-pending" data-status="1">
-                            <i class="fas fa-clock"></i> Chờ xác nhận
-                        </div>
-                        <div class="filter-badge filter-badge-confirmed" data-status="2">
-                            <i class="fas fa-calendar-check"></i> Đã xác nhận
-                        </div>
-                        <div class="filter-badge filter-badge-inprogress" data-status="3">
-                            <i class="fas fa-play-circle"></i> Đang thực hiện
-                        </div>
-                        <div class="filter-badge filter-badge-completed" data-status="4">
-                            <i class="fas fa-check-circle"></i> Hoàn thành
-                        </div>
-                        <div class="filter-badge filter-badge-pendingcancel" data-status="6">
-                            <i class="fas fa-hourglass-half"></i> Chờ duyệt hủy
-                        </div>
-                        <div class="filter-badge filter-badge-cancelled" data-status="5">
-                            <i class="fas fa-times-circle"></i> Đã hủy
-                        </div>
-                        
+                        @functions {
+                            public string GetFilterBadgeClass(string id)
+                            {
+                                switch(id)
+                                {
+                                    case "1": return "filter-badge-pending";
+                                    case "2": return "filter-badge-confirmed";
+                                    case "3": return "filter-badge-inprogress";
+                                    case "4": return "filter-badge-completed";
+                                    case "5": return "filter-badge-cancelled";
+                                    case "6": return "filter-badge-pendingcancel";
+                                    case "all": return "filter-badge-all";
+                                    default: return "";
+                                }
+                            }
+                        }
+                        @foreach (var status in new[] {
+                            new { Id = "all", Icon = "fa-th-large", Name = "Tất cả" },
+                            new { Id = "1", Icon = "fa-clock", Name = "Chờ xác nhận" },
+                            new { Id = "2", Icon = "fa-calendar-check", Name = "Đã xác nhận" },
+                            new { Id = "3", Icon = "fa-play-circle", Name = "Đang thực hiện" },
+                            new { Id = "4", Icon = "fa-check-circle", Name = "Hoàn thành" },
+                            new { Id = "6", Icon = "fa-hourglass-half", Name = "Chờ duyệt hủy" },
+                            new { Id = "5", Icon = "fa-times-circle", Name = "Đã hủy" }
+                        }) {
+            <div class="filter-badge @GetFilterBadgeClass(status.Id) @(status.Id=="all" ? "active" : "")" data-status="@status.Id">
+                <i class="fas @status.Icon"></i> @status.Name
+            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -79,25 +76,7 @@
 
         <div class="row">
             <div class="col-12">
-                <!-- Timeline nhóm theo thời gian -->
-                <div class="history-timeline">
-                    @if (Model.Appointments == null || Model.Appointments.Count == 0)
-                    {
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="far fa-calendar-alt"></i>
-                            </div>
-                            <h3>Chưa có lịch hẹn nào</h3>
-                            <p>Bạn chưa đặt lịch hẹn nào tại pet spa của chúng tôi. Hãy đặt lịch ngay để chăm sóc thú cưng của bạn.</p>
-                            <a href="@Url.Action("Index", "Service")" class="btn btn-primary">Đặt lịch ngay</a>
-                        </div>
-                    }
-                    else
-                    {
-                        <!-- Timeline được render từ JavaScript -->
-                        <!-- Sẽ được điền từ dữ liệu JSON thông qua JavaScript -->
-                    }
-                </div>
+                <div class="history-timeline"></div>
             </div>
         </div>
 
@@ -174,18 +153,8 @@
 </div>
 
 <!-- Script -->
-<script src="~/cssjsAppointment/appointment-history.js"></script>
+<script src="~/cssjsAppointment/js/appointment-history.js"></script>
 <script>
-    // Chuyển dữ liệu từ Model sang JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        const appointmentData = @Html.Raw(Json.Serialize(Model.Appointments));
-        window.appointmentData = appointmentData;
-        console.log("Data loaded to window.appointmentData:", appointmentData);
-        
-        // Thêm debug cho phần hiển thị
-        setTimeout(() => {
-            console.log("Timeline container:", document.querySelector('.history-timeline'));
-            console.log("Current appointments rendered:", document.querySelectorAll('.appointment-card').length);
-        }, 1000);
-    });
+    // Truyền dữ liệu lịch hẹn sang JS
+    window.appointmentData = @Html.Raw(Json.Serialize(Model.Appointments));
 </script>

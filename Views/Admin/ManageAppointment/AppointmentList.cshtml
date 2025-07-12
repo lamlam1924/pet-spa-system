@@ -1,24 +1,10 @@
-@model List<pet_spa_system1.Models.Appointment>
-
-
-@functions{
-    public (string color, string icon) GetStatusInfo(int statusId)
-    {
-        switch(statusId)
-        {
-            case 1: return ("warning text-dark", "<i class='fas fa-hourglass-half text-warning me-1'></i>");   // Chờ xác nhận
-            case 2: return ("success", "<i class='fas fa-check-circle text-success me-1'></i>");                 // Đã xác nhận
-            case 3: return ("secondary", "<i class='fas fa-check-double text-secondary me-1'></i>");             // Đã hoàn thành
-            case 4: return ("danger", "<i class='fas fa-times-circle text-danger me-1'></i>");                   // Đã hủy
-            default: return ("light", "<i class='fas fa-question-circle text-muted me-1'></i>");
-        }
-    }
-}
-
+@model pet_spa_system1.ViewModels.AppointmentListViewModel
 @{
     ViewData["Title"] = "Danh sách lịch hẹn";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
+
+
 
 <div class="container-fluid py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
@@ -36,55 +22,42 @@
     </div>
 
     <!-- Tìm kiếm và bộ lọc -->
-    <div class="card shadow-sm mb-4 border-0">
-        <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" id="search-input" class="form-control border-start-0" placeholder="Tìm kiếm...">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <select id="status-filter" class="form-select">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="1">Chờ xác nhận</option>
-                        <option value="2">Đã xác nhận</option>
-                        <option value="3">Đã hoàn thành</option>
-                        <option value="4">Đã hủy</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="far fa-calendar-alt text-muted"></i>
-                        </span>
-                        <input type="date" id="date-filter" class="form-control border-start-0">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <select id="employee-filter" class="form-select">
-                        <option value="">Tất cả nhân viên</option>
-                        <option value="1">Nguyễn Văn A</option>
-                        <option value="2">Trần Thị B</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button id="btn-reset-filter" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-sync-alt me-1"></i>Đặt lại
-                    </button>
-                </div>
-            </div>
+    <div class="filter-section mb-4">
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" class="form-control" placeholder="Tìm kiếm...">
+            <button class="btn-clear" type="button" style="display:none"><i class="fas fa-times"></i></button>
+        </div>
+        <div>
+            <select id="status-filter" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                @foreach (var status in Model.StatusList)
+                {
+                    <option value="@status.StatusId">@status.StatusName</option>
+                }
+            </select>
+        </div>
+        <div>
+            <input type="date" id="date-filter" class="form-control" placeholder="Ngày hẹn">
+        </div>
+        <div>
+            <select id="employee-filter" class="form-select">
+                <option value="">Tất cả nhân viên</option>
+                <option value="1">Nguyễn Văn A</option>
+                <option value="2">Trần Thị B</option>
+            </select>
+        </div>
+        <div>
+            <button id="btn-reset-filter" class="btn btn-outline-secondary w-100">
+                <i class="fas fa-sync-alt me-1"></i>Đặt lại
+            </button>
         </div>
     </div>
 
-    <div class="card shadow border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="appointment-table">
-                    <thead class="bg-light">
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="appointment-table">
+                <thead>
                         <tr>
                             <th class="ps-3">ID</th>
                             <th>
@@ -106,9 +79,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Appointments)
                     {
-                        var statusInfo = GetStatusInfo(item.StatusId);
                         <tr>
                             <td class="ps-3 fw-medium">@item.AppointmentId</td>
                             <td>
@@ -153,8 +125,8 @@
                                 </div>
                             </td>
                             <td class="status-col">
-                                <span class="badge badge-status bg-@statusInfo.color" data-statusid="@item.StatusId">
-                                    @Html.Raw(statusInfo.icon) @item.Status.StatusName
+                                <span class="badge badge-status status-@item.StatusId" data-statusid="@item.StatusId" style="font-size:1em;min-width:120px;">
+                                    <span class="status-icon"></span> @item.Status.StatusName
                                 </span>
                             </td>
                             <td>
@@ -179,29 +151,16 @@
                                 </span>
                             </td>
                             <td class="text-center pe-3">
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        Thao tác
+                                <div class="action-buttons">
+                                    <a class="btn btn-outline-primary" title="Xem chi tiết" href="@Url.Action("AppointmentDetail", "Admin", new { id = item.AppointmentId })">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("EditAppointment", "Admin", new { id = item.AppointmentId })">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-danger" title="Xóa" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.AppointmentId">
+                                        <i class="fas fa-trash"></i>
                                     </button>
-                                    <ul class="dropdown-menu shadow">
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("AppointmentDetail", "Admin", new { id = item.AppointmentId })">
-                                                <i class="fas fa-eye me-2 text-info"></i>Xem chi tiết
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("AppointmentEdit", "Admin", new { id = item.AppointmentId })">
-                                                <i class="fas fa-edit me-2 text-primary"></i>Chỉnh sửa
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal" 
-                                               data-id="@item.AppointmentId">
-                                                <i class="fas fa-trash me-2"></i>Xóa
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </td>
                         </tr>
@@ -212,17 +171,27 @@
         </div>
         <div class="card-footer bg-white">
             <nav>
+                @{
+                    int currentPage = ViewBag.CurrentPage ?? 1;
+                    int totalPages = ViewBag.TotalPages ?? 1;
+                }
                 <ul class="pagination justify-content-center m-0">
-                    <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("List", new { page = currentPage - 1 })"><i class="fas fa-chevron-left"></i></a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("List", new { page = i })">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("List", new { page = currentPage + 1 })"><i class="fas fa-chevron-right"></i></a>
+                    </li>
                 </ul>
             </nav>
         </div>
     </div>
-</div>
 
 <!-- Modal xóa lịch hẹn -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
@@ -248,9 +217,9 @@
 </div>
 
 @section Scripts {
-    <script src="~/cssjsappointment/appointment-list.custom.js"></script>
+    <script src="~/cssjsappointment/js/appointment-list.js"></script>
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/cssjsappointment/appointment-list.custom.css" />
+    <link rel="stylesheet" href="~/cssjsappointment/css/appointment-list.css" />
 }

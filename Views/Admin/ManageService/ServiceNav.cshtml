@@ -3,18 +3,6 @@
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
 }
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <div>
-        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
-        <p class="mb-0 text-muted">@ViewData["SubTitle"]</p>
-    </div>
-    <ol class="breadcrumb mb-0 bg-transparent float-sm-right">
-        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")"><i class="fas fa-home"></i></a></li>
-        <li class="breadcrumb-item">Quản lý dịch vụ</li>
-        <li class="breadcrumb-item active">@ViewData["SubTitle"]</li>
-    </ol>
-</div>
-
 <div class="mb-4">
     <div class="nav-wrapper position-relative">
         <ul class="nav nav-pills nav-fill nav-tabs-service flex-column flex-md-row shadow-sm">

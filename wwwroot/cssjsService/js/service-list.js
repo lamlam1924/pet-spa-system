@@ -17,6 +17,7 @@ $(document).ready(function() {
     setupSearch();
     setupFilters();
     showMessages();
+    setupPriceInputFormat();
     
     console.log('All functions initialized');
 });
@@ -59,7 +60,7 @@ function setupSearch() {
 
 /* ===== FILTER FUNCTIONALITY ===== */
 function setupFilters() {
-    $('#categoryFilter, #statusFilter').on('change', function() {
+    $('#categoryFilter, #statusFilter, #sortOrder').on('change', function() {
         $('#filterForm').submit();
     });
 }
@@ -185,6 +186,41 @@ function showToast(type, title, message) {
         icon: type,
         title: title,
         text: message
+    });
+}
+
+/* ===== PRICE INPUT FORMAT FUNCTIONALITY ===== */
+function setupPriceInputFormat() {
+    const priceInputs = $('input.price-input');
+    priceInputs.on('input', function () {
+        // Lưu vị trí con trỏ cũ
+        const oldValue = this.value;
+        const oldCursor = this.selectionStart;
+
+        // Lấy số thuần
+        let val = oldValue.replace(/\D/g, '');
+        if (val) {
+            // Format lại với dấu chấm
+            let formatted = val.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            this.value = formatted;
+
+            // Tính lại vị trí con trỏ
+            let diff = formatted.length - oldValue.length;
+            let newCursor = oldCursor + diff;
+            // Nếu xóa hết thì về đầu
+            if (formatted === '') newCursor = 0;
+            // Đặt lại vị trí con trỏ
+            this.setSelectionRange(newCursor, newCursor);
+        } else {
+            this.value = '';
+        }
+    });
+
+    // Khi submit form, bỏ dấu chấm để gửi số thuần
+    $('#filterForm').on('submit', function () {
+        priceInputs.each(function () {
+            this.value = this.value.replace(/\./g, '');
+        });
     });
 }
 

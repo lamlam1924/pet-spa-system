@@ -1,0 +1,16 @@
+/* success-email.css */
+.email-container { font-family: Arial, sans-serif; background: #fff; padding: 24px; border-radius: 8px; max-width: 600px; margin: auto; }
+.email-header { text-align: center; margin-bottom: 24px; }
+.email-header h1 { color: #007bff; margin-bottom: 0; }
+.email-body { margin-bottom: 24px; }
+.greeting { font-size: 18px; margin-bottom: 12px; }
+.message { margin-bottom: 16px; }
+.appointment-details, .pets-section, .services-section { margin-bottom: 16px; }
+.section-title { font-weight: bold; margin-bottom: 8px; color: #007bff; }
+.detail-item { display: flex; margin-bottom: 4px; }
+.detail-label { width: 120px; font-weight: 600; }
+.detail-value { flex: 1; }
+.pet-item, .service-item { margin-bottom: 4px; }
+.service-price { color: #28a745; font-weight: bold; float: right; }
+.notes-section { background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 12px; }
+.note { color: #888; font-style: italic; }

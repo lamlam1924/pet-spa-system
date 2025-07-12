@@ -1,4 +1,5 @@
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Repositories
 {
@@ -9,11 +10,12 @@ namespace pet_spa_system1.Repositories
         int GetBookingCountByServiceId(int serviceId);
         decimal GetRevenueByServiceId(int serviceId);
         bool ExistsByServiceId(int serviceId);
-        
+
         // ===== CHỈ CẦN THIẾT CHO THỐNG KÊ TỔNG QUAN =====
         int GetTotalBookings();
         decimal GetTotalRevenue();
-        
+
         void Save();
+        
     }
 }
