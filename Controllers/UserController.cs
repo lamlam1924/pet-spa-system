@@ -1,37 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
+using pet_spa_system1.Services;
+using pet_spa_system1.Utils;
+using pet_spa_system1.ViewModel;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Identity;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace pet_spa_system1.Controllers
 {
     public class UserController : Controller
     {
-        private readonly PetDataShopContext _context;
-        public UserController(PetDataShopContext context)
+        private readonly IUserService _userService;
+        public UserController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet]
-        public IActionResult List(string search = "", string sort = "")
+        public async Task<IActionResult> List(string search = "", string sort = "", int? roleId = null)
         {
-            // Chỉ hiển thị user chưa bị xóa mềm và role active
-            var users = _context.Users.Include(u => u.Role)
-                .Where(u => u.IsActive == true && (u.Role == null || u.Role.IsActive == true)) // Chỉ lấy user active và role active
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                users = users.Where(u => u.Username.Contains(search) || u.Email.Contains(search));
-            }
-
-            if (sort == "name")
-                users = users.OrderBy(u => u.Username);
-            else if (sort == "created")
-                users = users.OrderByDescending(u => u.CreatedAt);
-
+            var users = await _userService.GetActiveUsersAsync(search, sort);
+            if (roleId.HasValue)
+                users = users.Where(u => u.RoleId == roleId.Value).ToList();
             return Json(users.Select(u => new
             {
                 u.UserId,
@@ -43,29 +40,19 @@ namespace pet_spa_system1.Controllers
                 Role = u.Role != null ? u.Role.RoleName : "N/A",
                 RoleId = u.RoleId,
                 Status = u.IsActive == true ? "On" : "Off",
-                CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null
+                CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
+                IsActive = u.IsActive
             }));
         }
 
-        // API để lấy danh sách roles active cho dropdown
         [HttpGet]
         [Route("User/GetRoles")]
-        public IActionResult GetRoles()
+        public async Task<IActionResult> GetRoles()
         {
             try
             {
-                var roles = _context.Roles
-                    .Where(r => r.IsActive == true)
-                    .Select(r => new
-                    {
-                        r.RoleId,
-                        r.RoleName,
-                        r.Description
-                    })
-                    .OrderBy(r => r.RoleName)
-                    .ToList();
-
-                return Json(roles);
+                var roles = await _userService.GetActiveRolesAsync();
+                return Json(roles.Select(r => new { r.RoleId, r.RoleName, r.Description }));
             }
             catch (Exception ex)
             {
@@ -74,186 +61,67 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] User user)
+        public async Task<IActionResult> Create([FromBody] User user)
         {
-            if (user == null)
-                return BadRequest("Invalid user data");
-
-            // Validation
-            if (string.IsNullOrWhiteSpace(user.Username))
-                return BadRequest("Username is required");
-            if (string.IsNullOrWhiteSpace(user.Email))
-                return BadRequest("Email is required");
-            if (string.IsNullOrWhiteSpace(user.FullName))
-                return BadRequest("Full name is required");
-            if (user.RoleId <= 0)
-                return BadRequest("Role is required");
-
-            // Kiểm tra role có tồn tại và active không
-            var role = _context.Roles.Find(user.RoleId);
-            if (role == null || role.IsActive != true)
-                return BadRequest("Selected role is not available");
-
-            // Kiểm tra username và email đã tồn tại chưa (chỉ trong active users)
-            if (_context.Users.Any(u => u.Username == user.Username && u.IsActive == true))
-                return BadRequest("Username already exists");
-            if (_context.Users.Any(u => u.Email == user.Email && u.IsActive == true))
-                return BadRequest("Email already exists");
-
-            // Tạo mật khẩu mặc định và hash
-            var defaultPassword = "123456";
-            var hasher = new PasswordHasher<User>();
-            user.PasswordHash = hasher.HashPassword(user, defaultPassword);
-
-            // Set default values
-            user.IsActive = true;
-            user.CreatedAt = DateTime.Now;
-            user.UserId = 0; // Reset để EF tự generate
-
-            _context.Users.Add(user);
-
-            try
-            {
-                _context.SaveChanges();
-                return Ok(new { message = "User created successfully", defaultPassword = defaultPassword });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error saving user: {ex.Message}");
-            }
+            var result = await _userService.CreateUserAsync(user);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message, defaultPassword = result.DefaultPassword });
         }
 
         [HttpPost]
         [Route("User/Edit")]
-        public IActionResult Edit([FromBody] User updated)
+        public async Task<IActionResult> Edit([FromBody] User updated)
         {
-            if (updated == null)
-                return BadRequest("Invalid data");
-
-            if (updated.UserId == 0)
-            {
-                return BadRequest("User ID is required for editing");
-            }
-
-            var user = _context.Users.Find(updated.UserId);
-            if (user == null || user.IsActive != true)
-                return NotFound("User not found or inactive");
-
-            // Kiểm tra role có tồn tại và active không
-            var role = _context.Roles.Find(updated.RoleId);
-            if (role == null || role.IsActive != true)
-                return BadRequest("Selected role is not available");
-
-            // Kiểm tra username và email trùng với user khác (chỉ active users)
-            if (_context.Users.Any(u => u.Username == updated.Username && u.UserId != updated.UserId && u.IsActive == true))
-                return BadRequest("Username already exists");
-            if (_context.Users.Any(u => u.Email == updated.Email && u.UserId != updated.UserId && u.IsActive == true))
-                return BadRequest("Email already exists");
-
-            // Cập nhật thông tin (không cập nhật password)
-            user.Username = updated.Username;
-            user.Email = updated.Email;
-            user.FullName = updated.FullName;
-            user.Phone = updated.Phone;
-            user.Address = updated.Address;
-            user.RoleId = updated.RoleId;
-            user.UpdatedAt = DateTime.Now;
-
-            try
-            {
-                _context.SaveChanges();
-                return Ok(new { message = "User updated successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Error: " + ex.Message);
-            }
+            var result = await _userService.EditUserAsync(updated);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
         }
 
         [HttpPost]
         [Route("User/Delete")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var user = _context.Users.Find(id);
-            if (user == null || user.IsActive != true)
-                return NotFound("User not found or already inactive");
-
-            // Xóa mềm - chỉ set IsActive = false
-            user.IsActive = false;
-            user.UpdatedAt = DateTime.Now;
-
-            try
-            {
-                _context.SaveChanges();
-                return Ok(new { message = "User deleted successfully (soft delete)" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Error: " + ex.Message);
-            }
+            var result = await _userService.DeleteUserAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
+            return Ok(new { message = result.Message });
         }
 
-        // Thêm method để khôi phục user đã xóa mềm
         [HttpPost]
         [Route("User/Restore")]
-        public IActionResult Restore(int id)
+        public async Task<IActionResult> Restore(int id)
         {
-            var user = _context.Users.Include(u => u.Role).FirstOrDefault(u => u.UserId == id);
-            if (user == null)
-                return NotFound("User not found");
-
-            // Kiểm tra role của user có còn active không
-            if (user.Role == null || user.Role.IsActive != true)
-                return BadRequest("Cannot restore user: Associated role is inactive");
-
-            // Kiểm tra username và email có bị trùng với active users không
-            if (_context.Users.Any(u => u.Username == user.Username && u.UserId != id && u.IsActive == true))
-                return BadRequest("Cannot restore: Username already exists in active users");
-            if (_context.Users.Any(u => u.Email == user.Email && u.UserId != id && u.IsActive == true))
-                return BadRequest("Cannot restore: Email already exists in active users");
-
-            user.IsActive = true;
-            user.UpdatedAt = DateTime.Now;
-
-            try
-            {
-                _context.SaveChanges();
-                return Ok(new { message = "User restored successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Error: " + ex.Message);
-            }
+            var result = await _userService.RestoreUserAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
         }
 
-        // Method để xem danh sách user đã bị xóa mềm
         [HttpGet]
         [Route("User/Deleted")]
-        public IActionResult GetDeletedUsers()
+        public async Task<IActionResult> GetDeletedUsers(int? roleId = null)
         {
             try
             {
-                var deletedUsers = _context.Users
-                    .Include(u => u.Role)
-                    .Where(u => u.IsActive == false)
-                    .ToList() // Lấy data về memory trước
-                    .Select(u => new
-                    {
-                        u.UserId,
-                        u.Username,
-                        u.Email,
-                        u.FullName,
-                        u.Phone,
-                        u.Address,
-                        Role = u.Role != null ? u.Role.RoleName : "N/A",
-                        RoleActive = u.Role != null ? u.Role.IsActive : false,
-                        CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
-                        UpdatedAt = u.UpdatedAt.HasValue ? u.UpdatedAt.Value.ToString("yyyy-MM-dd") : null
-                    })
-                    .OrderByDescending(u => u.UpdatedAt)
-                    .ToList();
-
-                return Json(deletedUsers);
+                var deletedUsers = await _userService.GetDeletedUsersAsync();
+                if (roleId.HasValue)
+                    deletedUsers = deletedUsers.Where(u => u.RoleId == roleId.Value).ToList();
+                var result = deletedUsers.Select(u => new
+                {
+                    u.UserId,
+                    u.Username,
+                    u.Email,
+                    u.FullName,
+                    u.Phone,
+                    u.Address,
+                    Role = u.Role != null ? u.Role.RoleName : "N/A",
+                    RoleActive = u.Role != null ? u.Role.IsActive : false,
+                    CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
+                    UpdatedAt = u.UpdatedAt.HasValue ? u.UpdatedAt.Value.ToString("yyyy-MM-dd") : null
+                }).OrderByDescending(u => u.UpdatedAt).ToList();
+                return Json(result);
             }
             catch (Exception ex)
             {
@@ -261,30 +129,313 @@ namespace pet_spa_system1.Controllers
             }
         }
 
-        // Method để reset password
         [HttpPost]
         [Route("User/ResetPassword")]
-        public IActionResult ResetPassword(int id)
+        public async Task<IActionResult> ResetPassword(int id)
         {
-            var user = _context.Users.Find(id);
-            if (user == null || user.IsActive != true)
-                return NotFound("User not found or inactive");
+            var result = await _userService.ResetPasswordAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
+            return Ok(new { message = result.Message, newPassword = result.NewPassword });
+        }
 
-            // Reset về mật khẩu mặc định
-            var defaultPassword = "123456";
-            var hasher = new PasswordHasher<User>();
-            user.PasswordHash = hasher.HashPassword(user, defaultPassword);
-            user.UpdatedAt = DateTime.Now;
+        // ========== STAFF MANAGEMENT ========== //
 
-            try
+        [HttpGet]
+        [Route("User/StaffList")]
+        public async Task<IActionResult> StaffList(string search = "", string sort = "")
+        {
+            var staff = await _userService.GetStaffListAsync(search, sort);
+            return Json(staff.Select(u => new
             {
-                _context.SaveChanges();
-                return Ok(new { message = "Password reset successfully", newPassword = defaultPassword });
-            }
-            catch (Exception ex)
+                u.UserId,
+                u.Username,
+                u.Email,
+                u.FullName,
+                u.Phone,
+                u.Address,
+                u.ProfilePictureUrl,
+                u.IsActive,
+                u.CreatedAt,
+                u.UpdatedAt,
+                Role = u.Role != null ? u.Role.RoleName : "N/A",
+                RoleId = u.RoleId
+            }));
+        }
+
+        [HttpPost]
+        [Route("User/StaffCreate")]
+        public async Task<IActionResult> StaffCreate([FromBody] User user)
+        {
+            user.RoleId = 3; // Đảm bảo là staff
+            var result = await _userService.CreateUserAsync(user);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message, defaultPassword = result.DefaultPassword });
+        }
+
+        [HttpPost]
+        [Route("User/StaffEdit")]
+        public async Task<IActionResult> StaffEdit([FromBody] User updated)
+        {
+            updated.RoleId = 3; // Đảm bảo là staff
+            var result = await _userService.EditUserAsync(updated);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost]
+        [Route("User/StaffDelete")]
+        public async Task<IActionResult> StaffDelete(int id)
+        {
+            var result = await _userService.DeleteUserAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost]
+        [Route("User/StaffRestore")]
+        public async Task<IActionResult> StaffRestore(int id)
+        {
+            var result = await _userService.RestoreUserAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPost]
+        [Route("User/StaffToggleLock")]
+        public async Task<IActionResult> StaffToggleLock(int id)
+        {
+            var result = await _userService.ToggleLockStaffAsync(id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpGet]
+        [Route("Admin/StaffDetail/{id}")]
+        public async Task<IActionResult> StaffDetail(int id, [FromServices] IAdminStaffScheduleService scheduleService)
+        {
+            var staff = await _userService.GetStaffDetailAsync(id);
+            if (staff == null) return NotFound();
+            var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
+            var now = DateTime.Now;
+            var todayCount = appointments.Count(a => a.AppointmentDate.Date == now.Date);
+            var monthCount = appointments.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
+            var allAppointments = await _userService.GetAppointmentsByStaffIdAsync(id);
+            // Tính hiệu suất làm việc
+            int totalAppointments = allAppointments.Count;
+            int completedAppointments = allAppointments.Count(a => a.Status?.StatusName == "Hoàn thành" || a.Status?.StatusName == "Completed");
+            int cancelledAppointments = allAppointments.Count(a => a.Status?.StatusName == "Đã hủy" || a.Status?.StatusName == "Cancelled");
+            int uniqueCustomers = allAppointments.Select(a => a.UserId).Distinct().Count();
+            var vm = new pet_spa_system1.ViewModel.StaffDetailViewModel
             {
-                return StatusCode(500, "Error: " + ex.Message);
+                UserId = staff.UserId,
+                FullName = staff.FullName,
+                Email = staff.Email,
+                Phone = staff.Phone,
+                Address = staff.Address,
+                IsActive = staff.IsActive ?? false,
+                TodayCount = todayCount,
+                MonthCount = monthCount,
+                ProfilePictureUrl = staff.ProfilePictureUrl,
+                AllAppointments = allAppointments,
+                // Hiệu suất làm việc
+                PerformanceStats = new pet_spa_system1.Models.StaffPerformanceStats
+                {
+                    TotalAppointments = totalAppointments,
+                    CompletedAppointments = completedAppointments,
+                    CancelledAppointments = cancelledAppointments,
+                    UniqueCustomers = uniqueCustomers,
+                    TotalRevenue = 0 // Nếu muốn tính doanh thu, cần join thêm bảng Order
+                }
+            };
+            return View("~/Views/Admin/StaffDetail.cshtml", vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> StaffDetail(pet_spa_system1.ViewModel.StaffDetailViewModel model, IFormFile imageFile, [FromServices] IAdminStaffScheduleService scheduleService)
+        {
+            var staff = await _userService.GetStaffDetailAsync(model.UserId);
+            if (staff == null) return NotFound();
+            // Upload ảnh nếu có
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var account = new Account(
+                    "dprp1jbd9", // cloud_name
+                    "584135338254938", // api_key
+                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                );
+                var cloudinary = new Cloudinary(account);
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream())
+                };
+                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                string imageUrl = uploadResult.SecureUrl.ToString();
+                if (staff.ProfilePictureUrl != imageUrl)
+                {
+                    staff.ProfilePictureUrl = imageUrl;
+                }
             }
+            // Cập nhật thông tin nếu có thay đổi
+            if (staff.FullName != model.FullName)
+                staff.FullName = model.FullName;
+            if (staff.Email != model.Email)
+                staff.Email = model.Email;
+            if (staff.Phone != model.Phone)
+                staff.Phone = model.Phone;
+            if (staff.Address != model.Address)
+                staff.Address = model.Address;
+            await _userService.EditUserAsync(staff);
+            // Sau khi lưu, redirect lại chính trang StaffDetail
+            return RedirectToAction("StaffDetail", new { id = model.UserId });
+        }
+
+        [HttpGet]
+        [Route("User/StaffStats")]
+        public async Task<IActionResult> StaffStats(int id)
+        {
+            var stats = await _userService.GetStaffStatsAsync(id);
+            return Json(stats);
+        }
+
+        [HttpPost]
+        [Route("User/StaffSetActive")]
+        public async Task<IActionResult> StaffSetActive(int id, bool isActive)
+        {
+            var result = await _userService.SetUserActiveAsync(id, isActive);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpGet]
+        public IActionResult StaffUploadImage(int userId)
+        {
+            return View("~/Views/Admin/StaffUploadImage.cshtml", userId);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> StaffUploadImage(int userId, IFormFile imageFile)
+        {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var account = new Account(
+                    "dprp1jbd9", // cloud_name
+                    "584135338254938", // api_key
+                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                );
+                var cloudinary = new Cloudinary(account);
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream())
+                };
+                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                string imageUrl = uploadResult.SecureUrl.ToString();
+                // Lưu imageUrl vào DB
+                var user = await _userService.GetStaffDetailAsync(userId);
+                if (user != null)
+                {
+                    user.ProfilePictureUrl = imageUrl;
+                    await _userService.EditUserAsync(user);
+                }
+                return RedirectToAction("StaffDetail", new { id = userId });
+            }
+            return View("~/Views/Admin/StaffUploadImage.cshtml", userId);
+        }
+
+        [HttpGet]
+        [Route("Admin/UserDetail/{id}")]
+        public async Task<IActionResult> UserDetail(int id, [FromServices] IUserService userService)
+        {
+            var user = await userService.GetUserByIdAsync(id);
+            if (user == null) return NotFound();
+            var pets = await userService.GetPetsByUserIdAsync(id);
+            var appointments = await userService.GetAppointmentsByUserIdAsync(id);
+            var orders = await userService.GetOrdersByUserIdAsync(id);
+            var reviews = await userService.GetReviewsByUserIdAsync(id);
+            var payments = await userService.GetPaymentsByUserIdAsync(id);
+            var vm = new pet_spa_system1.ViewModel.UserDetailViewModel
+            {
+                User = user,
+                Pets = pets,
+                Appointments = appointments,
+                Orders = orders,
+                Reviews = reviews,
+                Payments = payments
+            };
+            return View("~/Views/Admin/UserDetail.cshtml", vm);
+        }
+
+        [HttpPost]
+        [Route("Admin/UserDetail/{id}")]
+        public async Task<IActionResult> UserDetail(int id, [FromForm] string FullName, [FromForm] string Email, [FromForm] string Phone, [FromForm] string Address, IFormFile AvatarFile, [FromServices] IUserService userService)
+        {
+            var user = await userService.GetUserByIdAsync(id);
+            if (user == null) return NotFound();
+            // Upload avatar if provided
+            if (AvatarFile != null && AvatarFile.Length > 0)
+            {
+                string imageUrl = await userService.UploadAvatarAsync(AvatarFile);
+                if (!string.IsNullOrEmpty(imageUrl) && user.ProfilePictureUrl != imageUrl)
+                {
+                    user.ProfilePictureUrl = imageUrl;
+                }
+            }
+            // Update info
+            if (user.FullName != FullName) user.FullName = FullName;
+            if (user.Email != Email) user.Email = Email;
+            if (user.Phone != Phone) user.Phone = Phone;
+            if (user.Address != Address) user.Address = Address;
+            await userService.EditUserAsync(user);
+            return RedirectToAction("UserDetail", new { id = user.UserId });
+        }
+
+        [HttpGet]
+        [Route("Admin/List_Customer")]
+        public async Task<IActionResult> List_Customer()
+        {
+            var users = await _userService.GetActiveUsersAsync();
+            var customers = users.Where(u => u.RoleId == 2).ToList();
+            // Chỉ định rõ đường dẫn view
+            return View("~/Views/Admin/List_Customer.cshtml", customers);
+        }
+
+        // ========== USER HOME/PROFILE ========== //
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserProfile(UserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
+                return RedirectToAction("Index", "UserHome");
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var user = await _userService.GetUserByIdAsync(userId.Value);
+            if (user == null)
+                return NotFound("User not found");
+
+            user.FullName = model.FullName;
+            user.Username = model.UserName;
+            user.Address = model.Address;
+            user.Phone = model.PhoneNumber;
+
+            var result = await _userService.EditUserAsync(user);
+
+            if (!result.Success)
+            {
+                TempData["ErrorMessage"] = result.Message ?? "Cập nhật thất bại.";
+                return RedirectToAction("Index", "UserHome");
+            }
+
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("Index", "UserHome");
         }
     }
 }

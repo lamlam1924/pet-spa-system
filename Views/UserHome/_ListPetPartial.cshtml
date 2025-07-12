@@ -1,0 +1,68 @@
+﻿@model List<pet_spa_system1.ViewModel.PetViewModel>
+
+<div class="card shadow p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">
+            <i class="bi bi-paw"></i> Danh sách thú cưng
+        </h4>
+        <a href="#"
+           class="btn btn-success"
+           hx-get="@Url.Action("AddPetPartial", "UserHome")"
+           hx-target="#content-main"
+           hx-swap="innerHTML">
+            <i class="bi bi-plus-circle"></i>
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">Bạn chưa có thú cưng nào.</div>
+    }
+    else
+    {
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Tên</th>
+                    <th>Loài</th>
+                    <th>Giới tính</th>
+                    <th>Điều kiện sức khỏe</th>
+                    <th>Ghi chú</th>
+                    <th class="text-center" style="width: 100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var pet = Model[i];
+                    <tr>
+                        <td>@pet.Name</td>
+                        <td>@pet.Species</td>
+                        <td>@pet.Gender</td>
+                        <td>@pet.HealthCondition</td>
+                        <td>@pet.Note</td>
+                        <td class="text-center">
+                            <a href="#"
+                               hx-get="@Url.Action("EditPetPartial", "UserHome", new { id = i })"
+                               hx-target="#content-main"
+                               hx-swap="innerHTML"
+                               class="text-primary me-2"
+                               title="Chỉnh sửa">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="#"
+                               hx-post="@Url.Action("DeletePet", "UserHome", new { id = i })"
+                               hx-confirm="Bạn có chắc chắn muốn xóa thú cưng này?"
+                               hx-target="#content-main"
+                               hx-swap="innerHTML"
+                               class="text-danger"
+                               title="Xóa">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

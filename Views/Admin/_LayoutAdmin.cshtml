@@ -1,7 +1,6 @@
-﻿@*
-    _LayoutAdmin.cshtml
-    Layout dùng chung cho tất cả trang admin.
-*@
+﻿@{
+    Layout = null;
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - Admin</title>
     <link rel="icon" href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" />
+    @* CSS chung *@
     <link href="~/vendorAdmin/fontawesome-free/css/all.min.css" rel="stylesheet" />
     <link href="~/vendorAdmin/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/cssAdmin/ruang-admin.min.css" rel="stylesheet" />
@@ -151,6 +151,15 @@
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Báo cáo</div>
             <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("List_Customer", "Admin")">
+                    <i class="fas fa-fw fa-user-friends"></i>
+                    <span>Khách hàng</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("Index", "AdminStaffSchedule")">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Lịch làm việc nhân viên</span>
                 <a class="nav-link" href="statistics.html">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Thống kê</span>
@@ -193,6 +202,7 @@
                 <main role="main" class="pb-3">
                     @RenderBody()
                 </main>
+                <!-- End Main Content -->
             </div>
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
@@ -232,10 +242,17 @@
         </div>
     </div>
 
+    @* JS chung *@
     <script src="~/vendorAdmin/jquery/jquery.min.js"></script>
-    <script src="~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="~/vendorAdmin/jquery-easing/jquery.easing.min.js"></script>
     <script src="~/jsAdmin/ruang-admin.min.js"></script>
+    <!-- SweetAlert2 CSS & JS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("Scripts", required: false)
+    <!-- Thêm vào <head> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.css">
 </body>
 </html>

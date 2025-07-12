@@ -9,5 +9,19 @@ public interface IUserRepository
     Task<Role?> GetRoleByIdAsync(int roleId);
     User? GetUserById(int userId);
     Task AddAsync(User user);
-    List<User> GetAllStaff();
+    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null);
+    Task<List<User>> GetDeletedUsersAsync();
+    Task<List<Role>> GetActiveRolesAsync();
+    Task UpdateAsync(User user);
+    Task<User?> GetByIdAsync(int userId);
+    Task<List<Pet>> GetPetsByUserIdAsync(int userId);
+    Task<List<Appointment>> GetAppointmentsByUserIdAsync(int userId);
+    Task<List<Order>> GetOrdersByUserIdAsync(int userId);
+    Task<List<Review>> GetReviewsByUserIdAsync(int userId);
+    Task<List<Payment>> GetPaymentsByUserIdAsync(int userId);
+    Task<List<Appointment>> GetAppointmentsByStaffIdAsync(int staffId);
+    Task<StaffPerformanceStats> GetStaffPerformanceStatsAsync(int staffId);
+    Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId);
+    Task AddStaffDocumentAsync(StaffDocument doc);
+    Task<string> ResetStaffPasswordAsync(int staffId);
 }

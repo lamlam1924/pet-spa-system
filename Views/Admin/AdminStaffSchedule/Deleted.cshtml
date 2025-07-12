@@ -1,0 +1,190 @@
+@model pet_spa_system1.ViewModel.AdminStaffScheduleViewModel
+@{
+    ViewData["Title"] = "Lịch làm việc đã xóa";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<!-- SweetAlert2 CSS & JS CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container-fluid" id="container-wrapper">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Lịch làm việc đã xóa</h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "AdminStaffSchedule")">Lịch làm việc</a></li>
+            <li class="breadcrumb-item active">Lịch đã xóa</li>
+        </ol>
+    </div>
+
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <!-- Nút quay về lịch hoạt động -->
+        <a class="btn btn-secondary btn-sm" href="@Url.Action("Index", "AdminStaffSchedule")">
+            <i class="fas fa-arrow-left"></i> Quay lại lịch hoạt động
+        </a>
+
+        <!-- Toggle buttons -->
+        <div class="btn-group" role="group">
+            <a href="@Url.Action("Index", "AdminStaffSchedule")" class="btn btn-outline-dark btn-sm">
+                Lịch hoạt động
+            </a>
+            <a href="@Url.Action("Deleted", "AdminStaffSchedule")" class="btn btn-outline-secondary btn-sm active">
+                Lịch đã xóa
+            </a>
+        </div>
+
+        <!-- Form filter -->
+        <form method="get" class="form-inline">
+            <div class="form-group mr-2">
+                <label for="staffId">Nhân viên</label>
+                <select name="staffId" id="staffId" class="form-control">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (var staff in Model.StaffList.Where(u => u.RoleId == 3))
+                    {
+                        var selected = Model.FilterStaffId == staff.UserId ? "selected" : null;
+                        <option value="@staff.UserId" selected="@selected">@staff.FullName (@staff.Username)</option>
+                    }
+                </select>
+            </div>
+            <input type="date" name="date" class="form-control mr-2" value="@(Model.FilterDate?.ToString("yyyy-MM-dd") ?? "")" />
+            <select name="statusId" class="form-control mr-2">
+                <option value="">-- Trạng thái --</option>
+                @foreach (var st in Model.StatusList)
+                {
+                    var selected = Model.FilterStatusId == st.StatusId ? "selected" : null;
+                    <option value="@st.StatusId" selected="@selected">@st.StatusName</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-outline-primary btn-sm">Lọc</button>
+        </form>
+    </div>
+
+    <div class="card mb-4 shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nhân viên</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày hẹn</th>
+                            <th>Trạng thái</th>
+                            <th>Ghi chú</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Appointments != null && Model.Appointments.Any())
+                        {
+                            foreach (var appt in Model.Appointments)
+                            {
+                                <tr class="table-secondary">
+                                    <td>@appt.AppointmentId</td>
+                                    <td>@(appt.Employee?.FullName ?? "-")</td>
+                                    <td>@(appt.User?.FullName ?? "-")</td>
+                                    <td>@appt.AppointmentDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        <span class="badge badge-secondary">@appt.Status?.StatusName</span>
+                                    </td>
+                                    <td>@appt.Notes</td>
+                                    <td>
+                                        <a href="@Url.Action("Details", "AdminStaffSchedule", new { id = appt.AppointmentId })" class="btn btn-info btn-sm" title="Chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form method="post" action="@Url.Action("Restore", "AdminStaffSchedule", new { id = appt.AppointmentId })" style="display:inline;" class="restore-schedule-form">
+                                            <button type="submit" class="btn btn-success btn-sm" title="Khôi phục">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="@Url.Action("DeletePermanent", "AdminStaffSchedule", new { id = appt.AppointmentId })" style="display:inline;" class="delete-permanent-form">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-danger btn-sm" title="Xóa vĩnh viễn">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="py-4">
+                                        <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted">Không có lịch nào đã xóa</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function() {
+            var success = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["Success"]));
+            var error = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["Error"]));
+            if (success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: success,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    toast: true,
+                    position: 'top'
+                });
+            }
+            if (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: error,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    toast: true,
+                    position: 'top'
+                });
+            }
+        });
+        // Xác nhận xóa vĩnh viễn bằng SweetAlert2
+        $(document).on('submit', '.delete-permanent-form', function(e) {
+            e.preventDefault();
+            var form = this;
+            Swal.fire({
+                title: 'Bạn có chắc muốn xóa vĩnh viễn? Hành động này không thể hoàn tác!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa vĩnh viễn',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+        // Xác nhận khôi phục lịch bằng SweetAlert2
+        $(document).on('submit', '.restore-schedule-form', function(e) {
+            e.preventDefault();
+            var form = this;
+            Swal.fire({
+                title: 'Bạn có chắc muốn khôi phục lịch này?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Khôi phục',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    </script>
+}

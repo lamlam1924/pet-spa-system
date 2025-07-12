@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
 using System.Security.Claims;
-using pet_spa_system1.ViewModels;
-
+using pet_spa_system1.Utils;
 namespace pet_spa_system1.Controllers
 {
     public class LoginController : Controller
@@ -30,12 +28,7 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginRegisterViewModel model)
         {
-            Console.WriteLine($"Email: {model.Login.Email}, Password: {model.Login.Password}");
-
-            var user = await _userService.AuthenticateAsync(
-                model.Login.Email,
-                model.Login.Password
-            );
+            var user = await _userService.AuthenticateAsync(model.Login.Email, model.Login.Password);
 
             if (user == null)
             {
@@ -43,18 +36,8 @@ namespace pet_spa_system1.Controllers
                 return View(model);
             }
 
-            // 🔐 Lưu user vào session
-            HttpContext.Session.SetObjectAsJson("CurrentUser", user);
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser != null)
-            {
-                Console.WriteLine("✅ Session chứa object CurrentUser");
-            }
-            else
-            {
-                Console.WriteLine("❌ Session chưa được tạo hoặc đã bị xóa");
-            }
-
+            HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
+            HttpContext.Session.SetString("CurrentUserName", user.Username);
 
             return RedirectToAction("Index", "Home");
         }
@@ -63,17 +46,11 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(LoginRegisterViewModel model)
         {
-            //var name = HttpContext.Request.Form["Name"];
-            //var email = HttpContext.Request.Form["Email"];
-            //var password = HttpContext.Request.Form["Password"];
-            Console.WriteLine($"[REGISTER] Name: {model.Register.Name}, Email: {model.Register.Email}, Password: {model.Register.Password}");
-            Console.WriteLine("[DEBUG] Gọi tới RegisterAsync");
-
             var newUser = await _userService.RegisterAsync(
                 model.Register.Name,
                 model.Register.Email,
                 model.Register.Password
-                );
+            );
 
             if (newUser == null)
             {
@@ -81,9 +58,14 @@ namespace pet_spa_system1.Controllers
                 ModelState.AddModelError("", "Email đã được đăng ký.");
                 return View("Login", model);
             }
-            HttpContext.Session.SetObjectAsJson("CurrentUser", newUser);
+
+            HttpContext.Session.SetInt32("CurrentUserId", newUser.UserId);
+            HttpContext.Session.SetString("CurrentUserName", newUser.Username);
+
+
             return RedirectToAction("Index", "Home");
         }
+
         [HttpGet("login/google")]
         public IActionResult LoginWithGoogle()
         {
@@ -108,7 +90,7 @@ namespace pet_spa_system1.Controllers
 
             var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
             var name = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
-            Console.WriteLine(email + " " + name +" khong lay duoc email");
+            Console.WriteLine(email + " " + name + " khong lay duoc email");
             // TODO: Check user in database, auto-register or login
             // Example: Save session
             var user = await _userService.GetUserByEmail(email);
@@ -119,33 +101,37 @@ namespace pet_spa_system1.Controllers
 
             }
             //var user = new User { Email = email, FullName = name };
-            HttpContext.Session.SetObjectAsJson("CurrentUser", user);
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser != null)
+            HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
+            HttpContext.Session.SetString("CurrentUserName", user.Username);
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+
+            if (userId.HasValue)
             {
-                Console.WriteLine("✅ Session chứa object CurrentUser");
+                Console.WriteLine($"User ID = {userId.Value}");
             }
             else
             {
-                Console.WriteLine("❌ Session chưa được tạo hoặc đã bị xóa");
+                Console.WriteLine("Chưa đăng nhập hoặc session đã hết hạn");
             }
+
+
 
             return RedirectToAction("Index", "Home");
         }
-        [HttpGet("/Login/Logout")]
-        public IActionResult Logout()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
         {
-            // Xoá tất cả session
+            await HttpContext.SignOutAsync();
+            // Xóa session nếu cần
             HttpContext.Session.Clear();
-
-            // (Nếu dùng cookie auth) SignOut
-            // await HttpContext.SignOutAsync(); // nếu dùng Identity hoặc cookie auth
-
-            // Chuyển về trang đăng nhập hoặc trang chủ
             return RedirectToAction("Index", "Home");
         }
 
     }
 
 }
+
+
 

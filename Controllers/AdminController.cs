@@ -267,5 +267,10 @@ namespace pet_spa_system1.Controllers
         {
             return View();
         }
+
+        public IActionResult StaffSchedule()
+        {
+            return View("StaffSchedule");
+        }
     }
 }
