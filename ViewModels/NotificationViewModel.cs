@@ -1,4 +1,6 @@
-﻿namespace pet_spa_system1.ViewModel
+﻿using System;
+
+namespace pet_spa_system1.ViewModel
 {
     public class NotificationViewModel
     {

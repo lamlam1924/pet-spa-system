@@ -1,15 +1,21 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
 using pet_spa_system1.Models;
 using pet_spa_system1.ViewModels;
+using RouteData = Microsoft.AspNetCore.Routing.RouteData;
+
 namespace pet_spa_system1.Services
 {
     public class EmailService : IEmailService

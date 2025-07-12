@@ -8,10 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - Admin</title>
     <link rel="icon" href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" />
-    @* CSS chung *@
+
+    <!-- CSS chung -->
     <link href="~/vendorAdmin/fontawesome-free/css/all.min.css" rel="stylesheet" />
     <link href="~/vendorAdmin/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/cssAdmin/ruang-admin.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.css">
     @RenderSection("Styles", required: false)
 </head>
 <body id="page-top">
@@ -22,9 +26,18 @@
                 <div class="sidebar-brand-icon">
                     <img src="@Url.Content("~/imgAdmin/logo/pet-logo.png")" style="max-width:40px">
                 </div>
-                <div class="sidebar-brand-text mx-3">PetShop Admin</div>
+                <div class="sidebar-brand-text mx-3">PetSpa Admin</div>
             </a>
             <hr class="sidebar-divider my-0">
+            <!-- Thêm ngay dưới logo trong sidebar -->
+            <div class="sidebar-heading"></div>
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.Content("~/Home/Index")">
+                    <i class="fas fa-home" ></i>
+                    <span>Trang chủ</span>
+                </a>
+            </li>
+            <div class="sidebar-heading"></div>
             <li class="nav-item">
                 <a class="nav-link" href="@Url.Content("~/Admin/Index")">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -34,7 +47,7 @@
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Quản lý</div>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="false">
+                <a class="nav-link collapsed" href="@Url.Content("~/Admin/Staff")" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="false">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Nhân viên</span>
                 </a>
@@ -46,19 +59,19 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCustomers" aria-expanded="false">
+                <a class="nav-link" href="@Url.Action("List_Customer", "Admin")">
                     <i class="fas fa-fw fa-user-friends"></i>
                     <span>Khách hàng</span>
                 </a>
-                <div id="collapseCustomers" class="collapse" aria-labelledby="headingCustomers" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Quản lý khách hàng</h6>
-                        <a class="collapse-item" href="@Url.Content("~/Admin/List_Customer")">Danh sách khách hàng</a>
-                    </div>
-                </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePets" aria-expanded="false">
+                <a class="nav-link" href="@Url.Action("Index", "AdminStaffSchedule")">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
+                    <span>Lịch làm việc nhân viên</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="@Url.Content("~/Admin/Pets_List")" data-toggle="collapse" data-target="#collapsePets" aria-expanded="false">
                     <i class="fas fa-fw fa-paw"></i>
                     <span>Hồ sơ thú cưng</span>
                 </a>
@@ -70,7 +83,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="false">
+                <a class="nav-link collapsed" href="@Url.Content("~/Admin/Products_List")" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="false">
                     <i class="fas fa-fw fa-shopping-cart"></i>
                     <span>Sản phẩm</span>
                 </a>
@@ -82,7 +95,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices" aria-expanded="false">
+                <a class="nav-link collapsed" href="@Url.Action("Index", "AdminService")" data-toggle="collapse" data-target="#collapseServices" aria-expanded="false">
                     <i class="fas fa-fw fa-spa"></i>
                     <span>Dịch vụ</span>
                 </a>
@@ -97,29 +110,18 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="false">
+                <a class="nav-link collapsed" href="@Url.Action("Dashboard", "AdminAppointment")" data-toggle="collapse" data-target="#collapseAppointments" aria-expanded="false">
                     <i class="fas fa-fw fa-calendar-alt"></i>
                     <span>Lịch Hẹn</span>
                 </a>
                 <div id="collapseAppointments" class="collapse" aria-labelledby="headingAppointments" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Quản lý lịch hẹn</h6>
-                        <a class="collapse-item" href="@Url.Action("Dashboard", "AdminAppointment")">
-                            Tổng quan
-                        </a>
-                        <a class="collapse-item" href="@Url.Action("ApprovalList", "AdminAppointment")">
-                            Duyệt lịch hẹn
-                        </a>
-                        <a class="collapse-item" href="@Url.Action("List", "AdminAppointment")">
-                            Danh sách lịch hẹn
-                        </a>
-                        <a class="collapse-item" href="@Url.Action("Calendar", "AdminAppointment")">
-                            Xem dạng lịch
-                        </a>
-                        <a class="collapse-item" href="@Url.Action("Create", "AdminAppointment")">
-                            Tạo lịch hẹn mới
-                        </a>
-                        
+                        <a class="collapse-item" href="@Url.Action("Dashboard", "AdminAppointment")">Tổng quan</a>
+                        <a class="collapse-item" href="@Url.Action("ApprovalList", "AdminAppointment")">Duyệt lịch hẹn</a>
+                        <a class="collapse-item" href="@Url.Action("List", "AdminAppointment")">Danh sách lịch hẹn</a>
+                        <a class="collapse-item" href="@Url.Action("Calendar", "AdminAppointment")">Xem dạng lịch</a>
+                        <a class="collapse-item" href="@Url.Action("Create", "AdminAppointment")">Tạo lịch hẹn mới</a>
                     </div>
                 </div>
             </li>
@@ -151,15 +153,6 @@
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Báo cáo</div>
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("List_Customer", "Admin")">
-                    <i class="fas fa-fw fa-user-friends"></i>
-                    <span>Khách hàng</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "AdminStaffSchedule")">
-                    <i class="fas fa-fw fa-calendar-alt"></i>
-                    <span>Lịch làm việc nhân viên</span>
                 <a class="nav-link" href="statistics.html">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>Thống kê</span>
@@ -242,17 +235,12 @@
         </div>
     </div>
 
-    @* JS chung *@
+    <!-- JS chung -->
     <script src="~/vendorAdmin/jquery/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/vendorAdmin/jquery-easing/jquery.easing.min.js"></script>
     <script src="~/jsAdmin/ruang-admin.min.js"></script>
-    <!-- SweetAlert2 CSS & JS CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("Scripts", required: false)
-    <!-- Thêm vào <head> -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.css">
 </body>
 </html>

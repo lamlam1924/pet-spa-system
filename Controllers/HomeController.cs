@@ -1,9 +1,7 @@
-
-using Abp.Web.Mvc.Models;
-using Microsoft.AspNetCore.Mvc;
-using pet_spa_system1.Models;
 using System.Diagnostics;
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Controllers
 {
@@ -30,7 +28,7 @@ namespace pet_spa_system1.Controllers
         public IActionResult Error()
         {
 
-            return View(new ViewModels.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

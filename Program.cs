@@ -6,6 +6,11 @@ using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Services;
 using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 // Đăng ký IHttpContextAccessor cho DI container
