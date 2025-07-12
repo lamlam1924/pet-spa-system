@@ -35,6 +35,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 
+// Blog services
+builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+builder.Services.AddScoped<IBlogService, BlogService>();
+
 // Session
 builder.Services.AddSession(options =>
 {
@@ -128,5 +132,16 @@ app.MapControllerRoute(
     name: "Detail",
     pattern: "Products/Detail/{productID}",
     defaults: new { controller = "Products", action = "Detail" });
+
+// Blog routes
+app.MapControllerRoute(
+    name: "BlogDetail",
+    pattern: "Blogs/Detail/{id:int}",
+    defaults: new { controller = "Blogs", action = "Detail" });
+
+app.MapControllerRoute(
+    name: "BlogCreate",
+    pattern: "Blogs/Create",
+    defaults: new { controller = "Blogs", action = "Create" });
 
 app.Run();
