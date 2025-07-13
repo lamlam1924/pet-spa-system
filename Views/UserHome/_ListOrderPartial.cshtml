@@ -2,6 +2,20 @@
 
 <div class="card shadow p-4">
     <h4 class="mb-3">Danh sách đơn hàng</h4>
+    <form method="get" hx-get="@Url.Action("ListOrderPartial", "UserHome")"
+          hx-target="#content-main" hx-swap="innerHTML">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <select class="form-select" name="statusId" >
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="1">Chờ xử lý</option>
+                    <option value="2">Đang giao</option>
+                    <option value="3">Đã giao</option>
+                    <option value="4">Đã hủy</option>
+                </select>
+            </div>
+        </div>
+    </form>
 
     @if (Model == null || !Model.Any())
     {
@@ -15,7 +29,7 @@
                     <th>Mã Đơn Hàng</th>
                     <th>Tên Sản Phẩm</th>
                     <th>Số Lượng</th>
-                    <th>Tổng Tiền</th>
+                    <th>Đơn giá</th>
                     <th>Trạng Thái</th>
                     <th class="text-center" style="width: 120px;">Hành động</th>
                 </tr>
@@ -27,8 +41,8 @@
                         <td>@order.OrderID</td>
                         <td>@order.ProductName</td>
                         <td>@order.Quantity</td>
-                        <td>@order.TotalAmount.ToString("N0") ₫</td>
-                        <td>@order.Status</td>
+                        <td>@order.UnitPrice.ToString("N0") </td>
+                        <td>@order.StatusName</td>
                         @* <td class="text-center">
                             <a href="#"
                                hx-get="@Url.Action("OrderDetailPartial", "UserHome", new { id = order.OrderID })"
@@ -54,3 +68,9 @@
         </table>
     }
 </div>
+<script>
+    document.querySelector('select[name="statusId"]').addEventListener('change', function () {
+        this.form.dispatchEvent(new Event('submit', { bubbles: true }));
+    });
+</script>
+

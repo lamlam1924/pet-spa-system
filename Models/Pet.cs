@@ -9,7 +9,7 @@ public partial class Pet
 
     public int UserId { get; set; }
 
-    public int? SpeciesId { get; set; }
+    public int SpeciesId { get; set; }
 
     public string Name { get; set; } = null!;
 

@@ -17,6 +17,18 @@ namespace pet_spa_system1.Repositories
             _context.Pets.Add(pet);
             _context.SaveChanges();
         }
-    }
 
+        public Pet GetPetById(int petId)
+            => _context.Pets.FirstOrDefault(p => p.PetId == petId && p.IsActive == true);
+
+        public void DeletePet(int petId)
+        {
+            var pet = _context.Pets.FirstOrDefault(p => p.PetId == petId);
+            if (pet != null)
+            {
+                pet.IsActive = false; // Xóa mềm
+                _context.SaveChanges();
+            }
+        }
+    }
 }
