@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "Đặt lịch thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <input type="hidden" id="successMessage" value="@ViewBag.SuccessMessage" />
+}
+
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fa fa-check-circle"></i>
+        </div>
+        <h1 class="success-title">Đặt lịch thành công!</h1>
+        <p class="success-message">
+            Cảm ơn bạn đã lựa chọn <strong>Pet Spa</strong>.<br>
+            Chúng tôi đã nhận được thông tin và sẽ liên hệ xác nhận sớm nhất.<br>
+            Vui lòng kiểm tra email để xem chi tiết lịch hẹn.
+        </p>
+        <div class="success-actions">
+            <a href="@Url.Action("History", "Appointment")" class="btn btn-primary">
+                <i class="fa fa-calendar"></i> Xem lịch sử
+            </a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+                <i class="fa fa-home"></i> Trang chủ
+            </a>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+@section Styles {
+    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/css/success.css")" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="@Url.Content("~/cssjsAppointment/js/success.js")"></script>
+}

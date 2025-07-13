@@ -1,119 +1,140 @@
-using Microsoft.Extensions.Configuration;
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
+using pet_spa_system1.Models;
+using pet_spa_system1.ViewModels;
+using RouteData = Microsoft.AspNetCore.Routing.RouteData;
 
-namespace pet_spa_system1.Services;
-
-public class EmailService : IEmailService
+namespace pet_spa_system1.Services
 {
-    private readonly IConfiguration _config;
-
-    public EmailService(IConfiguration config)
+    public class EmailService : IEmailService
     {
-        _config = config;
-    }
+        private readonly IConfiguration _config;
+        private readonly IRazorViewEngine _viewEngine;
+        private readonly ITempDataProvider _tempDataProvider;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public void SendBookingConfirmation(
-        string toEmail,
-        string customerName,
-        DateTime appointmentDate,
-        string? notes = null,
-        List<string>? petNames = null,
-        List<string>? serviceNames = null
-    )
-    {
-        // Kiểm tra cấu hình email
-        var smtpServer = _config["EmailSettings:SmtpServer"];
-        if (string.IsNullOrEmpty(smtpServer))
+        public EmailService(
+            IConfiguration config,
+            IRazorViewEngine viewEngine,
+            ITempDataProvider tempDataProvider,
+            IServiceProvider serviceProvider,
+            IHttpContextAccessor httpContextAccessor)
         {
-            throw new InvalidOperationException("SmtpServer không được cấu hình trong appsettings.json");
+            _config = config;
+            _viewEngine = viewEngine;
+            _tempDataProvider = tempDataProvider;
+            _serviceProvider = serviceProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
-        
-        var smtpPortStr = _config["EmailSettings:SmtpPort"];
-        if (string.IsNullOrEmpty(smtpPortStr) || !int.TryParse(smtpPortStr, out int smtpPort))
+
+        public void SendBookingConfirmation(AppointmentViewModel viewModel)
         {
-            throw new InvalidOperationException($"SmtpPort không hợp lệ: {smtpPortStr}");
-        }
-        
-        var smtpUser = _config["EmailSettings:SmtpUser"];
-        if (string.IsNullOrEmpty(smtpUser) || smtpUser == "yourmail@gmail.com")
-        {
-            throw new InvalidOperationException($"SmtpUser không hợp lệ hoặc chưa được cấu hình: {smtpUser}");
-        }
-        
-        var smtpPass = _config["EmailSettings:SmtpPass"];
-        if (string.IsNullOrEmpty(smtpPass) || smtpPass == "yourapppassword")
-        {
-            throw new InvalidOperationException("SmtpPass chưa được cấu hình hoặc là giá trị mặc định");
-        }
-        
-        var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
-        
-        Console.WriteLine($"[Email Debug] Chuẩn bị gửi email từ {smtpUser} đến {toEmail}");
-        Console.WriteLine($"[Email Debug] SMTP: {smtpServer}:{smtpPort}, SSL enabled");
+            // Lấy cấu hình email
+            var smtpServer = _config["EmailSettings:SmtpServer"];
+            var smtpPortStr = _config["EmailSettings:SmtpPort"];
+            int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
 
-        var fromAddress = new MailAddress(smtpUser, fromName);
-        var toAddress = new MailAddress(toEmail, customerName);
+            var smtpUser = _config["EmailSettings:SmtpUser"];
+            var smtpPass = _config["EmailSettings:SmtpPass"];
+            var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
 
-        string pets = (petNames != null && petNames.Count > 0)
-            ? $"<ul>{string.Join("", petNames.Select(name => $"<li>{name}</li>"))}</ul>"
-            : "Không có";
-
-        string services = (serviceNames != null && serviceNames.Count > 0)
-            ? $"<ul>{string.Join("", serviceNames.Select(name => $"<li>{name}</li>"))}</ul>"
-            : "Không có";
-
-        string body = $@"
-        <div style='font-family:sans-serif; border:1px solid #eee; padding:20px; border-radius:8px;'>
-            <h2 style='color:#4CAF50;'>Xác nhận đặt lịch spa thú cưng thành công</h2>
-            <p>Xin chào <b>{customerName}</b>,</p>
-            <p>Bạn đã đặt lịch thành công cho thú cưng tại <b>SPA Thú Cưng</b>!</p>
-            <p><b>Thời gian:</b> {appointmentDate:dd/MM/yyyy HH:mm}</p>
-            {(string.IsNullOrWhiteSpace(notes) ? "" : $"<p><b>Ghi chú:</b> {notes}</p>")}
-            <p><b>Thú cưng:</b> {pets}</p>
-            <p><b>Dịch vụ đã chọn:</b> {services}</p>
-            <hr>
-            <p style='font-size:small;color:#888;'>Nếu có thắc mắc, liên hệ hotline: 0123 456 789</p>
-        </div>
-    ";
-
-        var smtp = new SmtpClient
-        {
-            Host = smtpServer,
-            Port = smtpPort,
-            EnableSsl = true,
-            DeliveryMethod = SmtpDeliveryMethod.Network,
-            Credentials = new NetworkCredential(smtpUser, smtpPass),
-            Timeout = 20000
-        };
-
-        try
-        {
-            Console.WriteLine("[Email Debug] Tạo message và chuẩn bị gửi");
-            using (var message = new MailMessage(fromAddress, toAddress)
-                  {
-                      Subject = "Xác nhận đặt lịch spa thú cưng thành công",
-                      Body = body,
-                      IsBodyHtml = true
-                  })
+            if (string.IsNullOrWhiteSpace(smtpUser))
             {
-                // Nếu gặp lỗi về SSL certificate validation
-                // System.Net.ServicePointManager.ServerCertificateValidationCallback = 
-                //    (sender, certificate, chain, sslPolicyErrors) => true;
-                
-                Console.WriteLine("[Email Debug] Bắt đầu gửi email...");
-                smtp.Send(message);
-                Console.WriteLine("[Email Debug] Đã gửi thành công!");
+                throw new InvalidOperationException("EmailSettings:SmtpUser chưa được cấu hình hoặc bị null.");
+            }
+
+            try
+            {
+                // Render Razor view thành HTML string
+                string viewPath = "/Views/Email/SuccessEmail.cshtml";
+                string emailBody = RenderViewToString(viewPath, viewModel);
+
+                var client = new SmtpClient(smtpServer, smtpPort)
+                {
+                    EnableSsl = true,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(smtpUser, smtpPass)
+                };
+                var fromAddress = new MailAddress(smtpUser, fromName);
+                var toAddress = new MailAddress(viewModel.Email, viewModel.CustomerName);
+                var message = new MailMessage(fromAddress, toAddress)
+                {
+                    Subject = "Xác nhận đặt lịch dịch vụ thành công - SPA Thú Cưng",
+                    IsBodyHtml = true,
+                    Body = emailBody
+                };
+                try
+                {
+                    client.Send(message);
+                    Debug.WriteLine("[Email] Đã gửi email xác nhận thành công");
+                }
+                finally
+                {
+                    message.Dispose();
+                    client.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Email Error] Lỗi gửi email: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
             }
         }
-        catch (Exception ex)
+
+        // Render Razor view ra string (tích hợp logic từ RazorViewToStringRenderer)
+        private string RenderViewToString(string viewPath, object model)
         {
-            Console.WriteLine($"[Email Error] Lỗi khi gửi email: {ex.Message}");
-            if (ex.InnerException != null)
+            var actionContext = new ActionContext(
+                _httpContextAccessor.HttpContext ?? new DefaultHttpContext { RequestServices = _serviceProvider },
+                new RouteData(),
+                new ActionDescriptor()
+            );
+
+            var viewResult = _viewEngine.GetView(executingFilePath: null, viewPath: viewPath, isMainPage: true);
+            if (!viewResult.Success)
             {
-                Console.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
+                throw new FileNotFoundException($"View {viewPath} not found.");
             }
-            throw; // Re-throw để xử lý ở lớp gọi
+
+            var viewDictionary = new ViewDataDictionary(
+                new EmptyModelMetadataProvider(),
+                new ModelStateDictionary())
+            {
+                Model = model
+            };
+
+            using (var sw = new StringWriter())
+            {
+                var viewContext = new ViewContext(
+                    actionContext,
+                    viewResult.View,
+                    viewDictionary,
+                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
+                    sw,
+                    new HtmlHelperOptions()
+                );
+
+                var renderTask = viewResult.View.RenderAsync(viewContext);
+                renderTask.GetAwaiter().GetResult();
+                return sw.ToString();
+            }
         }
     }
 }

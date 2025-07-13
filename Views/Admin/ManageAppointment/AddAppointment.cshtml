@@ -1,0 +1,367 @@
+@model pet_spa_system1.ViewModels.AdminAppointmentViewModel
+@{
+    ViewData["Title"] = "Thêm lịch hẹn mới";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0 fw-bold">
+            Thêm lịch hẹn mới
+        </h3>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Thông tin lịch hẹn</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Create" asp-controller="AdminAppointment">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <h5 class="mb-3">Thông tin khách hàng</h5>
+                            <div class="mb-3">
+                                <label asp-for="UserId" class="form-label">Khách hàng</label>
+                                <select asp-for="UserId" class="form-select" id="customerSelect">
+                                    <option value="">-- Chọn khách hàng --</option>
+                                    @foreach (var customer in Model.Customers)
+                                    {
+                                        <option value="@customer.UserId">@customer.FullName - @customer.Phone</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="UserId" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label asp-for="EmployeeId" class="form-label">Nhân viên phụ trách</label>
+                                <select asp-for="EmployeeId" class="form-select">
+                                    <option value="">-- Chưa phân công --</option>
+                                    @foreach (var employee in Model.Employees)
+                                    {
+                                        <option value="@employee.UserId">@employee.FullName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="mb-3">Thời gian hẹn</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AppointmentDate" class="form-label">Ngày hẹn</label>
+                                        <input asp-for="AppointmentDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AppointmentTime" class="form-label">Giờ hẹn</label>
+                                        <input asp-for="AppointmentTime" type="time" class="form-control" min="08:00" max="18:00" />
+                                        <span asp-validation-for="AppointmentTime" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="mb-3">Thú cưng và dịch vụ</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Thú cưng</label>
+                                <div id="petList" class="mb-2">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>Vui lòng chọn khách hàng để xem danh sách thú cưng
+                                    </div>
+                                </div>
+                                <span id="petError" class="text-danger d-none">Vui lòng chọn ít nhất một thú cưng</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Dịch vụ</label>
+                                <div class="row">
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <div class="col-md-12 mb-2">
+                                            <h6 class="fw-bold text-primary">@category.Name</h6>
+                                            <div class="row">
+                                                @foreach (var service in Model.AllServices.Where(s => s.DurationMinutes > 0))
+                                                {
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input service-checkbox" 
+                                                                type="checkbox" 
+                                                                id="service-@service.ServiceId" 
+                                                                name="SelectedServiceIds" 
+                                                                value="@service.ServiceId">
+                                                            <label class="form-check-label d-flex justify-content-between" for="service-@service.ServiceId">
+                                                                <span>@service.Name</span>
+                                                                <span class="text-success">@service.Price.ToString("N0") đ</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <span id="serviceError" class="text-danger d-none">Vui lòng chọn ít nhất một dịch vụ</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">Ghi chú</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Ghi chú thêm về lịch hẹn"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StatusId" class="form-label">Trạng thái</label>
+                            <select asp-for="StatusId" class="form-select">
+                                @foreach (var status in Model.Statuses)
+                                {
+                                    <option value="@status.StatusId">@status.StatusName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Tóm tắt lịch hẹn</h5>
+                                
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Khách hàng</h6>
+                                    <p id="summaryCustomer" class="mb-0">Chưa chọn</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Thú cưng</h6>
+                                    <p id="summaryPets" class="mb-0">Chưa chọn</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Dịch vụ</h6>
+                                    <ul id="summaryServices" class="mb-0 ps-3">
+                                        <li>Chưa chọn</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="text-muted">Thời gian</h6>
+                                    <p id="summaryDateTime" class="mb-0">Chưa chọn</p>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h6 class="text-muted">Tổng tiền (dự kiến)</h6>
+                                    <h4 id="summaryTotal" class="text-success mb-0">0 đ</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-save me-1"></i>Lưu lịch hẹn
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Khởi tạo biến lưu giá dịch vụ
+            const servicesPrices = {};
+            @foreach (var service in Model.AllServices)
+            {
+                <text>servicesPrices[@service.ServiceId] = @service.Price;</text>
+            }
+            
+            // Xử lý khi chọn khách hàng
+            $('#customerSelect').on('change', function() {
+                const userId = $(this).val();
+                if (userId) {
+                    // Cập nhật tóm tắt
+                    const customerText = $('#customerSelect option:selected').text();
+                    $('#summaryCustomer').text(customerText);
+                    
+                    // Lấy danh sách thú cưng của khách hàng
+                    $.ajax({
+                        url: '/AdminAppointment/GetPetsByCustomer',
+                        type: 'GET',
+                        data: { userId: userId },
+                        success: function(data) {
+                            if (data && data.length > 0) {
+                                let html = '';
+                                data.forEach(function(pet) {
+                                    html += `
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input pet-checkbox" type="checkbox" 
+                                                id="pet-${pet.petId}" name="SelectedPetIds" value="${pet.petId}">
+                                            <label class="form-check-label" for="pet-${pet.petId}">
+                                                ${pet.name} (${pet.type})
+                                            </label>
+                                        </div>
+                                    `;
+                                });
+                                $('#petList').html(html);
+                                
+                                // Thêm sự kiện để cập nhật tóm tắt khi chọn thú cưng
+                                $('.pet-checkbox').on('change', updatePetsSummary);
+                            } else {
+                                $('#petList').html(`
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>Khách hàng chưa có thú cưng nào
+                                    </div>
+                                `);
+                            }
+                        },
+                        error: function() {
+                            $('#petList').html(`
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>Có lỗi xảy ra khi lấy danh sách thú cưng
+                                </div>
+                            `);
+                        }
+                    });
+                } else {
+                    $('#petList').html(`
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>Vui lòng chọn khách hàng để xem danh sách thú cưng
+                        </div>
+                    `);
+                    $('#summaryCustomer').text('Chưa chọn');
+                    $('#summaryPets').text('Chưa chọn');
+                }
+            });
+            
+            // Cập nhật tóm tắt thú cưng
+            function updatePetsSummary() {
+                const selectedPets = [];
+                $('.pet-checkbox:checked').each(function() {
+                    selectedPets.push($(this).next('label').text().trim());
+                });
+                
+                if (selectedPets.length > 0) {
+                    $('#summaryPets').text(selectedPets.join(', '));
+                    $('#petError').addClass('d-none');
+                } else {
+                    $('#summaryPets').text('Chưa chọn');
+                }
+            }
+            
+            // Cập nhật tóm tắt dịch vụ và tính tổng tiền
+            $('.service-checkbox').on('change', function() {
+                updateServicesSummary();
+            });
+            
+            function updateServicesSummary() {
+                const selectedServices = [];
+                let totalPrice = 0;
+                
+                $('.service-checkbox:checked').each(function() {
+                    const serviceId = $(this).val();
+                    const serviceName = $(this).next('label').find('span:first').text().trim();
+                    selectedServices.push({
+                        id: serviceId,
+                        name: serviceName,
+                        price: servicesPrices[serviceId] || 0
+                    });
+                    totalPrice += parseFloat(servicesPrices[serviceId] || 0);
+                });
+                
+                if (selectedServices.length > 0) {
+                    let html = '';
+                    selectedServices.forEach(function(service) {
+                        html += `<li>${service.name} - ${service.price.toLocaleString('vi-VN')} đ</li>`;
+                    });
+                    $('#summaryServices').html(html);
+                    $('#serviceError').addClass('d-none');
+                } else {
+                    $('#summaryServices').html('<li>Chưa chọn</li>');
+                }
+                
+                $('#summaryTotal').text(totalPrice.toLocaleString('vi-VN') + ' đ');
+            }
+            
+            // Cập nhật tóm tắt thời gian
+            $('input[name="AppointmentDate"], input[name="AppointmentTime"]').on('change', function() {
+                const date = $('input[name="AppointmentDate"]').val();
+                const time = $('input[name="AppointmentTime"]').val();
+                
+                if (date && time) {
+                    const dateObj = new Date(date + 'T' + time);
+                    const formattedDate = dateObj.toLocaleDateString('vi-VN', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    $('#summaryDateTime').text(formattedDate);
+                } else {
+                    $('#summaryDateTime').text('Chưa chọn');
+                }
+            });
+            
+            // Validate trước khi submit
+            $('form').on('submit', function(e) {
+                let isValid = true;
+                
+                // Kiểm tra thú cưng
+                if ($('.pet-checkbox:checked').length === 0) {
+                    $('#petError').removeClass('d-none');
+                    isValid = false;
+                }
+                
+                // Kiểm tra dịch vụ
+                if ($('.service-checkbox:checked').length === 0) {
+                    $('#serviceError').removeClass('d-none');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    $('html, body').animate({
+                        scrollTop: $('.text-danger:not(.d-none)').first().offset().top - 100
+                    }, 500);
+                }
+            });
+        });
+    </script>
+}

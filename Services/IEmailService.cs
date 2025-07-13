@@ -1,13 +1,9 @@
-namespace pet_spa_system1.Services;
+using pet_spa_system1.ViewModels;
 
-public interface IEmailService
+namespace pet_spa_system1.Services
 {
-    void SendBookingConfirmation(
-        string toEmail,
-        string customerName,
-        DateTime appointmentDate,
-        string? notes = null,
-        List<string>? petNames = null,
-        List<string>? serviceNames = null
-    );
+    public interface IEmailService
+    {
+        void SendBookingConfirmation(AppointmentViewModel viewModel);
+    }
 }

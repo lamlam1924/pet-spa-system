@@ -1,17 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 
 namespace pet_spa_system1.Controllers
 {
@@ -231,7 +223,7 @@ namespace pet_spa_system1.Controllers
             int completedAppointments = allAppointments.Count(a => a.Status?.StatusName == "Hoàn thành" || a.Status?.StatusName == "Completed");
             int cancelledAppointments = allAppointments.Count(a => a.Status?.StatusName == "Đã hủy" || a.Status?.StatusName == "Cancelled");
             int uniqueCustomers = allAppointments.Select(a => a.UserId).Distinct().Count();
-            var vm = new pet_spa_system1.ViewModel.StaffDetailViewModel
+            var vm = new StaffDetailViewModel
             {
                 UserId = staff.UserId,
                 FullName = staff.FullName,
@@ -244,7 +236,7 @@ namespace pet_spa_system1.Controllers
                 ProfilePictureUrl = staff.ProfilePictureUrl,
                 AllAppointments = allAppointments,
                 // Hiệu suất làm việc
-                PerformanceStats = new pet_spa_system1.Models.StaffPerformanceStats
+                PerformanceStats = new StaffPerformanceStats
                 {
                     TotalAppointments = totalAppointments,
                     CompletedAppointments = completedAppointments,
@@ -257,7 +249,7 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> StaffDetail(pet_spa_system1.ViewModel.StaffDetailViewModel model, IFormFile imageFile, [FromServices] IAdminStaffScheduleService scheduleService)
+        public async Task<IActionResult> StaffDetail(StaffDetailViewModel model, IFormFile imageFile, [FromServices] IAdminStaffScheduleService scheduleService)
         {
             var staff = await _userService.GetStaffDetailAsync(model.UserId);
             if (staff == null) return NotFound();
@@ -359,7 +351,7 @@ namespace pet_spa_system1.Controllers
             var orders = await userService.GetOrdersByUserIdAsync(id);
             var reviews = await userService.GetReviewsByUserIdAsync(id);
             var payments = await userService.GetPaymentsByUserIdAsync(id);
-            var vm = new pet_spa_system1.ViewModel.UserDetailViewModel
+            var vm = new UserDetailViewModel
             {
                 User = user,
                 Pets = pets,

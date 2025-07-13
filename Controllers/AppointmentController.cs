@@ -1,156 +1,143 @@
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Controllers
 {
     public class AppointmentController : Controller
     {
         private readonly IAppointmentService _appointmentService;
-        private readonly IServiceService _serviceService;
-        private readonly ISerCateService _serCateService;
-        private readonly IUserService _userService;
         private readonly IPetService _petService;
+        private readonly IServiceService _serviceService;
 
         public AppointmentController(
             IAppointmentService appointmentService,
-            IServiceService serviceService,
-            ISerCateService serCateService,
-            IUserService userService,
-            IPetService petService
-        )
+            IPetService petService,
+            IServiceService serviceService)
         {
             _appointmentService = appointmentService;
-            _serviceService = serviceService;
-            _serCateService = serCateService;
-            _userService = userService;
             _petService = petService;
+            _serviceService = serviceService;
         }
 
-        [HttpGet]
-        public IActionResult Book()
+        // GET: /Appointment
+        public IActionResult Index()
         {
-            int userId = 2; // Sau này lấy từ User.Identity
-            //var user = _userService.GetById(userId);
-            var user = _userService.GetUserInfo(userId);
+            // Tạm thời hardcode userId = 2
+            int userId = 2;
 
-            var model = new AppointmentViewModel
+            var viewModel = new AppointmentViewModel
             {
-                Services = _serviceService.GetActiveServices(),
-                Categories = _serCateService.GetActiveCategories(),
-                Pets = _petService.GetPetsByUserId(userId),
-
-                // Auto-fill thông tin user nếu có
-                CustomerName = user?.FullName ?? "",
-                Phone = user?.Phone ?? "",
-                Email = user?.Email ?? ""
+                Pets = _petService.GetAllPets(),
+                Services = _serviceService.GetActiveServices().ToList(),
+                AppointmentDate = DateTime.Today.AddDays(1),
+                AppointmentTime = new TimeSpan(9, 0, 0) // Default to 9:00 AM
             };
 
-            return View("Appointment", model);
+            return View("Appointment", viewModel);
         }
 
-        [HttpPost]       
+        // POST: /Appointment
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Book(AppointmentViewModel model)
+        public IActionResult Appointment(AppointmentViewModel model)
         {
-            int userId = 2; // sau này lấy từ User.Identity
-
-            // DEBUG
-            Console.WriteLine($"Nhận được {model.SelectedServiceIds?.Count ?? 0} dịch vụ");
-            if (model.SelectedServiceIds != null)
+            if (!ModelState.IsValid)
             {
-                foreach (var serviceId in model.SelectedServiceIds)
+                model.Pets = _petService.GetAllPets();
+                model.Services = _serviceService.GetActiveServices().ToList();
+                
+                // Return JSON for AJAX requests
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    Console.WriteLine($"Service ID: {serviceId}");
-                }
-            }
-            
-            // Kiểm tra xem có đủ dịch vụ và thú cưng đã chọn chưa
-            if (!ModelState.IsValid || model.SelectedServiceIds == null || !model.SelectedServiceIds.Any() ||
-                model.SelectedPetIds == null || !model.SelectedPetIds.Any())
-            {
-                // Kiểm tra thông tin thú cưng và dịch vụ trước khi tiếp tục
-                if (model.SelectedServiceIds == null || !model.SelectedServiceIds.Any())
-                {
-                    ModelState.AddModelError("", "Vui lòng chọn ít nhất một dịch vụ.");
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    
+                    return Json(new { success = false, errors });
                 }
                 
-                if (model.SelectedPetIds == null || !model.SelectedPetIds.Any())
-                {
-                    ModelState.AddModelError("", "Vui lòng chọn ít nhất một thú cưng.");
-                }
-                
-                // In ra debug để kiểm tra
-                Console.WriteLine($"Validation failed: Services={model.SelectedServiceIds?.Count ?? 0}, Pets={model.SelectedPetIds?.Count ?? 0}");
-                
-                // Nạp lại danh sách cho ViewModel khi có lỗi
-                model.Services = _serviceService.GetActiveServices();
-                model.Categories = _serCateService.GetActiveCategories();
-                model.Pets = _petService.GetPetsByUserId(userId);
-
-                return View("Appointment", model);
+                return View(model);
             }
 
-            // Gọi Service lưu lịch hẹn
-            var result = _appointmentService.SaveAppointment(model, userId);
-
-            if (!result)
+            try
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu lịch hẹn.");
-                // Nạp lại dữ liệu như trên
-                model.Services = _serviceService.GetActiveServices();
-                model.Categories = _serCateService.GetActiveCategories();
-                model.Pets = _petService.GetPetsByUserId(userId);
+                // Tạm thời hardcode userId = 2
+                int userId = 2;
 
-                return View("Appointment", model);
-            }
-
-            // Đặt lịch thành công - tạo ViewModel mới để tránh các lỗi từ form cũ
-            ViewBag.BookingSuccess = true;
-            
-            // Debug thông tin thú cưng đã chọn
-            if (model.SelectedPetIds != null)
-            {
-                foreach (var petId in model.SelectedPetIds) 
+                if (_appointmentService.SaveAppointment(model, userId))
                 {
-                    Console.WriteLine($"Pet ID được chọn: {petId}");
+                    TempData["SuccessMessage"] = "Đặt lịch thành công!";
+                    // Return JSON for AJAX requests
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new { success = true, redirectUrl = Url.Action("Success") });
+                    }
+                    return RedirectToAction(nameof(Success));
                 }
             }
-            
-            var newModel = new AppointmentViewModel
+            catch (Exception ex)
             {
-                Services = _serviceService.GetActiveServices(),
-                Categories = _serCateService.GetActiveCategories(),
-                Pets = _petService.GetPetsByUserId(userId),
-                CustomerName = model.CustomerName, // giữ lại thông tin khách hàng để tiện cho lần đặt tiếp theo
-                Phone = model.Phone,
-                Email = model.Email
-            };
-            return View("Appointment", newModel);
-            // -----------------------------------------------
+                ModelState.AddModelError("", "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
+                
+                // Return JSON for AJAX requests
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại." });
+                }
+            }
+
+            model.Pets = _petService.GetAllPets();
+            model.Services = _serviceService.GetActiveServices().ToList();
+            return View(model);
         }
         
-        [HttpGet]
+        // GET: /Appointment/Success
+        public IActionResult Success()
+        {
+            // Pass success message to view if it exists
+            ViewBag.SuccessMessage = TempData["SuccessMessage"]?.ToString();
+            return View();
+        }
+
+        // GET: /Appointment/History
         public IActionResult History()
         {
-            // TODO: sau này thay 1 bằng userId thực tế từ đăng nhập
+            // Tạm thời hardcode userId = 2
             int userId = 2;
-            //var appointments = _appointmentService.GetAppointmentsByUser(userId);
-            var viewmodel = _appointmentService.GetAppointmentHistory(userId);
-            
-            return View(viewmodel);
-        }
-        
-        [HttpGet]
-        public IActionResult EmailForAppointment()
-        {
-            // TODO: sau này thay 1 bằng userId thực tế từ đăng nhập
-            int userId = 2;
-            //var appointments = _appointmentService.GetAppointmentsByUser(userId);
-            var viewmodel = _appointmentService.GetAppointmentHistory(userId);
-            
-            return View(viewmodel);
+            var model = _appointmentService.GetAppointmentHistory(userId);
+            return View("History", model);
         }
 
+        // POST: /Appointment/RequestCancel
+        [HttpPost]
+        public IActionResult RequestCancel([FromBody] RequestCancelDto dto)
+        {
+            // Tạm thời hardcode userId = 2, thực tế lấy từ session hoặc identity
+            int userId = 2;
+
+            Console.WriteLine($"[RequestCancel] appointmentId nhận được từ client: {dto?.appointmentId}");
+
+            var result = _appointmentService.RequestCancelAppointment(dto?.appointmentId ?? 0, userId);
+
+            if (result)
+            {
+                return Json(new { success = true, message = "Yêu cầu hủy lịch đã được gửi, chờ admin duyệt." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
+            }
+        }
+    }
+
+    public class RequestCancelDto
+    {
+        public int appointmentId { get; set; }
     }
 }
+

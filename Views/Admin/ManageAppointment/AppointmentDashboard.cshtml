@@ -1,0 +1,232 @@
+@model pet_spa_system1.ViewModels.AppointmentDashboardViewModel
+@{
+    ViewData["Title"] = "Tổng quan lịch hẹn";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0 fw-bold">
+            Tổng quan lịch hẹn
+        </h3>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-primary">
+                <i class="fas fa-list me-1"></i>Danh sách lịch hẹn
+            </a>
+            <a href="@Url.Action("Create", "AdminAppointment")" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Tạo lịch mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Thống kê -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Hôm nay</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TodayAppointments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Sắp tới</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.UpcomingAppointments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Đã hoàn thành</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CompletedAppointments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Đã hủy</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CancelledAppointments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-times fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ và Lịch hẹn gần đây -->
+    <div class="row">
+        <!-- Biểu đồ -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê lịch hẹn theo tháng</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Tùy chọn:</div>
+                            <a class="dropdown-item" href="#">Xuất báo cáo</a>
+                            <a class="dropdown-item" href="#">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="appointmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch hẹn gần đây -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn hôm nay</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (Model.RecentAppointments?.Any() == true)
+                        {
+                            foreach (var item in Model.RecentAppointments)
+                            {
+                                <a href="@Url.Action("Detail", "AdminAppointment", new { id = item.AppointmentId })" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@item.CustomerName</h6>
+                                        <small>@item.AppointmentDate.ToString("HH:mm")</small>
+                                    </div>
+                                    <p class="mb-1">@item.PetNames - @item.ServiceNames</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">@item.AppointmentDate.ToString("dd/MM/yyyy")</small>
+                                        @{
+                                            string badgeClass = "secondary";
+                                            switch (item.StatusId)
+                                            {
+                                                case 1: badgeClass = "warning text-dark"; break;
+                                                case 2: badgeClass = "success"; break;
+                                                case 3: badgeClass = "secondary"; break;
+                                                case 4: badgeClass = "danger"; break;
+                                            }
+                                        }
+                                        <span class="badge bg-@badgeClass">@item.StatusName</span>
+                                    </div>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="fas fa-calendar-day fa-3x text-muted mb-3"></i>
+                                <p>Không có lịch hẹn nào hôm nay</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-sm btn-primary">
+                        Xem tất cả
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dữ liệu mẫu - sẽ được thay thế bằng dữ liệu thực từ Model
+            const data = {
+                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+                datasets: [
+                    {
+                        label: 'Số lịch hẹn',
+                        data: [12, 19, 15, 25, 22, 30],
+                        backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1,
+                        tension: 0.4
+                    }
+                ]
+            };
+            
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false,
+                                borderDash: [2],
+                                zeroLineColor: "rgba(0, 0, 0, 0.1)"
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Khởi tạo biểu đồ
+            new Chart(
+                document.getElementById('appointmentChart'),
+                config
+            );
+        });
+    </script>
+} 

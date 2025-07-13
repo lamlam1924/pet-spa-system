@@ -1,0 +1,113 @@
+@model List<pet_spa_system1.Models.Appointment>
+@{
+    ViewData["Title"] = "Lịch hẹn theo thời gian";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4 align-items-center g-2">
+        <div class="col-12 col-md-6">
+            <h2 class="fw-bold mb-2 mb-md-0 text-primary">
+                
+                Lịch hẹn
+            </h2>
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <a href="@Url.Action("Dashboard", "AdminAppointment")" class="btn btn-outline-secondary shadow-sm">Tổng quan</a>
+                <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary shadow-sm">Xem dạng danh sách</a>
+                <a href="@Url.Action("Create", "AdminAppointment")" class="btn btn-primary shadow-sm">Tạo lịch mới</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center g-2">
+                <div class="col-12 col-md-4 mb-2 mb-md-0">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" id="btn-today" class="btn btn-sm btn-primary">Hôm nay</button>
+                        <button type="button" id="btn-tomorrow" class="btn btn-sm btn-outline-primary">Ngày mai</button>
+                        <button type="button" id="btn-week" class="btn btn-sm btn-outline-primary">Tuần này</button>
+                        <button type="button" id="btn-month" class="btn btn-sm btn-outline-primary">Tháng này</button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 text-center mb-2 mb-md-0">
+                    <h5 class="m-0 fw-bold text-primary" id="calendar-title">Tháng 7, 2025</h5>
+                </div>
+                <div class="col-12 col-md-4 text-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" id="btn-prev" class="btn btn-sm btn-outline-secondary" title="Tháng trước">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" id="btn-next" class="btn btn-sm btn-outline-secondary" title="Tháng sau">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Quick View -->
+<div class="modal fade" id="quickViewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-sm">
+            <div class="modal-header bg-light border-0 pb-2">
+                <h5 class="modal-title text-primary fw-bold" id="quickViewTitle">
+                    <i class="far fa-calendar-alt me-2"></i>Chi tiết lịch hẹn
+                </h5>
+                <button type="button" class="close" data-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="quickViewContent">
+                <!-- Nội dung sẽ được render động từ JS -->
+            </div>
+            <div class="modal-footer bg-light border-0 pt-2">
+                <a id="addAppointmentBtn" href="#" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Thêm lịch mới
+                </a>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    Ở lại trang lịch
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-calendar.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="~/cssjsAppointment/js/appointment-calendar.js"></script>
+    <script id="calendar-data-script" type="application/json">
+        @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            (Model ?? new List<pet_spa_system1.Models.Appointment>())
+                .Where(a => a != null)
+                .Select(a => new {
+                    id = a.AppointmentId,
+                    title = (((a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Any())
+                        ? string.Join(", ", (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? ""))
+                        : "Lịch hẹn"),
+                    start = a.AppointmentDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = (a.AppointmentDate.AddHours(1)).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    status = a.Status?.StatusName ?? "",
+                    customer = a.User?.FullName ?? "",
+                    phone = a.User?.Phone ?? "",
+                    petNames = (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? "").ToList(),
+                    services = (a.AppointmentServices ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentService>()).Select(s => s.Service?.Name ?? "").ToList()
+                })
+        ))
+    </script>
+}
+
+
+
+
+

@@ -7,8 +7,15 @@ using pet_spa_system1.Repo;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Services;
 using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
+// Đăng ký IHttpContextAccessor cho DI container
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
@@ -20,6 +27,7 @@ builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
 builder.Services.AddScoped<ISerCateService, SerCateService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
+builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
@@ -45,6 +53,10 @@ builder.Services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
 builder.Services.AddScoped<IOrderStatusService, OrderStatusService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// Blog services
+builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+builder.Services.AddScoped<IBlogService, BlogService>();
 
 // Session
 builder.Services.AddSession(options =>
@@ -139,5 +151,17 @@ app.MapControllerRoute(
     name: "Detail",
     pattern: "Products/Detail/{productID}",
     defaults: new { controller = "Products", action = "Detail" });
+
+app.Run();
+// Blog routes
+app.MapControllerRoute(
+    name: "BlogDetail",
+    pattern: "Blogs/Detail/{id:int}",
+    defaults: new { controller = "Blogs", action = "Detail" });
+
+app.MapControllerRoute(
+    name: "BlogCreate",
+    pattern: "Blogs/Create",
+    defaults: new { controller = "Blogs", action = "Create" });
 
 app.Run();

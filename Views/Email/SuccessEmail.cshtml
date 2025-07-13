@@ -1,0 +1,118 @@
+@model pet_spa_system1.ViewModels.AppointmentViewModel
+<style type="text/css">
+.email-container { font-family: 'Montserrat', Arial, sans-serif; background: #fff7f4; padding: 28px; border-radius: 12px; max-width: 600px; margin: auto; box-shadow: 0 2px 12px #ff6f6133; }
+.email-header { text-align: center; margin-bottom: 28px; }
+.email-header h1 { color: #ff6f61; margin-bottom: 0; font-size: 2.2rem; letter-spacing: 1px; }
+.email-header p { color: #43b581; font-size: 1.1rem; margin-top: 4px; }
+.email-body { margin-bottom: 24px; }
+.greeting { font-size: 19px; margin-bottom: 14px; color: #ff6f61; font-weight: 600; }
+.message { margin-bottom: 18px; color: #333; }
+.appointment-details, .pets-section, .services-section { margin-bottom: 18px; }
+.section-title { font-weight: bold; margin-bottom: 8px; color: #ff6f61; font-size: 1.1rem; }
+.detail-item { display: flex; margin-bottom: 4px; }
+.detail-label { width: 120px; font-weight: 600; color: #43b581; }
+.detail-value { flex: 1; color: #333; }
+.pet-item, .service-item { margin-bottom: 4px; }
+.pet-item strong { color: #ff6f61; }
+.service-price { color: #43b581; font-weight: bold; float: right; }
+.notes-section { background: #fff0ea; padding: 10px; border-radius: 5px; margin-bottom: 14px; border-left: 4px solid #ff6f61; }
+.note { color: #bdbdbd; font-style: italic; }
+.service-item strong, .service-price strong { color: #ff6f61; }
+@@media (max-width: 600px) {
+    .email-container { padding: 10px; }
+    .detail-label { width: 90px; }
+}
+</style>
+<div class="email-container">
+    <div class="email-header">
+        <h1>PET Spa</h1>
+        <p>Chăm sóc chuyên nghiệp - Tình cảm trọn vẹn</p>
+    </div>
+    <div class="email-body">
+        <div class="greeting">
+            Xin chào @Model.CustomerName,
+        </div>
+        <div class="message">
+            @if (Model.StatusId == 2) {
+                <span>Cảm ơn bạn đã đặt lịch tại <b>Pet Spa</b>. Lịch hẹn của bạn đã được <span style="color:#43b581;font-weight:600">xác nhận</span>. Vui lòng đến đúng giờ để được phục vụ tốt nhất!</span>
+            } else if (Model.StatusId == 5) {
+                <span>Lịch hẹn của bạn tại <b>Pet Spa</b> đã được <span style="color:#ff6f61;font-weight:600">hủy</span> theo yêu cầu hoặc do admin xác nhận. Nếu cần hỗ trợ đặt lại, vui lòng liên hệ chúng tôi.</span>
+            } else {
+                <span>Thông tin lịch hẹn của bạn tại <b>Pet Spa</b> đã được cập nhật.</span>
+            }
+        </div>
+        <div class="appointment-details">
+            <div class="section-title">Thông tin lịch hẹn</div>
+            <div class="detail-item">
+                <div class="detail-label">Trạng thái:</div>
+                @{
+                    var color = Model.StatusId == 2 ? "#43b581" : "#ff6f61";
+                }
+                <div class="detail-value" style="font-weight:bold; color:@color">
+                    @Model.StatusName
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Ngày hẹn:</div>
+                <div class="detail-value">@Model.AppointmentDate.ToString("dddd, dd/MM/yyyy") (VN)</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Giờ hẹn:</div>
+                <div class="detail-value">@Model.AppointmentTime.ToString(@"hh\:mm")</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Khách hàng:</div>
+                <div class="detail-value">@Model.CustomerName</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Điện thoại:</div>
+                <div class="detail-value">@Model.Phone</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value">@Model.Email</div>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Notes)) {
+            <div class="notes-section">
+                <strong>Ghi chú:</strong>
+                <p>@Model.Notes</p>
+            </div>
+        }
+        <div class="pets-section">
+            <div class="section-title">Thú cưng được chọn</div>
+            @if (Model.SelectedPets != null && Model.SelectedPets.Any()) {
+                @foreach (var pet in Model.SelectedPets) {
+                    <div class="pet-item">
+                        <div>
+                            <i class="fa fa-paw"></i>
+                            <strong>@pet.Name</strong>
+                            <span> - @pet.Breed</span>
+                        </div>
+                    </div>
+                }
+            } else {
+                <p class="note">Không có thông tin thú cưng</p>
+            }
+        </div>
+        <div class="services-section">
+            <div class="section-title">Dịch vụ được chọn</div>
+            @if (Model.SelectedServices != null && Model.SelectedServices.Any()) {
+                decimal totalPrice = 0;
+                @foreach (var service in Model.SelectedServices) {
+                    totalPrice += service.Price;
+                    <div class="service-item">
+                        <div>@service.Name</div>
+                        <div class="service-price">@service.Price.ToString("N0") đ</div>
+                    </div>
+                }
+                <div class="service-item">
+                    <div><strong>Tổng cộng</strong></div>
+                    <div class="service-price"><strong>@totalPrice.ToString("N0") đ</strong></div>
+                </div>
+            } else {
+                <p class="note">Không có dịch vụ nào</p>
+            }
+        </div>
+    </div>
+</div>

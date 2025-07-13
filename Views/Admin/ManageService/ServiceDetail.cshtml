@@ -1,0 +1,123 @@
+@model pet_spa_system1.ViewModels.ServiceDetailViewModel
+@{
+    ViewData["Title"] = "Chi tiết dịch vụ";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/service-detail.css" />
+}
+
+<div class="service-detail-container">
+    <div class="container-fluid py-4" id="container-wrapper">
+        <!-- Navigation -->
+        @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
+
+        <div class="service-detail-card row g-4 align-items-start">
+            <!-- ẢNH DỊCH VỤ -->
+            <div class="col-md-4">
+                <div class="service-image-wrapper mb-3">
+                    <img src="/images/service-default.png"
+                         alt="Ảnh dịch vụ"
+                         class="service-image img-fluid rounded shadow-sm" />
+                </div>
+            </div>
+            <!-- THÔNG TIN CHÍNH -->
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-2">
+                    <h2 class="service-title mb-0 me-3">@Model.Service.Name</h2>
+                    @if (Model.Service.IsActive == true)
+                    {
+                        <span class="badge badge-success ms-2">Hoạt động</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger ms-2">Tạm ngưng</span>
+                    }
+                </div>
+                <div class="mb-2 mb-category">
+                    <span class="badge badge-category me-2"><i class="fas fa-tag"></i> @Model.CategoryName</span>
+                    <span class="text-muted small">ID: SV-@Model.Service.ServiceId.ToString("D4")</span>
+                </div>
+                <div class="service-main-info-row d-flex flex-row gap-4 mb-3">
+                    <div>
+                        <div class="fw-bold text-primary fs-5">@Model.Service.Price.ToString("N0") đ</div>
+                        <div class="small text-muted">Giá dịch vụ</div>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@Model.Service.DurationMinutes phút</div>
+                        <div class="small text-muted">Thời gian</div>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">@Model.BookingCount</div>
+                        <div class="small text-muted">Lượt đặt</div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-1">Mô tả dịch vụ:</h6>
+                    <div class="service-description">
+                        @(string.IsNullOrEmpty(Model.Service.Description) ? "Chưa có mô tả chi tiết cho dịch vụ này." : Model.Service.Description)
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("EditService", "AdminService", new { id = Model.Service.ServiceId })" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    @if (Model.Service.IsActive == true)
+                    {
+                        <button type="button" onclick="confirmStatusChange(@Model.Service.ServiceId, false)" class="btn btn-warning">
+                            <i class="fas fa-pause"></i> Tạm ngưng
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" onclick="confirmStatusChange(@Model.Service.ServiceId, true)" class="btn btn-success">
+                            <i class="fas fa-play"></i> Kích hoạt
+                        </button>
+                    }
+                    <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs đơn giản nếu cần -->
+        <div class="service-tabs mt-4">
+            <ul class="nav nav-tabs" id="serviceTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="history-tab" data-bs-toggle="tab" href="#history" role="tab">Lịch sử đặt lịch</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="related-tab" data-bs-toggle="tab" href="#related" role="tab">Dịch vụ liên quan</a>
+                </li>
+            </ul>
+            <div class="tab-content p-3 bg-white border-bottom border-start border-end rounded-bottom">
+                <div class="tab-pane fade show active" id="history" role="tabpanel">
+                    <!-- Lịch sử đặt lịch như cũ -->
+                </div>
+                <div class="tab-pane fade" id="related" role="tabpanel">
+                    <!-- Dịch vụ liên quan như cũ -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Form -->
+<form id="serviceActionForm" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="serviceIdInput" value="" />
+</form>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/cssjsService/js/service-detail.js"></script>
+    <script>
+        var successMessage = '@TempData["SuccessMessage"]';
+        var errorMessage = '@TempData["ErrorMessage"]';
+        var serviceRestoreUrl = '@Url.Action("RestoreService", "AdminService")';
+        var serviceSoftDeleteUrl = '@Url.Action("SoftDeleteService", "AdminService")';
+    </script>
+}

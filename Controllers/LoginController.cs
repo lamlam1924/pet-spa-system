@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.ViewModel;
-using System.Security.Claims;
-using pet_spa_system1.Utils;
+using pet_spa_system1.ViewModels;
+
 namespace pet_spa_system1.Controllers
 {
     public class LoginController : Controller

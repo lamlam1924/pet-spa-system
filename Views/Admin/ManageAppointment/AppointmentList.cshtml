@@ -1,0 +1,225 @@
+@model pet_spa_system1.ViewModels.AppointmentListViewModel
+@{
+    ViewData["Title"] = "Danh sách lịch hẹn";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 fw-bold">
+            Danh sách lịch hẹn
+        </h3>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("AppointmentCalendar", "Admin")" class="btn btn-outline-secondary">
+                Xem dạng lịch
+            </a>
+            <a href="@Url.Action("AppointmentCreate", "Admin")" class="btn btn-primary">
+                Tạo lịch mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Tìm kiếm và bộ lọc -->
+    <div class="filter-section mb-4">
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" class="form-control" placeholder="Tìm kiếm...">
+            <button class="btn-clear" type="button" style="display:none"><i class="fas fa-times"></i></button>
+        </div>
+        <div>
+            <select id="status-filter" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                @foreach (var status in Model.StatusList)
+                {
+                    <option value="@status.StatusId">@status.StatusName</option>
+                }
+            </select>
+        </div>
+        <div>
+            <input type="date" id="date-filter" class="form-control" placeholder="Ngày hẹn">
+        </div>
+        <div>
+            <select id="employee-filter" class="form-select">
+                <option value="">Tất cả nhân viên</option>
+                <option value="1">Nguyễn Văn A</option>
+                <option value="2">Trần Thị B</option>
+            </select>
+        </div>
+        <div>
+            <button id="btn-reset-filter" class="btn btn-outline-secondary w-100">
+                <i class="fas fa-sync-alt me-1"></i>Đặt lại
+            </button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="appointment-table">
+                <thead>
+                        <tr>
+                            <th class="ps-3">ID</th>
+                            <th>
+                                <a href="#" class="text-dark d-flex align-items-center sort-link">
+                                    Khách hàng <i class="fas fa-sort ms-1 text-muted small"></i>
+                                </a>
+                            </th>
+                            <th>Thú cưng</th>
+                            <th>Dịch vụ</th>
+                            <th>
+                                <a href="#" class="text-dark d-flex align-items-center sort-link">
+                                    Thời gian <i class="fas fa-sort ms-1 text-muted small"></i>
+                                </a>
+                            </th>
+                            <th>Trạng thái</th>
+                            <th>Nhân viên</th>
+                            <th class="text-end">Tổng tiền</th>
+                            <th class="text-center pe-3">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in Model.Appointments)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-medium">@item.AppointmentId</td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-medium">@item.User?.FullName</span>
+                                    <span class="text-muted small">@item.User?.Phone</span>
+                                </div>
+                            </td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var pet in item.AppointmentPets)
+                                    {
+                                        <li>
+                                            @if (pet.Pet.Species != null)
+                                            {
+                                                <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
+                                                    @pet.Pet.Name
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge rounded-pill badge-pet bg-light text-dark">
+                                                    @pet.Pet.Name
+                                                </span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var service in item.AppointmentServices)
+                                    {
+                                        <li><span class="badge rounded-pill badge-service bg-light text-dark" data-bs-toggle="tooltip" title="@service.Service.Description">@service.Service.Name</span></li>
+                                    }
+                                </ul>
+                            </td>
+                            <td class="time-col">
+                                <div class="d-flex flex-column">
+                                    <span>@item.AppointmentDate.ToString("dd/MM/yyyy")</span>
+                                    <span class="text-muted small">@item.AppointmentDate.ToString("HH:mm")</span>
+                                </div>
+                            </td>
+                            <td class="status-col">
+                                <span class="badge badge-status status-@item.StatusId" data-statusid="@item.StatusId" style="font-size:1em;min-width:120px;">
+                                    <span class="status-icon"></span> @item.Status.StatusName
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.Employee != null)
+                                {
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-2 rounded-circle text-center" 
+                                             style="width: 32px; height: 32px; line-height: 32px;">
+                                            @(string.IsNullOrEmpty(item.Employee.FullName) ? "?" : item.Employee.FullName.Substring(0, 1))
+                                        </div>
+                                        <span>@item.Employee.FullName</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><i class="fas fa-user-clock me-1"></i>Chưa phân công</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <span class="total-price">
+                                    @item.AppointmentServices.Sum(s => s.Service.Price).ToString("N0") đ
+                                </span>
+                            </td>
+                            <td class="text-center pe-3">
+                                <div class="action-buttons">
+                                    <a class="btn btn-outline-primary" title="Xem chi tiết" href="@Url.Action("AppointmentDetail", "Admin", new { id = item.AppointmentId })">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("EditAppointment", "Admin", new { id = item.AppointmentId })">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-danger" title="Xóa" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.AppointmentId">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <nav>
+                @{
+                    int currentPage = ViewBag.CurrentPage ?? 1;
+                    int totalPages = ViewBag.TotalPages ?? 1;
+                }
+                <ul class="pagination justify-content-center m-0">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("List", new { page = currentPage - 1 })"><i class="fas fa-chevron-left"></i></a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("List", new { page = i })">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("List", new { page = currentPage + 1 })"><i class="fas fa-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+<!-- Modal xóa lịch hẹn -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa lịch hẹn này?</p>
+                <p class="text-danger"><small>Lưu ý: Hành động này không thể hoàn tác!</small></p>
+            </div>
+            <div class="modal-footer">
+                <form action="@Url.Action("DeleteAppointment", "Admin")" method="post">
+                    <input type="hidden" id="deleteAppointmentId" name="id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/cssjsappointment/js/appointment-list.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsappointment/css/appointment-list.css" />
+}

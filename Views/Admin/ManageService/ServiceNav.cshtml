@@ -1,0 +1,36 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "AdminService";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+}
+
+<div class="mb-4">
+    <div class="nav-wrapper position-relative">
+        <ul class="nav nav-pills nav-fill nav-tabs-service flex-column flex-md-row shadow-sm">
+            <li class="nav-item">
+                <a class="nav-link @(action == "ServiceDashboard" || action == "Index" ? "active" : "")" 
+                   href="@Url.Action("ServiceDashboard", "AdminService")">
+                    <i class="fas fa-tachometer-alt me-2"></i> Tổng quan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(action == "ServiceList" ? "active" : "")" 
+                   href="@Url.Action("ServiceList", "AdminService")">
+                    <i class="fas fa-list me-2"></i> Danh sách dịch vụ
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(action == "ServiceCategory" ? "active" : "")" 
+                   href="@Url.Action("ServiceCategory", "AdminService")">
+                    <i class="fas fa-folder me-2"></i> Quản lý danh mục
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(action == "AddService" ? "active" : "")" 
+                   href="@Url.Action("AddService", "AdminService")">
+                    <i class="fas fa-plus-circle me-2"></i> Thêm dịch vụ mới
+                </a>
+            </li>
+        </ul>
+        <div class="nav-slider" id="navSlider"></div>
+    </div>
+</div>
