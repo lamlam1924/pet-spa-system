@@ -1,0 +1,344 @@
+@model pet_spa_system1.ViewModel.AdminAppointmentDetailViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết lịch hẹn #" + Model.AppointmentId;
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-detail.css" />
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0 fw-bold">
+            <i class="fas fa-calendar-alt me-2"></i> Chi tiết lịch hẹn #@Model.AppointmentId
+        </h3>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+            </a>
+            <a href="@Url.Action("Edit", "AdminAppointment", new { id = Model.AppointmentId })" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i>Chỉnh sửa
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="m-0 fw-bold">Thông tin lịch hẹn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Mã lịch hẹn</h6>
+                            <p class="mb-0 fw-bold">#@Model.AppointmentId</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Trạng thái</h6>
+                            <div class="d-flex align-items-center">
+                                @{
+                                    string badgeClass = Model.StatusId switch
+                                    {
+                                        1 => "warning text-dark",   // Chờ xác nhận
+                                        2 => "success",             // Đã xác nhận
+                                        3 => "secondary",           // Đã hoàn thành
+                                        4 => "danger",              // Đã hủy
+                                        _ => "light"
+                                    };
+                                }
+                                <span class="badge bg-@badgeClass me-2">@Model.StatusName</span>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Thay đổi
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right shadow">
+                                        @foreach (var status in ViewBag.Statuses ?? new List<pet_spa_system1.Models.StatusAppointment>())
+                                        {
+                                            <a class="dropdown-item status-change" 
+                                               href="#" 
+                                               data-status-id="@status.StatusId" 
+                                               data-appointment-id="@Model.AppointmentId">
+                                                @status.StatusName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Ngày hẹn</h6>
+                            <p class="mb-0">@Model.AppointmentDate.ToString("dd/MM/yyyy")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Giờ hẹn</h6>
+                            <p class="mb-0">@Model.AppointmentDate.ToString("HH:mm")</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Ngày tạo</h6>
+                            <p class="mb-0">Ngày tạo: @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Cập nhật gần nhất</h6>
+                            <p class="mb-0">Cập nhật lần cuối: @Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Ghi chú</h6>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Notes) ? "Không có ghi chú" : Model.Notes)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="m-0 fw-bold">Thú cưng</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Pets.Any())
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var pet in Model.Pets)
+                                    {
+                                        <div class="list-group-item px-0">
+                                            <div class="d-flex">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="bg-light rounded-circle text-center" style="width: 48px; height: 48px; line-height: 48px;">
+                                                        <i class="fas fa-paw"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">@pet.Name</h6>
+                                                    <p class="mb-0 text-muted small">
+                                                        @pet.SpeciesName • @pet.Breed • 
+                                                        @(pet.Age > 0 ? $"{pet.Age} tuổi" : "Chưa rõ tuổi")
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3">
+                                    <i class="fas fa-paw fa-3x text-muted mb-3"></i>
+                                    <p>Không có thú cưng nào trong lịch hẹn này</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="m-0 fw-bold">Dịch vụ</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Services.Any())
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var service in Model.Services)
+                                    {
+                                        <div class="list-group-item px-0">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">@service.Name</h6>
+                                                    <p class="mb-0 text-muted small">
+                                                        @service.CategoryName • @service.DurationMinutes phút
+                                                    </p>
+                                                </div>
+                                                <span class="text-success">@service.Price.ToString("N0") VNĐ</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                    <h6 class="mb-0">Tổng cộng:</h6>
+                                    <h5 class="text-success mb-0">
+                                        @Model.TotalPrice.ToString("N0") VNĐ
+                                    </h5>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3">
+                                    <i class="fas fa-spa fa-3x text-muted mb-3"></i>
+                                    <p>Không có dịch vụ nào trong lịch hẹn này</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="m-0 fw-bold">Thông tin khách hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="bg-primary text-white rounded-circle text-center" style="width: 64px; height: 64px; line-height: 64px; font-size: 1.5rem;">
+                                @(Model.CustomerName?[0])
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">@Model.CustomerName</h5>
+                            <p class="mb-0 text-muted">Khách hàng</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Số điện thoại</h6>
+                        <p class="mb-0">
+                            <i class="fas fa-phone-alt me-2 text-primary"></i>
+                            <a href="tel:@Model.CustomerPhone" class="text-decoration-none">@Model.CustomerPhone</a>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Email</h6>
+                        <p class="mb-0">
+                            <i class="fas fa-envelope me-2 text-primary"></i>
+                            <a href="mailto:@Model.CustomerEmail" class="text-decoration-none">@Model.CustomerEmail</a>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Địa chỉ</h6>
+                        <p class="mb-0">
+                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                            @(string.IsNullOrEmpty(Model.CustomerAddress) ? "Chưa cập nhật" : Model.CustomerAddress)
+                        </p>
+                    </div>
+
+                    <a href="@Url.Action("Detail", "Customer", new { id = Model.UserId })" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-user me-1"></i>Xem hồ sơ khách hàng
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="m-0 fw-bold">Nhân viên phụ trách</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.EmployeeName))
+                    {
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="bg-info text-white rounded-circle text-center" style="width: 64px; height: 64px; line-height: 64px; font-size: 1.5rem;">
+                                    @(Model.EmployeeName?[0])
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">@Model.EmployeeName</h5>
+                                <p class="mb-0 text-muted">Nhân viên</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">Số điện thoại</h6>
+                            <p class="mb-0">
+                                <i class="fas fa-phone-alt me-2 text-info"></i>
+                                <a href="tel:@Model.EmployeePhone" class="text-decoration-none">@Model.EmployeePhone</a>
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">Email</h6>
+                            <p class="mb-0">
+                                <i class="fas fa-envelope me-2 text-info"></i>
+                                <a href="mailto:@Model.EmployeeEmail" class="text-decoration-none">@Model.EmployeeEmail</a>
+                            </p>
+                        </div>
+
+                        <a href="@Url.Action("Detail", "Staff", new { id = Model.EmployeeId })" class="btn btn-outline-info w-100">
+                            <i class="fas fa-user-tie me-1"></i>Xem hồ sơ nhân viên
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-clock fa-3x text-muted mb-3"></i>
+                            <p>Chưa phân công nhân viên</p>
+                            <a href="@Url.Action("Edit", "AdminAppointment", new { id = Model.AppointmentId })" class="btn btn-primary mt-2">
+                                <i class="fas fa-user-plus me-1"></i>Phân công ngay
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="m-0 fw-bold">Thao tác</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("Edit", "AdminAppointment", new { id = Model.AppointmentId })" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i>Chỉnh sửa lịch hẹn
+                        </a>
+                        <button type="button" class="btn btn-outline-success" id="btnSendConfirmation">
+                            <i class="fas fa-envelope me-1"></i>Gửi email xác nhận
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash-alt me-1"></i>Xóa lịch hẹn
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa lịch hẹn #@Model.AppointmentId?</p>
+                <p class="text-danger small">Lưu ý: Hành động này không thể hoàn tác!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form asp-action="Delete" asp-controller="AdminAppointment" method="post">
+                    <input type="hidden" name="id" value="@Model.AppointmentId" />
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/cssjsAppointment/js/appointment-detail.js"></script>
+    
+}

@@ -7,7 +7,7 @@ public partial class Pet
 {
     public int PetId { get; set; }
 
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
     public int? SpeciesId { get; set; }
 

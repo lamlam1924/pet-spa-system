@@ -13,6 +13,11 @@
   -ms-flex-pack: start;
   justify-content: start;
 }
+header, .navbar {
+    position: relative;
+    z-index: 9999;
+    background-color: white;
+}
 
 /* line 13, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_extend.scss */
 .overlay::before {
@@ -1225,7 +1230,7 @@ h3 {
   font-weight: 500;
   display: inline-block;
   padding: 37px 0;
-  font-family: "Poppins", sans-serif;
+/*  font-family: "Poppins", sans-serif;*/
   position: relative;
   text-transform: capitalize;
 }

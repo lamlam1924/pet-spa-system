@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thất bại";
+}
+
+<h2>Thanh toán thất bại!</h2>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+<a href="@Url.Action("Checkout", "Checkout")" class="btn btn-primary">Thử lại</a>

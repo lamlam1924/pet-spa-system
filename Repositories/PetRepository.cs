@@ -184,5 +184,17 @@ namespace pet_spa_system1.Repositories
             Console.WriteLine($"[PetRepository] GetPetsByUserId retrieved {pets.Count} pets, IDs: {string.Join(", ", pets.Select(p => p.PetId))}");
             return pets;
         }
+
+        public List<Pet> GetAllPets()
+          => _context.Pets.Where(p => p.IsActive == true).ToList();
+
+        public void AddPet(Pet pet)
+        {
+            _context.Pets.Add(pet);
+            _context.SaveChanges();
+        }
+
+        public Pet GetById(int id)
+            => _context.Pets.FirstOrDefault(p => p.PetId == id);
     }
 }

@@ -1,128 +1,60 @@
-using Microsoft.EntityFrameworkCore;
-using pet_spa_system1.Models;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 
-namespace pet_spa_system1.Repositories
+namespace pet_spa_system1.Repositories;
+
+public class ServiceRepository : IServiceRepository
 {
-    public class ServiceRepository : IServiceRepository
+    private readonly PetDataShopContext _context;
+
+    public ServiceRepository(PetDataShopContext context)
     {
-        private readonly PetDataShopContext _context;
+        _context = context;
+    }
 
-        public ServiceRepository(PetDataShopContext context)
-        {
-            _context = context;
-        }
+    // ===== SERVICE CRUD =====
+    public Service? GetServiceById(int id) => _context.Services.Find(id);
+    public IEnumerable<Service> GetAll() => _context.Services.ToList();
+    public IEnumerable<Service> GetActiveServices() => _context.Services.Where(s => s.IsActive == true).ToList();
 
-        public ServiceViewModel GetAllServiceAdmin()
-        {
-            return new ServiceViewModel
-            {
-                Services = _context.Services
-                    .Include(s => s.Category)
-                    .Where(s => s.IsActive)
-                    .ToList(),
-                Categories = _context.SerCates
-                    .Where(sc => sc.IsActive)
-                    .ToList(),
-                Promotions = _context.Promotions
-                    .Where(p => p.IsActive == true && p.ApplicableTo != "Product")
-                    .ToList(),
-                PromotionServices = _context.PromotionServices
-                    .Include(ps => ps.Promotion)
-                    .Include(ps => ps.Service)
-                    .ToList(),
-                Appointments = _context.Appointments
-                    .Include(a => a.User)
-                    .Include(a => a.Employee)
-                    .Include(a => a.Status)
-                    .Include(a => a.Promotion)
-                    .Where(a => a.IsActive)
-                    .ToList(),
-                AppointmentServices = _context.AppointmentServices
-                    .Include(aps => aps.Appointment)
-                    .Include(aps => aps.Service)
-                    .Where(aps => aps.IsActive)
-                    .ToList()
-            };
-        }
-        public ServiceViewModel GetAllService()
-        {
-            return new ServiceViewModel
-            {
-                Services = _context.Services
-                    .Include(s => s.Category)
-                    // .Where(s => s.IsActive)
-                    .ToList(),
-                Categories = _context.SerCates
-                    // .Where(sc => sc.IsActive)
-                    .ToList(),
-                Promotions = _context.Promotions
-                    .Where(p => p.IsActive == true && p.ApplicableTo != "Product")
-                    .ToList(),
-                PromotionServices = _context.PromotionServices
-                    .Include(ps => ps.Promotion)
-                    .Include(ps => ps.Service)
-                    .ToList(),
-                Appointments = _context.Appointments
-                    .Include(a => a.User)
-                    .Include(a => a.Employee)
-                    .Include(a => a.Status)
-                    .Include(a => a.Promotion)
-                    .Where(a => a.IsActive)
-                    .ToList(),
-                AppointmentServices = _context.AppointmentServices
-                    .Include(aps => aps.Appointment)
-                    .Include(aps => aps.Service)
-                    .Where(aps => aps.IsActive)
-                    .ToList()
-            };
-        }
+    public void AddService(Service service) => _context.Services.Add(service);
+    public void UpdateService(Service service) => _context.Services.Update(service);
+    public void DeleteService(Service service) => _context.Services.Remove(service);
 
-        public Service GetServiceById(int id)
+    public void SoftDeleteService(int id)
+    {
+        var service = _context.Services.Find(id);
+        if (service != null)
         {
-            return _context.Services.FirstOrDefault(s => s.ServiceId == id);
-        }
-
-        public void AddService(Service service)
-        {
-            _context.Services.Add(service);
-        }
-
-        public void UpdateService(Service service)
-        {
+            service.IsActive = false;
             _context.Services.Update(service);
         }
+    }
 
-        public void SoftDeleteService(int id)
+    public void RestoreService(int id)
+    {
+        var service = _context.Services.Find(id);
+        if (service != null)
         {
-            var service = GetServiceById(id);
-            if (service != null)
-            {
-                service.IsActive = false;
-                UpdateService(service);
-            }
+            service.IsActive = true;
+            _context.Services.Update(service);
         }
+    }
 
-        public void RestoreService(int id)
-        {
-            var service = GetServiceById(id);
-            if (service != null)
-            {
-                service.IsActive = true;
-                UpdateService(service);
-            }
-        }
+    // ===== BUSINESS CHECKS =====
+    public bool ServiceHasAppointments(int serviceId)
+        => _context.AppointmentServices.Any(a => a.ServiceId == serviceId);
 
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
+    public void Save() => _context.SaveChanges();
 
-        public List<Service> GetActiveServices() => _context.Services.Where(s => s.IsActive).ToList();
-        public List<Service> GetAll()
-        {
-            return _context.Services.ToList();
-        }
-
+    public IEnumerable<Service> GetRecentServices(int count = 5)
+    {
+        return _context.Services
+            .OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue)
+            .Take(count)
+            .ToList();
     }
 }

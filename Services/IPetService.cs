@@ -20,5 +20,7 @@ namespace pet_spa_system1.Services
         Task<(Pet Pet, List<Pet> SuggestedPets)> GetPetDetailWithSuggestionsAsync(int petId);
         List<Pet> GetPetsByUserId(int userId);
         Task<List<Pet>> GetSuggestedPetsAsync(int speciesId, int excludePetId, int count); // Thêm phương thức này
+        List<Pet> GetAllPets();
+        void AddPet(Pet pet);
     }
 }

@@ -1,43 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
 {
     public class ServiceController : Controller
     {
         private readonly IServiceService _serviceService;
-        private readonly ISerCateService _serCateService;
 
-        public ServiceController(IServiceService serviceService, ISerCateService serCateService)
+        public ServiceController(IServiceService serviceService)
         {
             _serviceService = serviceService;
-            _serCateService = serCateService;
         }
 
-        public IActionResult ListService()
+        public IActionResult ListService(int page = 1, int? categoryId = null)
         {
-            var services = _serviceService.GetActiveServices();
-            var categories = _serCateService.GetActiveCategories();
-            // Trả về view với model phù hợp
-            return View(new ServiceViewModel
-            {
-                Services = services,
-                Categories = categories
-            });
+            var filter = new ServiceFilterModel();
+            if (categoryId.HasValue)
+                filter.CategoryId = categoryId.Value;
+
+            var viewModel = _serviceService.GetServiceListViewModel(filter, page);
+            return View(viewModel);
         }
 
         public IActionResult HomeService()
         {
             return View();
         }
-
-        public IActionResult ServicePet()
-        {
-            return View();
-        }
-
-
-
     }
 }

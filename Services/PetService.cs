@@ -112,5 +112,8 @@ namespace pet_spa_system1.Services
             Console.WriteLine($"[PetService] GetSuggestedPetsAsync called, speciesId: {speciesId}, excludePetId: {excludePetId}, count: {count}");
             return await _repository.GetSuggestedPetsAsync(speciesId, excludePetId, count);
         }
+
+        public List<Pet> GetAllPets() => _repository.GetAllPets();
+        public void AddPet(Pet pet) => _repository.AddPet(pet);
     }
 }

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 
@@ -32,6 +35,11 @@ public class UserRepository : IUserRepository
 
     public User? GetUserById(int userId)
         => _context.Users.FirstOrDefault(u => u.UserId == userId);
+    public async Task<User?> GetUserByIdAsync(int userId)
+    {
+        return await _context.Users
+                             .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
 
     public async Task AddAsync(User user)
     {
@@ -77,6 +85,69 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(int userId)
     {
-        return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
+        return await _context.Users.FindAsync(userId);
+    }
+
+    public async Task<List<Pet>> GetPetsByUserIdAsync(int userId)
+    {
+        return await _context.Pets.Where(p => p.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Appointment>> GetAppointmentsByUserIdAsync(int userId)
+    {
+        return await _context.Appointments
+            .Include(a => a.Status)
+            .Where(a => a.UserId == userId)
+            .ToListAsync();
+    }
+
+    public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
+    {
+        return await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Review>> GetReviewsByUserIdAsync(int userId)
+    {
+        return await _context.Reviews.Where(r => r.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Payment>> GetPaymentsByUserIdAsync(int userId)
+    {
+        return await _context.Payments.Where(p => p.UserId == userId).ToListAsync();
+    }
+
+    public async Task<List<Appointment>> GetAppointmentsByStaffIdAsync(int staffId)
+    {
+        return await _context.Appointments
+            .Include(a => a.User)
+            .Include(a => a.Status)
+            .Where(a => a.EmployeeId == staffId)
+            .ToListAsync();
+    }
+
+    // TODO: Tri?n khai hàm l?y hi?u su?t làm vi?c
+    public async Task<StaffPerformanceStats> GetStaffPerformanceStatsAsync(int staffId)
+    {
+        // Tính toán hi?u su?t t? b?ng Appointment, Order, ...
+        return new StaffPerformanceStats();
+    }
+
+    // TODO: Tri?n khai hàm l?y tài li?u c?a nhân viên
+    public async Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId)
+    {
+        return new List<StaffDocument>();
+    }
+
+    // TODO: Tri?n khai hàm upload tài li?u
+    public async Task AddStaffDocumentAsync(StaffDocument doc)
+    {
+        // Thêm doc vào DB
+    }
+
+    // TODO: Tri?n khai hàm reset m?t kh?u nhân viên
+    public async Task<string> ResetStaffPasswordAsync(int staffId)
+    {
+        // Sinh m?t kh?u m?i, c?p nh?t DB, tr? v? m?t kh?u m?i
+        return "newpassword123";
     }
 }

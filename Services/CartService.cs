@@ -1,5 +1,7 @@
 ﻿using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
+using System;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Services
 {
@@ -9,56 +11,54 @@ namespace pet_spa_system1.Services
 
         public CartService(ICartRepository repository)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public Task<List<Cart>> GetCartByUserIdAsync(int userId)
+        public async Task<List<Cart>> GetCartByUserIdAsync(int userId)
         {
-            return _repository.GetCartByUserIdAsync(userId);
+            return await _repository.GetCartByUserIdAsync(userId);
         }
 
         public async Task AddToCartAsync(int userId, int productId, int quantity)
         {
+            if (quantity <= 0) throw new ArgumentException("Số lượng phải lớn hơn 0.", nameof(quantity));
             await _repository.AddToCartAsync(userId, productId, quantity);
         }
 
-        public async Task AddToCartAsync(int productId, int quantity)
+        public async Task RemoveFromCartAsync(int cartId)
         {
-            await _repository.AddToCartAsync(1, productId, quantity);
+            await _repository.RemoveFromCartAsync(cartId);
         }
 
-        public Task RemoveFromCartAsync(int cartId)
+        public async Task UpdateQuantityAsync(int cartId, int newQuantity)
         {
-            return _repository.RemoveFromCartAsync(cartId);
+            if (newQuantity < 0) throw new ArgumentException("Số lượng không thể âm.", nameof(newQuantity));
+            await _repository.UpdateQuantityAsync(cartId, newQuantity);
         }
 
-        public Task UpdateQuantityAsync(int cartId, int newQuantity)
+        public async Task ClearCartAsync(int userId)
         {
-            return _repository.UpdateQuantityAsync(cartId, newQuantity);
+            await _repository.ClearCartAsync(userId);
         }
 
-        public Task ClearCartAsync(int userId)
+        public async Task RemoveProductFromCart(int productId, int userId)
         {
-            return _repository.ClearCartAsync(userId);
-        }
-        public Task RemoveProductFromCart(int productId,int userId)
-        {
-            return _repository.RemoveProductFromCart(productId,userId);
-
+            await _repository.RemoveProductFromCart(productId, userId);
         }
 
-        public Task<Cart> IncreaseQuantityAsync(int productId, int userId)
+        public async Task<Cart> IncreaseQuantityAsync(int productId, int userId)
         {
-            return _repository.IncreaseQuantityAsync(productId, userId);
+            return await _repository.IncreaseQuantityAsync(productId, userId);
         }
-        public Task<Cart> DecreaseQuantityAsync(int productId, int userId)
-        {
-            return _repository.DecreaseQuantityAsync(productId, userId);
 
-        }
-        public Task<decimal> GetTotalAmountAsync(int userId)
+        public async Task<Cart> DecreaseQuantityAsync(int productId, int userId)
         {
-            return _repository.GetTotalAmountAsync(userId);
+            return await _repository.DecreaseQuantityAsync(productId, userId);
+        }
+
+        public async Task<decimal> GetTotalAmountAsync(int userId)
+        {
+            return await _repository.GetTotalAmountAsync(userId);
         }
     }
 }

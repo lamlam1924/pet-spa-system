@@ -19,5 +19,10 @@ namespace pet_spa_system1.Repositories
         Task DisablePetAsync(int id);
         Task<List<Pet>> GetSuggestedPetsAsync(int speciesId, int excludePetId, int count);
         List<Pet> GetPetsByUserId(int userId);
+
+       
+        List<Pet> GetAllPets();
+        void AddPet(Pet pet);
+        Pet GetById(int id);
     }
 }

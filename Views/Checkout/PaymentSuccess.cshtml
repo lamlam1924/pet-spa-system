@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thành công";
+}
+
+<h2>Thanh toán thành công!</h2>
+<p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Đơn hàng của bạn sẽ được xử lý sớm.</p>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+<a href="@Url.Action("Index", "Home")" class="btn btn-primary">Quay về trang chủ</a>

@@ -12,6 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ======= SERVICES =======
 builder.Services.AddControllersWithViews();
+// Đăng ký IHttpContextAccessor cho DI container
+builder.Services.AddHttpContextAccessor();
+
+// Add services to the container
+
 
 // Kết nối DB
 builder.Services.AddDbContext<PetDataShopContext>(options =>
@@ -30,12 +35,19 @@ builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
 builder.Services.AddScoped<ISerCateService, SerCateService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
+builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
+
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICheckoutRepository, CheckoutRepository>();
+
+// Blog services
+//builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+//builder.Services.AddScoped<IBlogService, BlogService>();
 
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

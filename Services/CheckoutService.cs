@@ -31,12 +31,32 @@ namespace pet_spa_system1.Services
         }
 
         // Lấy thông tin người dùng hiện tại (có thể cần điều chỉnh để lấy từ session hoặc claims)
-        public Task<User> GetUserByIdAsync()
-        {
-            return _checkoutRepository.GetUserByIdAsync();
-        }
+        //public Task<User> GetUserByIdAsync(int userId)
+        //{
+        //    return _checkoutRepository.GetUserByIdAsync(userId);
+        //}
 
         public Task<bool> ProcessCheckoutAsync(int userId, int paymentMethodId, string discountCode = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public Task<Order> GetOrderByIdAsync(string orderId)
+        //{
+        //    return _checkoutRepository.GetOrderByIdAsync(orderId);
+        //}
+
+        public Task CreateOrderAsync(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateOrderAsync(Order order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Order> GetOrderByIdAsync(string orderId)
         {
             throw new NotImplementedException();
         }

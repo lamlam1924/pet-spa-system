@@ -1,8 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace pet_spa_system1.Services
 {
@@ -64,6 +70,10 @@ namespace pet_spa_system1.Services
         }
 
         public User? GetUserInfo(int userId) => _userRepository.GetUserById(userId);
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _userRepository.GetByIdAsync(userId);
+        }
 
         // Lấy danh sách user active
         public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null)
@@ -78,7 +88,7 @@ namespace pet_spa_system1.Services
         }
 
         // Lấy danh sách role active
-        public async Task<List<Role>> GetActiveRolesAsync()
+        public async Task<List<pet_spa_system1.Models.Role>> GetActiveRolesAsync()
         {
             return await _userRepository.GetActiveRolesAsync();
         }
@@ -137,6 +147,10 @@ namespace pet_spa_system1.Services
             user.Phone = updated.Phone;
             user.Address = updated.Address;
             user.RoleId = updated.RoleId;
+            if (!string.IsNullOrEmpty(updated.ProfilePictureUrl))
+            {
+                user.ProfilePictureUrl = updated.ProfilePictureUrl;
+            }
             user.UpdatedAt = DateTime.Now;
             await _userRepository.UpdateAsync(user);
             return (true, "User updated successfully");
@@ -185,6 +199,110 @@ namespace pet_spa_system1.Services
             user.UpdatedAt = DateTime.Now;
             await _userRepository.UpdateAsync(user);
             return (true, "Password reset successfully", defaultPassword);
+        }
+
+        // ========== STAFF MANAGEMENT ========== //
+        public async Task<List<User>> GetStaffListAsync(string? search = null, string? sort = null)
+        {
+            var query = await _userRepository.GetActiveUsersAsync(search, sort);
+            return query.Where(u => u.RoleId == 3).ToList();
+        }
+
+        public async Task<User?> GetStaffDetailAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null || user.RoleId != 3) return null;
+            return user;
+        }
+
+        public async Task<object> GetStaffStatsAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null || user.RoleId != 3) return new { Count = 0 };
+            // Thống kê số lịch hẹn đã xử lý trong tháng/ngày
+            var now = DateTime.Now;
+            var monthCount = user.AppointmentEmployees.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
+            var dayCount = user.AppointmentEmployees.Count(a => a.AppointmentDate.Date == now.Date);
+            return new { MonthCount = monthCount, DayCount = dayCount };
+        }
+
+        public async Task<(bool Success, string? Message)> ToggleLockStaffAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null || user.RoleId != 3)
+                return (false, "Staff not found");
+            user.IsActive = !(user.IsActive ?? true);
+            user.UpdatedAt = DateTime.Now;
+            await _userRepository.UpdateAsync(user);
+            return (true, user.IsActive == true ? "Staff activated" : "Staff deactivated");
+        }
+
+        public async Task<(bool Success, string? Message)> SetUserActiveAsync(int id, bool isActive)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null || user.RoleId != 3)
+                return (false, "Staff not found");
+            user.IsActive = isActive;
+            user.UpdatedAt = DateTime.Now;
+            await _userRepository.UpdateAsync(user);
+            return (true, isActive ? "Staff activated" : "Staff deactivated");
+        }
+
+        public async Task<List<Pet>> GetPetsByUserIdAsync(int userId)
+        {
+            return await _userRepository.GetPetsByUserIdAsync(userId);
+        }
+        public async Task<List<Appointment>> GetAppointmentsByUserIdAsync(int userId)
+        {
+            return await _userRepository.GetAppointmentsByUserIdAsync(userId);
+        }
+        public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
+        {
+            return await _userRepository.GetOrdersByUserIdAsync(userId);
+        }
+        public async Task<List<Review>> GetReviewsByUserIdAsync(int userId)
+        {
+            return await _userRepository.GetReviewsByUserIdAsync(userId);
+        }
+        public async Task<List<Payment>> GetPaymentsByUserIdAsync(int userId)
+        {
+            return await _userRepository.GetPaymentsByUserIdAsync(userId);
+        }
+        public async Task<List<Appointment>> GetAppointmentsByStaffIdAsync(int staffId)
+        {
+            return await _userRepository.GetAppointmentsByStaffIdAsync(staffId);
+        }
+        public async Task<StaffPerformanceStats> GetStaffPerformanceStatsAsync(int staffId)
+        {
+            return await _userRepository.GetStaffPerformanceStatsAsync(staffId);
+        }
+        public async Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId)
+        {
+            return await _userRepository.GetDocumentsByStaffIdAsync(staffId);
+        }
+        public async Task AddStaffDocumentAsync(StaffDocument doc)
+        {
+            await _userRepository.AddStaffDocumentAsync(doc);
+        }
+        public async Task<string> ResetStaffPasswordAsync(int staffId)
+        {
+            return await _userRepository.ResetStaffPasswordAsync(staffId);
+        }
+
+        public async Task<string> UploadAvatarAsync(Microsoft.AspNetCore.Http.IFormFile avatarFile)
+        {
+            var account = new Account(
+                "dprp1jbd9", // cloud_name
+                "584135338254938", // api_key
+                "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+            );
+            var cloudinary = new Cloudinary(account);
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(avatarFile.FileName, avatarFile.OpenReadStream())
+            };
+            var uploadResult = await cloudinary.UploadAsync(uploadParams);
+            return uploadResult.SecureUrl?.ToString();
         }
     }
 }
