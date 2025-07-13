@@ -1,4 +1,4 @@
-@model pet_spa_system1.Models.Appointment
+@model pet_spa_system1.ViewModels.AdminAppointmentViewModel
 
 @{
     ViewData["Title"] = "Chỉnh sửa lịch hẹn";
@@ -11,8 +11,8 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="@Url.Action("AppointmentList", "Admin")">Lịch hẹn</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "AdminAppointment")">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("List", "AdminAppointment")">Lịch hẹn</a></li>
                     <li class="breadcrumb-item active">Chỉnh sửa</li>
                 </ol>
             </nav>

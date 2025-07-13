@@ -1,4 +1,5 @@
 
+
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using System;
@@ -57,7 +58,7 @@ namespace pet_spa_system1.Repositories
                 Console.WriteLine($"WARNING: Không tìm thấy dịch vụ ID {serviceId}");
                 return;
             }
-            
+
             _context.AppointmentServices.Add(new AppointmentService
             {
                 AppointmentId = appointmentId,
@@ -94,7 +95,7 @@ namespace pet_spa_system1.Repositories
                 Console.WriteLine($"AppointmentId: {appointment.AppointmentId}");
                 Console.WriteLine($"Services count: {appointment.AppointmentServices?.Count ?? 0}");
                 Console.WriteLine($"Pets count: {appointment.AppointmentPets?.Count ?? 0}");
-                
+
                 if (appointment.AppointmentServices != null)
                 {
                     foreach (var svc in appointment.AppointmentServices)
@@ -103,7 +104,7 @@ namespace pet_spa_system1.Repositories
                     }
                 }
             }
-            
+
             return result;
         }
 
@@ -111,7 +112,7 @@ namespace pet_spa_system1.Repositories
         {
             return _context.StatusAppointments.ToList();
         }
-        
+
         public List<string> GetPetNamesByIds(List<int> petIds)
         {
             if (petIds == null || petIds.Count == 0) return new List<string>();
@@ -129,18 +130,20 @@ namespace pet_spa_system1.Repositories
                 .Select(s => s.Name)
                 .ToList();
         }
-        
+
         public int CountAppointmentsByDate(DateTime date)
         {
+            // Chỉ đếm các lịch đã xác nhận (StatusId == 2)
             return _context.Appointments
-                .Where(a => a.AppointmentDate.Date == date.Date)
+                .Where(a => a.AppointmentDate.Date == date.Date && a.StatusId == 2)
                 .Count();
         }
 
         public int CountUpcomingAppointments(DateTime fromDate)
         {
+            // Chỉ đếm các lịch đã xác nhận (StatusId == 2) và ngày lớn hơn hôm nay
             return _context.Appointments
-                .Where(a => a.AppointmentDate.Date > fromDate.Date && a.StatusId != 4)
+                .Where(a => a.AppointmentDate.Date > fromDate.Date && a.StatusId == 2)
                 .Count();
         }
 
@@ -150,13 +153,13 @@ namespace pet_spa_system1.Repositories
                 .Where(a => a.StatusId == statusId)
                 .Count();
         }
-        
+
         public List<Appointment> GetAppointments(
-            string searchTerm = "", 
-            int statusId = 0, 
-            DateTime? date = null, 
-            int employeeId = 0, 
-            int page = 1, 
+            string searchTerm = "",
+            int statusId = 0,
+            DateTime? date = null,
+            int employeeId = 0,
+            int page = 1,
             int pageSize = 10)
         {
             var query = _context.Appointments
@@ -168,27 +171,27 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.AppointmentServices)
                     .ThenInclude(asr => asr.Service)
                 .AsQueryable();
-                
+
             query = ApplyFilters(query, searchTerm, statusId, date, employeeId);
-            
+
             return query
                 .OrderByDescending(a => a.AppointmentDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
         }
-        
+
         public int CountAppointments(
-            string searchTerm = "", 
-            int statusId = 0, 
-            DateTime? date = null, 
+            string searchTerm = "",
+            int statusId = 0,
+            DateTime? date = null,
             int employeeId = 0)
         {
             var query = _context.Appointments.AsQueryable();
             query = ApplyFilters(query, searchTerm, statusId, date, employeeId);
             return query.Count();
         }
-        
+
         private IQueryable<Appointment> ApplyFilters(
             IQueryable<Appointment> query,
             string searchTerm = "",
@@ -198,30 +201,30 @@ namespace pet_spa_system1.Repositories
         {
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                query = query.Where(a => 
-                    a.User.FullName.Contains(searchTerm) || 
+                query = query.Where(a =>
+                    a.User.FullName.Contains(searchTerm) ||
                     a.User.Phone.Contains(searchTerm) ||
                     a.AppointmentPets.Any(ap => ap.Pet.Name.Contains(searchTerm)));
             }
-            
+
             if (statusId > 0)
             {
                 query = query.Where(a => a.StatusId == statusId);
             }
-            
+
             if (date.HasValue)
             {
                 query = query.Where(a => a.AppointmentDate.Date == date.Value.Date);
             }
-            
+
             if (employeeId > 0)
             {
                 query = query.Where(a => a.EmployeeId == employeeId);
             }
-            
+
             return query;
         }
-        
+
         public List<Appointment> GetAppointmentsByDateRange(DateTime start, DateTime end)
         {
             return _context.Appointments
@@ -234,7 +237,7 @@ namespace pet_spa_system1.Repositories
                 .Where(a => a.AppointmentDate >= start && a.AppointmentDate <= end)
                 .ToList();
         }
-        
+
         public Appointment GetAppointmentWithDetails(int id)
         {
             return _context.Appointments
@@ -333,7 +336,7 @@ namespace pet_spa_system1.Repositories
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
-        
+
         public List<Appointment> GetPendingAppointments()
         {
             return _context.Appointments
@@ -358,6 +361,17 @@ namespace pet_spa_system1.Repositories
                 .Where(a => a.StatusId == 6)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
+        }
+        
+        public int CountPendingApprovalAppointments()
+        {
+            return _context.Appointments.Count(a => a.StatusId == 1);
+            
+        }
+
+        public int CountPendingCancelAppointments()
+        {
+            return _context.Appointments.Count(a => a.StatusId == 6);
         }
     }
 }

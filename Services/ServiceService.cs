@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModels;
@@ -24,7 +21,7 @@ namespace pet_spa_system1.Services
         }
 
         // ===== VIEWMODEL METHODS =====
-        
+
         public ServiceListViewModel GetServiceListViewModel(ServiceFilterModel filter, int page = 1)
         {
             try
@@ -35,10 +32,10 @@ namespace pet_spa_system1.Services
 
                 // Áp dụng filter
                 var filteredServices = ApplyFilters(allServices, filter);
-                
+
                 // Áp dụng sorting
                 var sortedServices = ApplySorting(filteredServices, filter);
-                
+
                 // Tính toán phân trang
                 var totalItems = sortedServices.Count();
                 var pagedServices = sortedServices.Skip((page - 1) * pageSize).Take(pageSize);
@@ -129,7 +126,7 @@ namespace pet_spa_system1.Services
                                            .Sum(s => _appointmentServiceRepository.GetBookingCountByServiceId(s.ServiceId)),
                     Revenue = allServices.Where(s => s.CategoryId == c.CategoryId)
                                         .Sum(s => _appointmentServiceRepository.GetRevenueByServiceId(s.ServiceId)),
-                    Percentage = totalServices > 0 ? 
+                    Percentage = totalServices > 0 ?
                         (decimal)allServices.Count(s => s.CategoryId == c.CategoryId) / totalServices * 100 : 0
                 }).ToList();
 
@@ -157,7 +154,7 @@ namespace pet_spa_system1.Services
             try
             {
                 var service = _serviceRepository.GetServiceById(serviceId);
-                if (service == null) 
+                if (service == null)
                 {
                     return new ServiceDetailViewModel
                     {
@@ -166,18 +163,52 @@ namespace pet_spa_system1.Services
                         AppointmentHistory = new List<AppointmentHistoryItem>(),
                         BookingCount = 0,
                         Revenue = 0,
-                        CustomerCount = 0
+                        CustomerCount = 0,
+                        RelatedServices = new List<ServiceListItem>()
                     };
                 }
+
+                // Lấy các dịch vụ liên quan cùng danh mục, loại trừ chính nó
+                var relatedServices = _serviceRepository.GetAll()
+                    .Where(s => s.CategoryId == service.CategoryId && s.ServiceId != serviceId && s.IsActive == true)
+                    .Take(6)
+                    .ToList();
+
+                var relatedServiceList = relatedServices.Select(s => new ServiceListItem
+                {
+                    ServiceId = s.ServiceId,
+                    Name = s.Name,
+                    CategoryName = GetCategoryName(s.CategoryId),
+                    Price = s.Price,
+                    DurationMinutes = s.DurationMinutes,
+                    IsActive = s.IsActive,
+                    Description = s.Description
+                }).ToList();
+
+                // Lấy lịch sử đặt lịch cho dịch vụ này
+                var appointmentServices = _appointmentServiceRepository.GetByServiceId(serviceId);
+                var appointmentHistory = appointmentServices
+                    .Where(a => a.Appointment != null && a.Appointment.User != null && a.Appointment.Status != null)
+                    .Select(a => new AppointmentHistoryItem
+                    {
+                        AppointmentId = a.AppointmentId,
+                        CustomerName = a.Appointment.User.FullName,
+                        AppointmentDate = a.Appointment.AppointmentDate,
+                        StatusName = a.Appointment.Status.StatusName,
+                        Price = a.Service?.Price ?? 0
+                    })
+                    .OrderByDescending(a => a.AppointmentDate)
+                    .ToList();
 
                 return new ServiceDetailViewModel
                 {
                     Service = service,
                     CategoryName = GetCategoryName(service.CategoryId),
-                    AppointmentHistory = new List<AppointmentHistoryItem>(), // Đơn giản hóa
-                    BookingCount = _appointmentServiceRepository.GetBookingCountByServiceId(serviceId),
-                    Revenue = _appointmentServiceRepository.GetRevenueByServiceId(serviceId),
-                    CustomerCount = _appointmentServiceRepository.GetBookingCountByServiceId(serviceId) // Approximation
+                    AppointmentHistory = appointmentHistory,
+                    BookingCount = appointmentHistory.Count,
+                    Revenue = appointmentHistory.Sum(a => a.Price),
+                    CustomerCount = appointmentHistory.Select(a => a.CustomerName).Distinct().Count(),
+                    RelatedServices = relatedServiceList
                 };
             }
             catch (Exception ex)
@@ -187,7 +218,7 @@ namespace pet_spa_system1.Services
         }
 
         // ===== SERVICE OPERATIONS =====
-        
+
         public Service? GetServiceById(int id) => _serviceRepository.GetServiceById(id);
         public IEnumerable<Service> GetAll() => _serviceRepository.GetAll();
         public IEnumerable<Service> GetActiveServices() => _serviceRepository.GetActiveServices(); // Thêm lại method này
@@ -218,9 +249,9 @@ namespace pet_spa_system1.Services
         public void RestoreService(int id) => _serviceRepository.RestoreService(id);
 
         // ===== CATEGORY OPERATIONS =====
-        
+
         public IEnumerable<SerCate> GetAllCategories() => _categoryRepository.GetAll();
-        
+
         public Dictionary<int, int> GetServiceCountsByCategory() => _categoryRepository.GetServiceCountsByCategory();
 
         public void AddCategory(SerCate category)
@@ -240,11 +271,11 @@ namespace pet_spa_system1.Services
         }
 
         // ===== APPOINTMENT SERVICE RELATIONS =====
-        
-        public IEnumerable<Models.AppointmentService> GetAppointmentServicesByServiceId(int serviceId) 
+
+        public IEnumerable<Models.AppointmentService> GetAppointmentServicesByServiceId(int serviceId)
             => _appointmentServiceRepository.GetByServiceId(serviceId);
 
-        public void Save() 
+        public void Save()
         {
             _serviceRepository.Save();
             _categoryRepository.Save();
@@ -252,7 +283,7 @@ namespace pet_spa_system1.Services
         }
 
         // ===== PRIVATE HELPERS =====
-        
+
         private string GetCategoryName(int categoryId)
         {
             return _categoryRepository.GetById(categoryId)?.Name ?? "Chưa phân loại";
@@ -325,6 +356,26 @@ namespace pet_spa_system1.Services
                 default:
                     return services.OrderBy(s => s.Name ?? "");
             }
+        }
+        
+        // Lấy toàn bộ danh sách dịch vụ cho xuất Excel (không phân trang)
+        public List<ServiceListItem> GetAllServicesViewModel()
+        {
+            var allServices = _serviceRepository.GetAll();
+            var categories = _categoryRepository.GetAll();
+            var result = (from s in allServices
+                          join c in categories on s.CategoryId equals c.CategoryId into sc
+                          from c in sc.DefaultIfEmpty()
+                          select new ServiceListItem
+                          {
+                              ServiceId = s.ServiceId,
+                              Name = s.Name,
+                              Description = s.Description,
+                              Price = s.Price,
+                              IsActive = s.IsActive,
+                              CategoryName = c != null ? c.Name : null
+                          }).ToList();
+            return result;
         }
     }
 }

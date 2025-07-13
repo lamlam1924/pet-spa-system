@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 
 namespace pet_spa_system1.Repositories
@@ -10,7 +11,10 @@ namespace pet_spa_system1.Repositories
         public PetRepository(PetDataShopContext context) { _context = context; }
 
         public List<Pet> GetPetsByUserId(int userId)
-            => _context.Pets.Where(p => p.UserId == userId && p.IsActive == true).ToList();
+            => _context.Pets
+                .Where(p => p.UserId == userId && p.IsActive == true)
+                .Include(p => p.Species)
+                .ToList();
 
         public List<Pet> GetAllPets()
             => _context.Pets.Where(p => p.IsActive == true).ToList();

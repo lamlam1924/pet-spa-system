@@ -56,54 +56,127 @@
                     <!-- Chọn thú cưng -->
                     <div class="form-section mb-4">
                         <h4 class="section-title">Chọn thú cưng</h4>
-                        <div class="pet-grid">
-                            @foreach (var pet in Model.Pets)
-                            {
-                                <div class="pet-card" data-pet-id="@pet.PetId">
-                                    <div class="pet-header">
-                                        <div class="pet-avatar">
-                                            <i class="fa fa-paw"></i>
-                                        </div>
-                                        <div class="pet-info">
-                                            <h5>@pet.Name</h5>
-                                            <small>@pet.Breed</small>
-                                        </div>
-                                        <div class="ms-auto">
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input pet-checkbox" 
-                                                       id="pet-@pet.PetId" name="SelectedPetIds" 
-                                                       value="@pet.PetId" 
-                                                       @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(pet.PetId) ? "checked" : "")>
-                                                <label class="form-check-label" for="pet-@pet.PetId">Chọn</label>
+                        <!-- Tabs for Dog/Cat -->
+                        <ul class="nav nav-tabs mb-3" id="petTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="dog-tab" data-bs-toggle="tab" data-bs-target="#dog" type="button" role="tab" aria-controls="dog" aria-selected="true">Chó</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="cat-tab" data-bs-toggle="tab" data-bs-target="#cat" type="button" role="tab" aria-controls="cat" aria-selected="false">Mèo</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="petTabContent">
+                            <div class="tab-pane fade show active" id="dog" role="tabpanel" aria-labelledby="dog-tab">
+                                <div class="pet-grid">
+                                    @foreach (var pet in Model.Pets.Where(p => p.Species?.SpeciesName?.ToLower() == "dog"))
+                                    {
+                                        <div class="pet-card" data-pet-id="@pet.PetId">
+                                            <div class="pet-header">
+                                                <div class="pet-avatar">
+                                                    <i class="fa fa-paw"></i>
+                                                </div>
+                                                <div class="pet-info">
+                                                    <h5>@pet.Name</h5>
+                                                    <small>@pet.Breed</small>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input pet-checkbox" 
+                                                               id="pet-@pet.PetId" name="SelectedPetIds" 
+                                                               value="@pet.PetId" 
+                                                               @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(pet.PetId) ? "checked" : "")>
+                                                        <label class="form-check-label" for="pet-@pet.PetId">Chọn</label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
-                            }
+                            </div>
+                            <div class="tab-pane fade" id="cat" role="tabpanel" aria-labelledby="cat-tab">
+                                <div class="pet-grid">
+                                    @foreach (var pet in Model.Pets.Where(p => p.Species?.SpeciesName?.ToLower() == "cat"))
+                                    {
+                                        <div class="pet-card" data-pet-id="@pet.PetId">
+                                            <div class="pet-header">
+                                                <div class="pet-avatar">
+                                                    <i class="fa fa-paw"></i>
+                                                </div>
+                                                <div class="pet-info">
+                                                    <h5>@pet.Name</h5>
+                                                    <small>@pet.Breed</small>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input pet-checkbox" 
+                                                               id="pet-@pet.PetId" name="SelectedPetIds" 
+                                                               value="@pet.PetId" 
+                                                               @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(pet.PetId) ? "checked" : "")>
+                                                        <label class="form-check-label" for="pet-@pet.PetId">Chọn</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Chọn dịch vụ -->
                     <div class="form-section mb-4">
                         <h4 class="section-title">Chọn dịch vụ</h4>
-                        <div class="service-grid">
-                            @foreach (var service in Model.Services)
-                            {
-                                <div class="service-card" data-service-id="@service.ServiceId">
-                                    <div class="service-info">
-                                        <h5>@service.Name</h5>
-                                        <p class="service-description">@service.Description</p>
-                                        <div class="service-price">@service.Price.ToString("N0") đ</div>
-                                    </div>
-                                    <div class="form-check mt-3">
-                                        <input type="checkbox" class="form-check-input service-checkbox" 
-                                               id="service-@service.ServiceId" name="SelectedServiceIds" 
-                                               value="@service.ServiceId" 
-                                               data-price="@service.Price"
-                                               @(Model.SelectedServiceIds != null && Model.SelectedServiceIds.Contains(service.ServiceId) ? "checked" : "")>
-                                        <label class="form-check-label" for="service-@service.ServiceId">Chọn dịch vụ</label>
-                                    </div>
+                        <!-- Tabs for Service Category -->
+                        <ul class="nav nav-tabs mb-3" id="serviceTab" role="tablist">
+                            @{
+                                // Lấy danh sách category SerCate duy nhất từ các service
+                                var categories = Model.Services
+                                    .Where(s => s.Category != null)
+                                    .Select(s => s.Category)
+                                    .Distinct()
+                                    .ToList();
+                                int catIdx = 0;
+                                foreach (var cat in categories)
+                                {
+                                    var catId = $"cat-{catIdx}";
+                                    var catName = cat.Name;
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link @(catIdx == 0 ? "active" : "")" id="@catId-tab" data-bs-toggle="tab" data-bs-target="#@catId" type="button" role="tab" aria-controls="@catId" aria-selected="@(catIdx == 0 ? "true" : "false")">@catName</button>
+                            </li>
+                                    catIdx++;
+                                }
+                            }
+                        </ul>
+                        <div class="tab-content" id="serviceTabContent">
+                            @{
+                                catIdx = 0;
+                                foreach (var cat in categories)
+                                {
+                                    var catId = $"cat-{catIdx}";
+                            <div class="tab-pane fade @(catIdx == 0 ? "show active" : "")" id="@catId" role="tabpanel" aria-labelledby="@catId-tab">
+                                <div class="service-grid">
+                                    @foreach (var service in Model.Services.Where(s => s.Category != null && s.Category.CategoryId == cat.CategoryId))
+                                    {
+                                        <div class="service-card" data-service-id="@service.ServiceId">
+                                            <div class="service-info">
+                                                <h5>@service.Name</h5>
+                                                <p class="service-description">@service.Description</p>
+                                                <div class="service-price">@service.Price.ToString("N0") đ</div>
+                                            </div>
+                                            <div class="form-check mt-3">
+                                                <input type="checkbox" class="form-check-input service-checkbox" 
+                                                       id="service-@service.ServiceId" name="SelectedServiceIds" 
+                                                       value="@service.ServiceId" 
+                                                       data-price="@service.Price"
+                                                       @(Model.SelectedServiceIds != null && Model.SelectedServiceIds.Contains(service.ServiceId) ? "checked" : "")>
+                                                <label class="form-check-label" for="service-@service.ServiceId">Chọn dịch vụ</label>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
+                            </div>
+                                    catIdx++;
+                                }
                             }
                         </div>
                     </div>
@@ -117,17 +190,17 @@
                             <div class="col-md-6 mb-3">
                                 <label for="CustomerName" class="form-label">Họ và tên</label>
                                 <input type="text" class="form-control" id="CustomerName" name="CustomerName" 
-                                       value="@Model.CustomerName" required>
+                                       value="@(string.IsNullOrEmpty(Model.CustomerName) && Model.User != null ? Model.User.FullName : Model.CustomerName)" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="Phone" class="form-label">Số điện thoại</label>
                                 <input type="tel" class="form-control" id="Phone" name="Phone" 
-                                       value="@Model.Phone" required>
+                                       value="@(string.IsNullOrEmpty(Model.Phone) && Model.User != null ? Model.User.Phone : Model.Phone)" required>
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="Email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="Email" name="Email" 
-                                       value="@Model.Email" required>
+                                       value="@(string.IsNullOrEmpty(Model.Email) && Model.User != null ? Model.User.Email : Model.Email)" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="AppointmentDate" class="form-label">Ngày hẹn</label>
@@ -232,5 +305,6 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="@Url.Content("~/cssjsAppointment/js/appointment-common.js")"></script>
 }

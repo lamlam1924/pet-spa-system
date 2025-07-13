@@ -30,10 +30,12 @@ namespace pet_spa_system1.ViewModels
     #region Customer Appointment
     public class AppointmentViewModel : AppointmentBaseViewModel
     {
-
         public string CustomerName { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+
+        // Thông tin user hiện tại (nếu đã đăng nhập)
+        public User? User { get; set; }
 
         // Trạng thái lịch hẹn (dùng cho email)
         public int StatusId { get; set; }
@@ -99,6 +101,25 @@ namespace pet_spa_system1.ViewModels
         public int CustomerId { get => UserId; set => UserId = value; }
     }
 
+    // ViewModel cho thống kê lịch hẹn theo tháng (dùng cho dashboard, báo cáo, v.v.)
+    public class MonthlyAppointmentStatsViewModel
+    {
+        public string MonthLabel { get; set; } = string.Empty; // Ví dụ: "Tháng 1"
+        public int AppointmentCount { get; set; }
+    }
+
+    // ViewModel cho danh sách lịch hẹn ngắn gọn (dùng cho dashboard, danh sách hôm nay, v.v.)
+    public class DailyAppointmentSummaryViewModel
+    {
+        public int AppointmentId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public DateTime AppointmentDate { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+        public int StatusId { get; set; }
+        public string PetNames { get; set; } = string.Empty;
+        public string ServiceNames { get; set; } = string.Empty;
+    }
+
     public class AppointmentDashboardViewModel
     {
         // Overview statistics
@@ -106,23 +127,14 @@ namespace pet_spa_system1.ViewModels
         public int UpcomingAppointments { get; set; }
         public int CompletedAppointments { get; set; }
         public int CancelledAppointments { get; set; }
+        public int PendingApprovalAppointments { get; set; }
+        public int PendingCancelAppointments { get; set; }
 
         // Monthly statistics
-        public List<MonthlyAppointmentStats> MonthlyStats { get; set; } = new();
+        public List<MonthlyAppointmentStatsViewModel> MonthlyStats { get; set; } = new();
 
         // Today's appointments
-        public List<DailyAppointment> RecentAppointments { get; set; } = new();
-
-        public class DailyAppointment
-        {
-            public int AppointmentId { get; set; }
-            public string CustomerName { get; set; } = string.Empty;
-            public DateTime AppointmentDate { get; set; }
-            public string StatusName { get; set; } = string.Empty;
-            public int StatusId { get; set; }
-            public string PetNames { get; set; } = string.Empty;
-            public string ServiceNames { get; set; } = string.Empty;
-        }
+        public List<DailyAppointmentSummaryViewModel> RecentAppointments { get; set; } = new();
     }
     #endregion
 

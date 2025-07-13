@@ -31,7 +31,11 @@ namespace pet_spa_system1.Repositories
         List<Appointment> GetPendingAppointments();
         List<Appointment> GetPendingCancelAppointments();
 
+
         List<Appointment> GetPendingApprovalAppointments();
+
+        int CountPendingApprovalAppointments();
+        int CountPendingCancelAppointments();
 
         List<Appointment> GetAppointments(
             string searchTerm = "",

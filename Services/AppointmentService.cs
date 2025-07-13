@@ -132,12 +132,19 @@ namespace pet_spa_system1.Services
             var viewModel = new AppointmentDashboardViewModel
             {
                 TodayAppointments = _repo.CountAppointmentsByDate(today),
-                UpcomingAppointments = _repo.CountUpcomingAppointments(today),
+                UpcomingAppointments = _repo.CountUpcomingAppointments(today.AddDays(1)),
                 CompletedAppointments = _repo.CountAppointmentsByStatus(3),
-                CancelledAppointments = _repo.CountAppointmentsByStatus(4)
+                CancelledAppointments = _repo.CountAppointmentsByStatus(4),
+                PendingApprovalAppointments = _repo.CountPendingApprovalAppointments(),
+                PendingCancelAppointments = _repo.CountPendingCancelAppointments()
             };
 
-            viewModel.MonthlyStats = _repo.GetMonthlyStats(today.Year);
+            var monthlyStatsRaw = _repo.GetMonthlyStats(today.Year);
+            viewModel.MonthlyStats = monthlyStatsRaw.Select(s => new MonthlyAppointmentStatsViewModel
+            {
+                MonthLabel = $"Tháng {s.Month}",
+                AppointmentCount = s.TotalAppointments
+            }).ToList();
 
             var recentAppointments = _context.Appointments
                 .Include(a => a.User)
@@ -149,7 +156,7 @@ namespace pet_spa_system1.Services
                 .Take(5)
                 .ToList();
 
-            viewModel.RecentAppointments = recentAppointments.Select(a => new AppointmentDashboardViewModel.DailyAppointment
+            viewModel.RecentAppointments = recentAppointments.Select(a => new DailyAppointmentSummaryViewModel
             {
                 AppointmentId = a.AppointmentId,
                 CustomerName = a.User.FullName,

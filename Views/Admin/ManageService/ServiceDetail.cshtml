@@ -7,12 +7,16 @@
 @section Styles {
     <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
     <link rel="stylesheet" href="~/cssjsService/css/service-detail.css" />
+    <!-- Đảm bảo import sweetalert2-admin.css cuối cùng để override -->
+    <link rel="stylesheet" href="~/cssjsService/css/sweetalert2-admin.css" />
 }
 
 <div class="service-detail-container">
     <div class="container-fluid py-4" id="container-wrapper">
         <!-- Navigation -->
         @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
+
+        
 
         <div class="service-detail-card row g-4 align-items-start">
             <!-- ẢNH DỊCH VỤ -->
@@ -24,7 +28,7 @@
                 </div>
             </div>
             <!-- THÔNG TIN CHÍNH -->
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <div class="d-flex align-items-center mb-2">
                     <h2 class="service-title mb-0 me-3">@Model.Service.Name</h2>
                     @if (Model.Service.IsActive == true)
@@ -66,20 +70,23 @@
                     </a>
                     @if (Model.Service.IsActive == true)
                     {
-                        <button type="button" onclick="confirmStatusChange(@Model.Service.ServiceId, false)" class="btn btn-warning">
+                        <button type="button" class="btn btn-warning btn-status-detail" data-service-id="@Model.Service.ServiceId" data-current-status="true">
                             <i class="fas fa-pause"></i> Tạm ngưng
                         </button>
                     }
                     else
                     {
-                        <button type="button" onclick="confirmStatusChange(@Model.Service.ServiceId, true)" class="btn btn-success">
+                        <button type="button" class="btn btn-success btn-status-detail" data-service-id="@Model.Service.ServiceId" data-current-status="false">
                             <i class="fas fa-play"></i> Kích hoạt
                         </button>
                     }
-                    <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Quay lại
-                    </a>
                 </div>
+            </div>
+            <!-- Nút quay lại góc trên bên phải -->
+            <div class="col-md-2" style="min-height: 40px;">
+                <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
             </div>
         </div>
 
@@ -87,18 +94,71 @@
         <div class="service-tabs mt-4">
             <ul class="nav nav-tabs" id="serviceTab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="history-tab" data-bs-toggle="tab" href="#history" role="tab">Lịch sử đặt lịch</a>
+                    <a class="nav-link active" id="history-tab" data-toggle="tab" href="#history" role="tab">Lịch sử đặt lịch</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="related-tab" data-bs-toggle="tab" href="#related" role="tab">Dịch vụ liên quan</a>
+                    <a class="nav-link" id="related-tab" data-toggle="tab" href="#related" role="tab">Dịch vụ liên quan</a>
                 </li>
             </ul>
             <div class="tab-content p-3 bg-white border-bottom border-start border-end rounded-bottom">
                 <div class="tab-pane fade show active" id="history" role="tabpanel">
-                    <!-- Lịch sử đặt lịch như cũ -->
+                    @if (Model.AppointmentHistory != null && Model.AppointmentHistory.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Mã lịch hẹn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.AppointmentHistory)
+                                    {
+                                        <tr>
+                                            <td>AP-@item.AppointmentId.ToString("D4")</td>
+                                            <td>@item.CustomerName</td>
+                                            <td>@item.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@item.StatusName</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">Chưa có lịch sử đặt lịch cho dịch vụ này.</div>
+                    }
                 </div>
                 <div class="tab-pane fade" id="related" role="tabpanel">
-                    <!-- Dịch vụ liên quan như cũ -->
+                    @if (Model.RelatedServices != null && Model.RelatedServices.Any())
+                    {
+                        <div class="row">
+                            @foreach (var service in Model.RelatedServices)
+                            {
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card h-100 shadow-sm border-0">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2 text-primary">@service.Name</h5>
+                                            @* Nếu các dịch vụ liên quan cùng danh mục, dùng Model.CategoryName *@
+                                            <div class="mb-1"><span class="badge badge-category"><i class="fas fa-tag"></i> @Model.CategoryName</span></div>
+                                            <div class="mb-1 text-muted small">Giá: <b>@service.Price.ToString("N0") đ</b></div>
+                                            <div class="mb-1 text-muted small">Thời gian: <b>@service.DurationMinutes phút</b></div>
+                                            <div class="mb-2 text-truncate" style="max-width: 100%;">@service.Description</div>
+                                            <a href="@Url.Action("ServiceDetail", "AdminService", new { id = service.ServiceId })" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">Chưa có dịch vụ liên quan.</div>
+                    }
                 </div>
             </div>
         </div>
@@ -108,16 +168,53 @@
 <!-- Hidden Form -->
 <form id="serviceActionForm" method="post" class="d-none">
     @Html.AntiForgeryToken()
-    <input type="hidden" name="id" id="serviceIdInput" value="" />
+    <input type="hidden" name="serviceId" id="serviceIdInput" value="" />
 </form>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="~/cssjsService/js/service-detail.js"></script>
     <script>
         var successMessage = '@TempData["SuccessMessage"]';
         var errorMessage = '@TempData["ErrorMessage"]';
         var serviceRestoreUrl = '@Url.Action("RestoreService", "AdminService")';
         var serviceSoftDeleteUrl = '@Url.Action("SoftDeleteService", "AdminService")';
+
+        // Đồng bộ xác nhận softdelete/restore bằng SweetAlert2
+        $(document).on('click', '.btn-status-detail', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var serviceId = $btn.data('service-id');
+            var isActive = $btn.data('current-status') === true || $btn.data('current-status') === 'true';
+            var isRestore = !isActive;
+            var title = isRestore ? 'Kích hoạt dịch vụ này?' : 'Tạm ngưng dịch vụ này?';
+            var html = isRestore
+                ? `<div class='swal2-confirm-text'><i class='fas fa-play text-success me-2'></i> Dịch vụ sẽ được <b>kích hoạt trở lại</b> và hiển thị cho khách hàng.</div>`
+                : `<div class='swal2-confirm-text'><i class='fas fa-pause text-danger me-2'></i> Dịch vụ sẽ <b>tạm ngưng</b> và không hiển thị với khách hàng.</div>`;
+            var confirmButtonText = isRestore ? 'Kích hoạt' : 'Tạm ngưng';
+            var confirmBtnClass = isRestore ? 'btn-outline-success-custom' : 'btn-outline-danger-custom';
+            var postUrl = isRestore ? serviceRestoreUrl : serviceSoftDeleteUrl;
+            Swal.fire({
+                title: title,
+                html: html,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: confirmButtonText,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'simple-confirmation-popup',
+                    confirmButton: confirmBtnClass,
+                    cancelButton: 'btn-outline-gray-custom'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit form ẩn
+                    var $form = $('#serviceActionForm');
+                    $form.attr('action', postUrl);
+                    $form.find('input[name="serviceId"]').val(serviceId);
+                    $form.submit();
+                }
+            });
+        });
     </script>
 }

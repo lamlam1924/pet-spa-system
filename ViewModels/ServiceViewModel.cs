@@ -43,9 +43,8 @@ namespace pet_spa_system1.ViewModels
         public int BookingCount { get; set; }
         public decimal Revenue { get; set; }
         public int CustomerCount { get; set; }
-        
-        // ✅ THÊM PROPERTY BỊ THIẾU:
-        public List<Service> RelatedServices { get; set; } = new List<Service>();
+        // Sửa kiểu dữ liệu cho đúng:
+        public List<ServiceListItem> RelatedServices { get; set; } = new List<ServiceListItem>();
     }
 
     public class AppointmentHistoryItem

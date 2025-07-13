@@ -1,3 +1,5 @@
+using ClosedXML.Excel;
+       
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -265,39 +267,56 @@ namespace pet_spa_system1.Controllers
             return RedirectToAction("ServiceList");
         }
 
-        // ===== DELETE SERVICE =====
+
+
+            // ===== SOFT DELETE SERVICE =====
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public IActionResult SoftDeleteService(int serviceId)
+            {
+                try
+                {
+                    var service = _serviceService.GetServiceById(serviceId);
+                    if (service == null)
+                    {
+                        TempData["ErrorMessage"] = "Không tìm thấy dịch vụ để tạm ngưng.";
+                        return RedirectToAction("ServiceList");
+                    }
+                    service.IsActive = false;
+                    _serviceService.UpdateService(service);
+                    _serviceService.Save();
+                    TempData["SuccessMessage"] = "Đã tạm ngưng dịch vụ thành công!";
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "Lỗi khi tạm ngưng dịch vụ: " + ex.Message;
+                }
+                return RedirectToAction("ServiceList");
+            }
+
+        // ===== RESTORE SERVICE =====
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteService(int id)
+        public IActionResult RestoreService(int serviceId)
         {
             try
             {
-                var service = _serviceService.GetServiceById(id);
+                var service = _serviceService.GetServiceById(serviceId);
                 if (service == null)
                 {
-                    TempData["ErrorMessage"] = "Không tìm thấy dịch vụ.";
+                    TempData["ErrorMessage"] = "Không tìm thấy dịch vụ để kích hoạt lại.";
                     return RedirectToAction("ServiceList");
                 }
-
-                var appointmentServices = _serviceService.GetAppointmentServicesByServiceId(id);
-                if (appointmentServices?.Any() == true)
-                {
-                    TempData["ErrorMessage"] = "Không thể xóa dịch vụ này vì đã có lịch hẹn sử dụng!";
-                    return RedirectToAction("ServiceDetail", new { id });
-                }
-
-                _serviceService.DeleteService(service);
+                service.IsActive = true;
+                _serviceService.UpdateService(service);
                 _serviceService.Save();
-                
-                TempData["SuccessMessage"] = "Đã xóa dịch vụ thành công!";
-                return RedirectToAction("ServiceList");
+                TempData["SuccessMessage"] = "Đã kích hoạt lại dịch vụ thành công!";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi xóa dịch vụ: {ServiceId}", id);
-                TempData["ErrorMessage"] = "Lỗi khi xóa dịch vụ: " + ex.Message;
-                return RedirectToAction("ServiceDetail", new { id });
+                TempData["ErrorMessage"] = "Lỗi khi kích hoạt lại dịch vụ: " + ex.Message;
             }
+            return RedirectToAction("ServiceList");
         }
 
         // ===== INDEX PAGE =====
@@ -358,6 +377,49 @@ namespace pet_spa_system1.Controllers
             
             return RedirectToAction("ServiceCategory");
         }
+
+         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExportToExcel()
+        {
+            var allServices = _serviceService.GetAllServicesViewModel();
+            if (allServices == null || !allServices.Any())
+            {
+                TempData["ErrorMessage"] = "Không có dữ liệu để xuất.";
+                return RedirectToAction("ServiceList");
+            }
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Danh Sach Dich Vu");
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "Tên dịch vụ";
+                worksheet.Cell(1, 3).Value = "Danh mục";
+                worksheet.Cell(1, 4).Value = "Giá";
+                worksheet.Cell(1, 5).Value = "Trạng thái";
+
+                int row = 2;
+                foreach (var s in allServices)
+                {
+                    worksheet.Cell(row, 1).Value = $"SV-{s.ServiceId:D4}";
+                    worksheet.Cell(row, 2).Value = s.Name;
+                    worksheet.Cell(row, 3).Value = s.CategoryName;
+                    worksheet.Cell(row, 4).Value = s.Price;
+                    worksheet.Cell(row, 5).Value = (s.IsActive == true) ? "Hoạt động" : "Tạm ngưng";
+                    row++;
+                }
+                worksheet.Columns().AdjustToContents();
+
+                using (var stream = new System.IO.MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    stream.Seek(0, System.IO.SeekOrigin.Begin);
+                    var fileName = $"DanhSachDichVu_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
 
         // Helper class
         public class CategoryOrderItem
