@@ -40,6 +40,9 @@ builder.Services.AddScoped<ICheckoutRepository, CheckoutRepository>();
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+// Đăng ký ICloudinaryService
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
 // Cấu hình Session
 builder.Services.AddSession(options =>
 {

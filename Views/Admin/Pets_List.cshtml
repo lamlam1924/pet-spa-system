@@ -12,7 +12,7 @@
     var speciesName = ViewBag.SpeciesName ?? "";
 
     ViewData["Title"] = "Pet List";
-    Layout = "~/Views/Admin/_LayoutAdmin.cshtml"; ; // hoặc đường dẫn layout khác
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
 <!DOCTYPE html>
@@ -31,9 +31,6 @@
 </head>
 <body id="page-top">
     <div id="wrapper">
-        <!-- Sidebar -->
-        
-        <!-- Sidebar -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <!-- Topbar -->
@@ -64,16 +61,42 @@
                                     <label for="isActive">Trạng thái:</label>
                                     <select id="isActive" name="isActive" class="form-control">
                                         <option value="">Tất cả</option>
-                                        <option value="true" selected="@(isActive != null && isActive.ToString() == "True" ? "selected" : null)">Active</option>
-                                        <option value="false" selected="@(isActive != null && isActive.ToString() == "False" ? "selected" : null)">Inactive</option>
+                                        @if (isActive != null && isActive.ToString() == "True")
+                                        {
+                                            <option value="true" selected>Active</option>
+                                            <option value="false">Inactive</option>
+                                        }
+                                        else if (isActive != null && isActive.ToString() == "False")
+                                        {
+                                            <option value="true">Active</option>
+                                            <option value="false" selected>Inactive</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="true">Active</option>
+                                            <option value="false">Inactive</option>
+                                        }
                                     </select>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="speciesName">Loài:</label>
                                     <select id="speciesName" name="speciesName" class="form-control">
                                         <option value="">Tất cả</option>
-                                        <option value="Dog" selected="@(speciesName == "Dog" ? "selected" : null)">Dog</option>
-                                        <option value="Cat" selected="@(speciesName == "Cat" ? "selected" : null)">Cat</option>
+                                        @if (speciesName == "Dog")
+                                        {
+                                            <option value="Dog" selected>Dog</option>
+                                            <option value="Cat">Cat</option>
+                                        }
+                                        else if (speciesName == "Cat")
+                                        {
+                                            <option value="Dog">Dog</option>
+                                            <option value="Cat" selected>Cat</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="Dog">Dog</option>
+                                            <option value="Cat">Cat</option>
+                                        }
                                     </select>
                                 </div>
                                 <div class="form-group col-md-2 align-self-end">
@@ -105,6 +128,7 @@
                                                 <a asp-action="Pets_List" asp-route-sortOrder="@(sortOrder == "active" ? "active_desc" : "active")">Trạng thái</a>
                                             </th>
                                             <th>Loài</th>
+                                            <th>Ảnh</th>
                                             <th>Hành động</th>
                                         </tr>
                                     </thead>
@@ -129,6 +153,23 @@
                                                         }
                                                     </td>
                                                     <td>@(pet.Species?.SpeciesName ?? "N/A")</td>
+                                                    <td>
+                                                        @if (pet.PetImages != null && pet.PetImages.Any())
+                                                        {
+                                                            <div class="row">
+                                                                @foreach (var image in pet.PetImages.Take(1))
+                                                                {
+                                                                    <div class="col-md-12">
+                                                                        <img src="@image.ImageUrl" alt="Pet Image" style="width: 50px; height: 50px; object-fit: cover;" class="img-thumbnail" />
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Không có ảnh</span>
+                                                        }
+                                                    </td>
                                                     <td>
                                                         <a asp-action="Pet_Detail" asp-route-petId="@pet.PetId" class="btn btn-info btn-sm">Xem</a>
                                                         <a asp-action="Edit_Pet" asp-route-id="@pet.PetId" class="btn btn-warning btn-sm">Sửa</a>
@@ -158,7 +199,7 @@
                                         else
                                         {
                                             <tr>
-                                                <td colspan="6" class="text-center">Không có thú cưng nào được tìm thấy.</td>
+                                                <td colspan="7" class="text-center">Không có thú cưng nào được tìm thấy.</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -214,11 +255,21 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var successMessage = '@Html.Raw(Json.Serialize(TempData["SuccessMessage"]))';
+            var errorMessage = '@Html.Raw(Json.Serialize(TempData["ErrorMessage"]))';
             if (successMessage && successMessage !== 'null') {
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: successMessage.replace(/"/g, ''),
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+            if (errorMessage && errorMessage !== 'null') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: errorMessage.replace(/"/g, ''),
                     timer: 2000,
                     showConfirmButton: false
                 });

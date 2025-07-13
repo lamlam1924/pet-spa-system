@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj": {}
+    "C:\\Users\\ASUS\\Pet\\pet-spa-system\\pet-spa-system1.csproj": {}
   },
   "projects": {
-    "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj": {
+    "C:\\Users\\ASUS\\Pet\\pet-spa-system\\pet-spa-system1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Pet\\pet-spa-system\\pet-spa-system1.csproj",
         "projectName": "pet-spa-system1",
-        "projectPath": "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj",
-        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\PRN212\\PRJ_PET1\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Pet\\pet-spa-system\\pet-spa-system1.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Pet\\pet-spa-system\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -102,6 +103,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.Net.Sdk.Compilers.Toolset",
+              "version": "[9.0.301, 9.0.301]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
