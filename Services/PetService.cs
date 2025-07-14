@@ -24,5 +24,10 @@ namespace pet_spa_system1.Services
 
         public void DeletePet(int petId)
             => _petRepo.DeletePet(petId);
+
+        public List<Pet> GetAllPets()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
