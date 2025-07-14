@@ -30,20 +30,20 @@ namespace pet_spa_system1.Controllers
         }
         //=======================================================================================================================
         // SERVICE
-        public IActionResult ManageService(int? categoryId, string search)
-        {
-            var model = _serviceService.GetAllService();
-            if (categoryId.HasValue)
-            {
-                model.Services = model.Services.Where(s => s.CategoryId == categoryId.Value).ToList();
-            }
-            if (!string.IsNullOrEmpty(search))
-            {
-                model.Services = model.Services.Where(s => s.Name.Contains(search)).ToList();
-            }
-            model.SelectedCategoryId = categoryId;
-            return View(model);
-        }
+        //public IActionResult ManageService(int? categoryId, string search)
+        //{
+        //    var model = _serviceService.GetAll();
+        //    if (categoryId.HasValue)
+        //    {
+        //        model.Services = model.Services.Where(s => s.CategoryId == categoryId.Value).ToList();
+        //    }
+        //    if (!string.IsNullOrEmpty(search))
+        //    {
+        //        model.Services = model.Services.Where(s => s.Name.Contains(search)).ToList();
+        //    }
+        //    model.SelectedCategoryId = categoryId;
+        //    return View(model);
+        //}
 
         public IActionResult Index()
         {

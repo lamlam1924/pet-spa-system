@@ -144,6 +144,7 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> ListOrderPartial(int? statusId)
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            Console.WriteLine("userId: " + userId);
             if (userId == null)
                 return Unauthorized();
 
@@ -182,7 +183,7 @@ namespace pet_spa_system1.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile Avatar)
+        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile? Avatar)
         {
             if (!ModelState.IsValid)
             {
@@ -239,7 +240,7 @@ namespace pet_spa_system1.Controllers
                 Address = currentUser.Address,
                 FullName = currentUser.FullName
             };
-
+            Console.WriteLine("Update sucess!");
             return PartialView("_HosoPartial", userModel);
         }
         [HttpPost]

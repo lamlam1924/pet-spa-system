@@ -1,6 +1,11 @@
 ﻿@model pet_spa_system1.ViewModel.UserViewModel
 
-<form id="profile-form" asp-action="UpdateUserProfile" asp-controller="UserHome" method="post" enctype="multipart/form-data">
+<form method="post"
+      enctype="multipart/form-data"
+      hx-post="@Url.Action("UpdateUserProfile", "UserHome")"
+      hx-target="#content-main"
+      hx-swap="innerHTML">
+
     <div class="card shadow p-4">
         <h4 class="mb-4">Cập nhật Hồ sơ</h4>
 

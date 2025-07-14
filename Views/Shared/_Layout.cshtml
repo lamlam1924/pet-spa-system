@@ -63,6 +63,7 @@
                                         @{
                                             var userId = Context.Session.GetInt32("CurrentUserId");
                                             var userName = Context.Session.GetString("CurrentUserName");
+                                            var roleId = Context.Session.GetInt32("CurrentUserRoleId");
                                         }
                                         @if (userId != null)
                                         {
