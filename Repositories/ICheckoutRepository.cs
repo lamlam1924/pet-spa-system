@@ -18,8 +18,8 @@ namespace pet_spa_system1.Repositories
         // Get user by ID (giữ một phiên bản duy nhất, xóa phiên bản thừa)
         Task<User> GetUserByIdAsync(int userId);
 
-        //// Get order by ID (dùng cho VNPay với vnp_TxnRef)
-        //Task<Order> GetOrderByIdAsync(string orderId);
+        // Get order by ID (dùng cho VNPay với vnp_TxnRef)
+        Task<Order> GetOrderByIdAsync(int orderId);
 
         // Create a new order
         Task<Order> CreateOrderAsync(Order order);

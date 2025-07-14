@@ -39,6 +39,11 @@ namespace pet_spa_system1.Repositories
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
+        public async Task<Order> GetOrderByIdAsync(int orderId)
+        {
+            return await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
+
         //public async Task<Order> GetOrderByIdAsync(string orderId)
         //{
         //    return await _context.Orders
