@@ -98,6 +98,16 @@ namespace pet_spa_system1.Services
         {
             return await _repository.GetProductWithReviewsByIdAsync(productId);
         }
+        public async Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
+{
+    return await _repository.GetActiveProductsWithRatingAsync(page, pageSize, categoryId, minPrice, maxPrice);
+}
+public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
+{
+    return await _repository.CountActiveProductsAsync(categoryId, minPrice, maxPrice);
+}
+
+
     }
 }
 

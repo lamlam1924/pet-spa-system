@@ -24,5 +24,7 @@ namespace pet_spa_system1.Services
         Task<int> CountActiveProductsAsync();
         Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize);
         Task<Product?> GetProductWithReviewsByIdAsync(int productId);
+        Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
+Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
     }
 }

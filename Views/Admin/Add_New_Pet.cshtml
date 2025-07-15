@@ -1,7 +1,10 @@
-﻿@model pet_spa_system1.ViewModel.PetDetailViewModel
+﻿@using pet_spa_system1.ViewModel
+@model PetDetailViewModel
 @{
-    Layout = null;
+    ViewBag.Title = "Thêm thú cưng";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -163,6 +166,12 @@
                                                 <option value="">Chọn chủ sở hữu</option>
                                             </select>
                                             <span asp-validation-for="Pet.UserId" class="text-danger"></span>
+                                        </div>
+                                        <!-- Thêm chỗ upload ảnh -->
+                                        <div class="form-group">
+                                            <label asp-for="PetImages">Ảnh của thú cưng</label>
+                                            <input type="file" name="Images" class="form-control-file" accept="image/*" multiple />
+                                            <span asp-validation-for="PetImages" class="text-danger"></span>
                                         </div>
                                         <div class="mt-3">
                                             <button type="submit" class="btn btn-success px-4">💾 Lưu thú cưng</button>

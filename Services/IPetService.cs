@@ -11,16 +11,18 @@ namespace pet_spa_system1.Services
         Task<List<Species>> GetAllSpeciesAsync();
         Task<List<Pet>> GetActivePetsAsync(int page, int pageSize);
         Task<int> CountActivePetsAsync();
-        Task CreatePetAsync(Pet pet);
-        Task UpdatePetAsync(Pet pet);
+        Task CreatePetAsync(Pet pet, List<IFormFile> images = null);
+        Task UpdatePetAsync(Pet pet, List<IFormFile> images = null);
         Task DeletePetAsync(int id);
         Task DisablePetAsync(int id);
         bool PetExists(int id);
         Task<int> GetTotalPetCountAsync();
         Task<(Pet Pet, List<Pet> SuggestedPets)> GetPetDetailWithSuggestionsAsync(int petId);
         List<Pet> GetPetsByUserId(int userId);
-        Task<List<Pet>> GetSuggestedPetsAsync(int speciesId, int excludePetId, int count); // Thêm phương thức này
+        Task<List<Pet>> GetSuggestedPetsAsync(int speciesId, int excludePetId, int count);
+        Task<List<PetImage>> GetPetImagesAsync(int petId);
+        Task AddPetImageAsync(PetImage petImage);
+        Task DeletePetImageAsync(int imageId);
         List<Pet> GetAllPets();
-        void AddPet(Pet pet);
     }
 }

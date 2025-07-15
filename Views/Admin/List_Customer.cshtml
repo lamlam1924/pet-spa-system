@@ -370,6 +370,10 @@
                     <div class="mb-3 d-flex justify-content-between align-items-center">
                         <div>
                             <button class="btn btn-primary btn-sm" onclick="openAddModal()">Add New User <i class="fas fa-plus"></i></button>
+                            <button class="btn btn-outline-dark btn-sm ml-2" id="btnFilterAll" onclick="filterByRole('all')">Tất cả</button>
+                            <button class="btn btn-outline-info btn-sm ml-2" id="btnFilterStaff" onclick="filterByRole(3)">Nhân viên</button>
+                            <button class="btn btn-outline-success btn-sm ml-2" id="btnFilterUser" onclick="filterByRole(2)">Khách hàng</button>
+                            <button class="btn btn-outline-warning btn-sm ml-2" id="btnFilterAdmin" onclick="filterByRole(1)">Admin</button>
                         </div>
                         <div class="btn-group" role="group">
                             <button class="btn btn-outline-dark btn-sm active" id="btnShowActive" onclick="toggleUserTable(true)">Active Users</button>
@@ -479,8 +483,27 @@
                     </div>
                 </div>
 
-
-
+                <!-- Modal chi tiết staff -->
+                <div class="modal fade" id="staffDetailModal" tabindex="-1" aria-labelledby="staffDetailModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="staffDetailModalLabel">Chi tiết nhân viên</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><b>Họ tên:</b> <span id="staffDetailName"></span></p>
+                                <p><b>Email:</b> <span id="staffDetailEmail"></span></p>
+                                <p><b>Số điện thoại:</b> <span id="staffDetailPhone"></span></p>
+                                <p><b>Địa chỉ:</b> <span id="staffDetailAddress"></span></p>
+                                <p><b>Trạng thái:</b> <span id="staffDetailStatus"></span></p>
+                                <!-- Có thể bổ sung lịch sử hoạt động, lịch làm việc, thống kê hiệu suất ở đây -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!---Container Fluid-->
 
@@ -614,8 +637,40 @@
 
                         // ========== MAIN USER MANAGEMENT FUNCTIONS ==========
 
-                        function fetchUsers(search = '', sort = '') {
-                            fetch(`/User/List?search=${search}&sort=${sort}`)
+                        let currentRoleFilter = '';
+                        function filterByRole(roleId) {
+                            currentRoleFilter = roleId;
+                            // Highlight nút đang chọn
+                            document.getElementById('btnFilterAll').classList.remove('active');
+                            document.getElementById('btnFilterStaff').classList.remove('active');
+                            document.getElementById('btnFilterUser').classList.remove('active');
+                            document.getElementById('btnFilterAdmin').classList.remove('active');
+                            if (roleId === 'all') document.getElementById('btnFilterAll').classList.add('active');
+                            if (roleId == 3) document.getElementById('btnFilterStaff').classList.add('active');
+                            if (roleId == 2) document.getElementById('btnFilterUser').classList.add('active');
+                            if (roleId == 1) document.getElementById('btnFilterAdmin').classList.add('active');
+                            // Kiểm tra tab đang active
+                            const activeTable = document.getElementById('activeUsersTable');
+                            const deletedTable = document.getElementById('deletedUsersTable');
+                            if (!deletedTable.classList.contains('d-none')) {
+                                // Đang ở tab Deleted
+                                if (roleId === 'all') fetchDeletedUsers();
+                                else fetchDeletedUsers(roleId);
+                            } else {
+                                // Đang ở tab Active
+                                if (roleId === 'all') fetchUsers();
+                                else fetchUsers('', '', roleId);
+                            }
+                        }
+
+                        function showStaffOnly() {
+                            filterByRole(3);
+                        }
+
+                        function fetchUsers(search = '', sort = '', roleId = '') {
+                            let url = `/User/List?search=${search}&sort=${sort}`;
+                            if (roleId) url += `&roleId=${roleId}`;
+                            fetch(url)
                                 .then(res => {
                                     if (!res.ok) {
                                         throw new Error(`HTTP error! status: ${res.status}`);
@@ -628,9 +683,23 @@
                                         console.error('userTableBody element not found');
                                         return;
                                     }
-
                                     tbody.innerHTML = "";
                                     data.forEach(user => {
+                                        let staffActions = '';
+                                        if (user.roleId == 3) {
+                                            staffActions = `
+                                                <a class="btn btn-sm btn-info" href="/Admin/StaffDetail/${user.userId}" title="Chi tiết nhân viên"><i class="fas fa-eye"></i></a>
+                                                <button class="btn btn-sm btn-secondary" onclick="toggleLockStaff(${user.userId}, ${user.isActive})">
+                                                    <i class="fas fa-lock${user.isActive ? '' : '-open'}"></i>
+                                                </button>
+                                            `;
+                                        }
+                                        let userDetailAction = '';
+                                        if (user.roleId != 3) {
+                                            userDetailAction = `
+                                                <a class="btn btn-sm btn-info" href="/Admin/UserDetail/${user.userId}" title="Chi tiết khách hàng"><i class="fas fa-eye"></i></a>
+                                            `;
+                                        }
                                         tbody.innerHTML += `
                                         <tr>
                                             <td>${escapeHtml(user.username)}</td>
@@ -640,8 +709,16 @@
                                             <td>${escapeHtml(user.address || 'N/A')}</td>
                                             <td>${escapeHtml(user.role)}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-warning" onclick="openEdit(${user.userId}, '${escapeHtml(user.username)}', '${escapeHtml(user.email)}', '${escapeHtml(user.fullName || '')}', '${escapeHtml(user.phone || '')}', '${escapeHtml(user.address || '')}', '${escapeHtml(user.role)}')"><i class="fas fa-edit"></i></button>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.userId})"><i class="fas fa-trash"></i></button>
+                                                <div class="d-flex flex-wrap gap-1 justify-content-center">
+                                                    ${user.roleId != 3 ? `
+                                                        <button class="btn btn-sm btn-warning" onclick="openEdit(${user.userId}, '${escapeHtml(user.username)}', '${escapeHtml(user.email)}', '${escapeHtml(user.fullName || '')}', '${escapeHtml(user.phone || '')}', '${escapeHtml(user.address || '')}', '${escapeHtml(user.role)}')" title="Sửa"><i class="fas fa-edit"></i></button>
+                                                    ` : ''}
+                                                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.userId})" title="Xóa"><i class="fas fa-trash"></i></button>
+                                                    ${user.roleId == 3 ? `
+                                                        <button class="btn btn-sm btn-secondary" onclick="toggleLockStaff(${user.userId}, ${user.isActive})" title="Khóa/Mở khóa"><i class="fas fa-lock${user.isActive ? '' : '-open'}"></i></button>
+                                                    ` : ''}
+                                                    <a class="btn btn-sm btn-info" href="${user.roleId == 3 ? `/Admin/StaffDetail/${user.userId}` : `/Admin/UserDetail/${user.userId}`}" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                                </div>
                                             </td>
                                         </tr>
                                         `;
@@ -710,13 +787,15 @@
                                 deletedTable.classList.add('d-none');
                                 btnActive.classList.add('active');
                                 btnDeleted.classList.remove('active');
-                                fetchUsers();
+                                if (currentRoleFilter === 'all' || !currentRoleFilter) fetchUsers();
+                                else fetchUsers('', '', currentRoleFilter);
                             } else {
                                 activeTable.classList.add('d-none');
                                 deletedTable.classList.remove('d-none');
                                 btnDeleted.classList.add('active');
                                 btnActive.classList.remove('active');
-                                fetchDeletedUsers();
+                                if (currentRoleFilter === 'all' || !currentRoleFilter) fetchDeletedUsers();
+                                else fetchDeletedUsers(currentRoleFilter);
                             }
                         }
 
@@ -808,8 +887,10 @@
                             });
                         }
 
-                        function fetchDeletedUsers() {
-                            fetch('/User/Deleted')
+                        function fetchDeletedUsers(roleId = '') {
+                            let url = '/User/Deleted';
+                            if (roleId) url += `?roleId=${roleId}`;
+                            fetch(url)
                                 .then(res => {
                                     if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
@@ -844,6 +925,29 @@
                                     console.error('Error fetching deleted users:', error);
                                     alert('Error loading deleted users: ' + error.message);
                                 });
+                        }
+
+                        function viewStaffDetail(userId) {
+                            fetch(`/User/StaffDetail?id=${userId}`)
+                                .then(res => res.json())
+                                .then(user => {
+                                    document.getElementById('staffDetailName').innerText = user.fullName;
+                                    document.getElementById('staffDetailEmail').innerText = user.email;
+                                    document.getElementById('staffDetailPhone').innerText = user.phone;
+                                    document.getElementById('staffDetailAddress').innerText = user.address;
+                                    document.getElementById('staffDetailStatus').innerText = user.isActive ? 'Đang hoạt động' : 'Đã khoá/Đã ẩn';
+                                    safeShowModal(document.getElementById('staffDetailModal'));
+                                });
+                        }
+
+                        function toggleLockStaff(userId, isActive) {
+                            const newActive = !isActive;
+                            fetch(`/User/StaffSetActive?id=${userId}&isActive=${newActive}`, { method: 'POST' })
+                                .then(res => {
+                                    if (!res.ok) throw new Error('Lỗi cập nhật trạng thái');
+                                    return res.text();
+                                })
+                                .then(() => fetchUsers('', '', currentRoleFilter));
                         }
 
                         // ========== EVENT LISTENERS ==========
@@ -973,6 +1077,11 @@
                             }
                             // DOM already loaded
                             fetchUsers();
+                            // Highlight nút 'Tất cả' khi load trang
+                            document.getElementById('btnFilterAll').classList.add('active');
+                            document.getElementById('btnFilterStaff').classList.remove('active');
+                            document.getElementById('btnFilterUser').classList.remove('active');
+                            document.getElementById('btnFilterAdmin').classList.remove('active');
                         };
             </script>
 

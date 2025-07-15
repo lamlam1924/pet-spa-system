@@ -31,6 +31,8 @@ public partial class Pet
 
     public virtual ICollection<AppointmentPet> AppointmentPets { get; set; } = new List<AppointmentPet>();
 
+    public virtual ICollection<PetImage> PetImages { get; set; } = new List<PetImage>();
+
     public virtual Species? Species { get; set; }
 
     public virtual User User { get; set; } = null!;
