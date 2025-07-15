@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
+using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -18,13 +19,16 @@ namespace pet_spa_system1.Controllers
         private readonly IProductService _productService;
         private readonly IServiceService _serviceService;
         private readonly IPetService _petService;
+        private readonly IBlogService _blogService;
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IPetService petService)
+
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IPetService petService, IBlogService blogService)
         {
             _context = context;
             _productService = productService;
             _serviceService = serviceService;
             _petService = petService;
+            _blogService = blogService;
         }
 
         public IActionResult Index()
@@ -432,6 +436,7 @@ namespace pet_spa_system1.Controllers
 
 
 
+
         public IActionResult List_Customer()
         {
             return View();
@@ -473,20 +478,20 @@ namespace pet_spa_system1.Controllers
         }
         //=======================================================================================================================
         // Hiển thị danh sách dịch vụ
-        public IActionResult ManageService(int? categoryId, string search)
-        {
-            var model = _serviceService.GetAllService();
-            if (categoryId.HasValue)
-            {
-                model.Services = model.Services.Where(s => s.CategoryId == categoryId.Value).ToList();
-            }
-            if (!string.IsNullOrEmpty(search))
-            {
-                model.Services = model.Services.Where(s => s.Name.Contains(search)).ToList();
-            }
-            model.SelectedCategoryId = categoryId;
-            return View(model);
-        }
+        //public IActionResult ManageService(int? categoryId, string search)
+        //{
+        //    var model = _serviceService.GetAllService();
+        //    if (categoryId.HasValue)
+        //    {
+        //        model.Services = model.Services.Where(s => s.CategoryId == categoryId.Value).ToList();
+        //    }
+        //    if (!string.IsNullOrEmpty(search))
+        //    {
+        //        model.Services = model.Services.Where(s => s.Name.Contains(search)).ToList();
+        //    }
+        //    model.SelectedCategoryId = categoryId;
+        //    return View(model);
+        //}
 
         [HttpPost]
         public IActionResult AddService(Service service)
@@ -496,13 +501,13 @@ namespace pet_spa_system1.Controllers
             return RedirectToAction("ManageService");
         }
 
-        public IActionResult EditService(int id)
-        {
-            var service = _serviceService.GetServiceById(id);
-            var categories = _serviceService.GetAllService().Categories;
-            ViewBag.Categories = categories;
-            return View(service);
-        }
+        //public IActionResult EditService(int id)
+        //{
+        //    var service = _serviceService.GetServiceById(id);
+        //    var categories = _serviceService.GetAllService().Categories;
+        //    ViewBag.Categories = categories;
+        //    return View(service);
+        //}
 
         [HttpPost]
         public IActionResult EditService(Service service)
@@ -729,6 +734,182 @@ namespace pet_spa_system1.Controllers
         {
             return View("StaffSchedule");
         }
+
+        //=======================================================================================================================
+        // BLOG MANAGEMENT
+        public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            // Lấy CurrentUserId từ session
+            int? currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            string currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
+            Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
+
+        
+            if (!currentUserId.HasValue)
+            {
+                Console.WriteLine("[AdminController] Redirecting to Login due to null user ID.");
+                return RedirectToAction("Login", "Login");
+            }
+
+
+            var model = await _blogService.GetAdminDashboardAsync();
+
+            model.AllBlogs = await _blogService.GetAllBlogsForAdminAsync();
+
+            if (status != "All")
+            {
+                model.AllBlogs = model.AllBlogs.Where(b => b.Status == status).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                model.AllBlogs = model.AllBlogs.Where(b =>
+                    b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    b.ShortContent.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    b.AuthorName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
+
+            if (fromDate.HasValue)
+            {
+                model.AllBlogs = model.AllBlogs.Where(b => b.CreatedAt >= fromDate.Value).ToList();
+            }
+
+            if (toDate.HasValue)
+            {
+                model.AllBlogs = model.AllBlogs.Where(b => b.CreatedAt <= toDate.Value.AddDays(1)).ToList();
+            }
+
+            model.StatusFilter = status;
+            model.SearchQuery = search;
+            model.FromDate = fromDate;
+            model.ToDate = toDate;
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                model.AllBlogs = model.AllBlogs.Where(b =>
+                    b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    b.AuthorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            ViewBag.StatusFilter = status;
+            ViewBag.SearchQuery = search;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveBlog(int blogId)
+        {
+            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện." });
+            }
+
+            try
+            {
+                var success = await _blogService.ApproveBlogAsync(blogId, currentUser.UserId);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Blog đã được duyệt thành công." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không thể duyệt blog này." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
+        {
+            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện." });
+            }
+
+            try
+            {
+                var success = await _blogService.RejectBlogAsync(blogId, currentUser.UserId, reason);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Blog đã bị từ chối." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không thể từ chối blog này." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PublishBlog(int blogId)
+        {
+            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện." });
+            }
+
+            try
+            {
+                var success = await _blogService.PublishBlogAsync(blogId, currentUser.UserId);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Blog đã được xuất bản." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không thể xuất bản blog này." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBlogAdmin(int blogId)
+        {
+            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện." });
+            }
+
+            try
+            {
+                var success = await _blogService.DeleteBlogAsync(blogId, currentUser.UserId);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Blog đã được xóa." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không thể xóa blog này." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
 
     }
 }

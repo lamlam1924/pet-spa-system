@@ -19,7 +19,7 @@ public partial class Appointment
 
     public int? PromotionId { get; set; }
 
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

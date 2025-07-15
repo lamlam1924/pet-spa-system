@@ -13,13 +13,14 @@ namespace pet_spa_system1.Services
             _categoryRepository = categoryRepository;
         }
 
-        public List<SerCate> GetAll() => _categoryRepository.GetAll();
-        public SerCate GetById(int id) => _categoryRepository.GetById(id);
+        // ===== FIX METHOD CALLS =====
+        public List<SerCate> GetAll() => _categoryRepository.GetAllAsList(); // ? Fix
+        public SerCate GetById(int id) => _categoryRepository.GetByIdNotNull(id); // ? Fix
         public void Add(SerCate category) => _categoryRepository.Add(category);
         public void Update(SerCate category) => _categoryRepository.Update(category);
-        public void SoftDelete(int id) => _categoryRepository.SoftDelete(id);
-        public void Restore(int id) => _categoryRepository.Restore(id);
+        public void SoftDelete(int id) => _categoryRepository.SoftDelete(id); // ? Now available
+        public void Restore(int id) => _categoryRepository.Restore(id); // ? Now available
         public void Save() => _categoryRepository.Save();
-        public List<SerCate> GetActiveCategories() => _categoryRepository.GetActiveCategories();
+        public List<SerCate> GetActiveCategories() => _categoryRepository.GetActiveCategories(); // ? Now available
     }
 }

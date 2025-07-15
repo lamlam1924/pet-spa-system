@@ -23,5 +23,6 @@ namespace pet_spa_system1.Services
         Task<List<PetImage>> GetPetImagesAsync(int petId);
         Task AddPetImageAsync(PetImage petImage);
         Task DeletePetImageAsync(int imageId);
+        List<Pet> GetAllPets();
     }
 }

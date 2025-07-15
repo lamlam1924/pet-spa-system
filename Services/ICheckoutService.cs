@@ -14,5 +14,9 @@ namespace pet_spa_system1.Services
         Task<User> GetUserByIdAsync(int userId);
         // Process checkout
         Task<bool> ProcessCheckoutAsync(int userId, int paymentMethodId, string discountCode = null);
+
+        Task<Order> GetOrderByIdAsync(string orderId);
+        Task<Order> CreateOrderAsync(Order order);
+        Task UpdateOrderAsync(Order order);
     }
 }

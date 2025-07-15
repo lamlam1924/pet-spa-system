@@ -20,7 +20,7 @@ namespace pet_spa_system1.Repository
 
         public List<SerCate> GetActiveCategories()
         {
-            return _context.SerCates.Where(c => c.IsActive).ToList();
+            return _context.SerCates.Where(c => (bool)c.IsActive).ToList();
         }
 
         public SerCate GetCategoryById(int id)

@@ -3,120 +3,137 @@ using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 public class CheckoutController : Controller
 {
     private readonly ICheckoutService _checkoutService;
+    private readonly IConfiguration _configuration;
+    private readonly ICartService _cartService; // Thêm ICartService để truy cập giỏ hàng
 
-    public CheckoutController(ICheckoutService checkoutService)
+
+    public CheckoutController(ICheckoutService checkoutService, IConfiguration configuration,ICartService cartService)
     {
         _checkoutService = checkoutService;
-        //    _vnpayService = vnpayService;
+        _configuration = configuration;
+        _cartService = cartService; // Sử dụng ICartService để truy cập giỏ hàng
     }
 
     [HttpGet]
     public async Task<IActionResult> Checkout()
     {
-        // Lấy người dùng hiện tại từ session
-        var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-        if (currentUser == null || currentUser.UserId == 0)
+        var userId = HttpContext.Session.GetInt32("CurrentUserId");
+        if (userId == null)
         {
             TempData["Error"] = "Vui lòng đăng nhập để tiếp tục thanh toán.";
             return RedirectToAction("Login", "Login");
         }
 
-        int userId = currentUser.UserId;
+        int userIdValue = userId.Value;
 
-        // Lấy dữ liệu từ service
-        var cartItems = await _checkoutService.GetCartByUserIdAsync(userId);
-        var user = await _checkoutService.GetUserByIdAsync(userId);
+        var cartItems = await _cartService.GetCartByUserIdAsync(userIdValue); // Sử dụng ICartService
+        var user = await _checkoutService.GetUserByIdAsync(userIdValue); // Giả định có phương thức này
         var paymentMethods = await _checkoutService.GetPaymentMethodsAsync();
 
-        // Tính tổng
-        decimal total = cartItems.Sum(c => c.Quantity * c.Product.Price);
+        decimal totalAmount = await _cartService.GetTotalAmountAsync(userIdValue); // Sử dụng ICartService
 
-        // Tạo view model
         var viewModel = new CheckoutViewModel
         {
             CartItems = cartItems,
             User = user,
             PaymentMethods = paymentMethods,
-            TotalAmount = total
+            TotalAmount = totalAmount
         };
 
         return View(viewModel);
     }
 
-    //[HttpPost]
-    //public IActionResult PaymentWithVNPay(decimal total)
-    //{
-    //    var tick = DateTime.UtcNow.Ticks.ToString();
-    //    var vnpay = new VnPayLibrary();
+    [HttpPost]
+    public async Task<IActionResult> PlaceOrder(int PaymentMethodId)
+    {
+        var userId = HttpContext.Session.GetInt32("CurrentUserId");
+        if (userId == null)
+        {
+            TempData["Error"] = "Vui lòng đăng nhập để tiếp tục thanh toán.";
+            return RedirectToAction("Login", "Login");
+        }
+        int userIdValue = userId.Value;
+        var cartItems = await _cartService.GetCartByUserIdAsync(userIdValue);
+        decimal productTotal = await _cartService.GetTotalAmountAsync(userIdValue); // chỉ là tiền hàng
+        decimal shippingFee = 30000; // phí giao hàng cố định
+        decimal discount = 0; // nếu có mã giảm giá thì trừ ở đây
+        decimal totalAmount = productTotal + shippingFee - discount;
+        // Tạo đơn hàng
+        var order = new Order
+        {
+            UserId = userIdValue,
+            OrderDate = DateTime.Now,
+            TotalAmount = totalAmount,
+            StatusId = 1, // Pending
+            CreatedAt = DateTime.Now,
+            ShippingAddress = ""
+        };
+        await _checkoutService.CreateOrderAsync(order);
+        if (PaymentMethodId == 1) // VNPay
+        {
+            var config = _configuration.GetSection("Vnpay");
+            var pay = new VnPayLibrary();
+            var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
+            var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
+            pay.AddRequestData("vnp_Version", config["Version"]);
+            pay.AddRequestData("vnp_Command", config["Command"]);
+            pay.AddRequestData("vnp_TmnCode", config["TmnCode"]);
+            pay.AddRequestData("vnp_Amount", ((int)order.TotalAmount * 100).ToString());
+            pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
+            pay.AddRequestData("vnp_CurrCode", config["CurrCode"]);
+            pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(HttpContext));
+            pay.AddRequestData("vnp_Locale", config["Locale"]);
+            pay.AddRequestData("vnp_OrderInfo", $"Thanh toán đơn hàng {order.OrderId}");
+            pay.AddRequestData("vnp_OrderType", "other");
+            pay.AddRequestData("vnp_ReturnUrl", config["PaymentBackReturnUrl"]);
+            pay.AddRequestData("vnp_TxnRef", order.OrderId.ToString());
+            var paymentUrl = pay.CreateRequestUrl(config["BaseUrl"], config["HashSecret"]);
+            return Redirect(paymentUrl);
+        }
+        TempData["Message"] = "Phương thức thanh toán chưa được hỗ trợ.";
+        return RedirectToAction("Checkout");
+    }
 
-    //    vnpay.AddRequestData("vnp_Version", VNPayConfig.vnp_Version);
-    //    vnpay.AddRequestData("vnp_Command", VNPayConfig.vnp_Command);
-    //    vnpay.AddRequestData("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
-    //    vnpay.AddRequestData("vnp_Amount", ((int)total * 100).ToString()); // nhân 100 vì VNPay dùng đơn vị là VND x 100
-    //    vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
-    //    vnpay.AddRequestData("vnp_CurrCode", "VND");
-    //    vnpay.AddRequestData("vnp_IpAddr", HttpContext.Connection.RemoteIpAddress.ToString());
-    //    vnpay.AddRequestData("vnp_Locale", "vn");
-    //    vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang");
-    //    vnpay.AddRequestData("vnp_OrderType", "billpayment");
-    //    vnpay.AddRequestData("vnp_ReturnUrl", VNPayConfig.vnp_Returnurl);
-    //    vnpay.AddRequestData("vnp_TxnRef", tick); // mã giao dịch
+    [HttpGet]
+    public async Task<IActionResult> PaymentCallbackVnpay()
+    {
+        var config = _configuration.GetSection("Vnpay");
+        var pay = new VnPayLibrary();
+        var response = pay.GetFullResponseData(Request.Query, config["HashSecret"]);
+        var orderId = response["OrderId"];
+        var order = await _checkoutService.GetOrderByIdAsync(orderId);
+        if (response["Success"] == "true")
+        {
+            order.StatusId = 2; // Completed
+            // Nếu có bảng Payment thì tạo bản ghi Payment ở đây
+            // var payment = new Payment { ... };
+            // await _checkoutService.CreatePaymentAsync(payment);
+            await _checkoutService.UpdateOrderAsync(order);
+            TempData["Success"] = "Thanh toán thành công!";
+            return RedirectToAction("PaymentSuccess");
+        }
+        else
+        {
+            order.StatusId = 3; // Failed
+            await _checkoutService.UpdateOrderAsync(order);
+            TempData["Error"] = $"Thanh toán thất bại. Mã lỗi: {response["VnPayResponseCode"]}";
+            return RedirectToAction("PaymentFailed");
+        }
+    }
 
-    //    string paymentUrl = vnpay.CreateRequestUrl(VNPayConfig.vnp_Url, VNPayConfig.vnp_HashSecret);
-    //    return Redirect(paymentUrl);
-    //}
-    //public IActionResult VnPayReturn()
-    //{
-    //    var vnpayData = Request.Query;
-    //    var vnpay = new VnPayLibrary();
-    //    foreach (var (key, value) in vnpayData)
-    //    {
-    //        if (key.StartsWith("vnp_"))
-    //            vnpay.AddResponseData(key, value);
-    //    }
+    public IActionResult PaymentSuccess()
+    {
+        return View();
+    }
 
-    //    string responseCode = vnpay.GetResponseData("vnp_ResponseCode");
-    //    bool isValid = vnpay.ValidateSignature(VNPayConfig.vnp_HashSecret);
-
-    //    if (isValid && responseCode == "00")
-    //    {
-    //        ViewBag.Message = "Thanh toán thành công!";
-    //        // TODO: lưu đơn hàng, cập nhật trạng thái đơn hàng, gửi mail...
-    //    }
-    //    else
-    //    {
-    //        ViewBag.Message = "Thanh toán thất bại!";
-    //    }
-
-    //    return View();
-    //}
-
-
-    //[HttpPost]
-    //public async Task<IActionResult> PlaceOrder(int PaymentMethodId)
-    //{
-    //    var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-    //    if (currentUser == null)
-    //    {
-    //        return RedirectToAction("Login", "Login");
-    //    }
-
-    //    // Nếu là VNPay
-    //    if (PaymentMethodId == 1) // ID 2 là VNPay
-    //    {
-    //        // Tạo URL redirect sang trang thanh toán VNPay
-    //        string paymentUrl = _vnpayService.CreatePaymentUrl(currentUser.UserId, HttpContext);
-
-    //        return Redirect(paymentUrl);
-    //    }
-
-    //    // Xử lý các phương thức khác (COD...)
-    //    // Lưu đơn hàng, chuyển đến trang xác nhận...
-    //    return View("OrderConfirmation");
-    //}
-
+    public IActionResult PaymentFailed()
+    {
+        return View();
+    }
 }

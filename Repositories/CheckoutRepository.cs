@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using pet_spa_system1.Models;
+﻿using pet_spa_system1.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Repositories
 {
@@ -12,32 +14,53 @@ namespace pet_spa_system1.Repositories
             _context = context;
         }
 
-        // Lấy giỏ hàng theo userId
-        public async Task<List<Cart>> GetCartByUserIdAsync(int userId)
-        {
-            return await _context.Carts
-                .Include(c => c.Product)
-                .Where(c => c.UserId == userId)
-                .ToListAsync();
-        }
-
-        // Lấy danh sách phương thức thanh toán
         public async Task<List<PaymentMethod>> GetPaymentMethodsAsync()
         {
             return await _context.PaymentMethods.ToListAsync();
         }
 
-        // Lấy thông tin người dùng theo ID
-        public async Task<User> GetUserByIdAsync(int userId)
+        public async Task<List<Cart>> GetCartByUserIdAsync(int userId)
         {
-
-            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            return await _context.Carts
+                .Where(c => c.UserId == userId)
+                .Include(c => c.Product)
+                .ToListAsync();
         }
 
-        public Task<User> GetUserByIdAsync()
+        //public async Task<DiscountCode> GetDiscountCodeByCodeAsync(string code)
+        //{
+        //    return await _context.DiscountCodes
+        //        .FirstOrDefaultAsync(dc => dc.Code == code);
+        //}
+
+        public async Task<User> GetUserByIdAsync(int userId)
         {
-            throw new NotImplementedException();
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        public async Task<Order> GetOrderByIdAsync(int orderId)
+        {
+            return await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
+
+        //public async Task<Order> GetOrderByIdAsync(string orderId)
+        //{
+        //    return await _context.Orders
+        //        .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        //}
+
+        public async Task<Order> CreateOrderAsync(Order order)
+        {
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+            return order;
+        }
+
+        public async Task UpdateOrderAsync(Order order)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
         }
     }
 }
-

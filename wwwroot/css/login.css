@@ -193,7 +193,7 @@ button.ghost {
     height: 100%;
     overflow: hidden;
     transition: transform 0.6s ease-in-out;
-    z-index: 100;
+    z-index: 1;
 }
 
 .container-login.right-panel-active .overlay-container1 {

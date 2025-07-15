@@ -96,8 +96,64 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZS5jc2h0bWw=
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/AddAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQWRkQXBwb2ludG1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/AppointmentCalendar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnRDYWxlbmRhci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/AppointmentDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnREYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/AppointmentDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnREZXRhaWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/AppointmentList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnRMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/ApprovalList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwcm92YWxMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageAppointment/EditAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcRWRpdEFwcG9pbnRtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageBlog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQmxvZy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/AddService.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxBZGRTZXJ2aWNlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/EditService.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxFZGl0U2VydmljZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/ServiceCategory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxTZXJ2aWNlQ2F0ZWdvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/ServiceDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxTZXJ2aWNlRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/ServiceDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxTZXJ2aWNlRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/ServiceList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxTZXJ2aWNlTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/ManageService/ServiceNav.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxTZXJ2aWNlTmF2LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/Modals.cshtml]
@@ -140,8 +196,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU3RhZmYuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/StaffDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU3RhZmZEZXRhaWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/Ui_Colors.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVWlfQ29sb3JzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/UserDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlckRldGFpbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Admin/_LayoutAdmin.cshtml]
@@ -156,8 +220,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRcSGlzdG9yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Appointment/Success.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRcU3VjY2Vzcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Blogs/Blog.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcQmxvZy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Blogs/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Blogs/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Blogs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Blogs/Single_Blog.cshtml]
@@ -172,8 +252,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hlY2tvdXRcQ2hlY2tvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Checkout/PaymentFailed.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hlY2tvdXRcUGF5bWVudEZhaWxlZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Checkout/PaymentSuccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hlY2tvdXRcUGF5bWVudFN1Y2Nlc3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Contact/contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udGFjdFxjb250YWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/Email/SuccessEmail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1haWxcU3VjY2Vzc0VtYWlsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Home/Index.cshtml]
@@ -204,16 +296,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxIb21lU2VydmljZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/ASUS/Pet/pet-spa-system/Views/Service/ListService.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxMaXN0U2VydmljZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Service/ServicePet.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxTZXJ2aWNlUGV0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ASUS/Pet/pet-spa-system/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/UserHome/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/UserHome/_ChangePasswordPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0NoYW5nZVBhc3N3b3JkUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/UserHome/_HosoPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0hvc29QYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/UserHome/_ListOrderPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0xpc3RPcmRlclBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/UserHome/_ListPetPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX0xpc3RQZXRQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/ASUS/Pet/pet-spa-system/Views/UserHome/_NotificationPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckhvbWVcX05vdGlmaWNhdGlvblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/ASUS/Pet/pet-spa-system/Views/_ViewImports.cshtml]

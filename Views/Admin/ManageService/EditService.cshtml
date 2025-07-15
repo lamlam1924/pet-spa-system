@@ -1,0 +1,259 @@
+@model pet_spa_system1.ViewModel.ServiceFormViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa dịch vụ";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsService/css/service-common.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/service-form.css" />
+}
+
+<div class="container-fluid" id="container-wrapper">
+    @await Html.PartialAsync("~/Views/Admin/ManageService/ServiceNav.cshtml")
+
+    <div class="row">
+        <!-- Form Column -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4 form-card">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Chỉnh sửa dịch vụ</h6>
+                    <span class="badge @(Model.Input.IsActive == true ? "badge-success" : "badge-danger")">
+                        @(Model.Input.IsActive == true ? "Đang hoạt động" : "Đã tạm ngưng")
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Ảnh dịch vụ -->
+                    <div class="service-image-upload-area mb-4 text-center">
+                        <label class="form-label d-block mb-2 fw-semibold">Ảnh dịch vụ</label>
+                        <div class="service-image-edit d-inline-flex flex-column align-items-center gap-2">
+                            <img id="serviceImagePreview"
+                                 src="/images/service-default.png"
+                                 alt="Ảnh dịch vụ"
+                                 class="rounded border service-image-thumb mb-2"
+                                 style="width: 100px; height: 100px; object-fit: cover;" />
+                            <input type="file" class="form-control-file" id="serviceImage" name="ImageFile" accept="image/*" disabled />
+                            <small class="form-text text-muted">Chức năng đổi ảnh sẽ sớm được bổ sung.</small>
+                        </div>
+                    </div>
+
+                    <form id="editServiceForm" action="@Url.Action("EditService", "AdminService")" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="Input.ServiceId" value="@Model.Input.ServiceId" />
+                        <input type="hidden" name="Input.CreatedAt" value="@Model.Input.CreatedAt?.ToString("o")" />
+
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger mb-4" })
+
+                        <!-- Tên dịch vụ -->
+                        <div class="form-group mb-3">
+                            <label for="serviceName" class="form-label required-field">Tên dịch vụ</label>
+                            <input name="Input.Name" type="text" class="form-control" id="serviceName" required 
+                                   value="@Model.Input.Name" maxlength="100" />
+                            @Html.ValidationMessageFor(m => m.Input.Name, "", new { @class = "text-danger" })
+                        </div>
+                        
+                        <!-- Danh mục -->
+                        <div class="form-group mb-3">
+                            <label for="service
+                            " class="form-label required-field">Danh mục</label>
+                            <select name="Input.CategoryId" class="form-control" id="serviceCategory" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.CategoryId" selected="@(Model.Input.CategoryId == cat.CategoryId ? "selected" : null)">
+                                        @cat.Name
+                                    </option>
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(m => m.Input.CategoryId, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- Giá -->
+                        <div class="form-group mb-3">
+                            <label for="servicePrice" class="form-label required-field">Giá dịch vụ</label>
+                            <div class="input-group">
+                                <input name="Input.Price" type="number" class="form-control" id="servicePrice" required 
+                                       min="0" step="1000" placeholder="Nhập giá dịch vụ" value="@Model.Input.Price" />
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Input.Price, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- Thời gian -->
+                        <div class="form-group mb-3">
+                            <label for="serviceDuration" class="form-label required-field">Thời gian thực hiện</label>
+                            <div class="input-group">
+                                <input name="Input.DurationMinutes" type="number" class="form-control" id="serviceDuration" required 
+                                       min="5" step="5" placeholder="Nhập thời gian thực hiện" value="@Model.Input.DurationMinutes" />
+                                <span class="input-group-text">Phút</span>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Input.DurationMinutes, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- Mô tả -->
+                        <div class="form-group mb-3">
+                            <label for="serviceDescription" class="form-label">Mô tả chi tiết</label>
+                            <textarea name="Input.Description" class="form-control" id="serviceDescription" rows="4"
+                                      placeholder="Mô tả chi tiết về dịch vụ...">@Model.Input.Description</textarea>
+                            @Html.ValidationMessageFor(m => m.Input.Description, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- Trạng thái -->
+                        <div class="form-group mb-4">
+                            <div class="custom-control custom-switch">
+                                <input type="hidden" name="Input.IsActive" value="false" />
+                                <input type="checkbox" class="custom-control-input" id="serviceStatus" 
+                                       name="Input.IsActive" value="true"
+                                       @(Model.Input.IsActive == true ? "checked" : "")
+                                       onchange="this.previousElementSibling.value = this.checked ? 'true' : 'false'">
+                                <label class="custom-control-label" for="serviceStatus">
+                                    @(Model.Input.IsActive == true ? "Dịch vụ đang hoạt động" : "Dịch vụ đang tạm ngưng")
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Nút submit -->
+                        <div class="form-group mt-4 d-flex justify-content-between">
+                            <a href="@Url.Action("ServiceDetail", "AdminService", new { id = Model.Input.ServiceId })" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-light" onclick="resetForm()">
+                                    <i class="fas fa-undo"></i> Hủy thay đổi
+                                </button>
+                                <button type="submit" class="btn btn-primary ml-2">
+                                    <i class="fas fa-save"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lịch sử thay đổi -->
+            @if (Model.ChangeHistory != null && Model.ChangeHistory.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lịch sử thay đổi</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            @foreach (var change in Model.ChangeHistory)
+                            {
+                                <div class="timeline-item">
+                                    <div class="timeline-item-date">@change.ChangeDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                    <div class="timeline-item-content">
+                                        <div class="user">@change.UserName</div>
+                                        <div class="change">@change.ChangeDescription</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Preview Column -->
+        <div class="col-lg-4">
+            <div class="sticky-container">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Xem trước</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="preview-card service-card animate-fade-in">
+                            <div class="service-img mb-0" style="height:180px;">
+                                <img src="/images/service-default.png" alt="Ảnh dịch vụ" class="w-100 h-100" style="object-fit:cover;">
+                                <span class="service-badge">
+                                    @(Model.Input.IsActive == true ? "Hoạt động" : "Tạm ngưng")
+                                </span>
+                            </div>
+                            <div class="service-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge badge-category me-2" id="previewCategory">
+                                        <i class="fas fa-tag"></i> @Model.CategoryName
+                                    </span>
+                                    <span class="text-muted small ms-auto">
+                                        ID: SV-@(Model.Input.ServiceId != null ? ((int)Model.Input.ServiceId).ToString("D4") : "")
+                                    </span>
+                                </div>
+                                <div class="service-title mb-1" id="previewName">@Model.Input.Name</div>
+                                <div class="service-description mb-2" id="previewDescription">
+                                    @if (string.IsNullOrWhiteSpace(Model.Input.Description))
+                                    {
+                                        <span class="text-muted">Chưa có mô tả chi tiết cho dịch vụ này.</span>
+                                    }
+                                    else
+                                    {
+                                        @Model.Input.Description
+                                    }
+                                </div>
+                                <div class="service-meta pt-2 mt-auto">
+                                    <span class="service-price" id="previewPrice">@Model.Input.Price?.ToString("N0") đ</span>
+                                    <span class="service-duration">
+                                        <i class="fas fa-clock"></i>
+                                        <span id="previewDuration">@Model.Input.DurationMinutes phút</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xác nhận xóa -->
+<div class="modal fade" id="deleteServiceModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Xác nhận xóa dịch vụ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Bạn có chắc chắn muốn xóa dịch vụ <strong>@Html.DisplayFor(m => m.Input.Name)</strong>?</p>
+                <p class="text-danger mb-0">Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan đến dịch vụ này!</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteServiceForm" action="@Url.Action("DeleteService", "AdminService")" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Input.ServiceId" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/cssjsService/js/service-common.js"></script>
+    <script src="~/cssjsService/js/service-form.js"></script>
+    <script>
+        // Pass data to the form.js
+        var successMessage = '@Html.Raw(TempData["SuccessMessage"]?.ToString())';
+        var errorMessage = '@Html.Raw(TempData["ErrorMessage"]?.ToString())';
+        var formType = 'edit';
+        
+        // Initialize service data for reset function
+        var serviceData = {
+            name: @Html.Raw(Json.Serialize(Model.Input.Name ?? "")),
+            categoryId: '@Model.Input.CategoryId',
+            price: '@Model.Input.Price',
+            duration: '@Model.Input.DurationMinutes',
+            description: @Html.Raw(Json.Serialize(Model.Input.Description ?? "")),
+            isActive: @(Model.Input.IsActive == true ? "true" : "false"),
+            categoryName: @Html.Raw(Json.Serialize(Model.CategoryName ?? "")), // ✅ Sử dụng Model thay vì ViewBag
+            formattedPrice: '@(Model.Input.Price?.ToString("N0") ?? "0") đ'
+        };
+    </script>
+    
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Hồ sơ - Nông sản Tươi Sạch</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            min-height: 0;
+            /* Đảm bảo flex không bị giới hạn chiều cao */
+        }
+
+        .sidebar {
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            /* Cho phép sidebar co giãn theo nội dung */
+        }
+
+        .content-main {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .account-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .account-info img {
+            margin: 15px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #27ae60;
+            transition: transform 0.3s ease;
+        }
+
+        .account-info img:hover {
+            transform: scale(1.1);
+        }
+
+        .account-info .username {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .account-info .edit-profile {
+            font-size: 13px;
+            color: #27ae60;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .account-info .edit-profile:hover {
+            color: #ee4d2d;
+        }
+
+        .sidebar .nav {
+            flex-grow: 1;
+            /* Cho phép nav chiếm toàn bộ không gian còn lại */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar .nav-link {
+            color: #555;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: #f0f9f4;
+            color: #27ae60;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link .bi {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .collapse-content .nav-link {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .collapse-content .nav-link:hover {
+            color: #27ae60;
+        }
+
+        .profile-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .profile-header p {
+            font-size: 15px;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .form-group>label {
+            width: 120px;
+            font-weight: 500;
+            color: #34495e;
+            margin-right: 20px;
+        }
+
+        .form-group .input-wrapper {
+            flex: 1;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 8px rgba(39, 174, 96, 0.3);
+            outline: none;
+        }
+
+        .form-control[readonly] {
+            background: #f9f9f9;
+            color: #666;
+            border: none;
+        }
+
+        .form-group small {
+            color: #27ae60;
+            font-size: 13px;
+        }
+
+        .form-group small.text-muted {
+            color: #7f8c8d;
+        }
+
+        .save-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            margin-left: 500px;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        .save-btn:hover {
+            background-color: #c0392b;
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg">
+                <a class="navbar-brand text-white" href="#">Back</a>
+                <div class="ms-auto">
+                    <a href="#logout" class="text-white">Đăng xuất</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="account-info">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <img src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+                            alt="Avatar">
+                        <div>
+                            <div class="username">${user.fullName}</div>
+                            <a href="#" class="edit-profile" onclick="loadSection('hoso')"><i class="bi bi-pencil"></i>
+                                Sửa Hồ Sơ</a>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="nav flex-column">
+                    <a href="#collapseAccount" class="nav-link active" data-bs-toggle="collapse" aria-expanded="true"
+                        aria-controls="collapseAccount">
+                        <i class="bi bi-person"></i> Tài Khoản Của Tôi
+                    </a>
+                    <div class="collapse show" id="collapseAccount">
+                        <div class="collapse-content">
+                            <a href="#" class="nav-link" onclick="loadSection('hoso')"><i class="bi bi-house"></i>
+                                Hồ Sơ</a>
+                            <a href="#" class="nav-link" onclick="loadSection('password')"><i
+                                    class="bi bi-shield-lock"></i> Đổi Mật Khẩu</a>
+                            <a href="#" class="nav-link"><i class="bi bi-wallet"></i> Cài Đặt Thông Báo</a>
+                        </div>
+                    </div>
+                    <a href="#" class="nav-link" onclick="loadSection('notifications')">
+                        <i class="bi bi-bell"></i> Thông Báo
+                    </a>
+                    <a href="#" class="nav-link" onclick="loadSection('donHang')">
+                        <i class="bi bi-cart"></i> Đơn mua
+                    </a>
+
+                </nav>
+            </div>
+            <!-- Nội dung chính -->
+            <div class="content-main" id="content-main">
+                <jsp:include page="Hoso.jsp"></jsp:include>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            function filterOrders(status) {
+                console.log("Status received in filterOrders:", status); // Log giá trị status
+                document.querySelectorAll('table').forEach(table => table.classList.remove('active'));
+                document.querySelectorAll('.pagination').forEach(pag => pag.classList.remove('active'));
+
+                const table = document.getElementById(status);
+                if (table)
+                    table.classList.add('active');
+                var cha = document.getElementById('pagination-all');
+                if (status === 'all') {
+                    cha.style.display = "flex";
+                    console.log("#pagination-all set to flex");
+                } else {
+                    cha.style.display = "none";
+                    console.log("#pagination-all set to none");
+                }
+            }
+            var contextPath = "${pageContext.request.contextPath}";
+            function loadSection(action) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", contextPath + "/user?action=" + action, true);
+                let cleanAction = action.split("&")[0];
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        document.getElementById("content-main").innerHTML = xhr.responseText;
+                        if (cleanAction === "donHang") {
+                            const urlParams = new URLSearchParams(action);
+                            const status = urlParams.get('status') || 'all';
+                            console.log("Status before filterOrders:", status); // Log để kiểm tra
+                            setTimeout(() => {
+                                const statusFilter = document.getElementById('statusFilter');
+                                if (statusFilter) {
+                                    statusFilter.value = status;
+                                    filterOrders(status);
+                                } else {
+                                    console.error("Không tìm thấy #statusFilter!");
+                                }
+                            }, 100);
+
+                        }
+                    }
+                };
+                xhr.send();
+            }
+            function updateProfile() {
+                var email = document.getElementById("email").value;
+                var phone = document.getElementById("phone").value;
+                var address = document.getElementById("address").value;
+                var isConfirmed = confirm("Bạn có chắc chắn muốn cập nhật hồ sơ?");
+                if (!isConfirmed)
+                    return;
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", contextPath + "/user?action=updateProfile", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200 && xhr.responseText === "success") {
+                            alert("Cập nhật hồ sơ thành công!");
+                            window.location.reload();
+                        } else {
+                            alert("Có lỗi xảy ra, vui lòng thử lại.");
+                        }
+                    }
+                };
+
+                xhr.send("email=" + encodeURIComponent(email) +
+                    "&phone=" + encodeURIComponent(phone) +
+                    "&address=" + encodeURIComponent(address));
+            }
+            function verifyCurrentPassword() {
+                var currentPassword = document.getElementById("current-password").value;
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", contextPath + "/user?action=verifyPassword", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        if (xhr.responseText === "success") {
+                            document.getElementById("change-password-form").style.display = "none";
+                            document.getElementById("new-password-section").style.display = "block";
+                        } else {
+                            alert("Mật khẩu hiện tại không đúng!");
+                        }
+                    }
+                };
+
+                xhr.send("currentPassword=" + encodeURIComponent(currentPassword));
+            }
+            function updatePassword() {
+                var newPassword = document.getElementById("new-password").value;
+                var confirmPassword = document.getElementById("confirm-password").value;
+
+                if (newPassword !== confirmPassword) {
+                    alert("Mật khẩu xác nhận không khớp!");
+                    return;
+                }
+                var isConfirmed = confirm("Bạn có chắc chắn muốn thay đổi mật khẩu?");
+                if (!isConfirmed) {
+                    return; // Nếu người dùng chọn "Hủy", dừng quá trình
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", contextPath + "/user?action=updatePassword", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        if (xhr.responseText === "success") {
+                            alert("Mật khẩu đã được thay đổi thành công!");
+                            location.reload(); // Refresh page or redirect if needed
+                        } else {
+                            alert("Có lỗi xảy ra, vui lòng thử lại.");
+                        }
+                    }
+                };
+                xhr.send("newPassword=" + encodeURIComponent(newPassword));
+            }
+        </script>
+        <script>
+            function filterOrders(status) {
+                console.log("Filtering to: " + status);
+                const tables = document.querySelectorAll('.container table');
+                tables.forEach(table => {
+                    console.log("Removing active from: " + table.id);
+                    table.classList.remove('active');
+                });
+                const selectedTable = document.getElementById(status);
+                console.log("Adding active to: " + selectedTable.id);
+                selectedTable.classList.add('active');
+            }
+            function cancelOrder(orderdetailId) {
+                if (!confirm("Bạn có chắc chắn muốn hủy đơn này?")) {
+                    return;
+                }
+
+                fetch(contextPath + "/user", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "orderdetailId=" + encodeURIComponent(orderdetailId) + "&action=cancelOrder"
+                })
+                    .then(response => response.text())
+                    .then(html => {
+
+                        document.getElementById("content-main").innerHTML = html;
+                        alert("Hủy đơn hàng thành công!");
+                    })
+                    .catch(error => console.error("Lỗi:", error));
+            }
+            function confirmReceived(orderdetailId) {
+                if (!confirm("Xác nhận đơn này?")) {
+                    return;
+                }
+
+                fetch(contextPath + "/user", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "orderdetailId=" + encodeURIComponent(orderdetailId) + "&action=confirmReceived"
+                })
+                    .then(response => response.text())
+                    .then(html => {
+
+                        document.getElementById("content-main").innerHTML = html;
+                        alert("Xác nhận đơn hàng thành công!");
+                    })
+                    .catch(error => console.error("Lỗi:", error));
+            }
+            function repurchaseOrder(orderdetailId) {
+                if (!confirm("Bạn có muốn mua lại đơn này?")) {
+                    return;
+                }
+
+                fetch(contextPath + "/user", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "orderdetailId=" + encodeURIComponent(orderdetailId) + "&action=repurchaseOrder"
+                })
+                    .then(response => response.text())
+                    .then(html => {
+
+                        document.getElementById("content-main").innerHTML = html;
+                        alert("Mua đơn hàng thành công! Đợi seller xử lí");
+                    })
+                    .catch(error => console.error("Lỗi:", error));
+            }
+        </script>
+</body>
+
+</html>

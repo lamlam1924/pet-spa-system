@@ -1,22 +1,30 @@
 ﻿using pet_spa_system1.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Repositories
 {
     public interface ICheckoutRepository
     {
-        //get payment methods
+        // Get payment methods
         Task<List<PaymentMethod>> GetPaymentMethodsAsync();
 
-        //get cart by user id
+        // Get cart by user ID
         Task<List<Cart>> GetCartByUserIdAsync(int userId);
-        // get discount code by code
+
+        // Get discount code by code (khôi phục nếu cần)
         //Task<DiscountCode> GetDiscountCodeByCodeAsync(string code);
-        //get user by id
+
+        // Get user by ID (giữ một phiên bản duy nhất, xóa phiên bản thừa)
         Task<User> GetUserByIdAsync(int userId);
 
-        Task<User> GetUserByIdAsync();
+        // Get order by ID (dùng cho VNPay với vnp_TxnRef)
+        Task<Order> GetOrderByIdAsync(int orderId);
 
+        // Create a new order
+        Task<Order> CreateOrderAsync(Order order);
 
-
+        // Update an existing order
+        Task UpdateOrderAsync(Order order);
     }
 }

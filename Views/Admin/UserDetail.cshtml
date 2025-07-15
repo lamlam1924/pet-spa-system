@@ -1,0 +1,511 @@
+@model pet_spa_system1.ViewModel.UserDetailViewModel
+@{
+    ViewData["Title"] = "Chi tiết khách hàng";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-dark mb-1">Chi tiết khách hàng</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb small mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="@Url.Action("List_Customer", "User")" class="text-decoration-none">
+                                    <i class="fas fa-users me-1"></i>Danh sách khách hàng
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">Chi tiết</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a href="/Admin/List_Customer" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Sidebar: Customer Info & Stats -->
+        <div class="col-xl-3 col-lg-4 mb-4">
+            <!-- Customer Profile Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <form asp-action="UserDetail" asp-controller="User" asp-route-id="@Model.User.UserId" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="UserId" value="@Model.User.UserId" />
+                        
+                        <!-- Avatar Section -->
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <img src="@(string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? "/imgAdmin/avatar-default.png" : Model.User.ProfilePictureUrl)" 
+                                     alt="Avatar khách hàng" 
+                                     class="rounded-circle shadow-sm border border-light" 
+                                     style="width: 120px; height: 120px; object-fit: cover;" />
+                                <label for="avatarInput" class="position-absolute bottom-0 end-0 bg-primary rounded-circle p-2 shadow-sm" style="cursor:pointer;">
+                                    <i class="fas fa-camera text-white"></i>
+                                    <input type="file" id="avatarInput" name="AvatarFile" class="d-none" onchange="this.form.submit()" />
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Customer Info Form -->
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Họ và tên</label>
+                            <input type="text" name="FullName" value="@Model.User.FullName" class="form-control" placeholder="Nhập họ tên" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Email</label>
+                            <input type="email" name="Email" value="@Model.User.Email" class="form-control" placeholder="Nhập email" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Số điện thoại</label>
+                            <input type="text" name="Phone" value="@Model.User.Phone" class="form-control" placeholder="Nhập số điện thoại" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Địa chỉ</label>
+                            <textarea name="Address" class="form-control" rows="2" placeholder="Nhập địa chỉ">@Model.User.Address</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Thống kê tổng quan
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-6">
+                            <div class="p-3 text-center border-end border-bottom">
+                                <div class="h4 mb-1 text-primary">@Model.Pets?.Count()</div>
+                                <div class="small text-muted">Thú cưng</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center border-bottom">
+                                <div class="h4 mb-1 text-success">@Model.Appointments?.Count()</div>
+                                <div class="small text-muted">Lịch hẹn</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center border-end">
+                                <div class="h4 mb-1 text-warning">@Model.Orders?.Count()</div>
+                                <div class="small text-muted">Đơn hàng</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center">
+                                <div class="h4 mb-1 text-info">@Model.Reviews?.Count()</div>
+                                <div class="small text-muted">Đánh giá</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="col-xl-9 col-lg-8">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs nav-justified mb-4" id="customerTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pets-tab" data-bs-toggle="tab" data-bs-target="#pets" type="button" role="tab">
+                        <i class="fas fa-dog me-2"></i>Thú cưng
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button" role="tab">
+                        <i class="fas fa-calendar-alt me-2"></i>Lịch hẹn
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
+                        <i class="fas fa-shopping-cart me-2"></i>Đơn hàng
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                        <i class="fas fa-star me-2"></i>Đánh giá
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">
+                        <i class="fas fa-credit-card me-2"></i>Thanh toán
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="customerTabsContent">
+                <!-- Pets Tab -->
+                <div class="tab-pane fade show active" id="pets" role="tabpanel" aria-labelledby="pets-tab">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Danh sách thú cưng</h6>
+                            <span class="badge bg-primary">@Model.Pets?.Count() thú cưng</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.Pets != null && Model.Pets.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">Tên thú cưng</th>
+                                                <th class="border-0">Loài</th>
+                                                <th class="border-0">Giống</th>
+                                                <th class="border-0">Tuổi</th>
+                                                <th class="border-0">Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var pet in Model.Pets)
+                                            {
+                                                <tr>
+                                                    <td><strong>@pet.Name</strong></td>
+                                                    <td>@pet.SpeciesId</td>
+                                                    <td>@pet.Breed</td>
+                                                    <td>@pet.Age tuổi</td>
+                                                    <td>@pet.SpecialNotes</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-4 text-center text-muted">
+                                    <i class="fas fa-dog fa-3x mb-3 text-muted"></i>
+                                    <p>Chưa có thú cưng nào được đăng ký</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Tab -->
+                <div class="tab-pane fade" id="appointments" role="tabpanel" aria-labelledby="appointments-tab">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Lịch sử lịch hẹn</h6>
+                            <span class="badge bg-success">@Model.Appointments?.Count() lịch hẹn</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.Appointments != null && Model.Appointments.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">Ngày & Giờ</th>
+                                                <th class="border-0">Trạng thái</th>
+                                                <th class="border-0">Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var appt in Model.Appointments)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-calendar-day me-2 text-primary"></i>
+                                                            @appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @{
+                                                            var statusName = appt.Status?.StatusName ?? "Không rõ";
+                                                            var statusColor = "bg-light text-dark";
+                                                            switch (statusName)
+                                                            {
+                                                                case "Chờ xác nhận":
+                                                                case "Pending":
+                                                                    statusColor = "bg-warning text-dark";
+                                                                    break;
+                                                                case "Đã xác nhận":
+                                                                case "Confirmed":
+                                                                    statusColor = "bg-success";
+                                                                    break;
+                                                                case "Đã hủy":
+                                                                case "Cancelled":
+                                                                    statusColor = "bg-danger";
+                                                                    break;
+                                                                case "Hoàn thành":
+                                                                case "Completed":
+                                                                    statusColor = "bg-primary";
+                                                                    break;
+                                                                case "Đang xử lý":
+                                                                case "Processing":
+                                                                    statusColor = "bg-info text-dark";
+                                                                    break;
+                                                                default:
+                                                                    statusColor = "bg-light text-dark";
+                                                                    break;
+                                                            }
+                                                        }
+                                                        <span class="badge @statusColor">@statusName</span>
+                                                    </td>
+                                                    <td>@appt.Notes</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-4 text-center text-muted">
+                                    <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
+                                    <p>Chưa có lịch hẹn nào</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Lịch sử đơn hàng</h6>
+                            <span class="badge bg-warning">@Model.Orders?.Count() đơn hàng</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.Orders != null && Model.Orders.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">Ngày đặt</th>
+                                                <th class="border-0">Tổng tiền</th>
+                                                <th class="border-0">Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var order in Model.Orders)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-shopping-bag me-2 text-warning"></i>
+                                                            @(order.OrderDate.HasValue ? order.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                                                        </div>
+                                                    </td>
+                                                    <td><strong class="text-success">@order.TotalAmount.ToString("N0") đ</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-info">@order.StatusId</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-4 text-center text-muted">
+                                    <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+                                    <p>Chưa có đơn hàng nào</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Đánh giá của khách hàng</h6>
+                            <span class="badge bg-info">@Model.Reviews?.Count() đánh giá</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.Reviews != null && Model.Reviews.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">Đối tượng</th>
+                                                <th class="border-0">Điểm số</th>
+                                                <th class="border-0">Bình luận</th>
+                                                <th class="border-0">Ngày đánh giá</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var review in Model.Reviews)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @if (review.ProductId != null)
+                                                        {
+                                                            <span class="badge bg-primary">
+                                                                <i class="fas fa-box me-1"></i>Sản phẩm: @review.ProductId
+                                                            </span>
+                                                        }
+                                                        else if (review.ServiceId != null)
+                                                        {
+                                                            <span class="badge bg-success">
+                                                                <i class="fas fa-spa me-1"></i>Dịch vụ: @review.ServiceId
+                                                            </span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="me-2">@review.Rating</span>
+                                                            <div class="text-warning">
+                                                                @for (int i = 1; i <= 5; i++)
+                                                                {
+                                                                    <i class="fas fa-star@(i <= review.Rating ? "" : "-o")"></i>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>@review.Comment</td>
+                                                    <td>@(review.CreatedAt.HasValue ? review.CreatedAt.Value.ToString("dd/MM/yyyy") : "")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-4 text-center text-muted">
+                                    <i class="fas fa-star fa-3x mb-3 text-muted"></i>
+                                    <p>Chưa có đánh giá nào</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments Tab -->
+                <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="payments-tab">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Lịch sử thanh toán</h6>
+                            <span class="badge bg-danger">@Model.Payments?.Count() thanh toán</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.Payments != null && Model.Payments.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">Ngày thanh toán</th>
+                                                <th class="border-0">Số tiền</th>
+                                                <th class="border-0">Phương thức</th>
+                                                <th class="border-0">Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var pay in Model.Payments)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-money-bill-wave me-2 text-success"></i>
+                                                            @(pay.PaymentDate.HasValue ? pay.PaymentDate.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                                                        </div>
+                                                    </td>
+                                                    <td><strong class="text-success">@pay.Amount.ToString("N0") đ</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-outline-primary">@pay.PaymentMethodId</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">@pay.PaymentStatusId</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-4 text-center text-muted">
+                                    <i class="fas fa-credit-card fa-3x mb-3 text-muted"></i>
+                                    <p>Chưa có giao dịch thanh toán nào</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #f8f9fa;
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+    border-bottom: 2px solid #007bff;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    border-radius: 8px;
+}
+</style>

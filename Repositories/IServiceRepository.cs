@@ -1,18 +1,25 @@
-using pet_spa_system1.Models;
 using System.Collections.Generic;
+using pet_spa_system1.Models;
 
 namespace pet_spa_system1.Repositories
 {
     public interface IServiceRepository
     {
-        ServiceViewModel GetAllService();
-        Service GetServiceById(int id);
+        // ===== SERVICE CRUD OPERATIONS =====
+        Service? GetServiceById(int id);
+        IEnumerable<Service> GetAll();
+        IEnumerable<Service> GetActiveServices();
         void AddService(Service service);
         void UpdateService(Service service);
+        void DeleteService(Service service);
         void SoftDeleteService(int id);
         void RestoreService(int id);
+
+        // ===== SERVICE BUSINESS CHECKS =====
+        bool ServiceHasAppointments(int serviceId);
+
         void Save();
-        public List<Service> GetActiveServices();
-        List<Service> GetAll();
+
+        public IEnumerable<Service> GetRecentServices(int count);
     }
 }

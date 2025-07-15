@@ -10,10 +10,15 @@ using pet_spa_system1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Đọc cấu hình từ appsettings.json
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 // ======= SERVICES =======
 builder.Services.AddControllersWithViews();
+// Đăng ký IHttpContextAccessor cho DI container
+builder.Services.AddHttpContextAccessor();
 
-// Kết nối DB
+// Kết nối DB từ appsettings.json
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -30,12 +35,19 @@ builder.Services.AddScoped<ISerCateRepository, SerCateRepository>();
 builder.Services.AddScoped<ISerCateService, SerCateService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
+builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
+
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICheckoutRepository, CheckoutRepository>();
+
+// Blog services
+builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+builder.Services.AddScoped<IBlogService, BlogService>();
 
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
