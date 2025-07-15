@@ -46,19 +46,25 @@ namespace pet_spa_system1.Services
         //    return _checkoutRepository.GetOrderByIdAsync(orderId);
         //}
 
-        public Task CreateOrderAsync(Order order)
+        public Task<Order> CreateOrderAsync(Order order)
         {
-            throw new NotImplementedException();
+            return _checkoutRepository.CreateOrderAsync(order);
         }
 
         public Task UpdateOrderAsync(Order order)
         {
-            throw new NotImplementedException();
+            return _checkoutRepository.UpdateOrderAsync(order);
         }
 
         public Task<Order> GetOrderByIdAsync(string orderId)
         {
-            throw new NotImplementedException();
+            // OrderId là int, nên cần chuyển đổi
+            if (int.TryParse(orderId, out int id))
+            {
+                // Nếu repository có GetOrderByIdAsync(int), dùng nó
+                return _checkoutRepository.GetOrderByIdAsync(id);
+            }
+            throw new ArgumentException("Invalid orderId");
         }
     }
 
