@@ -113,19 +113,40 @@ namespace pet_spa_system1.Repositories
             Console.WriteLine($"[PetRepository] UpdatePetAsync completed, PetId: {pet.PetId}");
         }
 
-        public async Task DeletePetAsync(int id)
+        public async Task<bool> DeletePetAsync(int id) // Thay đổi để trả về bool
         {
             Console.WriteLine($"[PetRepository] DeletePetAsync called for id: {id}, Connection State: {_context.Database.CanConnect()}");
-            var pet = await _context.Pets.FindAsync(id);
-            if (pet != null)
+            try
             {
+                var pet = await _context.Pets
+                    .Include(p => p.PetImages) // Tải ảnh để xóa
+                    .FirstOrDefaultAsync(p => p.PetId == id);
+
+                if (pet == null)
+                {
+                    Console.WriteLine($"[PetRepository] DeletePetAsync: Pet with id {id} not found.");
+                    return false;
+                }
+
+                // Xóa các bản ghi PetImages liên quan
+                if (pet.PetImages != null && pet.PetImages.Any())
+                {
+                    _context.PetImages.RemoveRange(pet.PetImages);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"[PetRepository] Removed {pet.PetImages.Count} images for pet {id}.");
+                }
+
+                // Xóa pet
                 _context.Pets.Remove(pet);
                 await _context.SaveChangesAsync();
                 Console.WriteLine($"[PetRepository] DeletePetAsync completed for id: {id}");
+
+                return true;
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"[PetRepository] DeletePetAsync: Pet with id {id} not found.");
+                Console.WriteLine($"[PetRepository] Error deleting pet {id}: {ex.Message}");
+                return false;
             }
         }
 
@@ -222,6 +243,14 @@ namespace pet_spa_system1.Repositories
             {
                 Console.WriteLine("[PetRepository] DeletePetImageAsync: Image with id {imageId} not found.");
             }
+        }
+
+        public List<Pet> GetAllPets()
+                 => _context.Pets.Where(p => p.IsActive == true).ToList();
+
+        Task IPetRepository.DeletePetAsync(int id)
+        {
+            return DeletePetAsync(id);
         }
     }
 }

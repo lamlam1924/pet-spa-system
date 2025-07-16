@@ -5,7 +5,11 @@ using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Controllers
 {
@@ -37,13 +41,11 @@ namespace pet_spa_system1.Controllers
             ViewBag.Title = "Admin Dashboard";
             return View();
         }
-        
+
         public IActionResult Payment()
         {
             return View();
         }
-        //=======================================================================================================================
-        //Hiển thị PET
 
         public async Task<IActionResult> Pets_List(int page = 1, string searchName = "", string searchOwner = "", bool? isActive = null, string sortOrder = "name", string speciesName = "")
         {
@@ -439,7 +441,7 @@ namespace pet_spa_system1.Controllers
         {
             return View();
         }
-      
+
         //=======================================================================================================================
         // Hiển thị danh sách sản phẩm
         public async Task<IActionResult> Product_Detail(int productID)
@@ -530,7 +532,7 @@ namespace pet_spa_system1.Controllers
         }
         //=======================================================================================================================
 
-      
+
         //=======================================================================================================================
 
         // Add New Product
@@ -551,7 +553,7 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
-           
+
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -677,7 +679,7 @@ namespace pet_spa_system1.Controllers
             {
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
                 return RedirectToAction("Edit_Products", new { id = product.ProductId });
-            }        
+            }
         }
 
 
@@ -737,11 +739,18 @@ namespace pet_spa_system1.Controllers
         // BLOG MANAGEMENT
         public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3)) // Admin or Staff
+            // Lấy CurrentUserId từ session
+            int? currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            string currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
+            Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
+
+        
+            if (!currentUserId.HasValue)
             {
+                Console.WriteLine("[AdminController] Redirecting to Login due to null user ID.");
                 return RedirectToAction("Login", "Login");
             }
+
 
             var model = await _blogService.GetAdminDashboardAsync();
 

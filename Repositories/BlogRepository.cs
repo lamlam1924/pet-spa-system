@@ -30,6 +30,7 @@ public class BlogRepository : IBlogRepository
         var query = _context.Blogs
             .Include(b => b.User)
             .Include(b => b.BlogImages)
+            .Include(b => b.BlogComments.Where(c => c.Status == "Approved"))
             .Include(b => b.BlogLikes)
             .Where(b => b.Status == "Published");
 
@@ -42,27 +43,9 @@ public class BlogRepository : IBlogRepository
         {
             query = query.Where(b => b.Title.Contains(search) || b.Content.Contains(search));
         }
-
-        // Lọc bình luận Approved ngay trong truy vấn
-        query = query.Select(b => new Blog
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            Content = b.Content,
-            UserId = b.UserId,
-            CreatedAt = b.CreatedAt,
-            PublishedAt = b.PublishedAt,
-            Status = b.Status,
-            Category = b.Category,
-            User = b.User,
-            BlogImages = b.BlogImages,
-            BlogLikes = b.BlogLikes,
-            BlogComments = b.BlogComments.Where(c => c.Status == "Approved").ToList()
-        });
-
         query = sortBy.ToLower() switch
         {
-            "oldest" => query.OrderBy(b => b.PublishedAt ?? b.CreatedAt),
+            "oldest" => query.OrderBy(b => b.PublishedAt),
             "popular" => query.OrderByDescending(b => b.BlogLikes.Count).ThenByDescending(b => b.BlogComments.Count),
             _ => query.OrderByDescending(b => b.PublishedAt ?? b.CreatedAt)
         };
