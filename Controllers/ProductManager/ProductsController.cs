@@ -18,10 +18,10 @@ namespace pet_spa_system1.Controllers.ProductManager
                 _cartService = cartService;
         }
 
-      public async Task<IActionResult> Shop(int page = 1, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
+      public async Task<IActionResult> Shop(int page = 1, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null)
 {
     int pageSize = 15;
-    var products = await _productService.GetActiveProductsWithRatingAsync(page, pageSize, categoryId, minPrice, maxPrice);
+    var products = await _productService.GetActiveProductsWithRatingAsync(page, pageSize, categoryId, minPrice, maxPrice, sort);
 
     // Lấy danh sách category cho dropdown
     var categories = await _productService.GetAllProductCategoriesAsync();
@@ -29,6 +29,7 @@ namespace pet_spa_system1.Controllers.ProductManager
     ViewBag.SelectedCategoryId = categoryId;
     ViewBag.MinPrice = minPrice;
     ViewBag.MaxPrice = maxPrice;
+    ViewBag.Sort = sort;
 
     // Tính toán phân trang như cũ
     int totalProducts = await _productService.CountActiveProductsAsync(categoryId, minPrice, maxPrice);

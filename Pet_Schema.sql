@@ -469,3 +469,21 @@ CREATE TABLE PetImages (
 GO
 SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'BlogComments';
 SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Carts'; -- Hoặc bảng khác như Carts, Blogs
+
+UPDATE StatusOrder
+SET 
+    StatusName = CASE 
+        WHEN StatusName = 'Pending' THEN N'Đang chờ xử lý'
+        WHEN StatusName = 'Processing' THEN N'Đang chuẩn bị'
+        WHEN StatusName = 'Shipped' THEN N'Đã giao vận chuyển'
+        WHEN StatusName = 'Delivered' THEN N'Đã giao'
+        WHEN StatusName = 'Cancelled' THEN N'Đã hủy'
+    END,
+    Description = CASE 
+        WHEN StatusName = 'Pending' THEN N'Đơn hàng đang chờ xử lý'
+        WHEN StatusName = 'Processing' THEN N'Đơn hàng đang được chuẩn bị và đóng gói'
+        WHEN StatusName = 'Shipped' THEN N'Đơn hàng đã được giao cho đơn vị vận chuyển'
+        WHEN StatusName = 'Delivered' THEN N'Đơn hàng đã được giao đến khách hàng'
+        WHEN StatusName = 'Cancelled' THEN N'Đơn hàng đã bị hủy'
+    END
+WHERE StatusName IN ('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled');

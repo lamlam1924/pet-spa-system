@@ -23,7 +23,7 @@ namespace pet_spa_system1.Repositories
         Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize);
         Task<Product?> GetProductWithReviewsByIdAsync(int productId);
 
-        Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
+        Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null);
         Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
     }
 }

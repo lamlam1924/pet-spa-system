@@ -100,32 +100,33 @@ public class CheckoutController : Controller
         return RedirectToAction("Checkout");
     }
 
-    [HttpGet]
-    public async Task<IActionResult> PaymentCallbackVnpay()
+   [HttpGet]
+public async Task<IActionResult> PaymentCallbackVnpay()
+{
+    var config = _configuration.GetSection("Vnpay");
+    var pay = new VnPayLibrary();
+    var response = pay.GetFullResponseData(Request.Query, config["HashSecret"]);
+    var orderId = response["OrderId"];
+    var order = await _checkoutService.GetOrderByIdAsync(orderId);
+    if (response["Success"] == "true")
     {
-        var config = _configuration.GetSection("Vnpay");
-        var pay = new VnPayLibrary();
-        var response = pay.GetFullResponseData(Request.Query, config["HashSecret"]);
-        var orderId = response["OrderId"];
-        var order = await _checkoutService.GetOrderByIdAsync(orderId);
-        if (response["Success"] == "true")
-        {
-            order.StatusId = 2; // Completed
-            // Nếu có bảng Payment thì tạo bản ghi Payment ở đây
-            // var payment = new Payment { ... };
-            // await _checkoutService.CreatePaymentAsync(payment);
-            await _checkoutService.UpdateOrderAsync(order);
-            TempData["Success"] = "Thanh toán thành công!";
-            return RedirectToAction("PaymentSuccess");
-        }
-        else
-        {
-            order.StatusId = 3; // Failed
-            await _checkoutService.UpdateOrderAsync(order);
-            TempData["Error"] = $"Thanh toán thất bại. Mã lỗi: {response["VnPayResponseCode"]}";
-            return RedirectToAction("PaymentFailed");
-        }
+        order.StatusId = 2; // Completed
+        await _checkoutService.UpdateOrderAsync(order);
+
+        // XÓA GIỎ HÀNG SAU KHI THANH TOÁN THÀNH CÔNG
+        await _cartService.ClearCartAsync(order.UserId);
+
+        TempData["Success"] = "Thanh toán thành công!";
+        return RedirectToAction("PaymentSuccess");
     }
+    else
+    {
+        order.StatusId = 3; // Failed
+        await _checkoutService.UpdateOrderAsync(order);
+        TempData["Error"] = $"Thanh toán thất bại. Mã lỗi: {response["VnPayResponseCode"]}";
+        return RedirectToAction("PaymentFailed");
+    }
+}
 
     public IActionResult PaymentSuccess()
     {

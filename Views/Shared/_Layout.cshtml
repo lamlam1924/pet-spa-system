@@ -65,6 +65,9 @@
                                     @{
                                         var userId = Context.Session.GetInt32("CurrentUserId");
                                         var userName = Context.Session.GetString("CurrentUserName");
+                                        var isAdmin = Context.Session.GetInt32("CurrentUserRoleId");
+
+                                       
                                     }
                                     @if (userId != null)
                                     {
@@ -80,10 +83,13 @@
                                         <li>
                                             <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
                                         </li>
+                                        if (isAdmin == 1) 
+                                        { 
                                         <li>
                                             <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
                                         </li>
-                                        <li>
+                                        }
+                                         <li>
                                             <hr class="dropdown-divider">
                                         </li>
                                         <li>

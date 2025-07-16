@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModel;
 //using pet_spa_system1.ViewModels;
@@ -42,8 +43,18 @@ namespace pet_spa_system1.Controllers
 
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
             HttpContext.Session.SetString("CurrentUserName", user.Username);
+            HttpContext.Session.SetInt32("CurrentUserRoleId", user.RoleId);
 
-            return RedirectToAction("Index", "Home");
+            if (user.RoleId == 1)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+           
         }
 
 
@@ -65,6 +76,7 @@ namespace pet_spa_system1.Controllers
 
             HttpContext.Session.SetInt32("CurrentUserId", newUser.UserId);
             HttpContext.Session.SetString("CurrentUserName", newUser.Username);
+            HttpContext.Session.SetInt32("CurrentUserRoleId", newUser.RoleId);
 
 
             return RedirectToAction("Index", "Home");
@@ -107,6 +119,10 @@ namespace pet_spa_system1.Controllers
             //var user = new User { Email = email, FullName = name };
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
             HttpContext.Session.SetString("CurrentUserName", user.Username);
+            // lưu role vào session nếu cần
+            HttpContext.Session.SetInt32("CurrentUserRoleId", user.RoleId);
+
+
 
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
 
@@ -121,7 +137,14 @@ namespace pet_spa_system1.Controllers
 
 
 
-            return RedirectToAction("Index", "Home");
+            if (user.RoleId == 1)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
