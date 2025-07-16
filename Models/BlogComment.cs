@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pet_spa_system1.Models;
 
@@ -14,6 +16,7 @@ public class BlogComment
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
+    // Navigation properties
     public virtual Blog Blog { get; set; } = null!;
     public virtual User User { get; set; } = null!;
     public virtual BlogComment? ParentComment { get; set; }

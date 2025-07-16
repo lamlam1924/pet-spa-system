@@ -301,334 +301,334 @@ public class BlogService : IBlogService
         var pendingCount = await _blogRepository.CountBlogsByStatusAsync("PendingApproval");
         var rejectedCount = await _blogRepository.CountBlogsByStatusAsync("Rejected");
 
-        return new BlogAdminViewModel
-        {
-            PendingBlogs = pendingBlogs,
-            TotalBlogs = totalBlogs,
-            PendingApproval = pendingCount,
-            PublishedBlogs = totalBlogs,
-            RejectedBlogs = rejectedCount
-        };
-    }
+//        return new BlogAdminViewModel
+//        {
+//            PendingBlogs = pendingBlogs,
+//            TotalBlogs = totalBlogs,
+//            PendingApproval = pendingCount,
+//            PublishedBlogs = totalBlogs,
+//            RejectedBlogs = rejectedCount
+//        };
+//    }
 
-    public async Task<List<BlogViewModel>> GetPendingBlogsAsync()
-    {
-        var blogs = await _blogRepository.GetPendingBlogsAsync();
-        return blogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            Content = b.Content,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            Status = b.Status,
-            CreatedAt = b.CreatedAt,
-            AuthorName = b.User.FullName ?? b.User.Username,
-            AuthorRole = GetUserRoleName(b.User.RoleId),
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl
-        }).ToList();
-    }
+//    public async Task<List<BlogViewModel>> GetPendingBlogsAsync()
+//    {
+//        var blogs = await _blogRepository.GetPendingBlogsAsync();
+//        return blogs.Select(b => new BlogViewModel
+//        {
+//            BlogId = b.BlogId,
+//            Title = b.Title,
+//            Content = b.Content,
+//            ShortContent = GetShortContent(b.Content),
+//            Category = b.Category,
+//            Status = b.Status,
+//            CreatedAt = b.CreatedAt,
+//            AuthorName = b.User.FullName ?? b.User.Username,
+//            AuthorRole = GetUserRoleName(b.User.RoleId),
+//            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl
+//        }).ToList();
+//    }
 
-    public async Task<List<BlogViewModel>> GetAllBlogsForAdminAsync()
-    {
-        var blogs = await _blogRepository.GetAllBlogsAsync();
-        return blogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            Content = b.Content,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            Status = b.Status,
-            CreatedAt = b.CreatedAt,
-            PublishedAt = b.PublishedAt,
-            AuthorName = b.User.FullName ?? b.User.Username,
-            AuthorRole = GetUserRoleName(b.User.RoleId),
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
-            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
-            LikeCount = b.BlogLikes.Count
-        }).ToList();
-    }
+//    public async Task<List<BlogViewModel>> GetAllBlogsForAdminAsync()
+//    {
+//        var blogs = await _blogRepository.GetAllBlogsAsync();
+//        return blogs.Select(b => new BlogViewModel
+//        {
+//            BlogId = b.BlogId,
+//            Title = b.Title,
+//            Content = b.Content,
+//            ShortContent = GetShortContent(b.Content),
+//            Category = b.Category,
+//            Status = b.Status,
+//            CreatedAt = b.CreatedAt,
+//            PublishedAt = b.PublishedAt,
+//            AuthorName = b.User.FullName ?? b.User.Username,
+//            AuthorRole = GetUserRoleName(b.User.RoleId),
+//            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
+//            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
+//            LikeCount = b.BlogLikes.Count
+//        }).ToList();
+//    }
 
-    public async Task<List<BlogViewModel>> GetBlogsByUserAsync(int userId)
-    {
-        var blogs = await _blogRepository.GetBlogsByUserAsync(userId);
-        return blogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            Content = b.Content,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            Status = b.Status,
-            PublishedAt = b.PublishedAt,
-            CreatedAt = b.CreatedAt,
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
-            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
-            LikeCount = b.BlogLikes.Count
-        }).ToList();
-    }
+//    public async Task<List<BlogViewModel>> GetBlogsByUserAsync(int userId)
+//    {
+//        var blogs = await _blogRepository.GetBlogsByUserAsync(userId);
+//        return blogs.Select(b => new BlogViewModel
+//        {
+//            BlogId = b.BlogId,
+//            Title = b.Title,
+//            Content = b.Content,
+//            ShortContent = GetShortContent(b.Content),
+//            Category = b.Category,
+//            Status = b.Status,
+//            PublishedAt = b.PublishedAt,
+//            CreatedAt = b.CreatedAt,
+//            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
+//            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
+//            LikeCount = b.BlogLikes.Count
+//        }).ToList();
+//    }
 
-    public async Task<bool> ApproveBlogAsync(int blogId, int adminUserId)
-    {
-        var blog = await _blogRepository.GetBlogByIdAsync(blogId);
-        if (blog == null || blog.Status != "PendingApproval")
-            return false;
+//    public async Task<bool> ApproveBlogAsync(int blogId, int adminUserId)
+//    {
+//        var blog = await _blogRepository.GetBlogByIdAsync(blogId);
+//        if (blog == null || blog.Status != "PendingApproval")
+//            return false;
 
-        blog.Status = "Published";
-        blog.PublishedAt = DateTime.Now;
-        blog.ApprovedBy = adminUserId;
+//        blog.Status = "Published";
+//        blog.PublishedAt = DateTime.Now;
+//        blog.ApprovedBy = adminUserId;
 
-        await _blogRepository.UpdateBlogAsync(blog);
-        return true;
-    }
+//        await _blogRepository.UpdateBlogAsync(blog);
+//        return true;
+//    }
 
-    public async Task<bool> RejectBlogAsync(int blogId, int adminUserId, string? reason = null)
-    {
-        var blog = await _blogRepository.GetBlogByIdAsync(blogId);
-        if (blog == null || blog.Status != "PendingApproval")
-            return false;
+//    public async Task<bool> RejectBlogAsync(int blogId, int adminUserId, string? reason = null)
+//    {
+//        var blog = await _blogRepository.GetBlogByIdAsync(blogId);
+//        if (blog == null || blog.Status != "PendingApproval")
+//            return false;
 
-        blog.Status = "Rejected";
-        blog.ApprovedBy = adminUserId;
+//        blog.Status = "Rejected";
+//        blog.ApprovedBy = adminUserId;
 
-        await _blogRepository.UpdateBlogAsync(blog);
-        return true;
-    }
+//        await _blogRepository.UpdateBlogAsync(blog);
+//        return true;
+//    }
 
-    public async Task<List<string>> GetCategoriesAsync()
-    {
-        return await _blogRepository.GetBlogCategoriesAsync();
-    }
+//    public async Task<List<string>> GetCategoriesAsync()
+//    {
+//        return await _blogRepository.GetBlogCategoriesAsync();
+//    }
 
-    public async Task<List<BlogViewModel>> GetRecentBlogsAsync(int count = 5)
-    {
-        var blogs = await _blogRepository.GetRecentBlogsAsync(count);
-        return blogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            PublishedAt = b.PublishedAt,
-            AuthorName = b.User.FullName ?? b.User.Username,
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
-            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
-            LikeCount = b.BlogLikes.Count
-        }).ToList();
-    }
+//    public async Task<List<BlogViewModel>> GetRecentBlogsAsync(int count = 5)
+//    {
+//        var blogs = await _blogRepository.GetRecentBlogsAsync(count);
+//        return blogs.Select(b => new BlogViewModel
+//        {
+//            BlogId = b.BlogId,
+//            Title = b.Title,
+//            ShortContent = GetShortContent(b.Content),
+//            Category = b.Category,
+//            PublishedAt = b.PublishedAt,
+//            AuthorName = b.User.FullName ?? b.User.Username,
+//            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
+//            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
+//            LikeCount = b.BlogLikes.Count
+//        }).ToList();
+//    }
 
-    public async Task<List<BlogViewModel>> GetPopularBlogsAsync(int count = 5)
-    {
-        var blogs = await _blogRepository.GetPopularBlogsAsync(count);
-        return blogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            PublishedAt = b.PublishedAt,
-            AuthorName = b.User.FullName ?? b.User.Username,
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
-            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
-            LikeCount = b.BlogLikes.Count
-        }).ToList();
-    }
+//    public async Task<List<BlogViewModel>> GetPopularBlogsAsync(int count = 5)
+//    {
+//        var blogs = await _blogRepository.GetPopularBlogsAsync(count);
+//        return blogs.Select(b => new BlogViewModel
+//        {
+//            BlogId = b.BlogId,
+//            Title = b.Title,
+//            ShortContent = GetShortContent(b.Content),
+//            Category = b.Category,
+//            PublishedAt = b.PublishedAt,
+//            AuthorName = b.User.FullName ?? b.User.Username,
+//            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
+//            CommentCount = b.BlogComments.Count(c => c.Status == "Approved"),
+//            LikeCount = b.BlogLikes.Count
+//        }).ToList();
+//    }
 
-    public async Task<List<BlogViewModel>> GetRelatedBlogsAsync(int blogId, int count = 3)
-    {
-        var blog = await _blogRepository.GetBlogByIdAsync(blogId);
-        var relatedBlogs = await _blogRepository.GetRelatedBlogsAsync(blogId, blog?.Category, count);
+//    public async Task<List<BlogViewModel>> GetRelatedBlogsAsync(int blogId, int count = 3)
+//    {
+//        var blog = await _blogRepository.GetBlogByIdAsync(blogId);
+//        var relatedBlogs = await _blogRepository.GetRelatedBlogsAsync(blogId, blog?.Category, count);
 
-        return relatedBlogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            PublishedAt = b.PublishedAt,
-            AuthorName = b.User.FullName ?? b.User.Username,
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl
-        }).ToList();
-    }
+//        return relatedBlogs.Select(b => new BlogViewModel
+//        {
+//            BlogId = b.BlogId,
+//            Title = b.Title,
+//            ShortContent = GetShortContent(b.Content),
+//            Category = b.Category,
+//            PublishedAt = b.PublishedAt,
+//            AuthorName = b.User.FullName ?? b.User.Username,
+//            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl
+//        }).ToList();
+//    }
 
-    public async Task<string> UploadImageAsync(IFormFile file)
-    {
-        if (file == null || file.Length == 0)
-            return string.Empty;
+//    public async Task<string> UploadImageAsync(IFormFile file)
+//    {
+//        if (file == null || file.Length == 0)
+//            return string.Empty;
 
-        try
-        {
-            var account = new Account(
-                "dprp1jbd9",
-                "584135338254938",
-                "QbUYngPIdZcXEn_mipYn8RE5dlo"
-            );
-            var cloudinary = new Cloudinary(account);
+//        try
+//        {
+//            var account = new Account(
+//                "dprp1jbd9", 
+//                "584135338254938", 
+//                "QbUYngPIdZcXEn_mipYn8RE5dlo" 
+//            );
+//            var cloudinary = new Cloudinary(account);
 
-            var uploadParams = new ImageUploadParams()
-            {
-                File = new FileDescription(file.FileName, file.OpenReadStream()),
-                Folder = "blog_images",
-                PublicId = $"blog_{Guid.NewGuid()}",
-                Transformation = new Transformation()
-                    .Width(1200).Height(800).Crop("limit")
-                    .Quality("auto")
-                    .FetchFormat("auto")
-            };
+//            var uploadParams = new ImageUploadParams()
+//            {
+//                File = new FileDescription(file.FileName, file.OpenReadStream()),
+//                Folder = "blog_images", 
+//                PublicId = $"blog_{Guid.NewGuid()}", 
+//                Transformation = new Transformation()
+//                    .Width(1200).Height(800).Crop("limit") 
+//                    .Quality("auto") 
+//                    .FetchFormat("auto") 
+//            };
 
-            var uploadResult = await cloudinary.UploadAsync(uploadParams);
+//            var uploadResult = await cloudinary.UploadAsync(uploadParams);
 
-            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return uploadResult.SecureUrl.ToString();
-            }
-            else
-            {
-                throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error uploading image to Cloudinary: {ex.Message}");
-            return string.Empty;
-        }
-    }
+//            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+//            {
+//                return uploadResult.SecureUrl.ToString();
+//            }
+//            else
+//            {
+//                throw new Exception($"Cloudinary upload failed: {uploadResult.Error?.Message}");
+//            }
+//        }
+//        catch (Exception ex)
+//        {
+//            Console.WriteLine($"Error uploading image to Cloudinary: {ex.Message}");
+//            return string.Empty;
+//        }
+//    }
 
-    public async Task<bool> DeleteImageAsync(string imageUrl)
-    {
-        if (string.IsNullOrEmpty(imageUrl))
-            return false;
+//    public async Task<bool> DeleteImageAsync(string imageUrl)
+//    {
+//        if (string.IsNullOrEmpty(imageUrl))
+//            return false;
 
-        try
-        {
-            if (!imageUrl.Contains("cloudinary.com"))
-                return false;
+//        try
+//        {
+//            if (!imageUrl.Contains("cloudinary.com"))
+//                return false;
 
-            var account = new Account(
-                "dprp1jbd9",
-                "584135338254938",
-                "QbUYngPIdZcXEn_mipYn8RE5dlo"
-            );
-            var cloudinary = new Cloudinary(account);
+//            var account = new Account(
+//                "dprp1jbd9", 
+//                "584135338254938", 
+//                "QbUYngPIdZcXEn_mipYn8RE5dlo" 
+//            );
+//            var cloudinary = new Cloudinary(account);
 
-            var publicId = ExtractPublicIdFromUrl(imageUrl);
-            if (string.IsNullOrEmpty(publicId))
-                return false;
+//            var publicId = ExtractPublicIdFromUrl(imageUrl);
+//            if (string.IsNullOrEmpty(publicId))
+//                return false;
 
-            var deleteParams = new DeletionParams(publicId);
-            var result = await cloudinary.DestroyAsync(deleteParams);
+//            var deleteParams = new DeletionParams(publicId);
+//            var result = await cloudinary.DestroyAsync(deleteParams);
 
-            return result.StatusCode == System.Net.HttpStatusCode.OK;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting image from Cloudinary: {ex.Message}");
-            return false;
-        }
-    }
-    private string ExtractPublicIdFromUrl(string imageUrl)
-    {
-        try
-        {
+//            return result.StatusCode == System.Net.HttpStatusCode.OK;
+//        }
+//        catch (Exception ex)
+//        {
+//            Console.WriteLine($"Error deleting image from Cloudinary: {ex.Message}");
+//            return false;
+//        }
+//    }
+//    private string ExtractPublicIdFromUrl(string imageUrl)
+//    {
+//        try
+//        {
+            
+//            var uri = new Uri(imageUrl);
+//            var segments = uri.AbsolutePath.Split('/');
 
-            var uri = new Uri(imageUrl);
-            var segments = uri.AbsolutePath.Split('/');
+//            var uploadIndex = Array.IndexOf(segments, "upload");
+//            if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
+//            {
+//                var pathParts = segments.Skip(uploadIndex + 2).ToArray();
+//                var fullPath = string.Join("/", pathParts);
 
-            var uploadIndex = Array.IndexOf(segments, "upload");
-            if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
-            {
-                var pathParts = segments.Skip(uploadIndex + 2).ToArray();
-                var fullPath = string.Join("/", pathParts);
+//                var lastDotIndex = fullPath.LastIndexOf('.');
+//                if (lastDotIndex > 0)
+//                {
+//                    return fullPath.Substring(0, lastDotIndex);
+//                }
+//                return fullPath;
+//            }
 
-                var lastDotIndex = fullPath.LastIndexOf('.');
-                if (lastDotIndex > 0)
-                {
-                    return fullPath.Substring(0, lastDotIndex);
-                }
-                return fullPath;
-            }
+//            return string.Empty;
+//        }
+//        catch
+//        {
+//            return string.Empty;
+//        }
+//    }
 
-            return string.Empty;
-        }
-        catch
-        {
-            return string.Empty;
-        }
-    }
+//    public string GetShortContent(string content, int maxLength = 200)
+//    {
+//        if (string.IsNullOrEmpty(content))
+//            return string.Empty;
 
-    public string GetShortContent(string content, int maxLength = 200)
-    {
-        if (string.IsNullOrEmpty(content))
-            return string.Empty;
+//        var plainText = Regex.Replace(content, "<.*?>", string.Empty);
 
-        var plainText = Regex.Replace(content, "<.*?>", string.Empty);
+//        if (plainText.Length <= maxLength)
+//            return plainText;
 
-        if (plainText.Length <= maxLength)
-            return plainText;
+//        return plainText.Substring(0, maxLength) + "...";
+//    }
 
-        return plainText.Substring(0, maxLength) + "...";
-    }
+//    public bool CanUserEditBlog(int blogId, int userId, string userRole)
+//    {
+//        if (userRole == "Admin")
+//            return true;
 
-    public bool CanUserEditBlog(int blogId, int userId, string userRole)
-    {
-        if (userRole == "Admin")
-            return true;
+    
+//        return true; 
+//    }
 
+//    public bool CanUserDeleteBlog(int blogId, int userId, string userRole)
+//    {
+//        if (userRole == "Admin")
+//            return true;
 
-        return true;
-    }
+//        return true; 
+//    }
 
-    public bool CanUserDeleteBlog(int blogId, int userId, string userRole)
-    {
-        if (userRole == "Admin")
-            return true;
+//    public string GetBlogStatusForUser(string userRole)
+//    {
+//        return userRole switch
+//        {
+//            "Admin" => "Draft",
+//            "Staff" => "Draft",
+//            "Customer" => "PendingApproval",
+//            _ => "PendingApproval"
+//        };
+//    }
 
-        return true;
-    }
+//    private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
+//    {
+//        return new BlogCommentViewModel
+//        {
+//            CommentId = comment.CommentId,
+//            BlogId = comment.BlogId,
+//            Content = comment.Content,
+//            Status = comment.Status ?? "Pending",
+//            CreatedAt = comment.CreatedAt,
+//            UserName = comment.User.FullName ?? comment.User.Username,
+//            UserRole = GetUserRoleName(comment.User.RoleId),
+//            UserAvatar = comment.User.ProfilePictureUrl,
+//            ParentCommentId = comment.ParentCommentId,
+//            Replies = comment.Replies.Where(r => r.Status == "Approved").Select(MapToCommentViewModel).ToList(),
+//            CanReply = true
+//        };
+//    }
 
-    public string GetBlogStatusForUser(string userRole)
-    {
-        return userRole switch
-        {
-            "Admin" => "Draft",
-            "Staff" => "Draft",
-            "Customer" => "PendingApproval",
-            _ => "PendingApproval"
-        };
-    }
+//    private async Task<string> GetUserRole(int userId)
+//    {
+//        return await _blogRepository.GetUserRoleAsync(userId);
+//    }
 
-    private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
-    {
-        return new BlogCommentViewModel
-        {
-            CommentId = comment.CommentId,
-            BlogId = comment.BlogId,
-            Content = comment.Content,
-            Status = comment.Status ?? "Pending",
-            CreatedAt = comment.CreatedAt,
-            UserName = comment.User.FullName ?? comment.User.Username,
-            UserRole = GetUserRoleName(comment.User.RoleId),
-            UserAvatar = comment.User.ProfilePictureUrl,
-            ParentCommentId = comment.ParentCommentId,
-            Replies = comment.Replies.Where(r => r.Status == "Approved").Select(MapToCommentViewModel).ToList(),
-            CanReply = true
-        };
-    }
-
-    private async Task<string> GetUserRole(int userId)
-    {
-        return await _blogRepository.GetUserRoleAsync(userId);
-    }
-
-    private string GetUserRoleName(int roleId)
-    {
-        return roleId switch
-        {
-            1 => "Admin",
-            2 => "Customer",
-            3 => "Staff",
-            _ => "User"
-        };
-    }
-}
+//    private string GetUserRoleName(int roleId)
+//    {
+//        return roleId switch
+//        {
+//            1 => "Admin",
+//            2 => "Customer",
+//            3 => "Staff",
+//            _ => "User"
+//        };
+//    }
+//}
