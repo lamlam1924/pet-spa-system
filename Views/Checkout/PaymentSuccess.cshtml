@@ -1,0 +1,96 @@
+﻿@model pet_spa_system1.ViewModel.OrderConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Thanh toán thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // hoặc layout bạn đang dùng
+}
+
+<style>body {
+    background-color: #f4f6f8;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.confirmation-container {
+    background-color: #fff;
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.confirmation-container h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.confirmation-container p {
+    font-size: 16px;
+    color: #555;
+}
+
+.confirmation-container table {
+    margin-top: 20px;
+}
+
+.confirmation-container th {
+    background-color: #43b581;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+}
+
+.confirmation-container td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.total-amount {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #43b581;
+    margin-top: 20px;
+}
+
+.return-home {
+    margin-top: 30px;
+}
+</style>
+
+<div class="confirmation-container">
+    <h2>🎉 Thanh toán thành công!</h2>
+    <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Đơn hàng của bạn sẽ được xử lý sớm.</p>
+
+    @if (Model != null)
+    {
+        <h4>Chi tiết đơn hàng #@Model.OrderId</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice?.ToString("N0") đ</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        <p class="total-amount">Tổng tiền: @Model.TotalAmount.ToString("N0") đ</p>
+    }
+
+    <div class="return-home">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-success">
+            🏠 Quay về trang chủ
+        </a>
+    </div>
+</div>

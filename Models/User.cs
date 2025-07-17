@@ -35,9 +35,15 @@ public partial class User
 
     public virtual ICollection<Blog> BlogApprovedByNavigations { get; set; } = new List<Blog>();
 
+    public virtual ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
+
+    public virtual ICollection<BlogLike> BlogLikes { get; set; } = new List<BlogLike>();
+
     public virtual ICollection<Blog> BlogUsers { get; set; } = new List<Blog>();
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 

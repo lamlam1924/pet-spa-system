@@ -1,4 +1,4 @@
-@model pet_spa_system1.ViewModels.ServiceListViewModel
+@model pet_spa_system1.ViewModel.ServiceListViewModel
 @{
     ViewData["Title"] = "Quản lý dịch vụ";
     ViewData["SubTitle"] = "Danh sách dịch vụ";
@@ -29,7 +29,7 @@
     var pageSize = Model?.Pagination?.PageSize ?? 10;
     
     // ===== SERVICES DATA (Already paginated from Service layer) =====
-    var currentPageServices = Model?.Services ?? Enumerable.Empty<pet_spa_system1.ViewModels.ServiceListItem>();
+    var currentPageServices = Model?.Services ?? Enumerable.Empty<pet_spa_system1.ViewModel.ServiceListItem>();
     
     // ===== COMPUTED VALUES =====
     var hasFilter = !string.IsNullOrEmpty(currentFilter) || !string.IsNullOrEmpty(currentStatus) || !string.IsNullOrEmpty(selectedCategoryId);

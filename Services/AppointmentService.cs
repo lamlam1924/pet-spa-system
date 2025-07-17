@@ -1,5 +1,5 @@
 
-using pet_spa_system1.ViewModels;
+using pet_spa_system1.ViewModel;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using System;
@@ -499,7 +499,7 @@ namespace pet_spa_system1.Services
 
             return vm;
         }
-        
+
         public List<Appointment> GetPendingApprovalAppointments()
         {
             return _repo.GetPendingApprovalAppointments();
@@ -517,7 +517,7 @@ namespace pet_spa_system1.Services
                 .Select(a => GetAdminAppointmentDetail(a.AppointmentId))
                 .ToList();
         }
-        
+
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
         public bool UpdateAppointmentStatusAndSendMail(int id, int statusId)
         {
@@ -536,8 +536,8 @@ namespace pet_spa_system1.Services
                     if (!string.IsNullOrWhiteSpace(user?.Email))
                     {
                         // Gửi mail xác nhận hoặc hủy
-                        var viewModel = new AppointmentViewModel {
-                            CustomerName = user.FullName ?? user.Username,
+                        var viewModel = new AppointmentViewModel
+                        {                          CustomerName = user.FullName ?? user.Username,
                             Email = user.Email,
                             AppointmentDate = appointment.AppointmentDate.Date,
                             AppointmentTime = appointment.AppointmentDate.TimeOfDay,

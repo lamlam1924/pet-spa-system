@@ -1,6 +1,7 @@
 ﻿@using pet_spa_system1.Models
 
-@model List<pet_spa_system1.Models.Product>
+@* @model List<pet_spa_system1.Models.Product> *@
+@model List<pet_spa_system1.ViewModel.ProductWithRatingViewModel>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -77,117 +78,34 @@
         <div class="row px-xl-5">
             <!-- Shop Sidebar Start -->
             <div class="col-lg-3 col-md-12">
-                <!-- Price Start -->
-                <div class="border-bottom mb-4 pb-4">
-                    <h5 class="font-weight-semi-bold mb-4">Lọc theo ...</h5>
-                    <form>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="price-all">
-                            <label class="custom-control-label" for="price-all">Tất cả </label>
-                            <span class="badge border font-weight-normal">1000</span>
-                        </div>
-                        <!-- <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-1">
-                            <label class="custom-control-label" for="price-1">$0 - $100</label>
-                            <span class="badge border font-weight-normal">150</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-2">
-                            <label class="custom-control-label" for="price-2">$100 - $200</label>
-                            <span class="badge border font-weight-normal">295</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-3">
-                            <label class="custom-control-label" for="price-3">$200 - $300</label>
-                            <span class="badge border font-weight-normal">246</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-4">
-                            <label class="custom-control-label" for="price-4">$300 - $400</label>
-                            <span class="badge border font-weight-normal">145</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
-                            <input type="checkbox" class="custom-control-input" id="price-5">
-                            <label class="custom-control-label" for="price-5">$400 - $500</label>
-                            <span class="badge border font-weight-normal">168</span>
-                        </div> -->
-                    </form>
-                </div>
-                <!-- Price End -->
-                <!-- Color Start -->
-                <div class="border-bottom mb-4 pb-4">
-                    <h5 class="font-weight-semi-bold mb-4">Lọc theo ...</h5>
-                    <form>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="color-all">
-                            <label class="custom-control-label" for="price-all">Tất cả</label>
-                            <span class="badge border font-weight-normal">1000</span>
-                        </div>
-                        <!-- <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="color-1">
-                            <label class="custom-control-label" for="color-1">Black</label>
-                            <span class="badge border font-weight-normal">150</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="color-2">
-                            <label class="custom-control-label" for="color-2">White</label>
-                            <span class="badge border font-weight-normal">295</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="color-3">
-                            <label class="custom-control-label" for="color-3">Red</label>
-                            <span class="badge border font-weight-normal">246</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="color-4">
-                            <label class="custom-control-label" for="color-4">Blue</label>
-                            <span class="badge border font-weight-normal">145</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
-                            <input type="checkbox" class="custom-control-input" id="color-5">
-                            <label class="custom-control-label" for="color-5">Green</label>
-                            <span class="badge border font-weight-normal">168</span>
-                        </div> -->
-                    </form>
-                </div>
-                <!-- Color End -->
-                <!-- Size Start -->
-                <div class="mb-5">
-                    <h5 class="font-weight-semi-bold mb-4">Lọc theo ...</h5>
-                    <form>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="size-all">
-                            <label class="custom-control-label" for="size-all">Tất cả</label>
-                            <span class="badge border font-weight-normal">1000</span>
-                        </div>
-                        <!-- <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-1">
-                            <label class="custom-control-label" for="size-1">XS</label>
-                            <span class="badge border font-weight-normal">150</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-2">
-                            <label class="custom-control-label" for="size-2">S</label>
-                            <span class="badge border font-weight-normal">295</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-3">
-                            <label class="custom-control-label" for="size-3">M</label>
-                            <span class="badge border font-weight-normal">246</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="size-4">
-                            <label class="custom-control-label" for="size-4">L</label>
-                            <span class="badge border font-weight-normal">145</span>
-                        </div>
-                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
-                            <input type="checkbox" class="custom-control-input" id="size-5">
-                            <label class="custom-control-label" for="size-5">XL</label>
-                            <span class="badge border font-weight-normal">168</span>
-                        </div> -->
-                    </form>
-                </div>
-                <!-- Size End -->
+                 <form method="get" asp-action="Shop" asp-controller="Products">
+    <div class="form-group">
+        <label>Phân loại:</label>
+        <select name="categoryId" class="form-control">
+            <option value="">Tất cả</option>
+            @foreach (var cat in ViewBag.Categories as List<pet_spa_system1.Models.ProductCategory>)
+            {
+                if (cat.CategoryId == (ViewBag.SelectedCategoryId ?? 0))
+                {
+                    <option value="@cat.CategoryId" selected>@cat.Name</option>
+                }
+                else
+                {
+                    <option value="@cat.CategoryId">@cat.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Giá từ:</label>
+        <input type="number" name="minPrice" class="form-control" value="@(ViewBag.MinPrice ?? "")" />
+    </div>
+    <div class="form-group">
+        <label>Đến:</label>
+        <input type="number" name="maxPrice" class="form-control" value="@(ViewBag.MaxPrice ?? "")" />
+    </div>
+    <button type="submit" class="btn btn-primary">Lọc</button>
+</form>
             </div>
             <!-- Shop Sidebar End -->
             <!-- Shop Product Start -->
@@ -206,15 +124,28 @@
                                 </div>
                             </form>
                             <div class="dropdown ml-4">
-                                <button class="btn border dropdown-toggle" type="button" id="triggerId" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                    Sort by
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
-                                    <a class="dropdown-item" href="#">Latest</a>
-                                    <a class="dropdown-item" href="#">Popularity</a>
-                                    <a class="dropdown-item" href="#">Best Rating</a>
-                                </div>
+                                <form method="get" asp-action="Shop" asp-controller="Products" id="sortForm" class="d-inline">
+                                    <input type="hidden" name="categoryId" value="@(ViewBag.SelectedCategoryId ?? "")" />
+                                    <input type="hidden" name="minPrice" value="@(ViewBag.MinPrice ?? "")" />
+                                    <input type="hidden" name="maxPrice" value="@(ViewBag.MaxPrice ?? "")" />
+                                    <input type="hidden" name="page" value="@(ViewBag.CurrentPage ?? 1)" />
+                                    <input type="hidden" name="sort" id="sortInput" value="@(ViewBag.Sort ?? "")" />
+                                    <button class="btn border dropdown-toggle" type="button" id="sortDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                        @{
+                                            string sortText = "Tất cả";
+                                            if (ViewBag.Sort == "price_asc") sortText = "Giá thấp đến cao";
+                                            else if (ViewBag.Sort == "price_desc") sortText = "Giá cao đến thấp";
+                                            else if (ViewBag.Sort == "best_rating") sortText = "Đánh giá tốt nhất";
+                                        }
+                                        @sortText
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdownBtn">
+                                        <li><a class="dropdown-item" href="#" onclick="setSortAndSubmit('')">Tất cả</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="setSortAndSubmit('price_asc')">Giá thấp đến cao</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="setSortAndSubmit('price_desc')">Giá cao đến thấp</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="setSortAndSubmit('best_rating')">Đánh giá tốt nhất</a></li>
+                                    </ul>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -232,33 +163,27 @@
                                         <h6 class="text-muted ml-2"><del>@((item.Price * 1.2m).ToString("N0")) đ</del></h6> <!-- Giả lập giá gốc cao hơn 20% -->
                                     </div>
                                     <div class="d-flex justify-content-center">
-                                        @{
-                                            var reviews = item.Reviews?.Where(r => r.Status == "Approved") ?? new List<Review>(); // Lọc đánh giá đã duyệt
-                                            var averageRating = reviews.Any() ? Math.Round(reviews.Average(r => r.Rating), 0) : 0; // Làm tròn trung bình Rating
-                                        }
                                         @for (int i = 1; i <= 5; i++)
                                         {
-                                            if (i <= averageRating)
-                                            {
-                                                <i class="fas fa-star text-warning"></i>
-                                            }
-                                            else
-                                            {
-                                                <i class="far fa-star text-warning"></i>
-                                            }
+                                            <i class="@(i <= item.AverageRating ? "fas" : "far") fa-star text-warning"></i>
                                         }
+                                        <small class="text-muted ml-2">(@item.ReviewCount)</small>
+                                        
+
                                     </div>
                                 </div>
                                 <div class="card-footer d-flex justify-content-between bg-light border">
                                     <a href="@Url.Action("Detail", "Products", new { productID = item.ProductId })" class="btn btn-sm text-dark p-0">
                                         <i class="fas fa-eye text-primary mr-1"></i>Chi tiết
                                     </a>
-                                    <form method="post" asp-controller="Products" asp-action="Cart" class="d-inline">
-                                        <input type="hidden" name="id" value="@item.ProductId" />
-                                        <button type="submit" class="btn btn-sm text-dark p-0">
-                                            <i class="fas fa-shopping-cart text-primary mr-1"></i>Thêm vào Giỏ hàng
+                                   
+                                            <form method="post" asp-controller="Cart" asp-action="AddToCart" class="d-inline">
+                                                <input type="hidden" name="id" value="@item.ProductId" />
+                                        <button type="button" class="btn btn-sm text-dark p-0 add-to-cart-btn" data-product-id="@item.ProductId">
+                                            <span class="product-icon"><i class="fas fa-shopping-cart text-primary mr-1"></i></span>Thêm vào Giỏ hàng
                                         </button>
-                                    </form>
+                                            </form>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -266,6 +191,9 @@
                     @{
                         var totalPages = ViewBag.TotalPages ?? 0;
                         var currentPage = ViewBag.CurrentPage ?? 1;
+                        var selectedCategoryId = ViewBag.SelectedCategoryId;
+                        var minPrice = ViewBag.MinPrice;
+                        var maxPrice = ViewBag.MaxPrice;
 
                         int maxPagesToShow = 5;
                         int startPage = Math.Max(1, currentPage - 2);
@@ -281,6 +209,13 @@
                             startPage = Math.Max(1, totalPages - 4);
                             endPage = totalPages;
                         }
+                        // Hàm build route giữ filter
+                        Func<int, string> buildPageUrl = (int pageNum) => Url.Action("Shop", new {
+                            page = pageNum,
+                            categoryId = selectedCategoryId,
+                            minPrice = minPrice,
+                            maxPrice = maxPrice
+                        });
                     }
 
                     <div class="col-12 pb-1">
@@ -289,12 +224,12 @@
 
                                 <!-- Trang đầu -->
                                 <li class="page-item @(currentPage > 1 ? "" : "disabled")">
-                                    <a class="page-link" href="@Url.Action("Shop", new { page = 1 })">Trang đầu</a>
+                                    <a class="page-link" href="@buildPageUrl(1)">Trang đầu</a>
                                 </li>
 
                                 <!-- Trang trước -->
                                 <li class="page-item @(currentPage > 1 ? "" : "disabled")">
-                                    <a class="page-link" href="@Url.Action("Shop", new { page = currentPage - 1 })">«</a>
+                                    <a class="page-link" href="@buildPageUrl(currentPage - 1)">«</a>
                                 </li>
 
                                 <!-- Hiển thị dấu ... nếu cần -->
@@ -307,7 +242,7 @@
                                 @for (int i = startPage; i <= endPage; i++)
                                 {
                                     <li class="page-item @(i == currentPage ? "active" : "")">
-                                        <a class="page-link" href="@Url.Action("Shop", new { page = i })">@i</a>
+                                        <a class="page-link" href="@buildPageUrl(i)">@i</a>
                                     </li>
                                 }
 
@@ -319,12 +254,12 @@
 
                                 <!-- Trang sau -->
                                 <li class="page-item @(currentPage < totalPages ? "" : "disabled")">
-                                    <a class="page-link" href="@Url.Action("Shop", new { page = currentPage + 1 })">»</a>
+                                    <a class="page-link" href="@buildPageUrl(currentPage + 1)">»</a>
                                 </li>
 
                                 <!-- Trang cuối -->
                                 <li class="page-item @(currentPage < totalPages ? "" : "disabled")">
-                                    <a class="page-link" href="@Url.Action("Shop", new { page = totalPages })">Trang cuối</a>
+                                    <a class="page-link" href="@buildPageUrl(totalPages)">Trang cuối</a>
                                 </li>
 
                             </ul>
@@ -347,6 +282,7 @@
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+
     <script src="@Url.Content("~/lib/easing/easing.min.js")"></script>
     <script src="@Url.Content("~/lib/owlcarousel/owl.carousel.min.js")"></script>
 
@@ -376,6 +312,7 @@
     <script src="@Url.Content("~/js/jquery.magnific-popup.min.js")"></script>
     <script src="@Url.Content("~/js/plugins.js")"></script>
     <script src="@Url.Content("~/js/gijgo.min.js")"></script>
+    
 
     <!--contact js-->
     <script src="@Url.Content("~/js/contact.js")"></script>
@@ -403,6 +340,12 @@
            var timepicker = $('#timepicker').timepicker({
             format: 'HH.MM'
         });
+    </script>
+    <script>
+        function setSortAndSubmit(sortValue) {
+            document.getElementById('sortInput').value = sortValue;
+            document.getElementById('sortForm').submit();
+        }
     </script>
 </body>
 

@@ -1,4 +1,4 @@
-﻿@model pet_spa_system1.ViewModels.AppointmentViewModel
+﻿@model pet_spa_system1.ViewModel.AppointmentViewModel
 @{
     ViewData["Title"] = "Đặt lịch dịch vụ";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -40,7 +40,7 @@
             </ul>
         </div>
     }
-    
+
     @if (TempData["SuccessMessage"] != null)
     {
         <input type="hidden" id="successMessage" value="@TempData["SuccessMessage"]" />
@@ -48,7 +48,7 @@
 
     <form method="post" action="@Url.Action("Appointment", "Appointment")" id="appointmentForm">
         @Html.AntiForgeryToken()
-        
+
         <div class="row">
             <div class="col-lg-8">
                 <!-- Bước 1: Chọn thú cưng & dịch vụ -->
@@ -70,9 +70,9 @@
                                         </div>
                                         <div class="ms-auto">
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input pet-checkbox" 
-                                                       id="pet-@pet.PetId" name="SelectedPetIds" 
-                                                       value="@pet.PetId" 
+                                                <input type="checkbox" class="form-check-input pet-checkbox"
+                                                       id="pet-@pet.PetId" name="SelectedPetIds"
+                                                       value="@pet.PetId"
                                                        @(Model.SelectedPetIds != null && Model.SelectedPetIds.Contains(pet.PetId) ? "checked" : "")>
                                                 <label class="form-check-label" for="pet-@pet.PetId">Chọn</label>
                                             </div>
@@ -96,9 +96,9 @@
                                         <div class="service-price">@service.Price.ToString("N0") đ</div>
                                     </div>
                                     <div class="form-check mt-3">
-                                        <input type="checkbox" class="form-check-input service-checkbox" 
-                                               id="service-@service.ServiceId" name="SelectedServiceIds" 
-                                               value="@service.ServiceId" 
+                                        <input type="checkbox" class="form-check-input service-checkbox"
+                                               id="service-@service.ServiceId" name="SelectedServiceIds"
+                                               value="@service.ServiceId"
                                                data-price="@service.Price"
                                                @(Model.SelectedServiceIds != null && Model.SelectedServiceIds.Contains(service.ServiceId) ? "checked" : "")>
                                         <label class="form-check-label" for="service-@service.ServiceId">Chọn dịch vụ</label>
@@ -108,7 +108,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Bước 2: Thông tin đặt lịch -->
                 <div id="step-2" class="step-content">
                     <div class="form-section mb-4">
@@ -116,27 +116,27 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="CustomerName" class="form-label">Họ và tên</label>
-                                <input type="text" class="form-control" id="CustomerName" name="CustomerName" 
+                                <input type="text" class="form-control" id="CustomerName" name="CustomerName"
                                        value="@Model.CustomerName" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="Phone" class="form-label">Số điện thoại</label>
-                                <input type="tel" class="form-control" id="Phone" name="Phone" 
+                                <input type="tel" class="form-control" id="Phone" name="Phone"
                                        value="@Model.Phone" required>
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="Email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="Email" name="Email" 
+                                <input type="email" class="form-control" id="Email" name="Email"
                                        value="@Model.Email" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="AppointmentDate" class="form-label">Ngày hẹn</label>
-                                <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate" 
+                                <input type="date" class="form-control" id="AppointmentDate" name="AppointmentDate"
                                        value="@Model.AppointmentDate.ToString("yyyy-MM-dd")" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="AppointmentTime" class="form-label">Giờ hẹn</label>
-                                <input type="time" class="form-control" id="AppointmentTime" name="AppointmentTime" 
+                                <input type="time" class="form-control" id="AppointmentTime" name="AppointmentTime"
                                        value="@Model.AppointmentTime.ToString(@"hh\:mm")" required>
                             </div>
                             <div class="col-md-12 mb-3">
@@ -146,7 +146,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Bước 3: Xác nhận thông tin -->
                 <div id="step-3" class="step-content">
                     <div class="form-section mb-4">
@@ -184,10 +184,10 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <h5 class="conf-title">Thú cưng được chọn</h5>
                             <div class="conf-pets mb-4" id="conf-pets"></div>
-                            
+
                             <h5 class="conf-title">Dịch vụ được chọn</h5>
                             <div class="conf-services" id="conf-services"></div>
                         </div>
@@ -216,7 +216,7 @@
                 </div>
             </div>
         </div>
-    
+
         <div class="navigation-buttons mt-4">
             <button type="button" id="prevBtn" class="btn btn-outline-primary">
                 <i class="fa fa-chevron-left"></i> Quay lại

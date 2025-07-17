@@ -1,0 +1,347 @@
+@model pet_spa_system1.ViewModel.BlogListViewModel
+@{
+    ViewData["Title"] = "Blog - Chia sẻ kiến thức";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .blog-filters {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .blog-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .blog-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .blog_item_img {
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+        }
+        
+        .blog_item_img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .blog_item_date {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .blog_details {
+            padding: 25px;
+        }
+        
+        .blog_details h2 a {
+            color: #1f2937;
+            text-decoration: none;
+        }
+        
+        .blog_details h2 a:hover {
+            color: #2563eb;
+        }
+        
+        .blog-info-link {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .blog-info-link li {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        .blog-info-link li i {
+            margin-right: 8px;
+            color: #2563eb;
+        }
+        
+        .blog-category-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .create-blog-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff6b35 !important;
+            color: white !important;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+            z-index: 9999;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .create-blog-btn:hover {
+            background: #e55a2b !important;
+            color: white !important;
+            transform: translateY(-2px);
+            text-decoration: none !important;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+    </style>
+}
+
+<!-- Breadcrumb -->
+<div class="bradcam_area breadcam_bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="bradcam_text text-center">
+                    <h3>Blog</h3>
+                    <p>Chia sẻ kiến thức chăm sóc thú cưng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blog Area -->
+<section class="blog_area section-padding">
+    <div class="container">
+        <!-- Filters -->
+        <div class="blog-filters">
+            <form method="get" asp-action="Blog">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="search" value="@Model.SearchQuery" class="form-control" placeholder="Tìm kiếm bài viết...">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="category" class="form-control">
+                            <option value="">Tất cả danh mục</option>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <option value="@category" selected="@(Model.SelectedCategory == category)">@category</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="sortBy" class="form-control">
+                            <option value="newest" selected="@(Model.SortBy == "newest")">Mới nhất</option>
+                            <option value="oldest" selected="@(Model.SortBy == "oldest")">Cũ nhất</option>
+                            <option value="popular" selected="@(Model.SortBy == "popular")">Phổ biến</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-search"></i> Lọc
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mb-5 mb-lg-0">
+                <div class="blog_left_sidebar">
+                    @if (Model.Blogs.Any())
+                    {
+                        @foreach (var blog in Model.Blogs)
+                        {
+                            <article class="blog-item">
+                                <div class="blog_item_img">
+                                    <img class="card-img rounded-0" src="@(blog.FeaturedImageUrl ?? "/img/blog/single_blog_1.png")" alt="@blog.Title">
+                                    <a href="#" class="blog_item_date">
+                                        <h3>@blog.PublishedAt?.Day.ToString("00")</h3>
+                                        <p>@blog.PublishedAt?.ToString("MMM")</p>
+                                    </a>
+                                </div>
+
+                                <div class="blog_details">
+                                    @if (!string.IsNullOrEmpty(blog.Category))
+                                    {
+                                        <span class="blog-category-badge">@blog.Category</span>
+                                    }
+                                    
+                                    <a class="d-inline-block" href="@Url.Action("Detail", "Blogs", new { id = blog.BlogId })">
+                                        <h2>@blog.Title</h2>
+                                    </a>
+                                    <p>@blog.ShortContent</p>
+                                    
+                                    <ul class="blog-info-link">
+                                        <li><i class="fa fa-user"></i> @blog.AuthorName</li>
+                                        <li><i class="fa fa-comments"></i> @blog.CommentCount Bình luận</li>
+                                        <li><i class="fa fa-heart"></i> @blog.LikeCount Lượt thích</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        }
+
+                        <!-- Pagination -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <nav aria-label="Blog pagination">
+                                <ul class="pagination justify-content-center">
+                                    @if (Model.CurrentPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("Blog", new { page = Model.CurrentPage - 1, category = Model.SelectedCategory, search = Model.SearchQuery, sortBy = Model.SortBy })">Trước</a>
+                                        </li>
+                                    }
+
+                                    @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                                    {
+                                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Blog", new { page = i, category = Model.SelectedCategory, search = Model.SearchQuery, sortBy = Model.SortBy })">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (Model.CurrentPage < Model.TotalPages)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("Blog", new { page = Model.CurrentPage + 1, category = Model.SelectedCategory, search = Model.SearchQuery, sortBy = Model.SortBy })">Sau</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-blog fa-4x text-muted mb-3"></i>
+                            <h4>Chưa có bài viết nào</h4>
+                            <p class="text-muted">Hãy là người đầu tiên chia sẻ kiến thức của bạn!</p>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a href="@Url.Action("Create", "Blogs")" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Tạo bài viết đầu tiên
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="blog_right_sidebar">
+                    <!-- Categories -->
+                    <aside class="single_sidebar_widget post_category_widget">
+                        <h4 class="widget_title">Danh mục</h4>
+                        <ul class="list cat-list">
+                            <li><a href="@Url.Action("Blog")" class="d-flex"><p>Tất cả</p><p>(@Model.TotalBlogs)</p></a></li>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <li><a href="@Url.Action("Blog", new { category })" class="d-flex"><p>@category</p></a></li>
+                            }
+                        </ul>
+                    </aside>
+
+                    <!-- Recent Posts -->
+                    <aside class="single_sidebar_widget popular_post_widget">
+                        <h3 class="widget_title">Bài viết mới nhất</h3>
+                        <div id="recentPosts">
+                            <!-- Will be loaded via AJAX -->
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Create Blog Button -->
+<!-- Debug: User authenticated = @User.Identity.IsAuthenticated -->
+<!-- Debug: User name = @User.Identity.Name -->
+<!-- Debug: User roles = @string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value)) -->
+
+@if (User.Identity.IsAuthenticated)
+{
+    <a href="@Url.Action("Create", "Blogs")" class="create-blog-btn">
+        <i class="fas fa-plus"></i> Viết Blog
+    </a>
+}
+else
+{
+    <!-- Show this if not authenticated -->
+    <div style="position: fixed; bottom: 30px; right: 30px; background: red; color: white; padding: 15px; border-radius: 10px; z-index: 9999; font-weight: bold;">
+        <a href="@Url.Action("Login", "Login")" style="color: white; text-decoration: none;">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập để viết blog
+        </a>
+    </div>
+}
+
+@* <!-- BACKUP BUTTON - Always visible for testing --> *@
+@* <div style="position: fixed; bottom: 100px; right: 30px; z-index: 9999;"> *@
+@*     <a href="@Url.Action("Create", "Blogs")" *@
+@*        style="background: #28a745; color: white; padding: 12px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);"> *@
+@*         <i class="fas fa-edit"></i> Viết Blog *@
+@*     </a> *@
+@* </div> *@
+@* else *@
+@* { *@
+@*     <!-- Show login prompt for non-authenticated users --> *@
+@*     <a href="@Url.Action("Login", "Login")" class="create-blog-btn" title="Đăng nhập để viết blog"> *@
+@*         <i class="fas fa-sign-in-alt"></i> Đăng nhập *@
+@*     </a> *@
+@* } *@
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load recent posts
+            $.get('@Url.Action("GetRecentBlogs", "Blogs")', function(data) {
+                let html = '';
+                data.forEach(function(blog) {
+                    html += `
+                        <div class="media post_item">
+                            <img src="${blog.featuredImageUrl || '/img/blog/single_blog_1.png'}" alt="${blog.title}" style="width: 80px; height: 80px; object-fit: cover;">
+                            <div class="media-body">
+                                <a href="/Blogs/Detail/${blog.blogId}">
+                                    <h3>${blog.title}</h3>
+                                </a>
+                                <p>${blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('vi-VN') : ''}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                $('#recentPosts').html(html);
+            });
+        });
+    </script>
+}
