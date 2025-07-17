@@ -26,5 +26,8 @@ namespace pet_spa_system1.Repositories
 
         // Update an existing order
         Task UpdateOrderAsync(Order order);
+
+        // Get order items by order ID
+        Task AddOrderItemsAsync(List<OrderItem> orderItems);
     }
 }

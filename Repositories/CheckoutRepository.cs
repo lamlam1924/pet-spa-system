@@ -40,9 +40,13 @@ namespace pet_spa_system1.Repositories
         }
 
         public async Task<Order> GetOrderByIdAsync(int orderId)
-        {
-            return await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
-        }
+{
+    return await _context.Orders
+        .Include(o => o.User)
+        .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+        .FirstOrDefaultAsync(o => o.OrderId == orderId);
+}
 
         //public async Task<Order> GetOrderByIdAsync(string orderId)
         //{
@@ -60,6 +64,12 @@ namespace pet_spa_system1.Repositories
         public async Task UpdateOrderAsync(Order order)
         {
             _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddOrderItemsAsync(List<OrderItem> orderItems)
+        {
+            _context.OrderItems.AddRange(orderItems);
             await _context.SaveChangesAsync();
         }
     }

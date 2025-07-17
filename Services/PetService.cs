@@ -181,33 +181,38 @@ namespace pet_spa_system1.Services
             await _repository.AddPetImageAsync(petImage);
         }
 
-        public async Task DeletePetImageAsync(int imageId)
-        {
-            Console.WriteLine($"[PetService] DeletePetImageAsync called for imageId: {imageId}");
-            var petImage = await _context.PetImages.FindAsync(imageId); // Lấy bản ghi cụ thể bằng imageId
-            if (petImage != null)
-            {
-                // Xóa ảnh trên Cloudinary
-                var deleteResult = await _cloudinaryService.DeleteImageAsync(petImage.ImageUrl);
-                if (deleteResult)
-                {
-                    Console.WriteLine($"[PetService] Image deleted from Cloudinary, ImageUrl: {petImage.ImageUrl}");
-                    // Xóa bản ghi trong DB
-                    await _repository.DeletePetImageAsync(imageId);
-                    Console.WriteLine("[PetService] DeletePetImageAsync completed.");
-                }
-                else
-                {
-                    Console.WriteLine("[PetService] Failed to delete image from Cloudinary.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("[PetService] DeletePetImageAsync: Image with id {imageId} not found.");
-            }
-        }
+        //public async Task DeletePetImageAsync(int imageId)
+        //{
+        //    Console.WriteLine($"[PetService] DeletePetImageAsync called for imageId: {imageId}");
+        //    var petImage = await _context.PetImages.FindAsync(imageId); // Lấy bản ghi cụ thể bằng imageId
+        //    if (petImage != null)
+        //    {
+        //        // Xóa ảnh trên Cloudinary
+        //        var deleteResult = await _cloudinaryService.DeleteImageAsync(petImage.ImageUrl);
+        //        if (deleteResult)
+        //        {
+        //            Console.WriteLine($"[PetService] Image deleted from Cloudinary, ImageUrl: {petImage.ImageUrl}");
+        //            // Xóa bản ghi trong DB
+        //            await _repository.DeletePetImageAsync(imageId);
+        //            Console.WriteLine("[PetService] DeletePetImageAsync completed.");
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine("[PetService] Failed to delete image from Cloudinary.");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("[PetService] DeletePetImageAsync: Image with id {imageId} not found.");
+        //    }
+        //}
 
         public List<Pet> GetAllPets()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeletePetImageAsync(int imageId)
         {
             throw new NotImplementedException();
         }

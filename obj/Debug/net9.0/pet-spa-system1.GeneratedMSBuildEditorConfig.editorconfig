@@ -124,6 +124,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcRWRpdEFwcG9pbnRtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageBlog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQmxvZy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PRN212/PRJ_PET1/Views/Admin/ManageService/AddService.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxBZGRTZXJ2aWNlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -224,6 +228,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcQmxvZy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PRN212/PRJ_PET1/Views/Blogs/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Blogs/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Blogs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PRN212/PRJ_PET1/Views/Blogs/Single_Blog.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmxvZ3NcU2luZ2xlX0Jsb2cuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -246,6 +262,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Contact/contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udGFjdFxjb250YWN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Email/OrderSuccessEmail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1haWxcT3JkZXJTdWNjZXNzRW1haWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Email/SuccessEmail.cshtml]
@@ -286,6 +306,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Service/HomeService.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxIb21lU2VydmljZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Service/ListService.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxMaXN0U2VydmljZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Service/ServicePet.cshtml]

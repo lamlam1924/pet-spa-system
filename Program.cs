@@ -46,8 +46,10 @@ builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICheckoutRepository, CheckoutRepository>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 // Blog services
-builder.Services.AddScoped<IBlogRepository, BlogRepository>();
-builder.Services.AddScoped<IBlogService, BlogService>();
+//builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+//builder.Services.AddScoped<IBlogService, BlogService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

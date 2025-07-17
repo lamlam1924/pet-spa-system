@@ -18,5 +18,6 @@ namespace pet_spa_system1.Services
         Task<Order> GetOrderByIdAsync(string orderId);
         Task<Order> CreateOrderAsync(Order order);
         Task UpdateOrderAsync(Order order);
+        Task AddOrderItemsAsync(List<OrderItem> orderItems);
     }
 }
