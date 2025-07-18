@@ -1,4 +1,4 @@
-@model pet_spa_system1.ViewModels.AppointmentHistoryViewModel
+@model pet_spa_system1.ViewModel.AppointmentHistoryViewModel
 @{
     ViewData["Title"] = "Lịch sử đặt lịch";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -43,7 +43,7 @@
                         @functions {
                             public string GetFilterBadgeClass(string id)
                             {
-                                switch(id)
+                                switch (id)
                                 {
                                     case "1": return "filter-badge-pending";
                                     case "2": return "filter-badge-confirmed";
@@ -57,17 +57,18 @@
                             }
                         }
                         @foreach (var status in new[] {
-                            new { Id = "all", Icon = "fa-th-large", Name = "Tất cả" },
-                            new { Id = "1", Icon = "fa-clock", Name = "Chờ xác nhận" },
-                            new { Id = "2", Icon = "fa-calendar-check", Name = "Đã xác nhận" },
-                            new { Id = "3", Icon = "fa-play-circle", Name = "Đang thực hiện" },
-                            new { Id = "4", Icon = "fa-check-circle", Name = "Hoàn thành" },
-                            new { Id = "6", Icon = "fa-hourglass-half", Name = "Chờ duyệt hủy" },
-                            new { Id = "5", Icon = "fa-times-circle", Name = "Đã hủy" }
-                        }) {
-            <div class="filter-badge @GetFilterBadgeClass(status.Id) @(status.Id=="all" ? "active" : "")" data-status="@status.Id">
-                <i class="fas @status.Icon"></i> @status.Name
-            </div>
+                                                new { Id = "all", Icon = "fa-th-large", Name = "Tất cả" },
+                                                new { Id = "1", Icon = "fa-clock", Name = "Chờ xác nhận" },
+                                                new { Id = "2", Icon = "fa-calendar-check", Name = "Đã xác nhận" },
+                                                new { Id = "3", Icon = "fa-play-circle", Name = "Đang thực hiện" },
+                                                new { Id = "4", Icon = "fa-check-circle", Name = "Hoàn thành" },
+                                                new { Id = "6", Icon = "fa-hourglass-half", Name = "Chờ duyệt hủy" },
+                                                new { Id = "5", Icon = "fa-times-circle", Name = "Đã hủy" }
+                                                })
+                        {
+                            <div class="filter-badge @GetFilterBadgeClass(status.Id) @(status.Id == "all" ? "active" : "")" data-status="@status.Id">
+                                <i class="fas @status.Icon"></i> @status.Name
+                            </div>
                         }
                     </div>
                 </div>

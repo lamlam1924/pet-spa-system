@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using pet_spa_system1.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace pet_spa_system1.Repositories
 {
@@ -14,10 +15,26 @@ namespace pet_spa_system1.Repositories
         }
 
         public List<Order> GetOrdersByUserId(int userId)
-            => _context.Orders.Where(o => o.UserId == userId).ToList();
+        {
+            return _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Status)
+                .Include(o => o.User) // BỔ SUNG DÒNG NÀY
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+        }
 
-        public Order GetOrderById(int id)
-            => _context.Orders.FirstOrDefault(o => o.OrderId == id);
+        public Order GetOrderById(int orderId)
+        {
+            return _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Status)
+                .Include(o => o.User) // BỔ SUNG DÒNG NÀY
+                .FirstOrDefault(o => o.OrderId == orderId);
+        }
 
         public void AddOrder(Order order)
         {

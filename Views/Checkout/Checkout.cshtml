@@ -1,0 +1,288 @@
+﻿@model pet_spa_system1.ViewModel.CheckoutViewModel
+
+{
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Thanh Toán</title>
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="@Url.Content("img /favicon.ico")" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="@Url.Content("~/lib/owlcarousel/assets/owl.carousel.min.css")" rel="stylesheet">
+    <!--------------------------------------------------->
+    <link rel="shortcut icon" type="image/x-icon" href="@Url.Content("~/img/Picture5.png")">
+
+    <link rel="stylesheet" href="@Url.Content("~/css/style.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/bootstrap.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/owl.carousel.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/magnific-popup.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/font-awesome.min.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/themify-icons.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/nice-select.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/flaticon.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/gijgo.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/animate.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/slicknav.css")">
+    <script src="@Url.Content("~/js/includeHeader.js")"></script>
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="@Url.Content("~/cssProducts/style.css")" rel="stylesheet">
+</head>
+
+<body>
+   
+    <!-- Page Header Start -->
+    <div class="bradcam_area breadcam_bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="bradcam_text text-center">
+                        <h3>Thanh Toán</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page Header End -->
+    <!-- Checkout Start -->
+    <!-- Checkout Start -->
+    <div class="container-fluid pt-5">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <!-- Tổng đơn hàng -->
+                <div class="card border-secondary mb-4">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">Tổng</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="font-weight-medium mb-3">Sản phẩm</h5>
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <p class="mb-0">@item.Product.Name</p>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <p class="mb-0">x @item.Quantity</p>
+                                </div>
+                                <div class="col-3 text-right">
+                                    <p class="mb-0">@item.Product.Price.ToString("N0") đ</p>
+                                </div>
+                            </div>
+                        }
+
+                        <hr class="mt-0">
+                        <div class="d-flex justify-content-between mb-3 pt-1">
+                            <h6 class="font-weight-medium">Tạm tính</h6>
+                            <h6 class="font-weight-medium">
+                                @Model.CartItems.Sum(x => x.Product.Price * x.Quantity).ToString("N0") đ
+                            </h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h6 class="font-weight-medium">Phí Giao Hàng</h6>
+                            <h6 class="font-weight-medium">30.000 đ</h6>
+                        </div>
+                        <form class="my-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control p-4" placeholder="Mã giảm giá">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary">Áp dụng</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer border-secondary bg-transparent">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5 class="font-weight-bold">Tổng cộng</h5>
+                            <h5 class="font-weight-bold">
+                                @((Model.CartItems.Sum(x => x.Product.Price * x.Quantity)+30000).ToString("N0"))đ
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin người nhận -->
+                <div class="card border-secondary mb-4">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">Thông tin người nhận</h4>
+                    </div>
+                    <div class="card-body">
+                        @{
+                            bool isFullNameNull = string.IsNullOrEmpty(Model.User?.FullName);
+                            bool isEmailNull = string.IsNullOrEmpty(Model.User?.Email);
+                            bool isPhoneNull = string.IsNullOrEmpty(Model.User?.Phone);
+                            bool isAddressNull = string.IsNullOrEmpty(Model.User?.Address);
+                        }
+                        @if (isFullNameNull || isEmailNull || isPhoneNull || isAddressNull)
+                        {
+                            <div class="alert alert-danger">Vui lòng nhập đầy đủ thông tin người nhận!</div>
+                        }
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Họ và Tên</label>
+                                <input class="form-control" type="text" name="FullName" value="@(Model.User?.FullName ?? "")" placeholder="Nguyễn Văn A" required />
+                                @if (isFullNameNull)
+                                {
+                                    <small class="text-danger">Họ và tên không được để trống.</small>
+                                }
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>E-mail</label>
+                                <input class="form-control" type="email" name="Email" value="@(Model.User?.Email ?? "")" placeholder="example@email.com" required />
+                                @if (isEmailNull)
+                                {
+                                    <small class="text-danger">Email không được để trống.</small>
+                                }
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Số điện thoại</label>
+                                <input class="form-control" type="text" name="Phone" value="@(Model.User?.Phone ?? "")" placeholder="0123 456 789" required />
+                                @if (isPhoneNull)
+                                {
+                                    <small class="text-danger">Số điện thoại không được để trống.</small>
+                                }
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Địa chỉ</label>
+                                <input class="form-control" type="text" name="Address" value="@(Model.User?.Address ?? "")" placeholder="123 Đường ABC, Quận XYZ" required />
+                                @if (isAddressNull)
+                                {
+                                    <small class="text-danger">Địa chỉ không được để trống.</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thanh toán -->
+                <div class="card border-secondary mb-5">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">Phương Thức Thanh Toán</h4>
+                    </div>
+                    <form asp-action="PlaceOrder" asp-controller="Checkout" method="post" id="checkoutForm">
+                        @foreach (var method in Model.PaymentMethods)
+                        {
+                            <div class="form-group">
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" class="custom-control-input" name="PaymentMethodId" id="pay-@method.PaymentMethodId" value="@method.PaymentMethodId" required />
+                                    <label class="custom-control-label" for="pay-@method.PaymentMethodId">@method.MethodName</label>
+                                </div>
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3" id="placeOrderBtn">Đặt Hàng</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout End -->
+    <!-- Checkout End -->
+    
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="@Url.Content("~/lib/easing/easing.min.js")"></script>
+    <script src="@Url.Content("~/lib/owlcarousel/owl.carousel.min.js")"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="@Url.Content("~/mail/jqBootstrapValidation.min.js")"></script>
+    <script src="@Url.Content("~/mail/contact.js")"></script>
+
+    <!-- Template Javascript -->
+    <script src="@Url.Content("~/products/js/main.js")"></script>
+    <!-- JS here -->
+    <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
+
+    <script src="@Url.Content("~/js/popper.min.js")"></script>
+    <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>
+    <script src="@Url.Content("~/js/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/js/owl.carousel.min.js")"></script>
+    <script src="@Url.Content("~/js/isotope.pkgd.min.js")"></script>
+    <script src="@Url.Content("~/js/ajax-form.js")"></script>
+    <script src="@Url.Content("~/js/waypoints.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.counterup.min.js")"></script>
+    <script src="@Url.Content("~/js/imagesloaded.pkgd.min.js")"></script>
+    <script src="@Url.Content("~/js/scrollIt.js")"></script>
+    <script src="@Url.Content("~/js/jquery.scrollUp.min.js")"></script>
+    <script src="@Url.Content("~/js/wow.min.js")"></script>
+    <script src="@Url.Content("~/js/nice-select.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.slicknav.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.magnific-popup.min.js")"></script>
+    <script src="@Url.Content("~/js/plugins.js")"></script>
+    <script src="@Url.Content("~/js/gijgo.min.js")"></script>
+
+    <!--contact js-->
+    <script src="@Url.Content("~/js/contact.js")"></script>
+    <script src="@Url.Content("~/js/jquery.ajaxchimp.min.js")"></script>
+    <script src="@Url.Content("~/js/jquery.form.js")"></script>
+    <script src="@Url.Content("~/js/jquery.validate.min.js")"></script>
+    <script src="@Url.Content("~/js/mail-script.js")"></script>
+
+    <script src="@Url.Content("~/js/main.js")"></script>
+    <script>
+           $('#datepicker').datepicker({
+               iconsLibrary: 'fontawesome',
+               disableDaysOfWeek: [0, 0],
+           //     icons: {
+           //      rightIcon: '<span class="fa fa-caret-down"></span>'
+           //  }
+           });
+           $('#datepicker2').datepicker({
+               iconsLibrary: 'fontawesome',
+               icons: {
+                rightIcon: '<span class="fa fa-caret-down"></span>'
+            }
+
+           });
+           var timepicker = $('#timepicker').timepicker({
+            format: 'HH.MM'
+        });
+    </script>
+    <script>
+        function checkReceiverFields() {
+            var fullName = document.querySelector('input[name="FullName"]').value.trim();
+            var email = document.querySelector('input[name="Email"]').value.trim();
+            var phone = document.querySelector('input[name="Phone"]').value.trim();
+            var address = document.querySelector('input[name="Address"]').value.trim();
+            var btn = document.getElementById('placeOrderBtn');
+            if (fullName === '' || email === '' || phone === '' || address === '') {
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            checkReceiverFields();
+            var fields = ['FullName', 'Email', 'Phone', 'Address'];
+            fields.forEach(function(name) {
+                var input = document.querySelector('input[name="' + name + '"]');
+                if (input) {
+                    input.addEventListener('input', checkReceiverFields);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

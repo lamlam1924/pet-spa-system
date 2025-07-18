@@ -6,7 +6,7 @@ namespace pet_spa_system1.Services
     {
         List<Species> GetAllActiveSpecies();
         Species GetSpeciesById(int id);
-        string GetSpeciesNameById(int id);
+        string GetSpeciesNameById(int? id);
         void AddSpecies(Species species);
         void UpdateSpecies(Species species);
         void DeleteSpecies(int id);

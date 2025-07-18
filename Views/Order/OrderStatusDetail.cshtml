@@ -1,0 +1,109 @@
+﻿@model pet_spa_system1.ViewModel.OrderViewModel
+@{
+    ViewData["Title"] = "Trạng Thái Đơn Hàng";
+    Layout = @Url.Content("~/Views/Shared/_Layout.cshtml");
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewBag.Title</title>
+   >
+    <link href="@Url.Content("~/cssOrder/Ordercss.css")" rel="stylesheet">
+    @* <style>
+        .order-status .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 40px;
+        }
+        .order-status .circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .order-status .active .circle {
+            background: #28a745;
+            color: #fff;
+        }
+        .order-status .label {
+            font-size: 13px;
+        }
+    </style> *@
+</head>
+<body>
+    <div class="container mt-5 mb-5 order-status-wrapper">
+        <div class="card shadow">
+            <div class="card-body">
+                <h4 class="mb-3">Trạng Thái Đơn Hàng #@Model.OrderID</h4>
+
+                <!-- Thông tin khách hàng (bổ sung vào ViewModel nếu cần) -->
+                <div class="mb-3">
+                    <strong>Khách hàng:</strong> @Model.CustomerName<br>
+                    <strong>Địa chỉ:</strong> @Model.CustomerAddress<br>
+                    <strong>Điện thoại:</strong> @Model.CustomerPhone
+                </div>
+
+                <!-- Danh sách sản phẩm -->
+                <h6>Sản phẩm đã đặt:</h6>
+                <table class="table table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items != null)
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.UnitPrice?.ToString("N0") đ</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Trạng thái đơn hàng: tiến trình giao hàng -->
+                <h6 class="mt-4">Tiến trình giao hàng:</h6>
+                <div class="d-flex order-status my-4">
+                    <div class="step @(Model.Status == "Đang xử lý" || Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
+                        <div class="circle">1</div>
+                        <div class="label">Đã đặt hàng</div>
+                    </div>
+                    <div class="step @(Model.Status == "Đang xử lý" || Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
+                        <div class="circle">2</div>
+                        <div class="label">Đang xử lý</div>
+                    </div>
+                    <div class="step @(Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
+                        <div class="circle">3</div>
+                        <div class="label">Đang giao</div>
+                    </div>
+                    <div class="step @(Model.Status == "Hoàn tất" ? "active" : "")">
+                        <div class="circle">4</div>
+                        <div class="label">Hoàn tất</div>
+                    </div>
+                </div>
+
+                <!-- Tổng tiền -->
+                <div class="text-end">
+                    <h5>Tổng cộng: <strong>@Model.TotalAmount.ToString("N0") đ</strong></h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

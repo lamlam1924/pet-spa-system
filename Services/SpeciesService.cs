@@ -29,5 +29,10 @@ namespace pet_spa_system1.Services
 
         public void DeleteSpecies(int id)
             => _speciesRepo.DeleteSpecies(id);
+
+        public string GetSpeciesNameById(int? id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

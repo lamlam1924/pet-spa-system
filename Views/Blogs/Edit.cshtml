@@ -1,0 +1,101 @@
+﻿@model pet_spa_system1.ViewModel.BlogCreateViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+}
+
+<div class="container">
+    <h2>Chỉnh sửa bài viết</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="BlogId" value="@ViewBag.BlogId" /> <!-- Sử dụng ViewBag.BlogId -->
+
+        <div class="form-group">
+            <label asp-for="Title" class="control-label">Tiêu đề</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Content" class="control-label">Nội dung</label>
+            <textarea asp-for="Content" class="form-control" rows="10"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Category" class="control-label">Danh mục</label>
+            <select asp-for="Category" class="form-control" asp-items="ViewBag.AvailableCategories as IEnumerable<SelectListItem>"></select>
+            <span asp-validation-for="Category" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Status" class="control-label">Trạng thái</label>
+            <select asp-for="Status" class="form-control">
+                <option value="Draft">Bản nháp</option>
+                <option value="PendingApproval">Chờ duyệt</option>
+                <option value="Published">Đã xuất bản</option>
+                <option value="Rejected">Đã từ chối</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FeaturedImageUrl" class="control-label">Hình ảnh nổi bật</label>
+            <input asp-for="FeaturedImage" type="file" class="form-control" accept="image/*" />
+            <span asp-validation-for="FeaturedImageUrl" class="text-danger"></span>
+            @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
+            {
+                <img src="@Model.FeaturedImageUrl" alt="Hình ảnh hiện tại" style="max-width: 200px; margin-top: 10px;" />
+            }
+        </div>
+
+        <div class="form-group">
+            <label asp-for="AdditionalImages" class="control-label">Hình ảnh bổ sung (tùy chọn)</label>
+            <input asp-for="AdditionalImages" type="file" class="form-control" accept="image/*" multiple />
+            <span asp-validation-for="AdditionalImages" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Lưu thay đổi" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

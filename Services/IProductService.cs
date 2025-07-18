@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Services
 {
@@ -19,7 +18,13 @@ namespace pet_spa_system1.Services
         Task<int> GetTotalProductCountAsync();
         Task DisableProductAsync(int id);
 
+        Task EnableProductAsync(int id);
+
         Task<List<Product>> GetActiveProductsAsync(int page, int pageSize);
         Task<int> CountActiveProductsAsync();
+        Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize);
+        Task<Product?> GetProductWithReviewsByIdAsync(int productId);
+        Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null);
+Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
     }
 }
