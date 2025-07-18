@@ -158,9 +158,23 @@ namespace pet_spa_system1.Controllers
          [HttpPost]
         public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile Avatar)
         {
+            ModelState.Remove("Avatar"); // Bỏ qua lỗi required cho Avatar nếu có
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ: " + string.Join("; ", errors);
+                Console.WriteLine("[UpdateUserProfile] ModelState errors: " + string.Join(" | ", errors));
+                foreach (var state in ModelState)
+                {
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
                 return RedirectToAction("Index");
             }
 
@@ -173,6 +187,7 @@ namespace pet_spa_system1.Controllers
             user.Username = model.UserName;
             user.Address = model.Address;
             user.Phone = model.PhoneNumber;
+            // KHÔNG gán user.RoleId, giữ nguyên giá trị hiện tại
 
             // Xử lý upload avatar nếu có
             if (Avatar != null && Avatar.Length > 0)
@@ -183,7 +198,12 @@ namespace pet_spa_system1.Controllers
                     user.ProfilePictureUrl = imageUrl;
                 }
             }
-            // Đảm bảo luôn gán lại user.ProfilePictureUrl trước khi gọi EditUserAsync
+            else
+            {
+                // Không upload ảnh mới, giữ lại ảnh cũ
+                user.ProfilePictureUrl = model.ProfilePictureUrl;
+            }
+
             var result = await _userService.EditUserAsync(user);
 
             if (!result.Success)

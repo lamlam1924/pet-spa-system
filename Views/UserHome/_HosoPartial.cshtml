@@ -1,10 +1,7 @@
 ﻿@model pet_spa_system1.ViewModel.UserViewModel
 
-<form method="post"
-      enctype="multipart/form-data"
-      hx-post="@Url.Action("UpdateUserProfile", "UserHome")"
-      hx-target="#content-main"
-      hx-swap="innerHTML">
+<form asp-action="UpdateUserProfile" asp-controller="UserHome" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="ProfilePictureUrl" value="@Model.ProfilePictureUrl" />
 
     <div class="card shadow p-4">
         <h4 class="mb-4">Cập nhật Hồ sơ</h4>
@@ -18,19 +15,19 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Tên đăng nhập</label>
-                    <input type="text" class="form-control" id="UserName" name="UserName" value="@Model.UserName" />
+                    <input type="text" class="form-control" id="UserName" name="UserName" value="@Model.UserName" required />
                 </div>
                 <div class="mb-3">
                     <label for="FullName" class="form-label fw-bold">Họ và Tên</label>
-                    <input type="text" class="form-control" id="FullName" name="FullName" value="@Model.FullName" />
+                    <input type="text" class="form-control" id="FullName" name="FullName" value="@Model.FullName" required />
                 </div>
                 <div class="mb-3">
                     <label for="PhoneNumber" class="form-label fw-bold">Số điện thoại</label>
-                    <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" value="@Model.PhoneNumber" />
+                    <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" value="@Model.PhoneNumber" required />
                 </div>
                 <div class="mb-3">
                     <label for="Address" class="form-label fw-bold">Địa chỉ</label>
-                    <input type="text" class="form-control" id="Address" name="Address" value="@Model.Address" />
+                    <input type="text" class="form-control" id="Address" name="Address" value="@Model.Address" required />
                 </div>
             </div>
 

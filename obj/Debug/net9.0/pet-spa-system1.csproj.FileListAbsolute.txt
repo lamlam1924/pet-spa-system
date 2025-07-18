@@ -2282,3 +2282,8 @@ D:\ki5\main_final\obj\Debug\net9.0\refint\pet-spa-system1.dll
 D:\ki5\main_final\obj\Debug\net9.0\pet-spa-system1.pdb
 D:\ki5\main_final\obj\Debug\net9.0\pet-spa-system1.genruntimeconfig.cache
 D:\ki5\main_final\obj\Debug\net9.0\ref\pet-spa-system1.dll
+D:\ki5\main_final\bin\Debug\net9.0\appsettings.Development.json
+D:\ki5\main_final\bin\Debug\net9.0\appsettings.Local.json
+D:\ki5\main_final\obj\Debug\net9.0\compressed\k3p4gvaxif-id7el9r1hx.gz
+D:\ki5\main_final\obj\Debug\net9.0\compressed\lgeoulzhgi-6q5cydsybs.gz
+D:\ki5\main_final\obj\Debug\net9.0\compressed\sylbem1a5h-548iiz7rkr.gz
