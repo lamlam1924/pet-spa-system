@@ -13,13 +13,15 @@ public class CheckoutController : Controller
     private readonly IConfiguration _configuration;
     private readonly ICartService _cartService; // Thêm ICartService để truy cập giỏ hàng
 private readonly IEmailService _emailService;
+private readonly IPaymentService _paymentService;
 
-public CheckoutController(ICheckoutService checkoutService, IConfiguration configuration, ICartService cartService, IEmailService emailService)
+public CheckoutController(ICheckoutService checkoutService, IConfiguration configuration, ICartService cartService, IEmailService emailService, IPaymentService paymentService)
 {
     _checkoutService = checkoutService;
     _configuration = configuration;
     _cartService = cartService;
     _emailService = emailService;
+    _paymentService = paymentService;
 }
 
     [HttpGet]
@@ -108,6 +110,7 @@ await _checkoutService.AddOrderItemsAsync(orderItems);
             pay.AddRequestData("vnp_OrderType", "other");
             pay.AddRequestData("vnp_ReturnUrl", config["PaymentBackReturnUrl"]);
             pay.AddRequestData("vnp_TxnRef", order.OrderId.ToString());
+
             var paymentUrl = pay.CreateRequestUrl(config["BaseUrl"], config["HashSecret"]);
             return Redirect(paymentUrl);
         }
@@ -153,6 +156,23 @@ public async Task<IActionResult> PaymentCallbackVnpay()
 
         // Gửi email xác nhận
         _emailService.SendOrderConfirmation(orderVm);
+
+        // Lưu thông tin payment
+        string transactionNo = "";
+        response.TryGetValue("vnp_TransactionNo", out transactionNo);
+        if (string.IsNullOrEmpty(transactionNo))
+            response.TryGetValue("vnp_TransactionNo", out transactionNo);
+
+        var payment = new Payment
+{
+    OrderId = order.OrderId,
+    UserId = order.UserId, // <-- Bổ sung dòng này
+    Amount = order.TotalAmount,
+    PaymentMethodId = 1,
+    TransactionId = transactionNo,
+    PaymentDate = DateTime.Now
+};
+        _paymentService.AddPayment(payment);
 
         // XÓA GIỎ HÀNG SAU KHI THANH TOÁN THÀNH CÔNG
         await _cartService.ClearCartAsync(order.UserId);

@@ -72,6 +72,9 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 // Đăng ký ICloudinaryService
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 

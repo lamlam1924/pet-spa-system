@@ -10,5 +10,6 @@ namespace pet_spa_system1.Repositories
         void AddOrder(Order order);
         void UpdateOrder(Order order);
         void DeleteOrder(int id);
+        List<Order> GetOrdersByUserIdPaged(int userId, int page, int pageSize, out int totalOrders);
     }
 }
