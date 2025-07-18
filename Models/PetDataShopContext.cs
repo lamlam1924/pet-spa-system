@@ -205,7 +205,7 @@ public partial class PetDataShopContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
                 .HasForeignKey(d => d.ParentCommentId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
@@ -250,7 +250,7 @@ public partial class PetDataShopContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
                 .HasForeignKey(d => d.ParentCommentId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
@@ -454,7 +454,7 @@ public partial class PetDataShopContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
 
-            entity.HasOne(d => d.ProductCategory).WithMany(p => p.Products)
+            entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products__Catego__5FB337D6");
