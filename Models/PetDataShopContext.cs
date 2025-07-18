@@ -70,10 +70,11 @@ public partial class PetDataShopContext : DbContext
     public virtual DbSet<StatusOrder> StatusOrders { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public IEnumerable<object> PetImages { get; internal set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=PetDataShop;User Id=sa;Password=sa;MultipleActiveResultSets=True;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=localhost;Database=PetDataShop;User Id=sa;Password=123456;MultipleActiveResultSets=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,7 +113,7 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<AppointmentPet>(entity =>
         {
-            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64CA6DA51B6");
+            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64C84F2A401");
 
             entity.HasIndex(e => new { e.AppointmentId, e.PetId }, "UQ_AppointmentPet").IsUnique();
 
@@ -124,12 +125,12 @@ public partial class PetDataShopContext : DbContext
             entity.HasOne(d => d.Appointment).WithMany(p => p.AppointmentPets)
                 .HasForeignKey(d => d.AppointmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Appointme__Appoi__0A9D95DB");
+                .HasConstraintName("FK__Appointme__Appoi__1CBC4616");
 
             entity.HasOne(d => d.Pet).WithMany(p => p.AppointmentPets)
                 .HasForeignKey(d => d.PetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Appointme__PetID__0B91BA14");
+                .HasConstraintName("FK__Appointme__PetID__1DB06A4F");
         });
 
         modelBuilder.Entity<AppointmentService>(entity =>
@@ -181,32 +182,30 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<BlogComment>(entity =>
         {
-            entity.HasKey(e => e.CommentId).HasName("PK__Blog_Com__C3B4DFAAF93B126C");
+            entity.HasKey(e => e.CommentId);
 
             entity.ToTable("Blog_Comments");
 
             entity.Property(e => e.CommentId).HasColumnName("CommentID");
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.ParentCommentId).HasColumnName("ParentCommentID");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments)
                 .HasForeignKey(d => d.BlogId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blog_Comm__BlogI__7D0E9093");
+                .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
-                .HasForeignKey(d => d.ParentCommentId)
-                .HasConstraintName("FK__Blog_Comm__Paren__7EF6D905");
-
-            entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
+            entity.HasOne(d => d.User).WithMany()
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blog_Comm__UserI__7E02B4CC");
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
+                .HasForeignKey(d => d.ParentCommentId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<BlogImage>(entity =>

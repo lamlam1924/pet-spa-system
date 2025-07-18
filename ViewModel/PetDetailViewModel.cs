@@ -1,24 +1,21 @@
 ﻿using pet_spa_system1.Models;
+using System;
 using System.Collections.Generic;
 
 namespace pet_spa_system1.ViewModel
 {
     public class PetDetailViewModel
     {
-        public Pet Pet { get; set; }
+        public Pet Pet { get; set; } = new Pet(); // Đảm bảo khởi tạo để tránh null
 
-        public List<Pet> SuggestedPets { get; set; } = new List<Pet>(); // Mặc định rỗng, không bắt buộc
+        public List<Species> SpeciesList { get; set; } = new List<Species>();
+        public List<Pet> SuggestedPets { get; set; } = new List<Pet>();
+        public List<PetImage> PetImages { get; set; } = new List<PetImage>();
 
-        public DateTime? LastSpaVisit { get; set; } // Không bắt buộc
-
-        public int AppointmentCount { get; set; } = 0; // Mặc định 0, không bắt buộc
-
-        public string SpeciesName { get; set; } // Không bắt buộc, có thể null
-
-        public string OwnerName { get; set; } // Không bắt buộc, có thể null
-
-        public bool IsActive { get; set; } = true; // Mặc định true, không bắt buộc
-
-        public List<Species> SpeciesList { get; set; } = new List<Species>(); // Mặc định rỗng, không bắt buộc
+        public DateTime? LastSpaVisit { get; set; }
+        public int AppointmentCount { get; set; }
+        public string SpeciesName { get; set; } = "N/A";
+        public string OwnerName { get; set; } = "N/A";
+        public bool? IsActive { get; set; } = true;
     }
 }

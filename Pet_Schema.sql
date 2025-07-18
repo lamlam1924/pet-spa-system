@@ -134,7 +134,18 @@ CREATE TABLE Pets (
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (SpeciesID) REFERENCES Species(SpeciesID)
 );
+USE PetDataShop
+GO
 
+CREATE TABLE PetImages (
+    PetImageId INT PRIMARY KEY IDENTITY(1,1),
+    PetId INT NOT NULL,
+    ImageUrl NVARCHAR(500) NOT NULL,
+    DisplayOrder INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (PetId) REFERENCES Pets(PetID)
+)
+GO
 GO
 --CREATE TABLE Ser_cate (
 --    CategoryID INT PRIMARY KEY IDENTITY(1,1),
@@ -420,6 +431,28 @@ GO
 
 ALTER TABLE Users
 ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
+CREATE TABLE Blog_Comments (
+    CommentID INT PRIMARY KEY IDENTITY(1,1),
+    BlogID INT NOT NULL,
+    UserID INT NOT NULL,
+    ParentCommentID INT NULL, 
+    Content NVARCHAR(MAX) NOT NULL,
+    Status NVARCHAR(20) CHECK (Status IN ('Pending', 'Approved', 'Rejected')) DEFAULT 'Pending',
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    UpdatedAt DATETIME2,
+    FOREIGN KEY (BlogID) REFERENCES Blogs(BlogID) ,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ,
+    FOREIGN KEY (ParentCommentID) REFERENCES Blog_Comments(CommentID)
+);
+CREATE TABLE Blog_Likes (
+    LikeID INT PRIMARY KEY IDENTITY(1,1),
+    BlogID INT NOT NULL,
+    UserID INT NOT NULL,
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (BlogID) REFERENCES Blogs(BlogID) ,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ,
+    UNIQUE(BlogID, UserID) -- Mỗi user chỉ like 1 lần
+);
 
 CREATE TABLE Notifications (
     NotificationId INT IDENTITY(1,1) PRIMARY KEY,
@@ -458,3 +491,32 @@ CREATE TABLE Blog_Likes (
 );
 
 
+CREATE TABLE PetImages (
+    PetImageId INT PRIMARY KEY IDENTITY(1,1),
+    PetId INT NOT NULL,
+    ImageUrl NVARCHAR(500) NOT NULL,
+    DisplayOrder INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (PetId) REFERENCES Pets(PetID)
+)
+GO
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'BlogComments';
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Carts'; -- Hoặc bảng khác như Carts, Blogs
+
+UPDATE StatusOrder
+SET 
+    StatusName = CASE 
+        WHEN StatusName = 'Pending' THEN N'Đang chờ xử lý'
+        WHEN StatusName = 'Processing' THEN N'Đang chuẩn bị'
+        WHEN StatusName = 'Shipped' THEN N'Đã giao vận chuyển'
+        WHEN StatusName = 'Delivered' THEN N'Đã giao'
+        WHEN StatusName = 'Cancelled' THEN N'Đã hủy'
+    END,
+    Description = CASE 
+        WHEN StatusName = 'Pending' THEN N'Đơn hàng đang chờ xử lý'
+        WHEN StatusName = 'Processing' THEN N'Đơn hàng đang được chuẩn bị và đóng gói'
+        WHEN StatusName = 'Shipped' THEN N'Đơn hàng đã được giao cho đơn vị vận chuyển'
+        WHEN StatusName = 'Delivered' THEN N'Đơn hàng đã được giao đến khách hàng'
+        WHEN StatusName = 'Cancelled' THEN N'Đơn hàng đã bị hủy'
+    END
+WHERE StatusName IN ('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled');

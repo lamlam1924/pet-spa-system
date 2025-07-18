@@ -1,0 +1,230 @@
+@model pet_spa_system1.ViewModel.ServiceListViewModel
+@{
+    ViewData["Title"] = "Dịch Vụ Spa Thú Cưng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var selectedCategoryId = Context.Request.Query["categoryId"].ToString();
+    
+    // Thiết lập các hình ảnh mặc định cho các dịch vụ
+    var defaultImages = new string[] { 
+        "/images/services/grooming.jpg", 
+        "/images/services/bath.jpg", 
+        "/images/services/nail.jpg", 
+        "/images/services/healthcare.jpg",
+        "/images/services/massage.jpg"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="@Url.Content("~/cssjsservice/css/service-common.css")">
+    <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/css/services-list.css")">
+
+    <style>
+        .opacity-0 { opacity: 0; }
+        .fade-transition {
+            transition: all 0.5s;
+            opacity: 0.5;
+        }
+        
+        /* Reset text decoration cho header */
+        .header-area a,
+        .main-header-area a,
+        #navigation li a,
+        #navigation .submenu li a,
+        #sticky-header a,
+        #navigation > li > a,
+        #navigation > li > ul.submenu > li > a,
+        .dropdown-menu a,
+        .dropdown a,
+        nav a {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        /* Reset hover states */
+        .header-area a:hover,
+        .main-header-area a:hover,
+        #navigation li a:hover,
+        #navigation .submenu li a:hover,
+        #sticky-header a:hover {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        /* Override specific Bootstrap styles that might be causing issues */
+        .navbar-nav a, .navbar a, .nav a {
+            text-decoration: none !important;
+        }
+    </style>
+}
+
+<section class="services-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header text-center">
+            <h2 class="animate__animated animate__fadeInDown">Dịch Vụ Chăm Sóc Thú Cưng</h2>
+            <p class="animate__animated animate__fadeInUp animate__delay-1s">
+                Khám phá các dịch vụ chăm sóc thú cưng chuyên nghiệp và tận tâm tại Pet Spa, nơi thú cưng của bạn sẽ được chăm sóc như người thân yêu.
+            </p>
+        </div>
+        
+        <!-- Filter Section -->
+        <div class="filter-section animate__animated animate__fadeIn animate__delay-1s">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <form id="filter-form" method="get" class="d-flex align-items-center">
+                        <span class="filter-label">Danh mục:</span>
+                        <select id="category-filter" name="categoryId" class="category-select">
+                            <option value="">Tất cả danh mục</option>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                if (selectedCategoryId == cat.CategoryId.ToString())
+                                {
+                                    <option value="@cat.CategoryId" selected="selected">@cat.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat.CategoryId">@cat.Name</option>
+                                }
+                            }
+                        </select>
+                    </form>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="service-search" class="form-control border-start-0" placeholder="Tìm kiếm dịch vụ...">
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group">
+                        <button id="sort-price" class="btn btn-outline-secondary btn-sm asc">
+                            <i class="fas fa-sort-amount-up"></i> Giá: Thấp đến cao
+                        </button>
+                        <button id="sort-duration" class="btn btn-outline-secondary btn-sm asc">
+                            <i class="fas fa-sort-amount-up"></i> Thời lượng: Ngắn đến dài
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div id="service-loading" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-2">Đang tải dịch vụ...</p>
+        </div>
+        
+        <!-- Services Cards -->
+        <div class="row mt-4" id="service-container">
+            @if (Model.Services != null && Model.Services.Any())
+            {
+                foreach (var item in Model.Services)
+                {
+                    var randomImg = defaultImages[new Random().Next(defaultImages.Length)];
+                    
+                    // Tạo badge ngẫu nhiên dựa vào giá và thời lượng
+                    var badges = new string[] { "Hot", "Phổ biến", "Mới", "Khuyến mãi", "" };
+                    var badgeIndex = (item.ServiceId + DateTime.Now.Day) % badges.Length;
+                    var badgeText = badges[badgeIndex];
+                    
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="service-card">
+                            <div class="service-img">
+                                <img src="@randomImg" alt="@item.Name">
+                                @if (!string.IsNullOrEmpty(badgeText))
+                                {
+                                    <span class="service-badge">@badgeText</span>
+                                }
+                            </div>
+                            <div class="service-body">
+                                <h3 class="service-title">@item.Name</h3>
+                                <p class="service-description">@item.Description</p>
+                                <div class="service-meta">
+                                    <div class="service-price" data-price="@item.Price">@item.Price.ToString("N0") đ</div>
+                                    <div class="service-duration" data-duration="@item.DurationMinutes">
+                                        <i class="far fa-clock"></i> @item.DurationMinutes phút
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Không tìm thấy dịch vụ nào.
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- Pagination -->
+        @if (Model.Pagination.TotalPages > 1)
+        {
+            <nav aria-label="Phân trang dịch vụ" class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    <li class="page-item @(Model.Pagination.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="?page=@(Model.Pagination.CurrentPage - 1)@(Context.Request.Query["categoryId"].Count > 0 ? "&categoryId=" + Context.Request.Query["categoryId"] : "")">&laquo;</a>
+                    </li>
+                    @for (int i = 1; i <= Model.Pagination.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.Pagination.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" href="?page=@i@(Context.Request.Query["categoryId"].Count > 0 ? "&categoryId=" + Context.Request.Query["categoryId"] : "")">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.Pagination.CurrentPage == Model.Pagination.TotalPages ? "disabled" : "")">
+                        <a class="page-link" href="?page=@(Model.Pagination.CurrentPage + 1)@(Context.Request.Query["categoryId"].Count > 0 ? "&categoryId=" + Context.Request.Query["categoryId"] : "")">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+        
+        <!-- No Results Message -->
+        <div id="no-results" class="text-center py-4 mt-3" style="display: none;">
+            <div class="alert alert-info">
+                <i class="fas fa-search me-2"></i> Không tìm thấy dịch vụ nào phù hợp với tìm kiếm của bạn.
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="text-center mt-5 animate__animated animate__fadeInUp">
+            <p class="mb-4">Bạn đã tìm thấy dịch vụ phù hợp cho thú cưng của mình?</p>
+            <a href="@Url.Action("Index", "Appointment")" class="btn btn-primary btn-lg">
+                <i class="far fa-calendar-check me-2"></i> Đặt Lịch Ngay
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="@Url.Content("~/cssjsAppointment/js/services-list.js")"></script>
+    <script>
+        // Script chỉ để loại bỏ text-decoration
+        (function() {
+            // Xử lý ngay khi phân tích HTML
+            var style = document.createElement('style');
+            style.innerHTML = `
+                .header-area a, .main-header-area a, #navigation li a, 
+                .dropdown-menu a, #sticky-header a, nav a {
+                    text-decoration: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Xử lý khi DOM đã sẵn sàng
+            document.addEventListener('DOMContentLoaded', function() {
+                // Áp dụng trực tiếp vào các liên kết
+                var headerLinks = document.querySelectorAll('#navigation a, .header-area a');
+                headerLinks.forEach(function(link) {
+                    link.style.textDecoration = 'none';
+                });
+            });
+        })();
+    </script>
+}

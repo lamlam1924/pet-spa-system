@@ -142,6 +142,7 @@ namespace pet_spa_system1.Repositories
 
         }
 
+<<<<<<< HEAD
         public async Task AddProductReviewAsync(int userId, int productId, int rating, string comment, bool isAnonymous)
         {
             // Kiểm tra đã có review chưa
@@ -256,5 +257,69 @@ namespace pet_spa_system1.Repositories
                 .OrderByDescending(r => r.CreatedAt)
                 .FirstOrDefaultAsync();
         }
+=======
+        public async Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null)
+{
+    var query = _context.Products
+        .Where(p => p.IsActive == true);
+
+    if (categoryId.HasValue)
+        query = query.Where(p => p.CategoryId == categoryId.Value);
+    if (minPrice.HasValue)
+        query = query.Where(p => p.Price >= minPrice.Value);
+    if (maxPrice.HasValue)
+        query = query.Where(p => p.Price <= maxPrice.Value);
+
+    // Sắp xếp theo sort
+    switch (sort)
+    {
+        case "price_asc":
+            query = query.OrderBy(p => p.Price);
+            break;
+        case "price_desc":
+            query = query.OrderByDescending(p => p.Price);
+            break;
+        case "best_rating":
+            query = query.OrderByDescending(p => p.Reviews.Where(r => r.Status == "Approved").Any() ? p.Reviews.Where(r => r.Status == "Approved").Average(r => r.Rating) : 0);
+            break;
+        default:
+            query = query.OrderByDescending(p => p.CreatedAt);
+            break;
+    }
+
+    return await query
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .Select(p => new ProductWithRatingViewModel
+        {
+            ProductId = p.ProductId,
+            Name = p.Name,
+            ImageUrl = p.ImageUrl,
+            Price = p.Price,
+            CategoryName = p.ProductCategory.Name,
+            AverageRating = p.Reviews
+                .Where(r => r.Status == "Approved")
+                .Any() ? (int)Math.Round(p.Reviews
+                .Where(r => r.Status == "Approved")
+                .Average(r => r.Rating)) : 0,
+            ReviewCount = p.Reviews.Count(r => r.Status == "Approved")
+        })
+        .ToListAsync();
+}
+
+public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
+{
+    var query = _context.Products.Where(p => p.IsActive == true);
+
+    if (categoryId.HasValue)
+        query = query.Where(p => p.CategoryId == categoryId.Value);
+    if (minPrice.HasValue)
+        query = query.Where(p => p.Price >= minPrice.Value);
+    if (maxPrice.HasValue)
+        query = query.Where(p => p.Price <= maxPrice.Value);
+
+    return await query.CountAsync();
+}
+>>>>>>> 05539e4eb903ebfb4b1fda55007f83236626e335
     }
 }

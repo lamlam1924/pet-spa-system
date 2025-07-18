@@ -98,6 +98,7 @@ namespace pet_spa_system1.Services
         {
             return await _repository.GetProductWithReviewsByIdAsync(productId);
         }
+<<<<<<< HEAD
 
         public async Task AddProductReviewAsync(int userId, int productId, int rating, string comment, bool isAnonymous)
         {
@@ -118,6 +119,16 @@ namespace pet_spa_system1.Services
         {
             return await _repository.GetLastReplyOfUserForParentAsync(parentReviewId, userId);
         }
+=======
+        public async Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null)
+{
+    return await _repository.GetActiveProductsWithRatingAsync(page, pageSize, categoryId, minPrice, maxPrice, sort);
+}
+public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
+{
+    return await _repository.CountActiveProductsAsync(categoryId, minPrice, maxPrice);
+}
+>>>>>>> 05539e4eb903ebfb4b1fda55007f83236626e335
 
 
     }

@@ -98,6 +98,62 @@ namespace pet_spa_system1.Services
             }
         }
 
+        public void SendOrderConfirmation(OrderConfirmationViewModel viewModel)
+        {
+            var smtpServer = _config["EmailSettings:SmtpServer"];
+            var smtpPortStr = _config["EmailSettings:SmtpPort"];
+            int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
+            var smtpUser = _config["EmailSettings:SmtpUser"];
+            var smtpPass = _config["EmailSettings:SmtpPass"];
+            var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
+
+            Console.WriteLine($"SMTP: {smtpServer}, PORT: {smtpPort}, USER: {smtpUser}");
+            Debug.WriteLine($"SMTP: {smtpServer}, PORT: {smtpPort}, USER: {smtpUser}");
+
+            if (string.IsNullOrWhiteSpace(smtpUser))
+                throw new InvalidOperationException("EmailSettings:SmtpUser chưa được cấu hình hoặc bị null.");
+
+            try
+            {
+                string viewPath = "/Views/Email/OrderSuccessEmail.cshtml";
+                string emailBody = RenderViewToString(viewPath, viewModel);
+
+                var client = new SmtpClient(smtpServer, smtpPort)
+                {
+                    EnableSsl = true,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(smtpUser, smtpPass)
+                };
+                var fromAddress = new MailAddress(smtpUser, fromName);
+                var toAddress = new MailAddress(viewModel.Email, viewModel.CustomerName);
+                var message = new MailMessage(fromAddress, toAddress)
+                {
+                    Subject = "Xác nhận đặt hàng thành công - SPA Thú Cưng",
+                    IsBodyHtml = true,
+                    Body = emailBody
+                };
+                try
+                {
+                   
+
+                    client.Send(message);
+                    Debug.WriteLine("[Email] Đã gửi email xác nhận đơn hàng thành công");
+                }
+                finally
+                {
+                    message.Dispose();
+                    client.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Email Error] Lỗi gửi email: {ex.Message}");
+                if (ex.InnerException != null)
+                    Debug.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
+                throw;
+            }
+        }
+
         // Render Razor view ra string (tích hợp logic từ RazorViewToStringRenderer)
         private string RenderViewToString(string viewPath, object model)
         {

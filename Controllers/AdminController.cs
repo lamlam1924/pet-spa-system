@@ -5,7 +5,11 @@ using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Controllers
 {
@@ -15,16 +19,16 @@ namespace pet_spa_system1.Controllers
         private readonly IProductService _productService;
         private readonly IServiceService _serviceService;
         private readonly IPetService _petService;
-        private readonly IBlogService _blogService;
+        //private readonly IBlogService _blogService;
 
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IPetService petService, IBlogService blogService)
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IPetService petService)
         {
             _context = context;
             _productService = productService;
             _serviceService = serviceService;
             _petService = petService;
-            _blogService = blogService;
+            //_blogService = blogService;
         }
 
         public IActionResult Index()
@@ -37,25 +41,23 @@ namespace pet_spa_system1.Controllers
             ViewBag.Title = "Admin Dashboard";
             return View();
         }
-        
+
         public IActionResult Payment()
         {
             return View();
         }
-        //=======================================================================================================================
-        //Hiển thị PET
 
         public async Task<IActionResult> Pets_List(int page = 1, string searchName = "", string searchOwner = "", bool? isActive = null, string sortOrder = "name", string speciesName = "")
         {
             Console.WriteLine($"[AdminController] Pets_List called, page: {page}, searchName: {searchName}, searchOwner: {searchOwner}, isActive: {isActive}, sortOrder: {sortOrder}, speciesName: {speciesName}");
             const int pageSize = 10;
 
-            // Khai báo query là IQueryable<Pet> và áp dụng Include trước
             IQueryable<Pet> query = _context.Pets
                 .Include(p => p.User)
-                .Include(p => p.Species);
+                .Include(p => p.Species)
+                .Include(p => p.PetImages)
+                .OrderBy(p => p.PetId);
 
-            // Áp dụng bộ lọc
             if (!string.IsNullOrEmpty(searchName))
             {
                 query = query.Where(p => p.Name.Contains(searchName));
@@ -73,7 +75,6 @@ namespace pet_spa_system1.Controllers
                 query = query.Where(p => p.Species.SpeciesName == speciesName);
             }
 
-            // Tự động sắp xếp theo tên thú cưng mặc định, có thể thay đổi sortOrder
             ViewBag.NameSortParam = sortOrder == "name" ? "name_desc" : "name";
             ViewBag.OwnerSortParam = sortOrder == "owner" ? "owner_desc" : "owner";
             ViewBag.ActiveSortParam = sortOrder == "active" ? "active_desc" : "active";
@@ -96,7 +97,7 @@ namespace pet_spa_system1.Controllers
                     query = query.OrderByDescending(p => p.IsActive);
                     break;
                 default:
-                    query = query.OrderBy(p => p.Name); // Mặc định sắp xếp theo tên thú cưng
+                    query = query.OrderBy(p => p.Name);
                     break;
             }
 
@@ -117,7 +118,27 @@ namespace pet_spa_system1.Controllers
             Console.WriteLine($"[AdminController] Retrieved {pets.Count} pets for page {page}");
             return View(pets);
         }
-
+        [HttpPost]
+        public async Task<IActionResult> DeletePetImage(int imageId, string imageUrl)
+        {
+            try
+            {
+                Console.WriteLine($"[AdminController] DeletePetImage called, imageId: {imageId}, imageUrl: {imageUrl}");
+                if (imageId > 0)
+                {
+                    await _petService.DeletePetImageAsync(imageId);
+                    Console.WriteLine("[AdminController] Image deleted successfully, imageId: {imageId}");
+                    return Json(new { success = true, message = "Ảnh đã được xóa thành công." });
+                }
+                Console.WriteLine("[AdminController] Failed to delete image, imageId: {imageId}");
+                return Json(new { success = false, message = "Không thể xóa ảnh." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AdminController] Error deleting image: {ex.Message} - StackTrace: {ex.StackTrace}");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi xóa ảnh." });
+            }
+        }
         public async Task<IActionResult> Pet_Detail(int petId)
         {
             var (pet, suggestedPets) = await _petService.GetPetDetailWithSuggestionsAsync(petId);
@@ -134,7 +155,8 @@ namespace pet_spa_system1.Controllers
                 AppointmentCount = pet.AppointmentPets?.Count ?? 0,
                 SpeciesName = pet.Species?.SpeciesName ?? "N/A",
                 OwnerName = pet.User?.FullName ?? "N/A",
-                IsActive = pet.IsActive ?? true
+                IsActive = pet.IsActive ?? true,
+                PetImages = await _petService.GetPetImagesAsync(petId) // Lấy danh sách ảnh
             };
 
             return View(viewModel);
@@ -183,7 +205,7 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add_New_Pet(PetDetailViewModel viewModel)
+        public async Task<IActionResult> Add_New_Pet(PetDetailViewModel viewModel, List<IFormFile> Images)
         {
             Console.WriteLine("[AdminController] Add_New_Pet POST called");
             Console.WriteLine($"[AdminController] Received data: Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}");
@@ -191,6 +213,9 @@ namespace pet_spa_system1.Controllers
             ModelState.Remove("OwnerName");
             ModelState.Remove("SpeciesName");
             ModelState.Remove("SuggestedPets");
+            ModelState.Remove("LastSpaVisit");
+            ModelState.Remove("AppointmentCount");
+            ModelState.Remove("PetImages");
 
             if (!ModelState.IsValid)
             {
@@ -237,7 +262,7 @@ namespace pet_spa_system1.Controllers
             try
             {
                 Console.WriteLine("[AdminController] Attempting to create pet...");
-                await _petService.CreatePetAsync(pet);
+                await _petService.CreatePetAsync(pet, Images);
                 Console.WriteLine("[AdminController] Pet created successfully, PetId: {pet.PetId}");
                 TempData["SuccessMessage"] = "Thêm thú cưng thành công!";
                 return RedirectToAction("Pets_List");
@@ -282,7 +307,8 @@ namespace pet_spa_system1.Controllers
                 SpeciesList = species,
                 SuggestedPets = await _petService.GetSuggestedPetsAsync(pet.SpeciesId ?? 0, pet.PetId, 3),
                 OwnerName = pet.User?.FullName ?? "Chưa có thông tin",
-                SpeciesName = pet.Species?.SpeciesName ?? "Chưa có thông tin"
+                SpeciesName = pet.Species?.SpeciesName ?? "Chưa có thông tin",
+                PetImages = await _petService.GetPetImagesAsync(id) // Lấy danh sách ảnh hiện tại
             };
             ViewBag.Users = new SelectList(users, "UserId", "FullName", pet.UserId);
             return View(viewModel);
@@ -290,18 +316,22 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit_Pet(PetDetailViewModel viewModel)
+        public async Task<IActionResult> Edit_Pet(int id, PetDetailViewModel viewModel, List<IFormFile> Images)
         {
             Console.WriteLine("[AdminController] Edit_Pet POST called");
-            Console.WriteLine($"Received data: PetId={viewModel.Pet.PetId}, Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, " +
+            Console.WriteLine($"Received data: PetId={id}, Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, " +
                               $"Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}, IsActive={viewModel.Pet.IsActive}, " +
                               $"OwnerName={viewModel.OwnerName}, SpeciesName={viewModel.SpeciesName}");
+
+            // Gán PetId từ route để đảm bảo không bị override
+            viewModel.Pet.PetId = id;
 
             ModelState.Remove("OwnerName");
             ModelState.Remove("SpeciesName");
             ModelState.Remove("SuggestedPets");
             ModelState.Remove("LastSpaVisit");
             ModelState.Remove("AppointmentCount");
+            ModelState.Remove("PetImages");
 
             if (!ModelState.IsValid)
             {
@@ -328,9 +358,6 @@ namespace pet_spa_system1.Controllers
             if (pet.SpeciesId == null)
             {
                 ModelState.AddModelError("Pet.SpeciesId", "Loài là trường bắt buộc.");
-                ModelState.Remove("OwnerName");
-                ModelState.Remove("SpeciesName");
-                ModelState.Remove("SuggestedPets");
                 viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
                 var users = await _context.Users.ToListAsync();
                 ViewBag.Users = new SelectList(users, "UserId", "FullName", viewModel.Pet.UserId);
@@ -348,9 +375,7 @@ namespace pet_spa_system1.Controllers
             try
             {
                 Console.WriteLine("[AdminController] Attempting to process pet...");
-                // Chỉ cập nhật trạng thái mà không xóa
-                Console.WriteLine("[AdminController] Updating pet status...");
-                await _petService.UpdatePetAsync(pet);
+                await _petService.UpdatePetAsync(pet, Images);
                 Console.WriteLine("[AdminController] Pet updated successfully, PetId: {pet.PetId}");
                 TempData["SuccessMessage"] = "Cập nhật thú cưng thành công!";
                 return RedirectToAction("Pets_List");
@@ -359,9 +384,6 @@ namespace pet_spa_system1.Controllers
             {
                 Console.WriteLine($"[AdminController] Error processing pet: {ex.Message} - StackTrace: {ex.StackTrace}");
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
-                ModelState.Remove("OwnerName");
-                ModelState.Remove("SpeciesName");
-                ModelState.Remove("SuggestedPets");
                 viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
                 var users = await _context.Users.ToListAsync();
                 ViewBag.Users = new SelectList(users, "UserId", "FullName", viewModel.Pet.UserId);
@@ -380,7 +402,7 @@ namespace pet_spa_system1.Controllers
 
             Console.WriteLine($"[AdminController] Disabling pet, PetId: {id}");
             pet.IsActive = false;
-            await _petService.UpdatePetAsync(pet); // Cập nhật trạng thái thành Inactive
+            await _petService.UpdatePetAsync(pet);
             Console.WriteLine("[AdminController] Pet disabled successfully, PetId: {id}");
             TempData["SuccessMessage"] = "Thú cưng đã được vô hiệu hóa thành công!";
             return RedirectToAction("Pets_List");
@@ -397,7 +419,7 @@ namespace pet_spa_system1.Controllers
 
             Console.WriteLine($"[AdminController] Restoring pet, PetId: {id}");
             pet.IsActive = true;
-            await _petService.UpdatePetAsync(pet); // Cập nhật trạng thái thành Active
+            await _petService.UpdatePetAsync(pet);
             Console.WriteLine("[AdminController] Pet restored successfully, PetId: {id}");
             TempData["SuccessMessage"] = "Thú cưng đã được khôi phục thành công!";
             return RedirectToAction("Pets_List");
@@ -413,12 +435,13 @@ namespace pet_spa_system1.Controllers
         }
 
 
-      
+
+
         public IActionResult List_Customer()
         {
             return View();
         }
-      
+
         //=======================================================================================================================
         // Hiển thị danh sách sản phẩm
         public async Task<IActionResult> Product_Detail(int productID)
@@ -509,7 +532,7 @@ namespace pet_spa_system1.Controllers
         }
         //=======================================================================================================================
 
-      
+
         //=======================================================================================================================
 
         // Add New Product
@@ -530,7 +553,7 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
-           
+
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -712,174 +735,206 @@ namespace pet_spa_system1.Controllers
             return View("StaffSchedule");
         }
 
-        //=======================================================================================================================
-        // BLOG MANAGEMENT
-        public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3)) // Admin or Staff
-            {
-                return RedirectToAction("Login", "Login");
-            }
+        ////=======================================================================================================================
+        //// BLOG MANAGEMENT
+        //public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
+        //{
+        //    // Lấy CurrentUserId từ session
+        //    int? currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+        //    string currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
+        //    Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
 
-            var model = await _blogService.GetAdminDashboardAsync();
-
-            model.AllBlogs = await _blogService.GetAllBlogsForAdminAsync();
-
-            if (status != "All")
-            {
-                model.AllBlogs = model.AllBlogs.Where(b => b.Status == status).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                model.AllBlogs = model.AllBlogs.Where(b =>
-                    b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    b.ShortContent.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    b.AuthorName.Contains(search, StringComparison.OrdinalIgnoreCase)
-                ).ToList();
-            }
-
-            if (fromDate.HasValue)
-            {
-                model.AllBlogs = model.AllBlogs.Where(b => b.CreatedAt >= fromDate.Value).ToList();
-            }
-
-            if (toDate.HasValue)
-            {
-                model.AllBlogs = model.AllBlogs.Where(b => b.CreatedAt <= toDate.Value.AddDays(1)).ToList();
-            }
-
-            model.StatusFilter = status;
-            model.SearchQuery = search;
-            model.FromDate = fromDate;
-            model.ToDate = toDate;
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                model.AllBlogs = model.AllBlogs.Where(b =>
-                    b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    b.AuthorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            ViewBag.StatusFilter = status;
-            ViewBag.SearchQuery = search;
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveBlog(int blogId)
-        {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
-            {
-                return Json(new { success = false, message = "Không có quyền thực hiện." });
-            }
-
-            try
-            {
-                var success = await _blogService.ApproveBlogAsync(blogId, currentUser.UserId);
-                if (success)
-                {
-                    return Json(new { success = true, message = "Blog đã được duyệt thành công." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Không thể duyệt blog này." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
-        {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
-            {
-                return Json(new { success = false, message = "Không có quyền thực hiện." });
-            }
-
-            try
-            {
-                var success = await _blogService.RejectBlogAsync(blogId, currentUser.UserId, reason);
-                if (success)
-                {
-                    return Json(new { success = true, message = "Blog đã bị từ chối." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Không thể từ chối blog này." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PublishBlog(int blogId)
-        {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
-            {
-                return Json(new { success = false, message = "Không có quyền thực hiện." });
-            }
-
-            try
-            {
-                var success = await _blogService.PublishBlogAsync(blogId, currentUser.UserId);
-                if (success)
-                {
-                    return Json(new { success = true, message = "Blog đã được xuất bản." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Không thể xuất bản blog này." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteBlogAdmin(int blogId)
-        {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
-            {
-                return Json(new { success = false, message = "Không có quyền thực hiện." });
-            }
-
-            try
-            {
-                var success = await _blogService.DeleteBlogAsync(blogId, currentUser.UserId);
-                if (success)
-                {
-                    return Json(new { success = true, message = "Blog đã được xóa." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Không thể xóa blog này." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
-            }
-        }
-
+<<<<<<< HEAD
     
+=======
+
+        //    if (!currentUserId.HasValue)
+        //    {
+        //        Console.WriteLine("[AdminController] Redirecting to Login due to null user ID.");
+        //        return RedirectToAction("Login", "Login");
+        //    }
+
+
+        //    var model = await _blogService.GetAdminDashboardAsync();
+
+        //    model.AllBlogs = await _blogService.GetAllBlogsForAdminAsync();
+
+        //    if (status != "All")
+        //    {
+        //        model.AllBlogs = model.AllBlogs.Where(b => b.Status == status).ToList();
+        //    }
+
+        //    if (!string.IsNullOrEmpty(search))
+        //    {
+        //        model.AllBlogs = model.AllBlogs.Where(b =>
+        //            b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        //            b.ShortContent.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        //            b.AuthorName.Contains(search, StringComparison.OrdinalIgnoreCase)
+        //        ).ToList();
+        //    }
+
+        //    if (fromDate.HasValue)
+        //    {
+        //        model.AllBlogs = model.AllBlogs.Where(b => b.CreatedAt >= fromDate.Value).ToList();
+        //    }
+
+        //    if (toDate.HasValue)
+        //    {
+        //        model.AllBlogs = model.AllBlogs.Where(b => b.CreatedAt <= toDate.Value.AddDays(1)).ToList();
+        //    }
+
+        //    model.StatusFilter = status;
+        //    model.SearchQuery = search;
+        //    model.FromDate = fromDate;
+        //    model.ToDate = toDate;
+
+        //    if (!string.IsNullOrEmpty(search))
+        //    {
+        //        model.AllBlogs = model.AllBlogs.Where(b =>
+        //            b.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        //            b.AuthorName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+        //    }
+
+        //    ViewBag.StatusFilter = status;
+        //    ViewBag.SearchQuery = search;
+
+        //    return View(model);
+        //}
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> ApproveBlog(int blogId)
+        //{
+        //    var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+        //    if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+        //    {
+        //        return Json(new { success = false, message = "Không có quyền thực hiện." });
+        //    }
+
+        //    try
+        //    {
+        //        var success = await _blogService.ApproveBlogAsync(blogId, currentUser.UserId);
+        //        if (success)
+        //        {
+        //            return Json(new { success = true, message = "Blog đã được duyệt thành công." });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false, message = "Không thể duyệt blog này." });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+        //    }
+        //}
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
+        //{
+        //    var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+        //    if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+        //    {
+        //        return Json(new { success = false, message = "Không có quyền thực hiện." });
+        //    }
+
+        //    try
+        //    {
+        //        var success = await _blogService.RejectBlogAsync(blogId, currentUser.UserId, reason);
+        //        if (success)
+        //        {
+        //            return Json(new { success = true, message = "Blog đã bị từ chối." });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false, message = "Không thể từ chối blog này." });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+        //    }
+        //}
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> PublishBlog(int blogId)
+        //{
+        //    var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+        //    if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+        //    {
+        //        return Json(new { success = false, message = "Không có quyền thực hiện." });
+        //    }
+
+        //    try
+        //    {
+        //        var success = await _blogService.PublishBlogAsync(blogId, currentUser.UserId);
+        //        if (success)
+        //        {
+        //            return Json(new { success = true, message = "Blog đã được xuất bản." });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false, message = "Không thể xuất bản blog này." });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+        //    }
+        //}
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteBlogAdmin(int blogId)
+        //{
+        //    var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+        //    var currentUserName = HttpContext.Session.GetString("CurrentUserName");
+        //    if (!currentUserId.HasValue)
+        //    {
+        //        return Json(new { success = false, message = "Vui lòng đăng nhập." });
+        //    }
+
+        //    // Lấy RoleId từ database dựa trên UserId
+        //    var user = await _context.Users.FindAsync(currentUserId.Value);
+        //    if (user == null)
+        //    {
+        //        return Json(new { success = false, message = "Không tìm thấy thông tin người dùng." });
+        //    }
+
+        //    // Debug: Kiểm tra RoleId
+        //    Console.WriteLine($"[AdminController] Deleting blog {blogId} by User {currentUserId.Value} with RoleId {user.RoleId}");
+
+        //    // Kiểm tra quyền: Chỉ Admin (RoleId = 1) hoặc Moderator (RoleId = 3) được xóa
+        //    if (user.RoleId != 1 && user.RoleId != 3)
+        //    {
+        //        return Json(new { success = false, message = "Không có quyền thực hiện hành động này." });
+        //    }
+
+        //    try
+        //    {
+        //        var blog = await _blogService.GetBlogDetailAsync(blogId);
+        //        if (blog == null)
+        //        {
+        //            return Json(new { success = false, message = "Blog không tồn tại." });
+        //        }
+
+        //        var success = await _blogService.DeleteBlogAsync(blogId, currentUserId.Value);
+        //        if (success)
+        //        {
+        //            return Json(new { success = true, message = "Blog đã được xóa thành công." });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false, message = "Không thể xóa blog này." });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+        //    }
+        //}
+>>>>>>> 05539e4eb903ebfb4b1fda55007f83236626e335
     }
 }

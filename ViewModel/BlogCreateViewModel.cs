@@ -24,5 +24,7 @@ namespace pet_spa_system1.ViewModel
 
         public List<string>? Categories { get; set; }
         public List<string> AvailableCategories { get; set; } = new();
+
+        public int BlogId { get; set; }
     }
 }
