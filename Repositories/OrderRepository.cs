@@ -57,5 +57,18 @@ namespace pet_spa_system1.Repositories
                 _context.SaveChanges();
             }
         }
+
+        public List<Order> GetOrdersByUserIdPaged(int userId, int page, int pageSize, out int totalOrders)
+        {
+            var query = _context.Orders
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                .Include(o => o.Status)
+                .Include(o => o.User)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate);
+
+            totalOrders = query.Count();
+            return query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.ViewModels;
 
@@ -16,7 +17,14 @@ namespace pet_spa_system1.Repositories
 
         // ===== BUSINESS LOGIC METHODS =====
         public IEnumerable<AppointmentService> GetByServiceId(int serviceId)
-            => _context.AppointmentServices.Where(a => a.ServiceId == serviceId).ToList();
+            => _context.AppointmentServices
+                .Include(a => a.Appointment)
+                    .ThenInclude(ap => ap.User)
+                .Include(a => a.Appointment)
+                    .ThenInclude(ap => ap.Status)
+                .Include(a => a.Service)
+                .Where(a => a.ServiceId == serviceId)
+                .ToList();
 
         public int GetBookingCountByServiceId(int serviceId)
             => _context.AppointmentServices.Count(a => a.ServiceId == serviceId);

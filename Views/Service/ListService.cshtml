@@ -126,16 +126,16 @@
                 foreach (var item in Model.Services)
                 {
                     var randomImg = defaultImages[new Random().Next(defaultImages.Length)];
-                    
                     // Tạo badge ngẫu nhiên dựa vào giá và thời lượng
                     var badges = new string[] { "Hot", "Phổ biến", "Mới", "Khuyến mãi", "" };
                     var badgeIndex = (item.ServiceId + DateTime.Now.Day) % badges.Length;
                     var badgeText = badges[badgeIndex];
-                    
+                    var serviceImg = !string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : randomImg;
+
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="service-card">
                             <div class="service-img">
-                                <img src="@randomImg" alt="@item.Name">
+                                <img src="@serviceImg" alt="@item.Name">
                                 @if (!string.IsNullOrEmpty(badgeText))
                                 {
                                     <span class="service-badge">@badgeText</span>

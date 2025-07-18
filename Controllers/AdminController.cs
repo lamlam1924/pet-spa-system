@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.ViewModels;
-using pet_spa_system1.ViewModel;
 using pet_spa_system1.Utils;
-using System.Security.Claims;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
 {
@@ -459,7 +458,7 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Product_Detail(int productID)
         {
             var product = await _context.Products
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productID);
 
             if (product == null)
@@ -478,7 +477,7 @@ namespace pet_spa_system1.Controllers
             var totalProducts = await _context.Products.CountAsync();
             var products = await _context.Products
                 .Include(p => p.Reviews)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

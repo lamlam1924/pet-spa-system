@@ -96,50 +96,67 @@ function setupScrollEffects() {
     });
 }
 
-/* ===== MESSAGE HANDLING ===== */
+
+// ===== SWEETALERT2 MESSAGE HANDLING (ĐỒNG BỘ VỚI SERVICE LIST) =====
 function showMessages() {
-    // Success message
     if (typeof successMessage !== 'undefined' && successMessage && successMessage.trim() !== '') {
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công',
-            text: successMessage,
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false
-        });
+        showSuccessConfirmation(decodeHtmlEntities(successMessage));
     }
-    
-    // Error message
     if (typeof errorMessage !== 'undefined' && errorMessage && errorMessage.trim() !== '') {
-        Swal.fire({
-            icon: 'error',
-            title: 'Lỗi',
-            text: errorMessage,
-            confirmButtonText: 'OK'
-        });
+        showErrorDialog(decodeHtmlEntities(errorMessage));
     }
 }
 
-/* ===== STATUS CHANGE ===== */
+function showSuccessConfirmation(message) {
+    Swal.fire({
+        title: 'Thành công!',
+        text: message,
+        icon: 'success',
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'Tuyệt vời!',
+        timer: 4000,
+        timerProgressBar: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        customClass: {
+            popup: 'success-center-popup',
+            confirmButton: 'btn-success-styled'
+        }
+    });
+}
+
+function showErrorDialog(message) {
+    Swal.fire({
+        title: 'Lỗi!',
+        text: message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#ef4444'
+    });
+}
+
+// ===== STATUS CHANGE CONFIRMATION (ĐỒNG BỘ VỚI SERVICE LIST) =====
 function confirmStatusChange(serviceId, activateService) {
-    const title = activateService ? 'Kích hoạt dịch vụ' : 'Tạm ngưng dịch vụ';
-    const text = activateService 
-        ? 'Bạn có chắc chắn muốn kích hoạt lại dịch vụ này?' 
-        : 'Bạn có chắc chắn muốn tạm ngưng dịch vụ này?';
-    const confirmButtonText = activateService ? 'Kích hoạt' : 'Tạm ngưng';
-    const confirmButtonColor = activateService ? '#28a745' : '#dc3545';
-    
+    const isRestore = !!activateService;
+    const title = isRestore ? 'Kích hoạt dịch vụ này?' : 'Tạm ngưng dịch vụ này?';
+    const html = isRestore
+        ? `<div class="swal2-confirm-text"> Dịch vụ sẽ được <b>kích hoạt trở lại</b> và hiển thị cho khách hàng.</div>`
+        : `<div class="swal2-confirm-text"> Dịch vụ sẽ <b>tạm ngưng</b> và không hiển thị với khách hàng.</div>`;
+    const confirmButtonText = isRestore ? 'Kích hoạt' : 'Tạm ngưng';
+    const confirmBtnClass = isRestore ? 'btn-outline-success-custom' : 'btn-outline-warning-custom';
     Swal.fire({
         title: title,
-        text: text,
+        html: html,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: confirmButtonColor,
-        cancelButtonColor: '#6c757d',
         confirmButtonText: confirmButtonText,
         cancelButtonText: 'Hủy',
-        reverseButtons: true
+        reverseButtons: true,
+        customClass: {
+            popup: 'simple-confirmation-popup',
+            confirmButton: confirmBtnClass,
+            cancelButton: 'btn-outline-gray-custom'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             submitStatusChange(serviceId, activateService);
@@ -150,7 +167,13 @@ function confirmStatusChange(serviceId, activateService) {
 function submitStatusChange(serviceId, activateService) {
     const form = document.getElementById('serviceActionForm');
     form.action = activateService ? serviceRestoreUrl : serviceSoftDeleteUrl;
-    
     document.getElementById('serviceIdInput').value = serviceId;
     form.submit();
+}
+
+// ===== UTILITY =====
+function decodeHtmlEntities(text) {
+    const textArea = document.createElement('textarea');
+    textArea.innerHTML = text;
+    return textArea.value;
 }

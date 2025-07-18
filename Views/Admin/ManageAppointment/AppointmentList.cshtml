@@ -12,10 +12,10 @@
             Danh sách lịch hẹn
         </h3>
         <div class="d-flex gap-2">
-            <a href="@Url.Action("AppointmentCalendar", "Admin")" class="btn btn-outline-secondary">
+            <a href="@Url.Action("Calendar", "AdminAppointment")" class="btn btn-outline-secondary">
                 Xem dạng lịch
             </a>
-            <a href="@Url.Action("AppointmentCreate", "Admin")" class="btn btn-primary">
+            <a href="@Url.Action("Create", "AdminAppointment")" class="btn btn-primary">
                 Tạo lịch mới
             </a>
         </div>
@@ -152,10 +152,10 @@
                             </td>
                             <td class="text-center pe-3">
                                 <div class="action-buttons">
-                                    <a class="btn btn-outline-primary" title="Xem chi tiết" href="@Url.Action("AppointmentDetail", "Admin", new { id = item.AppointmentId })">
+                                    <a class="btn btn-outline-primary" title="Xem chi tiết" href="@Url.Action("Detail", "AdminAppointment", new { id = item.AppointmentId })">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("EditAppointment", "Admin", new { id = item.AppointmentId })">
+                                    <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("Edit", "AdminAppointment", new { id = item.AppointmentId })">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button class="btn btn-outline-danger" title="Xóa" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.AppointmentId">

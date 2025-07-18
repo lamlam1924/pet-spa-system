@@ -1,0 +1,48 @@
+@model pet_spa_system1.ViewModel.ReviewViewModel
+
+<div class="media mb-4 border-bottom pb-3 review-item" data-review-id="@Model.Id">
+    <img src="@Model.UserAvatar" alt="Image" class="img-fluid mr-3 mt-1 rounded-circle" style="width: 45px;">
+    <div class="media-body">
+        <h6 class="mb-1">
+            @Model.ReviewerName
+            <small class="text-muted"> - <i>@Model.CreatedAt.ToString("dd/MM/yyyy")</i></small>
+        </h6>
+        @if (Model.Rating > 0)
+        {
+            <div class="text-primary mb-2">
+                @{
+                    int reviewFullStars = Model.Rating;
+                    int reviewEmptyStars = 5 - reviewFullStars;
+                }
+                @for (int i = 0; i < reviewFullStars; i++)
+                {
+                    <i class="fas fa-star"></i>
+                }
+                @for (int i = 0; i < reviewEmptyStars; i++)
+                {
+                    <i class="far fa-star"></i>
+                }
+            </div>
+        }
+        <p>@Model.Comment</p>
+        <button class="btn btn-link btn-sm p-0 reply-btn" data-review-id="@Model.Id">Trả lời</button>
+        <div class="reply-form-container mt-2" id="reply-form-@Model.Id" style="display:none;">
+            <form class="reply-form" data-parent-id="@Model.Id">
+                <div class="form-group mb-2">
+                    <textarea class="form-control" name="content" rows="2" placeholder="Nhập phản hồi..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Gửi phản hồi</button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-reply">Hủy</button>
+            </form>
+        </div>
+        @if (Model.Replies != null && Model.Replies.Any())
+        {
+            <div class="review-replies ml-4 border-left pl-3">
+                @foreach (var reply in Model.Replies)
+                {
+                    @await Html.PartialAsync("_ReviewItemPartial", reply)
+                }
+            </div>
+        }
+    </div>
+</div> 

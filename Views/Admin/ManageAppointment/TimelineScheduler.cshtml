@@ -1,0 +1,149 @@
+@{
+    ViewData["Title"] = "Timeline Scheduler";
+    Layout = Context.Request.Query["fullscreen"] == "1" ? null : "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/cssjsAppointment/css/timeline-scheduler.css" />
+}
+<div class="timeline-header position-relative" style="background:#fff; border-bottom:2px solid #e3e8ee; box-shadow:0 2px 8px rgba(76,195,247,0.06); padding:18px 0 12px 0; margin-bottom:18px;">
+    <div class="container d-flex align-items-center justify-content-between" style="max-width:1400px;">
+        <div class="d-flex align-items-center">
+            <span style="background:#e3f2fd; color:#1976d2; border-radius:12px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(25,118,210,0.08); font-size:2rem; margin-right:18px;">
+                <i class="fas fa-calendar-alt"></i>
+            </span>
+            <span style="font-size:2rem; font-weight:700; color:#222d3a; letter-spacing:0.5px;">@(
+                Context.Request.Query["fullscreen"] == "1" ? "Lịch hẹn nhân viên" : "Lịch hẹn spa")</span>
+        </div>
+        <div>
+            @if (Context.Request.Query["fullscreen"] == "1")
+            {
+                <button id="btnExitFullscreen" class="btn btn-danger" style="position:relative; top:0; right:0; z-index:1000; font-size:2.2rem;" title="Thu nhỏ"><i class="fas fa-compress"></i></button>
+            }
+            else
+            {
+                <button id="btnFullscreen" class="btn btn-link" type="button" style="position:relative; top:0; right:0; font-size:2.2rem; z-index:1000; color:#333;" title="Phóng to"><i class="fas fa-expand"></i></button>
+            }
+        </div>
+    </div>
+</div>
+<div class="timeline-container d-flex flex-row @(Context.Request.Query["fullscreen"] == "1" ? "fullscreen-mode" : "")" style="height:100vh; position:relative;">
+    <!-- Quick Search Sidebar -->
+    <aside class="sidebar bg-white border-right p-4 d-flex flex-column justify-content-start @(Context.Request.Query["fullscreen"] == "1" ? "fullscreen-mode" : "")" style="width:@(Context.Request.Query["fullscreen"] == "1" ? "600px" : "340px"); min-width:320px; max-width:700px; position:sticky; left:0; top:0; height:100vh; z-index:101;">
+        <h4 class="mb-4 font-weight-bold"><i class="fas fa-search mr-2"></i>Tìm kiếm lịch hẹn</h4>
+        <!-- Fullscreen button moved to timeline-main -->
+        <form id="quickSearchForm" method="get" autocomplete="off" action="">
+            <div class="form-group mb-3">
+                <input type="text" class="form-control" id="searchKeyword" name="keyword" value="@Model.Keyword" placeholder="Nhập mã, tên thú cưng, dịch vụ..." />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search mr-1"></i>Tìm kiếm</button>
+        </form>
+        <div id="quickSearchResult" class="mt-4" style="max-height:60vh; overflow-y:auto;"></div>
+        <div id="quickSearchResult" class="mt-4" style="max-height:60vh; overflow-y:auto;">
+            @if (Model.SearchResults != null && Model.SearchResults.Count > 0)
+            {
+                <div class="font-weight-bold mb-2">Kết quả tìm kiếm:</div>
+                <ul class="list-group">
+                @foreach (var appt in Model.SearchResults)
+                {
+                    var petNames = appt.PetNames != null ? string.Join(", ", appt.PetNames) : "";
+                    var serviceNames = appt.ServiceNames != null ? string.Join(", ", appt.ServiceNames) : "";
+                    <li class="list-group-item mb-2">
+                        <div class="font-weight-semibold">Mã lịch hẹn: @appt.AppointmentId</div>
+                        <div>Thời gian: @appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</div>
+                        <div>Nhân viên: @(appt.Employee != null ? appt.Employee.FullName : "")</div>
+                        <div>Dịch vụ: @serviceNames</div>
+                        <div>Thú cưng: @petNames</div>
+                    </li>
+                }
+                </ul>
+            }
+            else if (!string.IsNullOrWhiteSpace(Model.Keyword))
+            {
+                <div class="text-muted">Không tìm thấy lịch hẹn phù hợp.</div>
+            }
+        </div>
+    </aside>
+
+    <!-- Main Timeline Scheduler -->
+    <div class="timeline-main flex-grow-1 bg-light position-relative @(Context.Request.Query["fullscreen"] == "1" ? "fullscreen-mode" : "")" style="overflow-x:auto;">
+        <!-- Fullscreen button now outside main container -->
+        <div class="timeline-table-wrapper bg-white @(Context.Request.Query["fullscreen"] == "1" ? "fullscreen-mode" : "")" style="overflow-x:auto;">
+            <table class="table table-bordered timeline-table mb-0" style="table-layout:fixed;">
+                <thead class="bg-white">
+                    <tr>
+                        <th style="width:220px; position:sticky; left:0; background:#fff; z-index:100;">Nhân viên</th>
+                        @for (var h = 8; h <= 20; h++) {
+                            <th style="min-width:100px; text-align:center;">
+                                @(h == 12 ? "Nghỉ trưa" : $"{h}:00")
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.StaffList != null)
+                    {
+                        foreach (var staff in Model.StaffList)
+                        {
+                            var avatarUrl = !string.IsNullOrEmpty(staff.ProfilePictureUrl) ? staff.ProfilePictureUrl : "/images/avatar-default.png";
+                            <tr style="height:66px;">
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@avatarUrl" class="rounded-circle mr-2" width="40" height="40" alt="avatar" />
+                                        <span class="font-weight-semibold">@staff.FullName</span>
+                                    </div>
+                                </td>
+                                @for (var h = 8; h <= 20; h++) {
+                                    <td style="position:relative;">
+                                        @if (h == 12)
+                                        {
+                                            <div class="bg-warning" style="width:100%; height:100%; opacity:0.10;"></div>
+                                        }
+                                        @if (Model.Appointments != null)
+                                        {
+                                            foreach (var appt in Model.Appointments)
+                                            {
+                                                if (appt.EmployeeId == staff.UserId && appt.AppointmentDate.Hour == h)
+                                                {
+                                                    var petNames = appt.PetNames != null ? string.Join(", ", appt.PetNames) : "";
+                                                    var serviceNames = appt.ServiceNames != null ? string.Join(", ", appt.ServiceNames) : "";
+                                                    <div class="timeline-block position-absolute" style="--duration-minutes:@appt.TotalDurationMinutes" data-appointment-id="@appt.AppointmentId" data-duration="@appt.TotalDurationMinutes">
+                                                        <div class="px-3 py-2 font-weight-semibold">
+                                                            @appt.AppointmentId – @serviceNames – @petNames<br />
+                                                            <span class="small">@appt.AppointmentDate.ToString("HH:mm") - @appt.EndTime.ToString("HH:mm")</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Detail Panel (slide-in) -->
+    <div id="detailPanel" class="timeline-detail-panel bg-white shadow position-fixed @(Context.Request.Query["fullscreen"] == "1" ? "fullscreen-mode" : "")">
+<!-- Nút thu nhỏ đã được di chuyển ra ngoài container -->
+        <div class="d-flex justify-content-between align-items-center border-bottom p-3">
+            <h5 class="m-0 font-weight-bold">Chi tiết lịch hẹn</h5>
+            <button class="btn btn-link text-danger" style="font-size:1.5rem; padding:0;" id="btnCloseDetail"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-3">
+            <div id="detailContent">
+                <!-- Nội dung chi tiết sẽ được load ở đây -->
+                <div class="text-muted">Chọn một block để xem chi tiết.</div>
+            </div>
+        </div>
+    </div>
+    <div class="timeline-detail-overlay" id="timelineDetailOverlay"></div>
+</div>
+
+@section Scripts {
+    <script src="~/cssjsAppointment/js/timeline-scheduler.js"></script>
+}

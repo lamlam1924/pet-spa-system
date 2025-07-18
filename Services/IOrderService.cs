@@ -13,5 +13,7 @@ namespace pet_spa_system1.Services
         void DeleteOrder(int id);
         List<OrderViewModel> GetOrdersByUserId(int? userId);
         OrderViewModel GetOrderDetail(int orderId);
+        bool CancelOrder(int orderId, int? userId);
+        List<OrderViewModel> GetOrdersByUserIdPaged(int? userId, int page, int pageSize, out int totalOrders);
     }
 }

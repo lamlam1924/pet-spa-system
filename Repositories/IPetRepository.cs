@@ -1,6 +1,4 @@
 ﻿using pet_spa_system1.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace pet_spa_system1.Repositories
 {
@@ -22,5 +20,7 @@ namespace pet_spa_system1.Repositories
         Task<List<PetImage>> GetPetImagesAsync(int petId);
         Task AddPetImageAsync(PetImage petImage);
         Task DeletePetImageAsync(int imageId);
+        IEnumerable<Pet> GetAllPetsWithSpecies();
+        
     }
 }

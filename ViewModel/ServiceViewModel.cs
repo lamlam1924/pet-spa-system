@@ -30,8 +30,11 @@ namespace pet_spa_system1.ViewModel
         public decimal Revenue { get; set; }
         public DateTime? CreatedAt { get; set; }
 
-        // ? TH�M properties b? thi?u:
+        // ✅ THÊM properties bị thiếu:
         public string? Description { get; set; }
+
+        // Đường dẫn ảnh dịch vụ
+        public string? ImageUrl { get; set; }
     }
 
     // Service Detail
@@ -43,9 +46,8 @@ namespace pet_spa_system1.ViewModel
         public int BookingCount { get; set; }
         public decimal Revenue { get; set; }
         public int CustomerCount { get; set; }
-
-        // ? TH�M PROPERTY B? THI?U:
-        public List<Service> RelatedServices { get; set; } = new List<Service>();
+        // Sửa kiểu dữ liệu cho đúng:
+        public List<ServiceListItem> RelatedServices { get; set; } = new List<ServiceListItem>();
     }
 
     public class AppointmentHistoryItem
@@ -62,14 +64,14 @@ namespace pet_spa_system1.ViewModel
     {
         public ServiceInputViewModel Input { get; set; } = new ServiceInputViewModel();
         public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
-        public string CategoryName { get; set; } = "Ch?n danh m?c";
+        public string CategoryName { get; set; } = "Chọn danh mục";
         public IEnumerable<ServiceChangeHistoryItem> ChangeHistory { get; set; } = new List<ServiceChangeHistoryItem>();
 
         // Computed properties for view
-        public string StatusText => Input.IsActive == true ? "?ang ho?t ??ng" : "?� t?m ng?ng";
+        public string StatusText => Input.IsActive == true ? "Đang hoạt động" : "Đã tạm ngưng";
         public string StatusClass => Input.IsActive == true ? "badge-success" : "badge-danger";
-        public string FormattedPrice => (Input.Price ?? 0).ToString("N0") + " VN?";
-        public string DurationText => (Input.DurationMinutes ?? 0) + " ph�t";
+        public string FormattedPrice => (Input.Price ?? 0).ToString("N0") + " VNĐ";
+        public string DurationText => (Input.DurationMinutes ?? 0) + " phút";
     }
 
     public class ServiceChangeHistoryItem
@@ -101,11 +103,16 @@ namespace pet_spa_system1.ViewModel
         public IEnumerable<CategoryStatsItem> CategoryStats { get; set; } = new List<CategoryStatsItem>();
         public ServiceTrendData TrendData { get; set; } = new ServiceTrendData();
 
-        // ? TH�M C�C PROPERTIES B? THI?U:
+        // ✅ THÊM CÁC PROPERTIES BỊ THIẾU:
         public IEnumerable<Service> RecentServices { get; set; } = new List<Service>();
-        public Dictionary<string, int> CategoryDistribution { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, CategoryDistributionItem> CategoryDistribution { get; set; } = new Dictionary<string, CategoryDistributionItem>();
     }
 
+    public class CategoryDistributionItem
+    {
+        public int ServiceCount { get; set; }
+        public decimal TotalRevenue { get; set; }
+    }
 
     public class TopServiceItem
     {
@@ -145,30 +152,35 @@ namespace pet_spa_system1.ViewModel
         public string TrendDirection { get; set; } = "up";
     }
 
-    // Service Category
-    public class ServiceCategoryViewModel
+    // Service Input ViewModel (for Add/Edit forms)
+    public class ServiceInputViewModel
     {
-        public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
-        public Dictionary<int, int> ServiceCountsByCategory { get; set; } = new Dictionary<int, int>();
+        public int? ServiceId { get; set; }
 
-        // Computed properties
-        public int TotalCategories => Categories?.Count() ?? 0;
-        public int ActiveCategories => Categories?.Count(c => c.IsActive == true) ?? 0;
-        public int InactiveCategories => Categories?.Count(c => c.IsActive != true) ?? 0;
-        public int TotalServices => ServiceCountsByCategory?.Values.Sum() ?? 0;
-    }
+        [Required(ErrorMessage = "Tên dịch vụ không được để trống")]
+        [StringLength(100, ErrorMessage = "Tên dịch vụ tối đa 100 ký tự")]
+        public string? Name { get; set; }
 
-    // Common models
-    public class ServiceFilterModel
-    {
+        [Required(ErrorMessage = "Giá dịch vụ không được để trống")]
+        [Range(1000, 100000000, ErrorMessage = "Giá dịch vụ phải lớn hơn 0")]
+        public decimal? Price { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn danh mục")]
+        [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn danh mục hợp lệ")]
         public int? CategoryId { get; set; }
-        public string? Search { get; set; }
-        public decimal? PriceFrom { get; set; }
-        public decimal? PriceTo { get; set; }
-        public string? Sort { get; set; } = "name_asc";
-        public string? Status { get; set; }
-        public DateTime? CreatedFrom { get; set; }
-        public DateTime? CreatedTo { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Mô tả tối đa 1000 ký tự")]
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Thời gian thực hiện không được để trống")]
+        [Range(5, 480, ErrorMessage = "Thời gian thực hiện phải từ 5 đến 480 phút")]
+        public int? DurationMinutes { get; set; }
+
+        public bool? IsActive { get; set; }
+        public DateTime? CreatedAt { get; set; }
+
+        // Đường dẫn ảnh dịch vụ
+        public string? ImageUrl { get; set; }
     }
 
     public class PaginationModel
@@ -181,6 +193,18 @@ namespace pet_spa_system1.ViewModel
         public bool HasNextPage => CurrentPage < TotalPages;
     }
 
+    public class ServiceFilterModel
+    {
+        public int? CategoryId { get; set; }
+        public string? Search { get; set; }
+        public decimal? PriceFrom { get; set; }
+        public decimal? PriceTo { get; set; }
+        public string? Sort { get; set; } = "name_asc";
+        public string? Status { get; set; }
+        public DateTime? CreatedFrom { get; set; }
+        public DateTime? CreatedTo { get; set; }
+    }
+
     public class ServiceSummaryStats
     {
         public int TotalServices { get; set; }
@@ -190,13 +214,13 @@ namespace pet_spa_system1.ViewModel
         public int TotalBookings { get; set; }
     }
 
-    // Legacy support - ?? compatibility v?i code c?
+    // Legacy support - để compatibility với code cũ
     public class ServiceViewModel
     {
-        // ? X�A c�c properties c?:
+        // ❌ XÓA các properties cũ:
         // (Legacy properties removed for maintainability)
 
-        // ? TH�M properties gi?ng ServiceListViewModel:
+        // ✅ THÊM properties giống ServiceListViewModel:
         public IEnumerable<ServiceListItem> Services { get; set; } = new List<ServiceListItem>();
         public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
         public ServiceFilterModel Filter { get; set; } = new();
@@ -209,32 +233,11 @@ namespace pet_spa_system1.ViewModel
         public int InactiveServices => Summary?.InactiveServices ?? 0;
     }
 
-    // Service Input ViewModel (for Add/Edit forms)
-    public class ServiceInputViewModel
+    // (Đã dọn, chỉ giữ lại 1 class ServiceInputViewModel ở trên)
+    public class ServiceCategoryViewModel
     {
-        public int? ServiceId { get; set; }
-
-        [Required(ErrorMessage = "T�n d?ch v? kh�ng ???c ?? tr?ng")]
-        [StringLength(100, ErrorMessage = "T�n d?ch v? t?i ?a 100 k� t?")]
-        public string? Name { get; set; }
-
-        [Required(ErrorMessage = "Gi� d?ch v? kh�ng ???c ?? tr?ng")]
-        [Range(1000, 100000000, ErrorMessage = "Gi� d?ch v? ph?i l?n h?n 0")]
-        public decimal? Price { get; set; }
-
-        [Required(ErrorMessage = "Vui l�ng ch?n danh m?c")]
-        [Range(1, int.MaxValue, ErrorMessage = "Vui l�ng ch?n danh m?c h?p l?")]
-        public int? CategoryId { get; set; }
-
-        [StringLength(1000, ErrorMessage = "M� t? t?i ?a 1000 k� t?")]
-        public string? Description { get; set; }
-
-        [Required(ErrorMessage = "Th?i gian th?c hi?n kh�ng ???c ?? tr?ng")]
-        [Range(5, 480, ErrorMessage = "Th?i gian th?c hi?n ph?i t? 5 ??n 480 ph�t")]
-        public int? DurationMinutes { get; set; }
-
-        public bool? IsActive { get; set; }
-        public DateTime? CreatedAt { get; set; }
+        public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
+        public Dictionary<int, int> ServiceCountsByCategory { get; set; } = new Dictionary<int, int>();
     }
 }
 

@@ -1,0 +1,109 @@
+@model List<pet_spa_system1.ViewModel.ReviewViewModel>
+
+@foreach (var review in Model)
+{
+    @await Html.PartialAsync("_ReviewItemPartial", review)
+}
+
+@{
+    var page = ViewBag.ReviewPage as int? ?? 1;
+    var totalPages = ViewBag.TotalReviewPages as int? ?? 1;
+    var productId = ViewBag.ProductId as int?;
+}
+@if (totalPages > 1 && productId != null)
+{
+    <nav aria-label="Review pagination" class="mt-3">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(page == 1 ? "disabled" : "")">
+                <a class="page-link review-page-link" href="#" data-page="@(page-1)" data-productid="@productId">&laquo;</a>
+            </li>
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == page ? "active" : "")">
+                    <a class="page-link review-page-link" href="#" data-page="@i" data-productid="@productId">@i</a>
+                </li>
+            }
+            <li class="page-item @(page == totalPages ? "disabled" : "")">
+                <a class="page-link review-page-link" href="#" data-page="@(page+1)" data-productid="@productId">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}
+<script>
+$(function () {
+    // Hiện form trả lời
+    $(document).on('click', '.reply-btn', function () {
+        var reviewId = $(this).data('review-id');
+        $('.reply-form-container').hide();
+        $('#reply-form-' + reviewId).show();
+    });
+    // Hủy trả lời
+    $(document).on('click', '.cancel-reply', function () {
+        $(this).closest('.reply-form-container').hide();
+    });
+    // Submit reply qua AJAX, chặn double submit
+    $(document).on('submit', '.reply-form', function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var submitBtn = form.find('button[type="submit"]');
+        submitBtn.prop('disabled', true);
+        var parentReviewId = form.data('parent-id');
+        var content = form.find('textarea[name="content"]').val();
+        if (!content.trim()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chú ý',
+                text: 'Vui lòng nhập nội dung phản hồi!'
+            });
+            submitBtn.prop('disabled', false);
+            return;
+        }
+        $.ajax({
+            url: '/Products/AddReply',
+            type: 'POST',
+            data: { parentReviewId: parentReviewId, content: content },
+            success: function (response) {
+                // Nếu trả về lỗi (ví dụ reply vào bình luận của chính mình)
+                if (typeof response === 'object' && response.success === false) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: response.message
+                    });
+                    submitBtn.prop('disabled', false);
+                    return;
+                }
+                var $parent = $('.review-item[data-review-id="' + parentReviewId + '"]');
+                var $replies = $parent.find('> .media-body > .review-replies');
+                if ($replies.length === 0) {
+                    $replies = $('<div class="review-replies ml-4 border-left pl-3"></div>');
+                    $parent.find('> .media-body').append($replies);
+                }
+                $replies.append(response);
+                form.closest('.reply-form-container').hide();
+                form[0].reset();
+                submitBtn.prop('disabled', false);
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Có lỗi xảy ra khi gửi phản hồi.'
+                });
+                submitBtn.prop('disabled', false);
+            }
+        });
+    });
+    // Phân trang review
+    $(document).on('click', '.review-page-link', function (e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        var productId = $(this).data('productid');
+        if (!page || !productId) return;
+        $.get('/Products/GetReviewsPage', { productId: productId, page: page }, function (data) {
+            $('#product-reviews').html(data);
+            $('html, body').animate({ scrollTop: $('#product-reviews').offset().top - 100 }, 400);
+        });
+    });
+});
+</script> 
