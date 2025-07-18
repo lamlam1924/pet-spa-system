@@ -8,10 +8,12 @@
         <a href="#"
            class="btn btn-success"
            hx-get="@Url.Action("AddPetPartial", "UserHome")"
-           hx-target="#content-main"
+           hx-target="#modal-container"
+           hx-trigger="click"
            hx-swap="innerHTML">
             <i class="bi bi-plus-circle"></i>
         </a>
+
     </div>
 
     @if (Model == null || !Model.Any())
@@ -69,3 +71,5 @@
         </table>
     }
 </div>
+<!-- Container để load modal động -->
+<div id="modal-container"></div>

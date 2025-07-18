@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 using pet_spa_system1.Models;
 using pet_spa_system1.ViewModels;
 using RouteData = Microsoft.AspNetCore.Routing.RouteData;
-
 namespace pet_spa_system1.Services
 {
     public class EmailService : IEmailService
@@ -46,7 +45,6 @@ namespace pet_spa_system1.Services
             var smtpServer = _config["EmailSettings:SmtpServer"];
             var smtpPortStr = _config["EmailSettings:SmtpPort"];
             int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
-
             var smtpUser = _config["EmailSettings:SmtpUser"];
             var smtpPass = _config["EmailSettings:SmtpPass"];
             var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
@@ -135,6 +133,63 @@ namespace pet_spa_system1.Services
                 renderTask.GetAwaiter().GetResult();
                 return sw.ToString();
             }
+
         }
+        public void SendEmailWithMessage(string title, string description, string email)
+        {
+            // Lấy thông tin cấu hình email
+            var smtpServer = _config["EmailSettings:SmtpServer"];
+            var smtpPortStr = _config["EmailSettings:SmtpPort"];
+            int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
+            var smtpUser = _config["EmailSettings:SmtpUser"];
+            var smtpPass = _config["EmailSettings:SmtpPass"];
+            var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
+
+            if (string.IsNullOrWhiteSpace(smtpUser))
+            {
+                throw new InvalidOperationException("EmailSettings:SmtpUser chưa được cấu hình hoặc bị null.");
+            }
+
+            try
+            {
+                var client = new SmtpClient(smtpServer, smtpPort)
+                {
+                    EnableSsl = true,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(smtpUser, smtpPass)
+                };
+
+                var fromAddress = new MailAddress(smtpUser, fromName);
+                var toAddress = new MailAddress(email);
+
+                var message = new MailMessage(fromAddress, toAddress)
+                {
+                    Subject = title,
+                    Body = description,
+                    IsBodyHtml = true // Cho phép dùng HTML nếu cần xuống dòng hoặc định dạng
+                };
+
+                try
+                {
+                    client.Send(message);
+                    Debug.WriteLine($"[Email] Đã gửi email tới {email} với tiêu đề: {title}");
+                }
+                finally
+                {
+                    message.Dispose();
+                    client.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Email Error] Gửi email thất bại: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
+        }
+
     }
 }

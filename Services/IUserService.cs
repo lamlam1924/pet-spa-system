@@ -40,4 +40,6 @@ public interface IUserService
     Task AddStaffDocumentAsync(StaffDocument doc);
     Task<string> ResetStaffPasswordAsync(int staffId);
     Task<string> UploadAvatarAsync(Microsoft.AspNetCore.Http.IFormFile avatarFile);
+    Task<(bool Success, string? Message)> UpdatePasswordWithUserIdAsync(int userId, string newPlainPassword);
+
 }

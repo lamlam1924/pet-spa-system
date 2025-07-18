@@ -304,5 +304,19 @@ namespace pet_spa_system1.Services
             var uploadResult = await cloudinary.UploadAsync(uploadParams);
             return uploadResult.SecureUrl?.ToString();
         }
+        public async Task<(bool Success, string? Message)> UpdatePasswordWithUserIdAsync(int userId, string newPlainPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.IsActive != true)
+                return (false, "User not found or inactive");
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, newPlainPassword);
+            user.UpdatedAt = DateTime.Now;
+
+            await _userRepository.UpdateAsync(user);
+            Console.WriteLine("Update success " + newPlainPassword);
+            return (true, "Password updated successfully");
+        }
+
     }
 }
