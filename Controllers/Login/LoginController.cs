@@ -44,7 +44,9 @@ namespace pet_spa_system1.Controllers
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
             HttpContext.Session.SetString("CurrentUserName", user.Username);
             HttpContext.Session.SetInt32("CurrentUserRoleId", user.RoleId);
-            HttpContext.Session.SetString("CurrentUserAddress", user.Address);
+            if(user.Address != null) { 
+                HttpContext.Session.SetString("CurrentUserAddress", user.Address);
+            }
 
             if (user.RoleId == 1)
             {
@@ -78,7 +80,10 @@ namespace pet_spa_system1.Controllers
             HttpContext.Session.SetInt32("CurrentUserId", newUser.UserId);
             HttpContext.Session.SetString("CurrentUserName", newUser.Username);
             HttpContext.Session.SetInt32("CurrentUserRoleId", newUser.RoleId);
-            HttpContext.Session.SetString("CurrentUserAddress", newUser.Address);
+            if (newUser.Address != null)
+            {
+                HttpContext.Session.SetString("CurrentUserAddress", newUser.Address);
+            }
 
             return RedirectToAction("Index", "Home");
         }
@@ -122,7 +127,10 @@ namespace pet_spa_system1.Controllers
             HttpContext.Session.SetString("CurrentUserName", user.Username);
             // lưu role vào session nếu cần
             HttpContext.Session.SetInt32("CurrentUserRoleId", user.RoleId);
-            HttpContext.Session.SetString("CurrentUserAddress", user.Address);
+            if (user.Address != null)
+            {
+                HttpContext.Session.SetString("CurrentUserAddress", user.Address);
+            }
 
 
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
