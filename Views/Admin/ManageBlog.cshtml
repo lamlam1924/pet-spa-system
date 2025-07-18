@@ -1,0 +1,408 @@
+@model pet_spa_system1.ViewModel.BlogAdminViewModel
+@{
+    ViewData["Title"] = "Quản Lý Blog";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+@section Styles {
+    <style>
+        .blog-stats {
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card.pending {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .stat-card.published {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .stat-card.rejected {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .blog-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            border: none;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-published {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-draft {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+        
+        .blog-title {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .blog-content {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-blog"></i> Quản Lý Blog
+        </h1>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row blog-stats">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">@Model.TotalBlogs</div>
+                <div class="stat-label">
+                    <i class="fas fa-blog"></i> Tổng Blog
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card pending">
+                <div class="stat-number">@Model.PendingApproval</div>
+                <div class="stat-label">
+                    <i class="fas fa-clock"></i> Chờ Duyệt
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card published">
+                <div class="stat-number">@Model.PublishedBlogs</div>
+                <div class="stat-label">
+                    <i class="fas fa-check-circle"></i> Đã Xuất Bản
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card rejected">
+                <div class="stat-number">@Model.RejectedBlogs</div>
+                <div class="stat-label">
+                    <i class="fas fa-times-circle"></i> Đã Từ Chối
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" asp-action="ManageBlog">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái:</label>
+                    <select name="status" class="form-control">
+                        <option value="All" selected="@(Model.StatusFilter == "All")">Tất cả</option>
+                        <option value="PendingApproval" selected="@(Model.StatusFilter == "PendingApproval")">Chờ duyệt</option>
+                        <option value="Published" selected="@(Model.StatusFilter == "Published")">Đã xuất bản</option>
+                        <option value="Rejected" selected="@(Model.StatusFilter == "Rejected")">Đã từ chối</option>
+                        <option value="Draft" selected="@(Model.StatusFilter == "Draft")">Bản nháp</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tìm kiếm:</label>
+                    <input type="text" name="search" class="form-control" placeholder="Tìm theo tiêu đề hoặc nội dung..." value="@Model.SearchQuery">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Từ ngày:</label>
+                    <input type="date" name="fromDate" class="form-control" value="@Model.FromDate?.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Đến ngày:</label>
+                    <input type="date" name="toDate" class="form-control" value="@Model.ToDate?.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Blog Table -->
+    <div class="blog-table">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tiêu đề</th>
+                        <th>Tác giả</th>
+                        <th>Danh mục</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.AllBlogs.Any())
+                    {
+                        @foreach (var blog in Model.AllBlogs)
+                        {
+                            <tr>
+                                <td>@blog.BlogId</td>
+                                <td>
+                                    <div class="blog-title" title="@blog.Title">
+                                        <strong>@blog.Title</strong>
+                                    </div>
+                                    <small class="text-muted blog-content" title="@blog.ShortContent">
+                                        @blog.ShortContent
+                                    </small>
+                                </td>
+                                <td>
+                                    <div>@blog.AuthorName</div>
+                                    <small class="text-muted">@blog.AuthorRole</small>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(blog.Category))
+                                    {
+                                        <span class="badge badge-secondary">@blog.Category</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa phân loại</span>
+                                    }
+                                </td>
+                                <td>
+                                    @switch (blog.Status)
+                                    {
+                                        case "PendingApproval":
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-clock"></i> Chờ duyệt
+                                            </span>
+                                            break;
+                                        case "Published":
+                                            <span class="status-badge status-published">
+                                                <i class="fas fa-check-circle"></i> Đã xuất bản
+                                            </span>
+                                            break;
+                                        case "Rejected":
+                                            <span class="status-badge status-rejected">
+                                                <i class="fas fa-times-circle"></i> Đã từ chối
+                                            </span>
+                                            break;
+                                        case "Draft":
+                                            <span class="status-badge status-draft">
+                                                <i class="fas fa-edit"></i> Bản nháp
+                                            </span>
+                                            break;
+                                        default:
+                                            <span class="status-badge status-draft">@blog.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <div>@blog.CreatedAt?.ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@blog.CreatedAt?.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="@Url.Action("Detail", "Blogs", new { id = blog.BlogId, userId = Context.Session.GetInt32("CurrentUserId") })"
+                                           class="btn btn-info btn-sm" title="Xem chi tiết" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        
+                                        @if (blog.Status == "PendingApproval")
+                                        {
+                                            <button type="button" class="btn btn-success btn-sm approve-btn" 
+                                                    data-blog-id="@blog.BlogId" title="Duyệt blog">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm reject-btn" 
+                                                    data-blog-id="@blog.BlogId" title="Từ chối blog">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        }
+                                        <button type="button" class="btn btn-danger btn-sm delete-btn" 
+                                                data-blog-id="@blog.BlogId" title="Xóa blog">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <div class="text-muted">Không có blog nào được tìm thấy</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Approve blog
+            $('.approve-btn').click(function() {
+                const blogId = $(this).data('blog-id');
+
+                if (confirm('Bạn có chắc chắn muốn duyệt blog này?')) {
+                    $.ajax({
+                        url: '@Url.Action("ApproveBlog", "Admin")',
+                        type: 'POST',
+                        data: {
+                            blogId: blogId,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message);
+                                location.reload();
+                            } else {
+                                alert('Lỗi: ' + response.message);
+                            }
+                        },
+                        error: function() {
+                            alert('Có lỗi xảy ra khi duyệt blog.');
+                        }
+                    });
+                }
+            });
+
+            // Reject blog
+            $('.reject-btn').click(function() {
+                const blogId = $(this).data('blog-id');
+
+                const reason = prompt('Nhập lý do từ chối blog:');
+                if (reason && reason.trim() !== '') {
+                    $.ajax({
+                        url: '@Url.Action("RejectBlog", "Admin")',
+                        type: 'POST',
+                        data: {
+                            blogId: blogId,
+                            reason: reason,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message);
+                                location.reload();
+                            } else {
+                                alert('Lỗi: ' + response.message);
+                            }
+                        },
+                        error: function() {
+                            alert('Có lỗi xảy ra khi từ chối blog.');
+                        }
+                    });
+                }
+            });
+
+            // Delete blog
+            $('.delete-btn').click(function() {
+                const blogId = $(this).data('blog-id');
+
+                if (confirm('Bạn có chắc chắn muốn xóa blog này? Hành động này không thể hoàn tác!')) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteBlogAdmin", "Admin")',
+                        type: 'POST',
+                        data: {
+                            blogId: blogId,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message);
+                                location.reload();
+                            } else {
+                                alert('Lỗi: ' + response.message);
+                            }
+                        },
+                        error: function() {
+                            alert('Có lỗi xảy ra khi xóa blog.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- Add CSRF Token -->
+    @Html.AntiForgeryToken()
+}

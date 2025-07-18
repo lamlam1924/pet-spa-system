@@ -1,10 +1,24 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using pet_spa_system1.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Repositories
 {
     public interface IPetRepository
     {
+        Task<List<Pet>> GetAllPetsAsync(int page, int pageSize);
+        Task<Pet> GetPetByIdAsync(int id);
+        Task<List<Species>> GetAllSpeciesAsync();
+        Task<List<Pet>> GetActivePetsAsync(int page, int pageSize);
+        Task<int> CountActivePetsAsync();
+        Task AddPetAsync(Pet pet);
+        Task UpdatePetAsync(Pet pet);
+        Task DeletePetAsync(int id);
+        bool PetExists(int id);
+        Task<int> GetTotalPetCountAsync();
+        Task DisablePetAsync(int id);
+        Task<List<Pet>> GetSuggestedPetsAsync(int speciesId, int excludePetId, int count);
         List<Pet> GetPetsByUserId(int userId);
         List<Pet> GetAllPets();
         void AddPet(Pet pet);

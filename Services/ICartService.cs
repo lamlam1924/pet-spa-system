@@ -1,12 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using pet_spa_system1.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using pet_spa_system1.Models;
 
-public interface ICartService
+namespace pet_spa_system1.Services
 {
-    Task<List<Cart>> GetCartByUserIdAsync(int userId);
-    Task AddToCartAsync(Cart cart);
-    Task RemoveFromCartAsync(int cartId);
-    Task UpdateQuantityAsync(int cartId, int newQuantity);
-    Task ClearCartAsync(int userId);
+    public interface ICartService
+    {
+        // Lấy danh sách giỏ hàng theo UserId
+        Task<List<Cart>> GetCartByUserIdAsync(int userId);
+
+        // Thêm sản phẩm vào giỏ hàng
+        Task AddToCartAsync(int userId, int productId, int quantity);
+
+        // Xóa một mục khỏi giỏ hàng theo CartId
+        Task RemoveFromCartAsync(int cartId);
+
+        // Cập nhật số lượng theo CartId
+        Task UpdateQuantityAsync(int cartId, int newQuantity);
+
+        // Xóa toàn bộ giỏ hàng của người dùng
+        Task ClearCartAsync(int userId);
+
+        // Xóa sản phẩm khỏi giỏ hàng theo ProductId và UserId
+        Task RemoveProductFromCart(int productId, int userId);
+
+        // Tăng số lượng sản phẩm trong giỏ hàng
+        Task<Cart> IncreaseQuantityAsync(int productId, int userId);
+
+        // Giảm số lượng sản phẩm trong giỏ hàng
+        Task<Cart> DecreaseQuantityAsync(int productId, int userId);
+
+        // Tính tổng tiền của giỏ hàng theo UserId
+        Task<decimal> GetTotalAmountAsync(int userId);
+    }
 }
