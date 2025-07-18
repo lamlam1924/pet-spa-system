@@ -1,6 +1,12 @@
 ﻿@model pet_spa_system1.ViewModel.UserViewModel
 
-<form asp-action="UpdateUserProfile" asp-controller="UserHome" method="post" enctype="multipart/form-data">
+<form asp-action="UpdateUserProfile"
+      asp-controller="UserHome"
+      method="post"
+      enctype="multipart/form-data"
+      hx-post="@Url.Action("UpdateUserProfile", "UserHome")"
+      hx-target="#content-main"
+      hx-swap="innerHTML">
     <input type="hidden" name="ProfilePictureUrl" value="@Model.ProfilePictureUrl" />
 
     <div class="card shadow p-4">

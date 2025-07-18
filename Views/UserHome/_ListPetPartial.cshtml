@@ -46,9 +46,9 @@
                         <td>@pet.HealthCondition</td>
                         <td>@pet.Note</td>
                         <td class="text-center">
-                            <a href="#"
-                               hx-get="@Url.Action("EditPetPartial", "UserHome", new { id = i })"
-                               hx-target="#content-main"
+                           <a href="#"
+                               hx-get="@Url.Action("EditPetPartial", "UserHome", new { id = pet.Id })"
+                               hx-target="#modal-container"
                                hx-swap="innerHTML"
                                class="text-primary me-2"
                                title="Chỉnh sửa">
