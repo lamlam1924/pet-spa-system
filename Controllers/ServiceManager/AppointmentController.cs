@@ -23,7 +23,7 @@ namespace pet_spa_system1.Controllers
             _serviceService = serviceService;
         }
 
-       // GET: /Appointment
+        // GET: /Appointment
         //public IActionResult Index()
         //{
         //    // Tạm thời hardcode userId = 2
@@ -32,7 +32,7 @@ namespace pet_spa_system1.Controllers
         //    int pageSize = 5;
         //    var viewModel = new AppointmentViewModel
         //    {
-        //        Pets = _petService.GetAllPetsAsync(page,pageSize),
+        //        Pets = _petService.GetAllPetsAsync(page, pageSize),
         //        Services = _serviceService.GetActiveServices().ToList(),
         //        AppointmentDate = DateTime.Today.AddDays(1),
         //        AppointmentTime = new TimeSpan(9, 0, 0) // Default to 9:00 AM
@@ -41,7 +41,7 @@ namespace pet_spa_system1.Controllers
         //    return View("Appointment", viewModel);
         //}
 
-        // POST: /Appointment
+        //// POST: /Appointment
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public IActionResult Appointment(AppointmentViewModel model)
