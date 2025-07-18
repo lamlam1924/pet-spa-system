@@ -29,5 +29,8 @@ namespace pet_spa_system1.Repositories
 
         // Get order items by order ID
         Task AddOrderItemsAsync(List<OrderItem> orderItems);
+
+        // Update user information
+        Task UpdateUserAsync(User user);
     }
 }
