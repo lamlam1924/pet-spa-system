@@ -275,7 +275,7 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="@Url.Action("Detail", "Blogs", new { id = blog.BlogId })" 
+                                        <a href="@Url.Action("Detail", "Blogs", new { id = blog.BlogId, userId = Context.Session.GetInt32("CurrentUserId") })"
                                            class="btn btn-info btn-sm" title="Xem chi tiết" target="_blank">
                                             <i class="fas fa-eye"></i>
                                         </a>

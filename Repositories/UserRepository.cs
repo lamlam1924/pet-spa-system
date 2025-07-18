@@ -125,29 +125,29 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    // TODO: Triển khai hàm lấy hiệu suất làm việc
+    // TODO: Tri?n khai h�m l?y hi?u su?t l�m vi?c
     public async Task<StaffPerformanceStats> GetStaffPerformanceStatsAsync(int staffId)
     {
-        // Tính toán hiệu suất từ bảng Appointment, Order, ...
+        // T�nh to�n hi?u su?t t? b?ng Appointment, Order, ...
         return new StaffPerformanceStats();
     }
 
-    // TODO: Triển khai hàm lấy tài liệu của nhân viên
+    // TODO: Tri?n khai h�m l?y t�i li?u c?a nh�n vi�n
     public async Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId)
     {
         return new List<StaffDocument>();
     }
 
-    // TODO: Triển khai hàm upload tài liệu
+    // TODO: Tri?n khai h�m upload t�i li?u
     public async Task AddStaffDocumentAsync(StaffDocument doc)
     {
-        // Thêm doc vào DB
+        // Th�m doc v�o DB
     }
 
-    // TODO: Triển khai hàm reset mật khẩu nhân viên
+    // TODO: Tri?n khai h�m reset m?t kh?u nh�n vi�n
     public async Task<string> ResetStaffPasswordAsync(int staffId)
     {
-        // Sinh mật khẩu mới, cập nhật DB, trả về mật khẩu mới
+        // Sinh m?t kh?u m?i, c?p nh?t DB, tr? v? m?t kh?u m?i
         return "newpassword123";
     }
 }

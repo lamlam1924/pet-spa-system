@@ -227,7 +227,7 @@ public class BlogService : IBlogService
             UserId = userId,
             ParentCommentId = parentCommentId,
             Content = content,
-            Status = "Approved", 
+            Status = "Approved",
             CreatedAt = DateTime.Now
         };
 
@@ -271,7 +271,7 @@ public class BlogService : IBlogService
     public async Task<bool> ToggleLikeAsync(int blogId, int userId)
     {
         var isLiked = await _blogRepository.IsLikedByUserAsync(blogId, userId);
-        
+
         if (isLiked)
         {
             await _blogRepository.RemoveLikeAsync(blogId, userId);
@@ -281,7 +281,7 @@ public class BlogService : IBlogService
             await _blogRepository.AddLikeAsync(blogId, userId);
         }
 
-        return !isLiked; 
+        return !isLiked;
     }
 
     public async Task<bool> IsLikedByUserAsync(int blogId, int userId)
@@ -460,21 +460,21 @@ public class BlogService : IBlogService
         try
         {
             var account = new Account(
-                "dprp1jbd9", 
-                "584135338254938", 
-                "QbUYngPIdZcXEn_mipYn8RE5dlo" 
+                "dprp1jbd9",
+                "584135338254938",
+                "QbUYngPIdZcXEn_mipYn8RE5dlo"
             );
             var cloudinary = new Cloudinary(account);
 
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
-                Folder = "blog_images", 
-                PublicId = $"blog_{Guid.NewGuid()}", 
+                Folder = "blog_images",
+                PublicId = $"blog_{Guid.NewGuid()}",
                 Transformation = new Transformation()
-                    .Width(1200).Height(800).Crop("limit") 
-                    .Quality("auto") 
-                    .FetchFormat("auto") 
+                    .Width(1200).Height(800).Crop("limit")
+                    .Quality("auto")
+                    .FetchFormat("auto")
             };
 
             var uploadResult = await cloudinary.UploadAsync(uploadParams);
@@ -506,9 +506,9 @@ public class BlogService : IBlogService
                 return false;
 
             var account = new Account(
-                "dprp1jbd9", 
-                "584135338254938", 
-                "QbUYngPIdZcXEn_mipYn8RE5dlo" 
+                "dprp1jbd9",
+                "584135338254938",
+                "QbUYngPIdZcXEn_mipYn8RE5dlo"
             );
             var cloudinary = new Cloudinary(account);
 
@@ -531,74 +531,74 @@ public class BlogService : IBlogService
     {
         try
         {
-            
+
             var uri = new Uri(imageUrl);
-            var segments = uri.AbsolutePath.Split('/');
+        var segments = uri.AbsolutePath.Split('/');
 
-            var uploadIndex = Array.IndexOf(segments, "upload");
-            if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
+        var uploadIndex = Array.IndexOf(segments, "upload");
+        if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
+        {
+            var pathParts = segments.Skip(uploadIndex + 2).ToArray();
+            var fullPath = string.Join("/", pathParts);
+
+            var lastDotIndex = fullPath.LastIndexOf('.');
+            if (lastDotIndex > 0)
             {
-                var pathParts = segments.Skip(uploadIndex + 2).ToArray();
-                var fullPath = string.Join("/", pathParts);
+                return fullPath.Substring(0, lastDotIndex);
+            }
+            return fullPath;
+        }
 
-                var lastDotIndex = fullPath.LastIndexOf('.');
-                if (lastDotIndex > 0)
+        return string.Empty;
+    }
+                catch
                 {
-                    return fullPath.Substring(0, lastDotIndex);
+                    return string.Empty;
                 }
-                return fullPath;
             }
 
-            return string.Empty;
-        }
-        catch
-        {
-            return string.Empty;
-        }
-    }
+            public string GetShortContent(string content, int maxLength = 200)
+{
+    if (string.IsNullOrEmpty(content))
+        return string.Empty;
 
-    public string GetShortContent(string content, int maxLength = 200)
+    var plainText = Regex.Replace(content, "<.*?>", string.Empty);
+
+    if (plainText.Length <= maxLength)
+        return plainText;
+
+    return plainText.Substring(0, maxLength) + "...";
+}
+
+public bool CanUserEditBlog(int blogId, int userId, string userRole)
+{
+    if (userRole == "Admin")
+        return true;
+
+
+    return true;
+}
+
+public bool CanUserDeleteBlog(int blogId, int userId, string userRole)
+{
+    if (userRole == "Admin")
+        return true;
+
+    return true;
+}
+
+public string GetBlogStatusForUser(string userRole)
+{
+    return userRole switch
     {
-        if (string.IsNullOrEmpty(content))
-            return string.Empty;
+        "Admin" => "Draft",
+        "Staff" => "Draft",
+        "Customer" => "PendingApproval",
+        _ => "PendingApproval"
+    };
+}
 
-        var plainText = Regex.Replace(content, "<.*?>", string.Empty);
-
-        if (plainText.Length <= maxLength)
-            return plainText;
-
-        return plainText.Substring(0, maxLength) + "...";
-    }
-
-    public bool CanUserEditBlog(int blogId, int userId, string userRole)
-    {
-        if (userRole == "Admin")
-            return true;
-
-    
-        return true; 
-    }
-
-    public bool CanUserDeleteBlog(int blogId, int userId, string userRole)
-    {
-        if (userRole == "Admin")
-            return true;
-
-        return true; 
-    }
-
-    public string GetBlogStatusForUser(string userRole)
-    {
-        return userRole switch
-        {
-            "Admin" => "Draft",
-            "Staff" => "Draft",
-            "Customer" => "PendingApproval",
-            _ => "PendingApproval"
-        };
-    }
-
-    private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
+private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
     {
         return new BlogCommentViewModel
         {

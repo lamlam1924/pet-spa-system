@@ -39,11 +39,21 @@
                 {
                     <tr>
                         <td>@order.OrderID</td>
-                        <td>@order.ProductName</td>
-                        <td>@order.Quantity</td>
-                        <td>@order.UnitPrice.ToString("N0") </td>
-                        <td>@order.StatusName</td>
-                        @* <td class="text-center">
+                        <td>
+                            @if(order.Items != null && order.Items.Any())
+                            {
+                                @string.Join(", ", order.Items.Select(i => i.ProductName))
+                            }
+                        </td>
+                        <td>
+                            @if(order.Items != null && order.Items.Any())
+                            {
+                                @string.Join(", ", order.Items.Select(i => i.Quantity))
+                            }
+                        </td>
+                        <td>@order.TotalAmount.ToString("N0") ₫</td>
+                        <td>@order.Status</td>
+                        <td class="text-center">
                             <a href="#"
                                hx-get="@Url.Action("OrderDetailPartial", "UserHome", new { id = order.OrderID })"
                                hx-target="#content-main"
@@ -61,7 +71,7 @@
                                title="Hủy đơn">
                                 <i class="bi bi-x-circle"></i>
                             </a>
-                        </td> *@
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -45,7 +45,8 @@
             border: 1px solid #d1d5db;
             padding: 12px 15px;
             font-size: 14px;
-            min-height: 45px; /* Fix cho select dropdown */
+            min-height: 45px;
+            pointer-events: auto !important; /* Đảm bảo không bị chặn */
         }
         
         .form-control:focus {
@@ -179,7 +180,7 @@
 
         /* Prevent duplicate editor */
         #contentEditor + .note-editor {
-            display: none;
+            display: block !important; /* Đảm bảo editor hiển thị */
         }
 
         @@media (max-width: 768px) {
@@ -225,7 +226,7 @@
                     
                     <div class="form-group">
                         <label asp-for="Title" class="form-label">Tiêu đề bài viết *</label>
-                        <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề hấp dẫn cho bài viết của bạn...">
+                        <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề hấp dẫn cho bài viết của bạn..." />
                         <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
                     
@@ -307,6 +308,7 @@
                     </h4>
                     
                     <div class="status-options">
+               
                         <label class="status-option">
                             <input type="radio" asp-for="Status" value="Draft" checked>
                             <span class="status-label">
@@ -358,12 +360,12 @@
     
     <script>
         $(document).ready(function() {
-            // Destroy any existing Summernote instance first
-            if ($('#contentEditor').hasClass('note-editor')) {
-                $('#contentEditor').summernote('destroy');
-            }
+            // Debug: Kiểm tra jQuery và Summernote
+            console.log('jQuery loaded:', typeof jQuery !== 'undefined');
+            console.log('Summernote loaded:', typeof $.summernote !== 'undefined');
 
-            // Initialize Summernote
+            // Khởi tạo Summernote với kiểm tra lỗi
+            if (typeof $.summernote !== 'undefined') {
             $('#contentEditor').summernote({
                 height: 400,
                 lang: 'vi-VN',
@@ -379,8 +381,11 @@
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 placeholder: 'Viết nội dung bài viết của bạn tại đây...',
-                focus: false,
+                    focus: true, // Tự động focus để dễ nhập
                 callbacks: {
+                        onInit: function() {
+                            console.log('Summernote initialized');
+                        },
                     onImageUpload: function(files) {
                         // Handle image upload
                         for (let i = 0; i < files.length; i++) {
@@ -388,70 +393,20 @@
                         }
                     }
                 }
+                }).on('summernote.change', function(we, contents, $editable) {
+                    // Cập nhật model khi nội dung thay đổi
+                    $('#Content').val(contents);
             });
-
-            // Featured image upload
-            $('#featuredImageArea').click(function(e) {
-                e.preventDefault();
-                $('#featuredImageInput').click();
-            });
-
-            $('#featuredImageInput').change(function(e) {
-                const file = this.files[0];
-                if (file) {
-                    // Validate file type
-                    if (!file.type.match('image.*')) {
-                        alert('Vui lòng chọn file hình ảnh!');
-                        return;
-                    }
-
-                    // Validate file size (5MB)
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#featuredImagePreview').html(`
-                            <div class="position-relative d-inline-block mt-3">
-                                <img src="${e.target.result}" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute" style="top: 5px; right: 5px;" onclick="removeFeaturedImage()">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        `);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Drag and drop for featured image
-            $('#featuredImageArea').on('dragover', function(e) {
-                e.preventDefault();
-                $(this).addClass('dragover');
-            });
-
-            $('#featuredImageArea').on('dragleave', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-            });
-
-            $('#featuredImageArea').on('drop', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-                
-                const files = e.originalEvent.dataTransfer.files;
-                if (files.length > 0) {
-                    $('#featuredImageInput')[0].files = files;
-                    $('#featuredImageInput').trigger('change');
+            } else {
+                console.error('Summernote not loaded, falling back to textarea');
+                $('#contentEditor').removeAttr('id').addClass('form-control').attr('rows', '15');
                 }
             });
 
             // Preview functionality
             $('#previewBtn').click(function() {
                 const title = $('#Title').val();
-                const content = $('#contentEditor').summernote('code');
+                const content = $('#contentEditor').summernote('code') || $('#Content').val();
                 const category = $('#Category').val();
                 
                 if (!title || !content) {
@@ -472,12 +427,13 @@
 
             // Form submission
             $('#blogForm').submit(function(e) {
-                const content = $('#contentEditor').summernote('code');
-                if (!content || content.trim() === '<p><br></p>') {
+                const content = $('#contentEditor').summernote('code') || $('#Content').val();
+                if (!content || content.trim() === '<p><br></p>' || content.trim() === '') {
                     e.preventDefault();
                     alert('Vui lòng nhập nội dung bài viết.');
                     return false;
                 }
+                $('#Content').val(content); // Đảm bảo giá trị được gửi đi
             });
         });
 
@@ -509,6 +465,7 @@
     </script>
 }
 
+<!-- Validation Scripts -->
 @section ValidationScripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pet_spa_system1.Models;
 
@@ -29,6 +30,6 @@ public partial class BlogComment
     public virtual User User { get; set; } = null!;
 
     public virtual BlogComment? ParentComment { get; set; }
-
-    public virtual ICollection<BlogComment> Replies { get; set; } = new List<BlogComment>();
+    public virtual ICollection<BlogComment> Replies { get; set; } = new List<BlogComment>(); // Thay InverseParentComment bằng Replies
 }
+

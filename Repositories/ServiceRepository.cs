@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using pet_spa_system1.Models;
-using pet_spa_system1.ViewModels;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Repositories;
 

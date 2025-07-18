@@ -44,4 +44,9 @@ public interface IBlogService
     bool CanUserEditBlog(int blogId, int userId, string userRole);
     bool CanUserDeleteBlog(int blogId, int userId, string userRole);
     string GetBlogStatusForUser(string userRole);
+
+    
 }
+
+
+

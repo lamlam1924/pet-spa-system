@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace pet_spa_system1.Models
 {
@@ -9,6 +10,7 @@ namespace pet_spa_system1.Models
         public string Title { get; set; }
         public string Message { get; set; }
         public DateTime CreatedAt { get; set; }
+
         public bool IsRead { get; set; }
 
         // Navigation property (nếu có)
