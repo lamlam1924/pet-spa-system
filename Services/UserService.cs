@@ -147,10 +147,7 @@ namespace pet_spa_system1.Services
             user.Phone = updated.Phone;
             user.Address = updated.Address;
             user.RoleId = updated.RoleId;
-            if (!string.IsNullOrEmpty(updated.ProfilePictureUrl))
-            {
-                user.ProfilePictureUrl = updated.ProfilePictureUrl;
-            }
+            user.ProfilePictureUrl = updated.ProfilePictureUrl; // luôn cập nhật, kể cả khi null
             user.UpdatedAt = DateTime.Now;
             await _userRepository.UpdateAsync(user);
             return (true, "User updated successfully");
