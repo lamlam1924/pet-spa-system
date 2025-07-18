@@ -52,7 +52,8 @@ namespace pet_spa_system1.Services
                     BookingCount = _appointmentServiceRepository.GetBookingCountByServiceId(service.ServiceId),
                     Revenue = _appointmentServiceRepository.GetRevenueByServiceId(service.ServiceId),
                     CreatedAt = service.CreatedAt,
-                    Description = service.Description
+                    Description = service.Description,
+                    ImageUrl = service.ImageUrl
                 });
 
                 return new ServiceListViewModel

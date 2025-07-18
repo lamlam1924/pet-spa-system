@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using pet_spa_system1.Models;
 
 namespace pet_spa_system1.Services;
@@ -39,5 +37,5 @@ public interface IUserService
     Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId);
     Task AddStaffDocumentAsync(StaffDocument doc);
     Task<string> ResetStaffPasswordAsync(int staffId);
-    Task<string> UploadAvatarAsync(Microsoft.AspNetCore.Http.IFormFile avatarFile);
+    Task<string> UploadAvatarAsync(IFormFile avatarFile);
 }

@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace pet_spa_system1.ViewModels
 {
     // ===== UNIFIED SERVICE VIEWMODELS =====
-    
+
     // Service List
     public class ServiceListViewModel
     {
@@ -29,9 +29,12 @@ namespace pet_spa_system1.ViewModels
         public int BookingCount { get; set; }
         public decimal Revenue { get; set; }
         public DateTime? CreatedAt { get; set; }
-        
+
         // ✅ THÊM properties bị thiếu:
         public string? Description { get; set; }
+
+        // Đường dẫn ảnh dịch vụ
+        public string? ImageUrl { get; set; }
     }
 
     // Service Detail
@@ -63,7 +66,7 @@ namespace pet_spa_system1.ViewModels
         public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
         public string CategoryName { get; set; } = "Chọn danh mục";
         public IEnumerable<ServiceChangeHistoryItem> ChangeHistory { get; set; } = new List<ServiceChangeHistoryItem>();
-        
+
         // Computed properties for view
         public string StatusText => Input.IsActive == true ? "Đang hoạt động" : "Đã tạm ngưng";
         public string StatusClass => Input.IsActive == true ? "badge-success" : "badge-danger";
@@ -89,7 +92,7 @@ namespace pet_spa_system1.ViewModels
         public int TotalCategories { get; set; }
         public int TotalBookings { get; set; }
         public decimal TotalRevenue { get; set; }
-        
+
 
         // ===== CHART DATA =====
         public ChartDataViewModel TopServiceChart { get; set; } = new ChartDataViewModel();
@@ -102,10 +105,15 @@ namespace pet_spa_system1.ViewModels
 
         // ✅ THÊM CÁC PROPERTIES BỊ THIẾU:
         public IEnumerable<Service> RecentServices { get; set; } = new List<Service>();
-        public Dictionary<string, int> CategoryDistribution { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, CategoryDistributionItem> CategoryDistribution { get; set; } = new Dictionary<string, CategoryDistributionItem>();
     }
 
-    
+    public class CategoryDistributionItem
+    {
+        public int ServiceCount { get; set; }
+        public decimal TotalRevenue { get; set; }
+    }
+
     public class TopServiceItem
     {
         public int ServiceId { get; set; }
@@ -144,70 +152,6 @@ namespace pet_spa_system1.ViewModels
         public string TrendDirection { get; set; } = "up";
     }
 
-    // Service Category
-    public class ServiceCategoryViewModel
-    {
-        public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
-        public Dictionary<int, int> ServiceCountsByCategory { get; set; } = new Dictionary<int, int>();
-        
-        // Computed properties
-        public int TotalCategories => Categories?.Count() ?? 0;
-        public int ActiveCategories => Categories?.Count(c => c.IsActive == true) ?? 0;
-        public int InactiveCategories => Categories?.Count(c => c.IsActive != true) ?? 0;
-        public int TotalServices => ServiceCountsByCategory?.Values.Sum() ?? 0;
-    }
-
-    // Common models
-    public class ServiceFilterModel
-    {
-        public int? CategoryId { get; set; }
-        public string? Search { get; set; }
-        public decimal? PriceFrom { get; set; }
-        public decimal? PriceTo { get; set; }
-        public string? Sort { get; set; } = "name_asc";
-        public string? Status { get; set; }
-        public DateTime? CreatedFrom { get; set; }
-        public DateTime? CreatedTo { get; set; }
-    }
-
-    public class PaginationModel
-    {
-        public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        public int TotalItems { get; set; }
-        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize);
-        public bool HasPreviousPage => CurrentPage > 1;
-        public bool HasNextPage => CurrentPage < TotalPages;
-    }
-
-    public class ServiceSummaryStats
-    {
-        public int TotalServices { get; set; }
-        public int ActiveServices { get; set; }
-        public int InactiveServices { get; set; }
-        public decimal TotalRevenue { get; set; }
-        public int TotalBookings { get; set; }
-    }
-
-    // Legacy support - để compatibility với code cũ
-    public class ServiceViewModel
-    {
-        // ❌ XÓA các properties cũ:
-        // (Legacy properties removed for maintainability)
-        
-        // ✅ THÊM properties giống ServiceListViewModel:
-        public IEnumerable<ServiceListItem> Services { get; set; } = new List<ServiceListItem>();
-        public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
-        public ServiceFilterModel Filter { get; set; } = new();
-        public PaginationModel Pagination { get; set; } = new();
-        public ServiceSummaryStats Summary { get; set; } = new();
-        
-        // Computed properties for backward compatibility
-        public int TotalServices => Summary?.TotalServices ?? 0;
-        public int ActiveServices => Summary?.ActiveServices ?? 0;
-        public int InactiveServices => Summary?.InactiveServices ?? 0;
-    }
-
     // Service Input ViewModel (for Add/Edit forms)
     public class ServiceInputViewModel
     {
@@ -234,6 +178,66 @@ namespace pet_spa_system1.ViewModels
 
         public bool? IsActive { get; set; }
         public DateTime? CreatedAt { get; set; }
+
+        // Đường dẫn ảnh dịch vụ
+        public string? ImageUrl { get; set; }
+    }
+
+    public class PaginationModel
+    {
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize);
+        public bool HasPreviousPage => CurrentPage > 1;
+        public bool HasNextPage => CurrentPage < TotalPages;
+    }
+
+    public class ServiceFilterModel
+    {
+        public int? CategoryId { get; set; }
+        public string? Search { get; set; }
+        public decimal? PriceFrom { get; set; }
+        public decimal? PriceTo { get; set; }
+        public string? Sort { get; set; } = "name_asc";
+        public string? Status { get; set; }
+        public DateTime? CreatedFrom { get; set; }
+        public DateTime? CreatedTo { get; set; }
+    }
+
+    public class ServiceSummaryStats
+    {
+        public int TotalServices { get; set; }
+        public int ActiveServices { get; set; }
+        public int InactiveServices { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public int TotalBookings { get; set; }
+    }
+
+    // Legacy support - để compatibility với code cũ
+    public class ServiceViewModel
+    {
+        // ❌ XÓA các properties cũ:
+        // (Legacy properties removed for maintainability)
+
+        // ✅ THÊM properties giống ServiceListViewModel:
+        public IEnumerable<ServiceListItem> Services { get; set; } = new List<ServiceListItem>();
+        public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
+        public ServiceFilterModel Filter { get; set; } = new();
+        public PaginationModel Pagination { get; set; } = new();
+        public ServiceSummaryStats Summary { get; set; } = new();
+
+        // Computed properties for backward compatibility
+        public int TotalServices => Summary?.TotalServices ?? 0;
+        public int ActiveServices => Summary?.ActiveServices ?? 0;
+        public int InactiveServices => Summary?.InactiveServices ?? 0;
+    }
+
+    // (Đã dọn, chỉ giữ lại 1 class ServiceInputViewModel ở trên)
+    public class ServiceCategoryViewModel
+    {
+        public IEnumerable<SerCate> Categories { get; set; } = new List<SerCate>();
+        public Dictionary<int, int> ServiceCountsByCategory { get; set; } = new Dictionary<int, int>();
     }
 }
 

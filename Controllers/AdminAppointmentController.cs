@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
@@ -6,6 +7,7 @@ using pet_spa_system1.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace pet_spa_system1.Controllers
 {
@@ -13,10 +15,21 @@ namespace pet_spa_system1.Controllers
 
     {
         private readonly IAppointmentService _appointmentService;
+        private readonly IUserService _userService;
 
-        public AdminAppointmentController(IAppointmentService appointmentService)
+        [HttpGet]
+        public IActionResult GetAppointmentDetail(int id)
+        {
+            var vm = _appointmentService.GetAdminAppointmentDetail(id);
+            if (vm == null)
+                return Content("<div class='text-danger'>Không tìm thấy lịch hẹn.</div>", "text/html");
+            return PartialView("~/Views/Admin/ManageAppointment/AppointmentDetailPartial.cshtml", vm);
+        }
+
+        public AdminAppointmentController(IAppointmentService appointmentService, IUserService userService)
         {
             _appointmentService = appointmentService;
+            _userService = userService;
         }
 
         public IActionResult Dashboard()
@@ -36,11 +49,13 @@ namespace pet_spa_system1.Controllers
             var totalItems = _appointmentService.CountAppointments(
                 searchTerm, statusId, date, employeeId);
 
+            var allEmployees = _appointmentService.GetEmployees();
+            var employees = allEmployees?.Where(u => u.RoleId == 3).ToList() ?? new List<User>();
             var viewModel = new AppointmentListViewModel
             {
                 Appointments = appointments,
                 StatusList = _appointmentService.GetAllStatuses(),
-                Employees = _appointmentService.GetEmployees(),
+                Employees = employees,
                 // Nếu cần filter khách hàng, dịch vụ, thú cưng thì bổ sung:
                 // Customers = _appointmentService.GetCustomers(),
                 // Services = _appointmentService.GetAllServices(),
@@ -79,19 +94,22 @@ namespace pet_spa_system1.Controllers
         public IActionResult Create()
         {
             var viewModel = _appointmentService.PrepareCreateViewModel();
+            // Lọc lại Employees nếu cần
+            if (viewModel.Employees != null)
+                viewModel.Employees = viewModel.Employees.Where(u => u.RoleId == 3).ToList();
             return View("~/Views/Admin/ManageAppointment/AddAppointment.cshtml", viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(AdminAppointmentViewModel model)
+        public IActionResult Create(AppointmentViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 var updatedModel = _appointmentService.PrepareCreateViewModel();
                 updatedModel.AppointmentDate = model.AppointmentDate;
                 updatedModel.CustomerId = model.CustomerId;
-                updatedModel.EmployeeId = model.EmployeeId;
+                updatedModel.EmployeeIds = model.EmployeeIds;
                 updatedModel.StatusId = model.StatusId;
                 updatedModel.Notes = model.Notes;
                 updatedModel.SelectedPetIds = model.SelectedPetIds;
@@ -114,52 +132,20 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Edit(int id)
         {
-            var viewModel = _appointmentService.PrepareEditViewModel(id);
-
-            if (viewModel == null)
-                return NotFound();
-
-            return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", viewModel);
+            var vm = _appointmentService.PrepareEditViewModel(id);
+            if (vm == null) return NotFound();
+            // Lọc lại Employees nếu cần
+            if (vm.Employees != null)
+                vm.Employees = vm.Employees.Where(u => u.RoleId == 3).ToList();
+            return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", vm);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(AdminAppointmentViewModel model)
+        public IActionResult Edit(AppointmentViewModel vm)
         {
-            if (!ModelState.IsValid)
-            {
-                var updatedModel = _appointmentService.PrepareEditViewModel(model.AppointmentId);
-
-                if (updatedModel == null)
-                    return NotFound();
-
-                updatedModel.AppointmentDate = model.AppointmentDate;
-                updatedModel.StatusId = model.StatusId;
-                updatedModel.Notes = model.Notes;
-                updatedModel.SelectedPetIds = model.SelectedPetIds;
-                updatedModel.SelectedServiceIds = model.SelectedServiceIds;
-
-                return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", updatedModel);
-            }
-
-            var success = _appointmentService.UpdateAppointment(model);
-            if (success)
-            {
-                TempData["SuccessMessage"] = "Đã cập nhật lịch hẹn thành công!";
-                return RedirectToAction("Detail", new { id = model.AppointmentId });
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật lịch hẹn!";
-                return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", model);
-            }
-        }
-
-        [HttpPost]
-        public JsonResult UpdateStatus(int id, int statusId)
-        {
-            var success = _appointmentService.UpdateAppointmentStatus(id, statusId);
-            return Json(new { success });
+            if (!ModelState.IsValid) return View(vm);
+            _appointmentService.UpdateAppointment(vm);
+            return RedirectToAction("List");
         }
 
         [HttpPost]
@@ -261,5 +247,48 @@ namespace pet_spa_system1.Controllers
             TempData["SuccessMessage"] = "Đã từ chối lịch hẹn.";
             return RedirectToAction("ApprovalList");
         }
+        
+        // Timeline Scheduler View
+public async Task<IActionResult> TimelineScheduler(string keyword = "")
+{
+    var today = DateTime.Today;
+    var staffList = await _userService.GetStaffListAsync();
+    var allAppointments = _appointmentService.GetAppointments("", 0, today, 0, 1, 100);
+    var searchResults = string.IsNullOrWhiteSpace(keyword)
+        ? new List<Appointment>()
+        : _appointmentService.GetAppointments(keyword, 0, today, 0, 1, 100);
+
+    List<pet_spa_system1.ViewModels.TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
+    {
+        return appts.Select(a => {
+            var serviceDurations = a.AppointmentServices?.Select(asr => asr.Service.DurationMinutes ?? 0).ToList() ?? new List<int>();
+            int totalDuration = serviceDurations.Sum();
+            if (serviceDurations.Count > 1)
+                totalDuration += (serviceDurations.Count - 1) * 5; // Cộng 5 phút giữa các dịch vụ
+            return new pet_spa_system1.ViewModels.TimelineAppointmentViewModel
+            {
+                AppointmentId = a.AppointmentId,
+                AppointmentDate = a.AppointmentDate,
+                EmployeeId = a.EmployeeId,
+                EmployeeName = a.Employee?.FullName,
+                CustomerName = a.User?.FullName,
+                PetNames = a.AppointmentPets?.Select(ap => ap.Pet?.Name ?? "").ToList() ?? new List<string>(),
+                ServiceNames = a.AppointmentServices?.Select(asr => asr.Service?.Name ?? "").ToList() ?? new List<string>(),
+                TotalDurationMinutes = totalDuration,
+                StatusId = a.StatusId,
+                EndTime = a.AppointmentDate.AddMinutes(totalDuration)
+            };
+        }).ToList();
+    }
+
+    var vm = new pet_spa_system1.ViewModels.TimelineSchedulerViewModel
+    {
+        StaffList = staffList,
+        Appointments = MapAppointments(allAppointments),
+        SearchResults = MapAppointments(searchResults),
+        Keyword = keyword
+    };
+    return View("~/Views/Admin/ManageAppointment/TimelineScheduler.cshtml", vm);
+}
     }
 }

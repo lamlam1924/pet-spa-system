@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 
@@ -24,8 +22,13 @@ namespace pet_spa_system1.Repositories
             _context.Pets.Add(pet);
             _context.SaveChanges();
         }
-        
+
         public Pet GetById(int id)
             => _context.Pets.FirstOrDefault(p => p.PetId == id);
+
+        public IEnumerable<Pet> GetAllPetsWithSpecies()
+        {
+            return _context.Pets.Include(p => p.Species).ToList();
+        }
     }
 }

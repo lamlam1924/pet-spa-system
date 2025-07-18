@@ -1,4 +1,6 @@
 using ClosedXML.Excel;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
        
 using System;
 using System.Collections.Generic;
@@ -117,7 +119,8 @@ namespace pet_spa_system1.Controllers
                         Description = service.Description,
                         DurationMinutes = service.DurationMinutes,
                         IsActive = service.IsActive,
-                        CreatedAt = service.CreatedAt
+                        CreatedAt = service.CreatedAt,
+                        ImageUrl = service.ImageUrl
                     },
                     Categories = categories,
                     CategoryName = selectedCategory?.Name ?? "Chưa chọn danh mục"
@@ -135,21 +138,27 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditService(ServiceFormViewModel model)
+        public async Task<IActionResult> EditService(ServiceFormViewModel model, IFormFile ImageFile)
         {
-            // Add debugging
             _logger.LogInformation("EditService POST: ModelState.IsValid = {IsValid}", ModelState.IsValid);
             _logger.LogInformation("EditService POST: ServiceId = {Id}, Name = {Name}, Price = {Price}", 
                 model.Input.ServiceId, model.Input.Name, model.Input.Price);
 
-            if (!ModelState.IsValid)
+
+            // Nếu dịch vụ chưa có ảnh và không upload ảnh mới, báo lỗi
+            var input = model.Input;
+            var existingService = _serviceService.GetServiceById(input.ServiceId ?? 0);
+            if (!ModelState.IsValid || (string.IsNullOrEmpty(existingService?.ImageUrl) && (ImageFile == null || ImageFile.Length == 0)))
             {
+                if (string.IsNullOrEmpty(existingService?.ImageUrl) && (ImageFile == null || ImageFile.Length == 0))
+                {
+                    ModelState.AddModelError("ImageFile", "Vui lòng chọn ảnh cho dịch vụ.");
+                }
                 _logger.LogWarning("EditService POST: Model validation failed");
                 foreach (var error in ModelState)
                 {
                     _logger.LogWarning("Model error in {Key}: {Errors}", error.Key, string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage)));
                 }
-
                 try
                 {
                     model.Categories = _serviceService.GetAllCategories();
@@ -166,12 +175,31 @@ namespace pet_spa_system1.Controllers
 
             try
             {
-                var input = model.Input;
-                var existingService = _serviceService.GetServiceById(input.ServiceId ?? 0);
                 if (existingService == null)
                 {
                     TempData["ErrorMessage"] = "Không tìm thấy dịch vụ cần cập nhật.";
                     return RedirectToAction("ServiceList");
+                }
+
+                // Xử lý upload ảnh nếu có file mới
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    var account = new CloudinaryDotNet.Account(
+                        "dprp1jbd9", // cloud_name
+                        "584135338254938", // api_key
+                        "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                    );
+                    var cloudinary = new CloudinaryDotNet.Cloudinary(account);
+                    var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
+                    {
+                        File = new FileDescription(ImageFile.FileName, ImageFile.OpenReadStream()),
+                        Folder = "pet-spa/services"
+                    };
+                    var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        existingService.ImageUrl = uploadResult.SecureUrl.ToString();
+                    }
                 }
 
                 // Update properties
@@ -240,32 +268,54 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddService(ServiceFormViewModel viewModel)
+public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFormFile ImageFile)
+{
+    var input = viewModel.Input;
+    if (!ModelState.IsValid)
+    {
+        viewModel.Categories = _serviceService.GetAllCategories();
+        return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
+    }
+
+    string? imageUrl = null;
+    if (ImageFile != null && ImageFile.Length > 0)
+    {
+        var account = new CloudinaryDotNet.Account(
+            "dprp1jbd9", // cloud_name
+            "584135338254938", // api_key
+            "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+        );
+        var cloudinary = new CloudinaryDotNet.Cloudinary(account);
+        var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
         {
-            var input = viewModel.Input;
-            if (!ModelState.IsValid)
-            {
-                viewModel.Categories = _serviceService.GetAllCategories();
-                return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
-            }
-
-            // Map sang entity Service
-            var service = new Service
-            {
-                Name = input.Name?.Trim() ?? string.Empty,
-                Price = input.Price ?? 0,
-                CategoryId = input.CategoryId ?? 0,
-                Description = input.Description?.Trim() ?? string.Empty,
-                DurationMinutes = input.DurationMinutes ?? 0,
-                IsActive = input.IsActive ?? true,
-                CreatedAt = input.CreatedAt ?? DateTime.Now
-            };
-
-            _serviceService.AddService(service);
-            _serviceService.Save();
-            TempData["SuccessMessage"] = "Thêm dịch vụ thành công!";
-            return RedirectToAction("ServiceList");
+            File = new FileDescription(ImageFile.FileName, ImageFile.OpenReadStream()),
+            Folder = "pet-spa/services"
+        };
+        var uploadResult = await cloudinary.UploadAsync(uploadParams);
+        if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            imageUrl = uploadResult.SecureUrl.ToString();
         }
+    }
+
+    // Map sang entity Service
+    var service = new Service
+    {
+        Name = input.Name?.Trim() ?? string.Empty,
+        Price = input.Price ?? 0,
+        CategoryId = input.CategoryId ?? 0,
+        Description = input.Description?.Trim() ?? string.Empty,
+        DurationMinutes = input.DurationMinutes ?? 0,
+        IsActive = input.IsActive ?? true,
+        CreatedAt = input.CreatedAt ?? DateTime.Now,
+        ImageUrl = imageUrl
+    };
+
+    _serviceService.AddService(service);
+    _serviceService.Save();
+    TempData["SuccessMessage"] = "Thêm dịch vụ thành công!";
+    return RedirectToAction("ServiceList");
+}
 
 
 
