@@ -1,12 +1,9 @@
-﻿Create database PetDataShop
-use PetDataShop
+﻿CREATE DATABASE PetDataShop
+GO
+USE PetDataShop
+GO
 
---CREATE TABLE Roles (
---    RoleID INT PRIMARY KEY IDENTITY(1,1),
---    RoleName NVARCHAR(50) NOT NULL UNIQUE,
---    Description NVARCHAR(MAX),
---    CreatedAt DATETIME2 DEFAULT GETDATE()
---);
+-- Table Roles
 CREATE TABLE Roles (
     RoleID INT PRIMARY KEY IDENTITY(1,1),
     RoleName NVARCHAR(50) NOT NULL UNIQUE,
@@ -16,21 +13,7 @@ CREATE TABLE Roles (
 );
 GO
 
---CREATE TABLE Users (
---    UserID INT PRIMARY KEY IDENTITY(1,1),
---    Username NVARCHAR(50) NOT NULL UNIQUE,
---    Email NVARCHAR(100) NOT NULL UNIQUE,
---    PasswordHash NVARCHAR(255) NOT NULL,
---    FullName NVARCHAR(100),
---    Phone NVARCHAR(20),
---    Address NVARCHAR(MAX),
---    RoleID INT NOT NULL, 
---    ProfilePictureUrl NVARCHAR(255),
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    UpdatedAt DATETIME2,
---    CONSTRAINT CHK_Users_UpdatedAt CHECK (UpdatedAt IS NULL OR UpdatedAt >= CreatedAt),
---    FOREIGN KEY (RoleID) REFERENCES Roles(RoleID) ON DELETE NO ACTION
---);
+-- Table Users
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     Username NVARCHAR(50) NOT NULL UNIQUE,
@@ -48,14 +31,8 @@ CREATE TABLE Users (
     FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
 );
 GO
---CREATE TABLE ProductCategories (
---    CategoryID INT PRIMARY KEY IDENTITY(1,1),
---    Name NVARCHAR(50) NOT NULL,
---    Cate_parent INT, -- Tham chiếu đến danh mục cha
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    FOREIGN KEY (Cate_parent) REFERENCES ProductCategories(CategoryID) ON DELETE NO ACTION,
---    CONSTRAINT UQ_ProductCategories_Name_CateParent UNIQUE (Name, Cate_parent)
---);
+
+-- Table ProductCategories
 CREATE TABLE ProductCategories (
     CategoryID INT PRIMARY KEY IDENTITY(1,1),
     Name NVARCHAR(50) NOT NULL,
@@ -66,18 +43,8 @@ CREATE TABLE ProductCategories (
     CONSTRAINT UQ_ProductCategories_Name_CateParent UNIQUE (Name, Cate_parent)
 );
 GO
--- Table Products (depends on ProductCategories)
---CREATE TABLE Products (
---    ProductID INT PRIMARY KEY IDENTITY(1,1),
---    CategoryID INT NOT NULL,
---    Name NVARCHAR(100) NOT NULL,
---    Description NVARCHAR(MAX),
---    Price DECIMAL(10, 2) NOT NULL CHECK (Price >= 0),
---    ImageURL NVARCHAR(500),
---    Stock INT NOT NULL CHECK (Stock >= 0),
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    FOREIGN KEY (CategoryID) REFERENCES ProductCategories(CategoryID) ON DELETE NO ACTION
---);
+
+-- Table Products
 CREATE TABLE Products (
     ProductID INT PRIMARY KEY IDENTITY(1,1),
     CategoryID INT NOT NULL,
@@ -91,33 +58,16 @@ CREATE TABLE Products (
     FOREIGN KEY (CategoryID) REFERENCES ProductCategories(CategoryID)
 );
 GO
---CREATE TABLE Species (
---    SpeciesID INT PRIMARY KEY IDENTITY(1,1),
---    SpeciesName NVARCHAR(50) NOT NULL UNIQUE
---);
+
+-- Table Species
 CREATE TABLE Species (
     SpeciesID INT PRIMARY KEY IDENTITY(1,1),
     SpeciesName NVARCHAR(50) NOT NULL UNIQUE,
     IsActive BIT DEFAULT 1
 );
--- Table Pets (depends on Users)
---CREATE TABLE Pets (
---    PetID INT PRIMARY KEY IDENTITY(1,1),
---    UserID INT NOT NULL,
---    SpeciesID INT,  -- Khóa ngoại đến bảng Species
---    Name NVARCHAR(50) NOT NULL,
---    Breed NVARCHAR(50),
---    Age INT,
---    Gender NVARCHAR(10) CHECK (Gender IN ('Male', 'Female', 'Other')),
---    HealthCondition NVARCHAR(MAX),
---    SpecialNotes NVARCHAR(MAX),
---    LastSpaVisit DATETIME2,
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
-    
---    -- Khóa ngoại
---    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
---    FOREIGN KEY (SpeciesID) REFERENCES Species(SpeciesID) ON DELETE SET NULL
---);
+GO
+
+-- Table Pets
 CREATE TABLE Pets (
     PetID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -134,16 +84,9 @@ CREATE TABLE Pets (
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (SpeciesID) REFERENCES Species(SpeciesID)
 );
-
 GO
---CREATE TABLE Ser_cate (
---    CategoryID INT PRIMARY KEY IDENTITY(1,1),
---    Name NVARCHAR(50) NOT NULL UNIQUE,
---    Description NVARCHAR(MAX),
---    Cate_parent INT, -- Supports hierarchical structure
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    FOREIGN KEY (Cate_parent) REFERENCES Ser_cate(CategoryID) ON DELETE NO ACTION
---);
+
+-- Table Ser_cate
 CREATE TABLE Ser_cate (
     CategoryID INT PRIMARY KEY IDENTITY(1,1),
     Name NVARCHAR(50) NOT NULL UNIQUE,
@@ -154,16 +97,8 @@ CREATE TABLE Ser_cate (
     FOREIGN KEY (Cate_parent) REFERENCES Ser_cate(CategoryID)
 );
 GO
---CREATE TABLE Services (
---    ServiceID INT PRIMARY KEY IDENTITY(1,1),
---    Name NVARCHAR(100) NOT NULL,
---    Description NVARCHAR(MAX),
---    Price DECIMAL(10, 2) NOT NULL CHECK (Price >= 0),
---    DurationMinutes INT CHECK (DurationMinutes > 0),
---    CategoryID INT NOT NULL, -- Changed from Category NVARCHAR(50)
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    FOREIGN KEY (CategoryID) REFERENCES Ser_cate(CategoryID) ON DELETE NO ACTION
---);
+
+-- Table Services
 CREATE TABLE Services (
     ServiceID INT PRIMARY KEY IDENTITY(1,1),
     Name NVARCHAR(100) NOT NULL,
@@ -175,23 +110,9 @@ CREATE TABLE Services (
     CreatedAt DATETIME2 DEFAULT GETDATE(),
     FOREIGN KEY (CategoryID) REFERENCES Ser_cate(CategoryID)
 );
-
 GO
--- Table Promotions (independent)
---CREATE TABLE Promotions (
---    PromotionID INT PRIMARY KEY IDENTITY(1,1),
---    Code NVARCHAR(20) NOT NULL UNIQUE,
---    Description NVARCHAR(MAX),
---    DiscountType NVARCHAR(20) CHECK (DiscountType IN ('Percentage', 'Fixed')) NOT NULL,
---    DiscountValue DECIMAL(10, 2) NOT NULL CHECK (DiscountValue >= 0),
---    StartDate DATE NOT NULL,
---    EndDate DATE NOT NULL,
---    MinOrderValue DECIMAL(10, 2),
---    ApplicableTo NVARCHAR(20) CHECK (ApplicableTo IN ('Product', 'Service', 'Both')) NOT NULL,
---    MaxUsage INT,
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    CONSTRAINT CHK_Promotions_Dates CHECK (EndDate >= StartDate)
---);
+
+-- Table Promotions
 CREATE TABLE Promotions (
     PromotionID INT PRIMARY KEY IDENTITY(1,1),
     Code NVARCHAR(20) NOT NULL UNIQUE,
@@ -208,16 +129,8 @@ CREATE TABLE Promotions (
     CONSTRAINT CHK_Promotions_Dates CHECK (EndDate >= StartDate)
 );
 GO
--- Table Promotion_Products (depends on Promotions, Products)
---CREATE TABLE Promotion_Products (
---    PromotionProductID INT PRIMARY KEY IDENTITY(1,1),
---    PromotionID INT NOT NULL,
---    ProductID INT NOT NULL,
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    FOREIGN KEY (PromotionID) REFERENCES Promotions(PromotionID) ON DELETE CASCADE,
---    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
---    CONSTRAINT UQ_PromotionProduct UNIQUE (PromotionID, ProductID)
---);
+
+-- Table Promotion_Products
 CREATE TABLE Promotion_Products (
     PromotionProductID INT PRIMARY KEY IDENTITY(1,1),
     PromotionID INT NOT NULL,
@@ -228,16 +141,8 @@ CREATE TABLE Promotion_Products (
     CONSTRAINT UQ_PromotionProduct UNIQUE (PromotionID, ProductID)
 );
 GO
--- Table Promotion_Services (depends on Promotions, Services)
---CREATE TABLE Promotion_Services (
---    PromotionServiceID INT PRIMARY KEY IDENTITY(1,1),
---    PromotionID INT NOT NULL,
---    ServiceID INT NOT NULL,
---    CreatedAt DATETIME2 DEFAULT GETDATE(),
---    FOREIGN KEY (PromotionID) REFERENCES Promotions(PromotionID) ON DELETE CASCADE,
---    FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE CASCADE,
---    CONSTRAINT UQ_PromotionService UNIQUE (PromotionID, ServiceID)
---);
+
+-- Table Promotion_Services
 CREATE TABLE Promotion_Services (
     PromotionServiceID INT PRIMARY KEY IDENTITY(1,1),
     PromotionID INT NOT NULL,
@@ -249,6 +154,7 @@ CREATE TABLE Promotion_Services (
 );
 GO
 
+-- Table Status_Appointment
 CREATE TABLE Status_Appointment (
     StatusID INT PRIMARY KEY IDENTITY(1,1),
     StatusName NVARCHAR(20) NOT NULL UNIQUE,
@@ -257,6 +163,7 @@ CREATE TABLE Status_Appointment (
 );
 GO
 
+-- Table Appointments
 CREATE TABLE Appointments (
     AppointmentID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -272,8 +179,9 @@ CREATE TABLE Appointments (
     FOREIGN KEY (PromotionID) REFERENCES Promotions(PromotionID),
     FOREIGN KEY (StatusID) REFERENCES Status_Appointment(StatusID)
 );
+GO
 
--- Appointment - Pets relation
+-- Table AppointmentPets
 CREATE TABLE AppointmentPets (
     AppointmentPetID INT PRIMARY KEY IDENTITY(1,1),
     AppointmentID INT NOT NULL,
@@ -283,8 +191,9 @@ CREATE TABLE AppointmentPets (
     FOREIGN KEY (PetID) REFERENCES Pets(PetID),
     CONSTRAINT UQ_AppointmentPet UNIQUE (AppointmentID, PetID)
 );
+GO
 
--- Appointment - Services relation
+-- Table AppointmentServices
 CREATE TABLE AppointmentServices (
     AppointmentServiceID INT PRIMARY KEY IDENTITY(1,1),
     AppointmentID INT NOT NULL,
@@ -294,9 +203,9 @@ CREATE TABLE AppointmentServices (
     FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID),
     CONSTRAINT UQ_AppointmentService UNIQUE (AppointmentID, ServiceID)
 );
-
-
 GO
+
+-- Table StatusOrder
 CREATE TABLE StatusOrder (
     StatusID INT PRIMARY KEY IDENTITY(1,1),
     StatusName NVARCHAR(20) NOT NULL UNIQUE,
@@ -305,11 +214,12 @@ CREATE TABLE StatusOrder (
 );
 GO
 
+-- Table Orders
 CREATE TABLE Orders (
     OrderID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
     TotalAmount DECIMAL(10, 2) NOT NULL CHECK (TotalAmount >= 0),
-    StatusID INT NOT NULL DEFAULT 1, -- Changed from Status NVARCHAR(20), default to Pending
+    StatusID INT NOT NULL DEFAULT 1,
     OrderDate DATETIME2 DEFAULT GETDATE(),
     ShippingAddress NVARCHAR(MAX) NOT NULL,
     CreatedAt DATETIME2 DEFAULT GETDATE(),
@@ -317,7 +227,8 @@ CREATE TABLE Orders (
     FOREIGN KEY (StatusID) REFERENCES StatusOrder(StatusID) ON DELETE NO ACTION
 );
 GO
--- Table OrderItems (depends on Orders, Products)
+
+-- Table OrderItems
 CREATE TABLE OrderItems (
     OrderItemID INT PRIMARY KEY IDENTITY(1,1),
     OrderID INT NOT NULL,
@@ -327,7 +238,8 @@ CREATE TABLE OrderItems (
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE NO ACTION
 );
 GO
--- Table Cart (depends on Users, Products)
+
+-- Table Cart
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -339,6 +251,8 @@ CREATE TABLE Cart (
     CONSTRAINT UQ_Cart_User_Product UNIQUE (UserID, ProductID)
 );
 GO
+
+-- Table PaymentMethods
 CREATE TABLE PaymentMethods (
     PaymentMethodID INT PRIMARY KEY IDENTITY(1,1),
     MethodName NVARCHAR(20) NOT NULL UNIQUE,
@@ -346,6 +260,8 @@ CREATE TABLE PaymentMethods (
     CreatedAt DATETIME2 DEFAULT GETDATE()
 );
 GO
+
+-- Table PaymentStatuses
 CREATE TABLE PaymentStatuses (
     PaymentStatusID INT PRIMARY KEY IDENTITY(1,1),
     StatusName NVARCHAR(20) NOT NULL UNIQUE,
@@ -353,13 +269,15 @@ CREATE TABLE PaymentStatuses (
     CreatedAt DATETIME2 DEFAULT GETDATE()
 );
 GO
+
+-- Table Payments
 CREATE TABLE Payments (
     PaymentID INT PRIMARY KEY IDENTITY(1,1),
     OrderID INT NOT NULL,
     UserID INT NOT NULL,
     Amount DECIMAL(10, 2) NOT NULL CHECK (Amount >= 0),
     PaymentMethodID INT NOT NULL,
-    PaymentStatusID INT NOT NULL DEFAULT 1, -- Default to Pending
+    PaymentStatusID INT NOT NULL DEFAULT 1,
     TransactionID NVARCHAR(100),
     PaymentDate DATETIME2 DEFAULT GETDATE(),
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE NO ACTION,
@@ -369,6 +287,7 @@ CREATE TABLE Payments (
 );
 GO
 
+-- Table Reviews
 CREATE TABLE Reviews (
     ReviewID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -387,17 +306,18 @@ CREATE TABLE Reviews (
     )
 );
 GO
--- Table Blogs (depends on Users)
+
+-- Table Blogs
 CREATE TABLE Blogs (
     BlogID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT NOT NULL, -- Employee who created the blog
+    UserID INT NOT NULL,
     Title NVARCHAR(255) NOT NULL,
     Content NVARCHAR(MAX) NOT NULL,
     ContentFormat NVARCHAR(20) CHECK (ContentFormat IN ('HTML', 'Markdown')) DEFAULT 'Markdown',
     Category NVARCHAR(50),
     Status NVARCHAR(20) CHECK (Status IN ('Draft', 'PendingApproval', 'Approved', 'Rejected', 'Published', 'Archived')) DEFAULT 'Draft',
     PublishedAt DATETIME2,
-    ApprovedBy INT, -- Admin who approved/rejected
+    ApprovedBy INT,
     CreatedAt DATETIME2 DEFAULT GETDATE(),
     UpdatedAt DATETIME2,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
@@ -406,7 +326,7 @@ CREATE TABLE Blogs (
 );
 GO
 
--- Table Blog_Images (depends on Blogs)
+-- Table Blog_Images
 CREATE TABLE Blog_Images (
     ImageID INT PRIMARY KEY IDENTITY(1,1),
     BlogID INT NOT NULL,
@@ -418,7 +338,29 @@ CREATE TABLE Blog_Images (
 );
 GO
 
+CREATE TABLE Blog_Comments (
+    CommentID INT PRIMARY KEY IDENTITY(1,1),
+    BlogID INT NOT NULL,
+    UserID INT NOT NULL,
+    ParentCommentID INT NULL, 
+    Content NVARCHAR(MAX) NOT NULL,
+    Status NVARCHAR(20) CHECK (Status IN ('Pending', 'Approved', 'Rejected')) DEFAULT 'Pending',
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    UpdatedAt DATETIME2,
+    FOREIGN KEY (BlogID) REFERENCES Blogs(BlogID) ,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ,
+    FOREIGN KEY (ParentCommentID) REFERENCES Blog_Comments(CommentID)
+);
+CREATE TABLE Blog_Likes (
+    LikeID INT PRIMARY KEY IDENTITY(1,1),
+    BlogID INT NOT NULL,
+    UserID INT NOT NULL,
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (BlogID) REFERENCES Blogs(BlogID) ,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ,
+    UNIQUE(BlogID, UserID) -- Mỗi user chỉ like 1 lần
+);
+
 ALTER TABLE Users
 ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
-
-
+GO

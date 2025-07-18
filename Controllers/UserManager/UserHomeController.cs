@@ -141,74 +141,26 @@ namespace pet_spa_system1.Controllers
 
             return PartialView("_ListPetPartial", pets);
         }
-        public async Task<IActionResult> ListOrderPartial(int? statusId)
+        public async Task<IActionResult> ListOrderPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-            Console.WriteLine("userId: " + userId);
             if (userId == null)
-                return Unauthorized();
-
-            var orders = _orderService.GetOrdersByUserId(userId.Value);
-
-            // Lọc theo statusId nếu có
-            if (statusId.HasValue)
-                orders = orders.Where(o => o.StatusId == statusId.Value).ToList();
-
-            var orderViewModels = new List<OrderViewModel>();
-
-            foreach (var order in orders)
             {
-                var orderItems = _orderItemService.GetOrderItemsByOrderId(order.OrderId);
-
-                foreach (var item in orderItems)
-                {
-                    var product = await _productService.GetProductByIdAsync(item.ProductId);
-                    var statusName = _orderStatusService.GetStatusNameById(order.StatusId);
-
-                    orderViewModels.Add(new OrderViewModel
-                    {
-                        OrderID = "ORD" + order.OrderId.ToString("D3"),
-                        ProductName = product?.Name ?? "Không rõ",
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice,
-                        StatusName = statusName
-                    });
-                }
+                return PartialView("_ListOrderPartial", new List<pet_spa_system1.ViewModel.OrderViewModel>());
             }
-
-            return PartialView("_ListOrderPartial", orderViewModels);
-        new OrderViewModel
-        {
-            OrderID = "ORD005",
-            ProductName = "Bát ăn đôi inox",
-            Quantity = 3,
-            TotalAmount = 150000,
-            Status = "Chờ xử lý"
-        }
-    };
-
+            // Lấy danh sách đơn hàng động từ service
+            var orders = await Task.Run(() => _orderService.GetOrdersByUserId(userId));
             return PartialView("_ListOrderPartial", orders);
         }
 
 
 
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile? Avatar)
+         [HttpPost]
+        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile Avatar)
         {
             if (!ModelState.IsValid)
             {
                 TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
-                foreach (var state in ModelState)
-                {
-                    var key = state.Key;
-                    var errors = state.Value.Errors;
-
-                    foreach (var error in errors)
-                    {
-                        Console.WriteLine($" - Field: {key}, Error: {error.ErrorMessage}");
-                    }
-                }
                 return RedirectToAction("Index");
             }
 
@@ -237,27 +189,17 @@ namespace pet_spa_system1.Controllers
             if (!result.Success)
             {
                 TempData["ErrorMessage"] = result.Message ?? "Cập nhật thất bại.";
-                return PartialView("_HosoPartial", model);
+                return RedirectToAction("Index");
             }
 
+            HttpContext.Session.SetString("CurrentUserName", user.Username);
             TempData["SuccessMessage"] = result.Message;
-
-            var currentUser = await _userService.GetUserByIdAsync(userId.Value);
-            var userModel = new UserViewModel
-            {
-                UserName = currentUser.Username,
-                Email = currentUser.Email,
-                PhoneNumber = currentUser.Phone,
-                Address = currentUser.Address,
-                FullName = currentUser.FullName
-            };
-            Console.WriteLine("Update sucess!");
-            return PartialView("_HosoPartial", userModel);
+            return RedirectToAction("Index");
         }
         [HttpPost]
         public IActionResult DeletePet(int id)
         {
-            _petService.DeletePet(id);
+            _petService.DisablePetAsync(id);
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
             var pets = _petService.GetPetsByUserId(userId.Value)
                 .Select(p => new PetViewModel

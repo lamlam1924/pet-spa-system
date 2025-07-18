@@ -23,6 +23,7 @@
         <table class="table table-bordered align-middle">
             <thead class="table-light">
                 <tr>
+                    <th>Id</th>
                     <th>Tên</th>
                     <th>Loài</th>
                     <th>Giới tính</th>
@@ -36,6 +37,7 @@
                 {
                     var pet = Model[i];
                     <tr>
+                        <td>@pet.Id</td>
                         <td>@pet.Name</td>
                         <td>@pet.Species</td>
                         <td>@pet.Gender</td>
@@ -51,7 +53,7 @@
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <a href="#"
-                               hx-post="@Url.Action("DeletePet", "UserHome", new { id = i })"
+                               hx-post="@Url.Action("DeletePet", "UserHome", new { id = pet.Id })"
                                hx-confirm="Bạn có chắc chắn muốn xóa thú cưng này?"
                                hx-target="#content-main"
                                hx-swap="innerHTML"
@@ -59,6 +61,7 @@
                                title="Xóa">
                                 <i class="bi bi-trash"></i>
                             </a>
+
                         </td>
                     </tr>
                 }

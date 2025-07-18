@@ -6,6 +6,7 @@ using pet_spa_system1.Services;
 using pet_spa_system1.ViewModels;
 using pet_spa_system1.ViewModel;
 using pet_spa_system1.Utils;
+using System.Security.Claims;
 
 namespace pet_spa_system1.Controllers
 {
@@ -15,13 +16,15 @@ namespace pet_spa_system1.Controllers
         private readonly IProductService _productService;
         private readonly IServiceService _serviceService;
         private readonly IBlogService _blogService;
+        private readonly IPetService _petService;
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService)
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService,IPetService petService)
         {
             _context = context;
             _productService = productService;
             _serviceService = serviceService;
             _blogService = blogService;
+            _petService = petService;
         }
         //=======================================================================================================================
         // SERVICE

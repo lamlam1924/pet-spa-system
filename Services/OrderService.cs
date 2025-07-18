@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace pet_spa_system1.Services
 {
@@ -57,5 +58,20 @@ namespace pet_spa_system1.Services
                 CustomerPhone = order.User?.Phone ?? "Không xác định"
             };
         }
+
+        public List<Order> GetOrdersByUserId(int userId)
+          => _orderRepository.GetOrdersByUserId(userId);
+
+        public Order GetOrderById(int id)
+            => _orderRepository.GetOrderById(id);
+
+        public void AddOrder(Order order)
+            => _orderRepository.AddOrder(order);
+
+        public void UpdateOrder(Order order)
+            => _orderRepository.UpdateOrder(order);
+
+        public void DeleteOrder(int id)
+            => _orderRepository.DeleteOrder(id);
     }
 }

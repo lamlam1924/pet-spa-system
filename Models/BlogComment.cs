@@ -33,5 +33,3 @@ public partial class BlogComment
     public virtual ICollection<BlogComment> Replies { get; set; } = new List<BlogComment>(); // Thay InverseParentComment bằng Replies
 }
 
-    public virtual ICollection<BlogComment> Replies { get; set; } = new List<BlogComment>();
-}

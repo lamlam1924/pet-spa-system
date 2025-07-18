@@ -65,8 +65,8 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Register(LoginRegisterViewModel model)
         {
             var newUser = await _userService.RegisterAsync(
-                model.Register.Name,
                 model.Register.Email,
+                model.Register.Name,
                 model.Register.Password
             );
 

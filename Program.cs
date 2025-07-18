@@ -168,5 +168,15 @@ app.MapControllerRoute(
     name: "Admin",
     pattern: "Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" });
+// Blog routes
+app.MapControllerRoute(
+    name: "BlogDetail",
+    pattern: "Blogs/Detail/{id:int}",
+    defaults: new { controller = "Blogs", action = "Detail" });
+
+app.MapControllerRoute(
+    name: "BlogCreate",
+    pattern: "Blogs/Create",
+    defaults: new { controller = "Blogs", action = "Create" });
 
 app.Run();

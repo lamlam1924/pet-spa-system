@@ -22,10 +22,5 @@ namespace pet_spa_system1.Repositories
         Task<List<PetImage>> GetPetImagesAsync(int petId);
         Task AddPetImageAsync(PetImage petImage);
         Task DeletePetImageAsync(int imageId);
-
-        List<Pet> GetAllPets();
-        void AddPet(Pet pet);
-        Pet GetPetById(int petId);         // ✅ Thêm mới
-        void DeletePet(int petId);         // ✅ Thêm mới
     }
 }

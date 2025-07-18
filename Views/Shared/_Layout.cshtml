@@ -270,12 +270,11 @@
 
     <!-- JS here - THỨ TỰ LOAD SCRIPT RẤT QUAN TRỌNG -->
     <!-- 1. jQuery PHẢI được load TRƯỚC Bootstrap -->
-    <script src="@Url.Content("~/js/vendor/jquery-1.12.4.min.js")"></script>
+    <!-- jQuery (nếu cần cho code khác) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- 2. Bootstrap JS với integrity để đảm bảo tính toàn vẹn -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap 5 JS (bundle đã bao gồm Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- 3. Modernizr -->
     <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>

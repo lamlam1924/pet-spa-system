@@ -113,40 +113,19 @@ namespace pet_spa_system1.Repositories
             Console.WriteLine($"[PetRepository] UpdatePetAsync completed, PetId: {pet.PetId}");
         }
 
-        public async Task<bool> DeletePetAsync(int id) // Thay đổi để trả về bool
+        public async Task DeletePetAsync(int id)
         {
             Console.WriteLine($"[PetRepository] DeletePetAsync called for id: {id}, Connection State: {_context.Database.CanConnect()}");
-            try
+            var pet = await _context.Pets.FindAsync(id);
+            if (pet != null)
             {
-                var pet = await _context.Pets
-                    .Include(p => p.PetImages) // Tải ảnh để xóa
-                    .FirstOrDefaultAsync(p => p.PetId == id);
-
-                if (pet == null)
-                {
-                    Console.WriteLine($"[PetRepository] DeletePetAsync: Pet with id {id} not found.");
-                    return false;
-                }
-
-                // Xóa các bản ghi PetImages liên quan
-                if (pet.PetImages != null && pet.PetImages.Any())
-                {
-                    //_context.PetImages.RemoveRange(pet.PetImages);
-                    await _context.SaveChangesAsync();
-                    Console.WriteLine($"[PetRepository] Removed {pet.PetImages.Count} images for pet {id}.");
-                }
-
-                // Xóa pet
                 _context.Pets.Remove(pet);
                 await _context.SaveChangesAsync();
                 Console.WriteLine($"[PetRepository] DeletePetAsync completed for id: {id}");
-
-                return true;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"[PetRepository] Error deleting pet {id}: {ex.Message}");
-                return false;
+                Console.WriteLine($"[PetRepository] DeletePetAsync: Pet with id {id} not found.");
             }
         }
 
@@ -212,67 +191,36 @@ namespace pet_spa_system1.Repositories
             return pets;
         }
 
-        //public async Task<List<PetImage>> GetPetImagesAsync(int petId)
-        //{
-        //    Console.WriteLine($"[PetRepository] GetPetImagesAsync called for petId: {petId}, Connection State: {_context.Database.CanConnect()}");
-        //    return await _context.PetImages
-        //        .Where(pi => pi.PetId == petId)
-        //        .OrderBy(pi => pi.DisplayOrder)
-        //        .ToListAsync();
-        //}
-
-        //public async Task AddPetImageAsync(PetImage petImage)
-        //{
-        //    Console.WriteLine($"[PetRepository] AddPetImageAsync called for petId: {petImage.PetId}, ImageUrl: {petImage.ImageUrl}, Connection State: {_context.Database.CanConnect()}");
-        //    _context.PetImages.Add(petImage);
-        //    await _context.SaveChangesAsync();
-        //    Console.WriteLine("[PetRepository] AddPetImageAsync completed.");
-        //}
-
-        //public async Task DeletePetImageAsync(int imageId)
-        //{
-        //    Console.WriteLine($"[PetRepository] DeletePetImageAsync called for imageId: {imageId}, Connection State: {_context.Database.CanConnect()}");
-        //    var petImage = await _context.PetImages.FindAsync(imageId);
-        //    if (petImage != null)
-        //    {
-        //        _context.PetImages.Remove(petImage);
-        //        await _context.SaveChangesAsync();
-        //        Console.WriteLine("[PetRepository] DeletePetImageAsync completed.");
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("[PetRepository] DeletePetImageAsync: Image with id {imageId} not found.");
-        //    }
-        //}
-
-        public List<Pet> GetAllPets()
-                 => _context.Pets.Where(p => p.IsActive == true).ToList();
-
-        Task IPetRepository.DeletePetAsync(int id)
+        public async Task<List<PetImage>> GetPetImagesAsync(int petId)
         {
-            return DeletePetAsync(id);
+            Console.WriteLine($"[PetRepository] GetPetImagesAsync called for petId: {petId}, Connection State: {_context.Database.CanConnect()}");
+            return await _context.PetImages
+                .Where(pi => pi.PetId == petId)
+                .OrderBy(pi => pi.DisplayOrder)
+                .ToListAsync();
         }
 
-        public Task<List<PetImage>> GetPetImagesAsync(int petId)
+        public async Task AddPetImageAsync(PetImage petImage)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"[PetRepository] AddPetImageAsync called for petId: {petImage.PetId}, ImageUrl: {petImage.ImageUrl}, Connection State: {_context.Database.CanConnect()}");
+            _context.PetImages.Add(petImage);
+            await _context.SaveChangesAsync();
+            Console.WriteLine("[PetRepository] AddPetImageAsync completed.");
         }
 
-        public Task AddPetImageAsync(PetImage petImage)
+        public async Task DeletePetImageAsync(int imageId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Pet GetPetById(int petId)
-            => _context.Pets.FirstOrDefault(p => p.PetId == petId && p.IsActive == true);
-
-        public void DeletePet(int petId)
-        {
-            var pet = _context.Pets.FirstOrDefault(p => p.PetId == petId);
-            if (pet != null)
+            Console.WriteLine($"[PetRepository] DeletePetImageAsync called for imageId: {imageId}, Connection State: {_context.Database.CanConnect()}");
+            var petImage = await _context.PetImages.FindAsync(imageId);
+            if (petImage != null)
             {
-                pet.IsActive = false; // Xóa mềm
-                _context.SaveChanges();
+                _context.PetImages.Remove(petImage);
+                await _context.SaveChangesAsync();
+                Console.WriteLine("[PetRepository] DeletePetImageAsync completed.");
+            }
+            else
+            {
+                Console.WriteLine("[PetRepository] DeletePetImageAsync: Image with id {imageId} not found.");
             }
         }
     }
