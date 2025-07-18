@@ -100,10 +100,52 @@
                                             </tr>
                                         }
                                     }
+                                    
                                 </tbody>
                             </table>
+
+                            @if (order.StatusId < 3)
+                            {
+                                <form asp-action="CancelOrder" asp-controller="Order" method="post" class="d-inline cancel-form">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <button type="button" class="btn btn-danger btn-sm btn-cancel-order" data-orderid="@order.OrderID">Hủy đơn hàng</button>
+                                </form>
+                            }
+                            else if (order.StatusId == 5)
+                            {
+                                <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <button type="button" class="btn btn-success btn-sm btn-buy-again" data-orderid="@order.OrderID">Mua lại</button>
+                                </form>
+                            }
                             <a href="@Url.Action("OrderStatusDetail", "Order", new { orderId = order.OrderID })" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
                         </div>
+                        @{
+                            int currentPage = ViewBag.CurrentPage ?? 1;
+                            int pageSize = ViewBag.PageSize ?? 5;
+                            int totalOrders = ViewBag.TotalOrders ?? 0;
+                            int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
+                        }
+
+                        @if (totalPages > 1)
+                        {
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("AllOrder", new { page = currentPage - 1, pageSize = pageSize })">Trước</a>
+                                    </li>
+                                    @for (int i = 1; i <= totalPages; i++)
+                                    {
+                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("AllOrder", new { page = i, pageSize = pageSize })">@i</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("AllOrder", new { page = currentPage + 1, pageSize = pageSize })">Sau</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
                     </div>
                 }
             }
@@ -113,5 +155,54 @@
             }
         </div>
     </div>
+
+<!-- Modal xác nhận -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Xác nhận</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody">
+        <!-- Nội dung sẽ được thay đổi bằng JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" id="confirmModalOk">Đồng ý</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    let formToSubmit = null;
+
+    // Khi bấm nút Hủy đơn hàng
+    $(document).on('click', '.btn-cancel-order', function () {
+        formToSubmit = $(this).closest('form');
+        $('#confirmModalBody').text('Bạn chắc chắn muốn hủy đơn hàng này?');
+        $('#confirmModal').modal('show');
+    });
+
+    // Khi bấm nút Mua lại
+    $(document).on('click', '.btn-buy-again', function () {
+        formToSubmit = $(this).closest('form');
+        $('#confirmModalBody').text('Bạn muốn mua lại đơn hàng này và chuyển đến trang giỏ hàng?');
+        $('#confirmModal').modal('show');
+    });
+
+    // Khi xác nhận trong modal
+    $('#confirmModalOk').on('click', function () {
+        if (formToSubmit) {
+            formToSubmit.submit();
+            formToSubmit = null;
+            $('#confirmModal').modal('hide');
+        }
+    });
+</script>
+
+
 </body>
+
 </html>

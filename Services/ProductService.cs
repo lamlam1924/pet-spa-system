@@ -99,14 +99,32 @@ namespace pet_spa_system1.Services
             return await _repository.GetProductWithReviewsByIdAsync(productId);
         }
         public async Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null)
-{
-    return await _repository.GetActiveProductsWithRatingAsync(page, pageSize, categoryId, minPrice, maxPrice, sort);
-}
-public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
-{
-    return await _repository.CountActiveProductsAsync(categoryId, minPrice, maxPrice);
-}
+        {
+        return await _repository.GetActiveProductsWithRatingAsync(page, pageSize, categoryId, minPrice, maxPrice, sort);
+        }
+        public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null)
+        {
+        return await _repository.CountActiveProductsAsync(categoryId, minPrice, maxPrice);
+        }
+        public async Task AddProductReviewAsync(int userId, int productId, int rating, string comment, bool isAnonymous)
+        {
+            await _repository.AddProductReviewAsync(userId, productId, rating, comment, isAnonymous);
+        }
 
+        public async Task<List<Review>> GetRepliesForReviewAsync(int parentReviewId)
+        {
+            return await _repository.GetRepliesForReviewAsync(parentReviewId);
+        }
+
+        public async Task AddReplyToReviewAsync(int parentReviewId, int userId, string content)
+        {
+            await _repository.AddReplyToReviewAsync(parentReviewId, userId, content);
+        }
+
+        public async Task<Review> GetLastReplyOfUserForParentAsync(int parentReviewId, int userId)
+        {
+            return await _repository.GetLastReplyOfUserForParentAsync(parentReviewId, userId);
+        }
 
     }
 }

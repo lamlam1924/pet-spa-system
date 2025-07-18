@@ -23,16 +23,16 @@ namespace pet_spa_system1.Controllers
             _serviceService = serviceService;
         }
 
-        // GET: /Appointment
+       // GET: /Appointment
         //public IActionResult Index()
         //{
         //    // Tạm thời hardcode userId = 2
         //    int userId = 2;
         //    int page = 1;
-
+        //    int pageSize = 5;
         //    var viewModel = new AppointmentViewModel
         //    {
-        //        Pets = _petService.GetAllPetsAsync(),
+        //        Pets = _petService.GetAllPetsAsync(page,pageSize),
         //        Services = _serviceService.GetActiveServices().ToList(),
         //        AppointmentDate = DateTime.Today.AddDays(1),
         //        AppointmentTime = new TimeSpan(9, 0, 0) // Default to 9:00 AM
@@ -41,7 +41,7 @@ namespace pet_spa_system1.Controllers
         //    return View("Appointment", viewModel);
         //}
 
-        //// POST: /Appointment
+        // POST: /Appointment
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public IActionResult Appointment(AppointmentViewModel model)
@@ -50,7 +50,7 @@ namespace pet_spa_system1.Controllers
         //    {
         //        model.Pets = _petService.GetAllPets();
         //        model.Services = _serviceService.GetActiveServices().ToList();
-                
+
         //        // Return JSON for AJAX requests
         //        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         //        {
@@ -58,10 +58,10 @@ namespace pet_spa_system1.Controllers
         //                .SelectMany(v => v.Errors)
         //                .Select(e => e.ErrorMessage)
         //                .ToList();
-                    
+
         //            return Json(new { success = false, errors });
         //        }
-                
+
         //        return View(model);
         //    }
 
@@ -84,7 +84,7 @@ namespace pet_spa_system1.Controllers
         //    catch (Exception ex)
         //    {
         //        ModelState.AddModelError("", "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
-                
+
         //        // Return JSON for AJAX requests
         //        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         //        {
@@ -96,7 +96,7 @@ namespace pet_spa_system1.Controllers
         //    model.Services = _serviceService.GetActiveServices().ToList();
         //    return View(model);
         //}
-        
+
         // GET: /Appointment/Success
         public IActionResult Success()
         {

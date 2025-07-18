@@ -1,5 +1,4 @@
-﻿
-@model pet_spa_system1.ViewModel.ProductDetailViewModel
+﻿@model pet_spa_system1.ViewModel.ProductDetailViewModel
 
 <!DOCTYPE html>
 <html lang="en">
@@ -48,7 +47,7 @@
 </head>
 
 <body>
-   
+
     <!-- Page Header Start -->
     <div class="bradcam_area breadcam_bg">
         <div class="container">
@@ -62,7 +61,6 @@
         </div>
     </div>
     <!-- Page Header End -->
-
     <!-- Shop Detail Start -->
     <div class="container-fluid py-5">
         <div class="row px-xl-5">
@@ -78,7 +76,7 @@
                         <div class="carousel-item">
                             <img class="w-100 h-100" src="@(string.IsNullOrEmpty(Model.ProductWithRating.ImageUrl) ? "~/imgProducts/default.png" : Model.ProductWithRating.ImageUrl)" alt="Image">
                         </div>
-                        
+
                     </div>
                     <a class="carousel-control-prev" href="#product-carousel" data-slide="prev">
                         <i class="fa fa-2x fa-angle-left text-dark"></i>
@@ -241,71 +239,92 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h4 class="mb-4">@Model.ProductWithRating.ReviewCount đánh giá cho "@Model.ProductWithRating.Name"</h4>
-                                @if (Model.ProductWithRating.Reviews != null && Model.ProductWithRating.Reviews.Any())
-                                {
-                                    @foreach (var review in Model.ProductWithRating.Reviews)
-                                    {
-                                        <div class="media mb-4">
-                                            <img src="@Url.Content("~/img/avatar.jfif")" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
-                                            <div class="media-body">
-                                                <h6>
-                                                    @review.ReviewerName
-                                                    <small> - <i>@review.CreatedAt.ToString("dd/MM/yyyy")</i></small>
-                                                </h6>
-                                                <div class="text-primary mb-2">
-                                                    @{
-                                                        int reviewFullStars = review.Rating;
-                                                        int reviewEmptyStars = 5 - reviewFullStars;
-                                                    }
-                                                    @for (int i = 0; i < reviewFullStars; i++)
-                                                    {
-                                                        <i class="fas fa-star"></i>
-                                                    }
-                                                    @for (int i = 0; i < reviewEmptyStars; i++)
-                                                    {
-                                                        <i class="far fa-star"></i>
-                                                    }
-                                                </div>
-                                                <p>@review.Comment</p>
-                                            </div>
-                                        </div>
-                                    }
+                                @{
+                                    var viewData = new ViewDataDictionary(ViewContext.ViewData);
+                                    viewData["ProductId"] = Model.ProductWithRating.ProductId;
+                                    viewData["ReviewPage"] = ViewBag.ReviewPage;
+                                    viewData["TotalReviewPages"] = ViewBag.TotalReviewPages;
                                 }
-                                else
-                                {
-                                    <p>Chưa có đánh giá nào cho sản phẩm này.</p>
-                                }
+                                <div id="product-reviews">
+                                    @Html.Partial("_ProductReviewsPartial", Model.ProductWithRating.Reviews, viewData)
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <h4 class="mb-4">Để lại đánh giá</h4>
                                 <small>Địa chỉ email của bạn sẽ không được công bố. Các trường bắt buộc được đánh dấu *</small>
-                                <div class="d-flex my-3">
-                                    <p class="mb-0 mr-2">Đánh giá của bạn * :</p>
-                                    <div class="text-primary">
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
+                                <form id="reviewForm" method="post" action="@Url.Action("AddReview", "Products")">
+                                    <input type="hidden" name="productId" value="@Model.ProductWithRating.ProductId" />
+                                    <div class="form-group">
+                                        <label for="rating">Đánh giá của bạn *</label>
+                                        <div id="star-rating" class="mb-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="far fa-star star-select" data-value="@i"></i>
+                                            }
+                                        </div>
+                                        <input type="hidden" id="rating" name="rating" value="0" />
                                     </div>
-                                </div>
-                                <form>
                                     <div class="form-group">
                                         <label for="message">Nhận xét của bạn *</label>
-                                        <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="name">Tên của bạn *</label>
-                                        <input type="text" class="form-control" id="name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="email">Email của bạn *</label>
-                                        <input type="email" class="form-control" id="email">
+                                        <textarea id="message" name="comment" cols="30" rows="5" class="form-control" required></textarea>
                                     </div>
                                     <div class="form-group mb-0">
                                         <input type="submit" value="Gửi đánh giá của bạn" class="btn btn-primary px-3">
                                     </div>
                                 </form>
+                                <script>
+                                    $(function () {
+                                        $(".star-select").on("click", function () {
+                                            var val = $(this).data("value");
+                                            $("#rating").val(val);
+                                            $(".star-select").each(function (i) {
+                                                if (i < val) {
+                                                    $(this).removeClass("far").addClass("fas");
+                                                } else {
+                                                    $(this).removeClass("fas").addClass("far");
+                                                }
+                                            });
+                                        });
+                                        // AJAX submit review
+                                        $('#reviewForm').on('submit', function (e) {
+                                            e.preventDefault();
+                                            var form = $(this);
+                                            $.ajax({
+                                                url: form.attr('action'),
+                                                type: 'POST',
+                                                data: form.serialize(),
+                                                success: function (response) {
+                                                    if (typeof response === 'object' && response.success === false) {
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Lỗi',
+                                                            text: response.message
+                                                        });
+                                                        return;
+                                                    }
+                                                    // Nếu trả về partial view, thay thế phần review
+                                                    if (typeof response === 'string') {
+                                                        $('#product-reviews').html(response);
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: 'Thành công',
+                                                            text: 'Đánh giá của bạn đã được gửi!'
+                                                        });
+                                                        form[0].reset();
+                                                        $(".star-select").removeClass("fas").addClass("far");
+                                                    }
+                                                },
+                                                error: function (xhr) {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Lỗi',
+                                                        text: 'Có lỗi xảy ra khi gửi đánh giá.'
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -314,7 +333,6 @@
         </div>
     </div>
     <!-- Shop Detail End -->
-
     <!-- Products Start -->
     <div class="container-fluid py-5">
         <div class="text-center mb-4">
@@ -323,17 +341,17 @@
         <div class="row px-xl-5">
             <div class="col">
                 <div class="owl-carousel related-carousel">
-                   
+
                     @foreach (var item in Model.SuggestedProducts)
                     {
-                        
-                            <div class="card product-item border-0">
-                                <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                                    <img class="img-fluid w-100 lazyload"
-                                         src="@(string.IsNullOrEmpty(item.ImageUrl) ? Url.Content("~/imgProducts/default.png") : Url.Content(item.ImageUrl))"
-                                         alt="@item.Name"
-                                         onerror="this.src='@(Url.Content("~/imgProducts/default.png"))';">
-                                </div>
+
+                        <div class="card product-item border-0">
+                            <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                <img class="img-fluid w-100 lazyload"
+                                     src="@(string.IsNullOrEmpty(item.ImageUrl) ? Url.Content("~/imgProducts/default.png") : Url.Content(item.ImageUrl))"
+                                     alt="@item.Name"
+                                     onerror="this.src='@(Url.Content("~/imgProducts/default.png"))';">
+                            </div>
                             @* <div class="mb-2" style="align-items : center">
                                 @{
                                     int suggestFullStars = item.AverageRating;
@@ -348,24 +366,24 @@
                                     <small class="far fa-star text-warning"></small>
                                 }
                             </div> *@
-                                <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                                    <h6 class="text-truncate mb-3">@item.Name</h6>
-                                    <div class="d-flex justify-content-center">
-                                        <h6>@item.Price.ToString("N0") đ</h6> <!-- Giả định Price không nullable -->
-                                        <h6 class="text-muted ml-2"><del>@((item.Price * 1.2m).ToString("N0")) đ</del></h6>
-                                    </div>
+                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                <h6 class="text-truncate mb-3">@item.Name</h6>
+                                <div class="d-flex justify-content-center">
+                                    <h6>@item.Price.ToString("N0") đ</h6> <!-- Giả định Price không nullable -->
+                                    <h6 class="text-muted ml-2"><del>@((item.Price * 1.2m).ToString("N0")) đ</del></h6>
                                 </div>
-                                <div class="card-footer d-flex justify-content-between bg-light border">
-                                    <a href="@Url.Action("Detail", "Products", new { productID = item.ProductId })" class="btn btn-sm text-dark p-0">
-                                        <i class="fas fa-eye text-primary mr-1"></i>View Detail
-                                    </a>
-                                    <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductId })" class="btn btn-sm text-dark p-0">
-                                        <i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart
-                                    </a>
-                                </div>
-                            </div>   
+                            </div>
+                            <div class="card-footer d-flex justify-content-between bg-light border">
+                                <a href="@Url.Action("Detail", "Products", new { productID = item.ProductId })" class="btn btn-sm text-dark p-0">
+                                    <i class="fas fa-eye text-primary mr-1"></i>View Detail
+                                </a>
+                                <a href="@Url.Action("AddToCart", "Cart", new { id = item.ProductId })" class="btn btn-sm text-dark p-0">
+                                    <i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart
+                                </a>
+                            </div>
+                        </div>
                     }
-                    
+
                 </div>
             </div>
         </div>
@@ -435,6 +453,55 @@
             format: 'HH.MM'
         });
     </script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Cải thiện giao diện review */
+        .review-item {
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            background: #fff;
+            margin-bottom: 18px;
+            padding: 18px 20px 10px 20px;
+            transition: box-shadow 0.2s;
+        }
+
+            .review-item:hover {
+                box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            }
+
+            .review-item img {
+                border-radius: 50%;
+                border: 2px solid #eee;
+                width: 48px;
+                height: 48px;
+                object-fit: cover;
+            }
+
+        .review-replies {
+            margin-top: 10px;
+            border-left: 3px solid #f0f0f0;
+            padding-left: 16px;
+        }
+
+        .pagination .page-link {
+            border-radius: 6px !important;
+            margin: 0 2px;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #007bff;
+            color: #fff;
+            border: none;
+        }
+
+        .pagination .page-link:hover {
+            background: #e9ecef;
+            color: #0056b3;
+        }
+    </style>
 </body>
 
 </html>
