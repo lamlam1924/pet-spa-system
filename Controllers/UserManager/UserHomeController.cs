@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.Utils;
@@ -14,12 +15,33 @@ namespace pet_spa_system1.Controllers
     public class UserHomeController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IPetService _petService;
+        private readonly ISpeciesService _speciesService;
         private readonly IOrderService _orderService;
-        public UserHomeController(IUserService userService, IOrderService orderService)
+        private readonly IOrderItemService _orderItemService;
+        private readonly IProductService _productService;
+        private readonly IOrderStatusService _orderStatusService;
+        private readonly INotificationService _notificationService;
+        public UserHomeController(
+            IUserService userService,
+            IPetService petService,
+            ISpeciesService speciesService,
+            IOrderService orderService,
+            IOrderItemService orderItemService,
+            IProductService productService,
+            IOrderStatusService orderStatusService,
+            INotificationService notificationService)
         {
             _userService = userService;
+            _petService = petService;
+            _speciesService = speciesService;
             _orderService = orderService;
+            _orderItemService = orderItemService;
+            _productService = productService;
+            _orderStatusService = orderStatusService;
+            _notificationService = notificationService;
         }
+
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -63,105 +85,130 @@ namespace pet_spa_system1.Controllers
             var model = new ChangePasswordViewModel(); // model trống ban đầu
             return PartialView("_ChangePasswordPartial", model);
         }
-        public IActionResult NotificationsPartial()
+        public async Task<IActionResult> NotificationsPartial()
         {
-            var notifications = new List<NotificationViewModel>
-    {
-        new NotificationViewModel
-        {
-            Title = "Đơn hàng #1234",
-            Message = "Đơn hàng của bạn đã được xác nhận.",
-            CreatedAt = DateTime.Now.AddHours(-2),
-            IsRead = false
-        },
-        new NotificationViewModel
-        {
-            Title = "Khuyến mãi mới",
-            Message = "Giảm giá 20% cho dịch vụ spa tuần này!",
-            CreatedAt = DateTime.Now.AddDays(-1),
-            IsRead = true
-        }
-    };
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
 
-            return PartialView("_NotificationPartial", notifications);
-        }
-        [HttpPost]
-        public IActionResult MarkAllAsRead()
-        {
-            // TODO: cập nhật trạng thái tất cả là IsRead = true
-            var updatedNotifications = GetFakeNotifications().Select(n => { n.IsRead = true; return n; }).ToList();
-            return PartialView("_NotificationPartial", updatedNotifications);
+            var notifications = await _notificationService.GetByUserIdAsync(userId.Value);
+
+            var viewModel = notifications.Select(n => new NotificationViewModel
+            {
+                Title = n.Title,
+                Message = n.Message,
+                CreatedAt = n.CreatedAt,
+                IsRead = n.IsRead
+            }).ToList();
+
+            return PartialView("_NotificationPartial", viewModel);
         }
 
         [HttpPost]
-        public IActionResult DeleteAllNotifications()
+        public async Task<IActionResult> MarkAllAsRead()
         {
-            // TODO: xóa toàn bộ thông báo (ở đây giả lập trả về danh sách rỗng)
-            return PartialView("_NotificationPartial", new List<NotificationViewModel>());
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+
+            await _notificationService.MarkAllAsReadAsync(userId.Value);
+
+            return await NotificationsPartial(); // reload lại view với thông báo đã đọc
         }
 
-        private List<NotificationViewModel> GetFakeNotifications()
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllNotifications()
         {
-            return new List<NotificationViewModel>
-    {
-        new NotificationViewModel
-        {
-            Title = "Đơn hàng #1234",
-            Message = "Đơn hàng của bạn đã được xác nhận.",
-            CreatedAt = DateTime.Now.AddHours(-2),
-            IsRead = false
-        },
-        new NotificationViewModel
-        {
-            Title = "Khuyến mãi mới",
-            Message = "Giảm giá 20% cho dịch vụ spa tuần này!",
-            CreatedAt = DateTime.Now.AddDays(-1),
-            IsRead = true
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+
+            await _notificationService.DeleteAllAsync(userId.Value);
+
+            return await NotificationsPartial(); // reload lại view với danh sách rỗng
         }
-    };
-        }
+
+        
         public IActionResult ListPetPartial()
         {
-            var pets = new List<PetViewModel>
-    {
-        new PetViewModel
-        {
-            Name = "Milo",
-            Species = "Chó",
-            Gender = "Đực",
-            HealthCondition = "Khỏe mạnh",
-            Note = "Rất thân thiện"
-        },
-        new PetViewModel
-        {
-            Name = "Kitty",
-            Species = "Mèo",
-            Gender = "Cái",
-            HealthCondition = "Đang theo dõi bệnh da",
-            Note = "Không thích người lạ"
-        }
-    };
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var pets = _petService.GetPetsByUserId(userId.Value)
+       .Where(p => p.IsActive == true) // Không cần check lại UserID vì repo đã lọc rồi
+       .Select(p => new PetViewModel
+       {
+           Id = p.PetId,
+           Name = p.Name,
+           Species =  _speciesService.GetSpeciesNameById(p.SpeciesId), // tránh null
+           Gender = p.Gender,
+           HealthCondition = p.HealthCondition,
+           Note = p.SpecialNotes
+       })
+       .ToList();
 
             return PartialView("_ListPetPartial", pets);
         }
-        public async Task<IActionResult> ListOrderPartial()
+        public async Task<IActionResult> ListOrderPartial(int? statusId)
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            Console.WriteLine("userId: " + userId);
             if (userId == null)
+                return Unauthorized();
+
+            var orders = _orderService.GetOrdersByUserId(userId.Value);
+
+            // Lọc theo statusId nếu có
+            if (statusId.HasValue)
+                orders = orders.Where(o => o.StatusId == statusId.Value).ToList();
+
+            var orderViewModels = new List<OrderViewModel>();
+
+            foreach (var order in orders)
             {
-                return PartialView("_ListOrderPartial", new List<pet_spa_system1.ViewModel.OrderViewModel>());
+                var orderItems = _orderItemService.GetOrderItemsByOrderId(order.OrderId);
+
+                foreach (var item in orderItems)
+                {
+                    var product = await _productService.GetProductByIdAsync(item.ProductId);
+                    var statusName = _orderStatusService.GetStatusNameById(order.StatusId);
+
+                    orderViewModels.Add(new OrderViewModel
+                    {
+                        OrderID = "ORD" + order.OrderId.ToString("D3"),
+                        ProductName = product?.Name ?? "Không rõ",
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        StatusName = statusName
+                    });
+                }
             }
-            // Lấy danh sách đơn hàng động từ service
-            var orders = await Task.Run(() => _orderService.GetOrdersByUserId(userId));
+
+            return PartialView("_ListOrderPartial", orderViewModels);
+        new OrderViewModel
+        {
+            OrderID = "ORD005",
+            ProductName = "Bát ăn đôi inox",
+            Quantity = 3,
+            TotalAmount = 150000,
+            Status = "Chờ xử lý"
+        }
+    };
+
             return PartialView("_ListOrderPartial", orders);
         }
 
+
+
+
         [HttpPost]
-        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile Avatar)
+        public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile? Avatar)
         {
             if (!ModelState.IsValid)
             {
                 TempData["ErrorMessage"] = "Dữ liệu không hợp lệ.";
+                foreach (var state in ModelState)
+                {
+                    var key = state.Key;
+                    var errors = state.Value.Errors;
+
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($" - Field: {key}, Error: {error.ErrorMessage}");
+                    }
+                }
                 return RedirectToAction("Index");
             }
 
@@ -190,14 +237,41 @@ namespace pet_spa_system1.Controllers
             if (!result.Success)
             {
                 TempData["ErrorMessage"] = result.Message ?? "Cập nhật thất bại.";
-                return RedirectToAction("Index");
+                return PartialView("_HosoPartial", model);
             }
 
-            HttpContext.Session.SetString("CurrentUserName", user.Username);
             TempData["SuccessMessage"] = result.Message;
-            return RedirectToAction("Index");
-        }
 
+            var currentUser = await _userService.GetUserByIdAsync(userId.Value);
+            var userModel = new UserViewModel
+            {
+                UserName = currentUser.Username,
+                Email = currentUser.Email,
+                PhoneNumber = currentUser.Phone,
+                Address = currentUser.Address,
+                FullName = currentUser.FullName
+            };
+            Console.WriteLine("Update sucess!");
+            return PartialView("_HosoPartial", userModel);
+        }
+        [HttpPost]
+        public IActionResult DeletePet(int id)
+        {
+            _petService.DeletePet(id);
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var pets = _petService.GetPetsByUserId(userId.Value)
+                .Select(p => new PetViewModel
+                {
+                    Id = p.PetId,
+                    Name = p.Name,
+                    Species = _speciesService.GetSpeciesNameById(p.SpeciesId),
+                    Gender = p.Gender,
+                    HealthCondition = p.HealthCondition,
+                    Note = p.SpecialNotes
+                }).ToList();
+
+            return PartialView("_ListPetPartial", pets); // hoặc đổi tên tương ứng nếu bạn dùng tên khác
+        }
 
     }
 }

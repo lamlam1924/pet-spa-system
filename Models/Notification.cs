@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace pet_spa_system1.Models;
-
-public partial class Notification
+namespace pet_spa_system1.Models
 {
-    public int NotificationId { get; set; }
+    public class Notification
+    {
+        public int NotificationId { get; set; }
+        public int UserId { get; set; } // liên kết với bảng Users
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-    public int UserId { get; set; }
+        public bool IsRead { get; set; }
 
-    public string Title { get; set; } = null!;
-
-    public string Message { get; set; } = null!;
-
-    public DateTime CreatedAt { get; set; }
-
-    public bool IsRead { get; set; }
-
-    public virtual User User { get; set; } = null!;
+        // Navigation property (nếu có)
+        public User User { get; set; } // Nếu bạn có class User
+    }
 }

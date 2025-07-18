@@ -16,9 +16,9 @@ namespace pet_spa_system1.Services
         public CloudinaryService()
         {
             var account = new Account(
-                "dprp1jbd9",
-                "584135338254938",
-                "QbUYngPIdZcXEn_mipYn8RE5dlo"
+                "dprp1jbd9", 
+                "584135338254938", 
+                "QbUYngPIdZcXEn_mipYn8RE5dlo" 
             );
             _cloudinary = new Cloudinary(account);
         }
@@ -88,13 +88,13 @@ namespace pet_spa_system1.Services
             {
                 var uri = new Uri(imageUrl);
                 var segments = uri.AbsolutePath.Split('/');
-
+                
                 var uploadIndex = Array.IndexOf(segments, "upload");
                 if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
                 {
                     var pathParts = segments.Skip(uploadIndex + 2).ToArray();
                     var fullPath = string.Join("/", pathParts);
-
+                    
                     var lastDotIndex = fullPath.LastIndexOf('.');
                     if (lastDotIndex > 0)
                     {
@@ -102,7 +102,7 @@ namespace pet_spa_system1.Services
                     }
                     return fullPath;
                 }
-
+                
                 return string.Empty;
             }
             catch

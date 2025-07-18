@@ -263,9 +263,17 @@ namespace pet_spa_system1.Repositories
             throw new NotImplementedException();
         }
 
-        public Task DeletePetImageAsync(int imageId)
+        public Pet GetPetById(int petId)
+            => _context.Pets.FirstOrDefault(p => p.PetId == petId && p.IsActive == true);
+
+        public void DeletePet(int petId)
         {
-            throw new NotImplementedException();
+            var pet = _context.Pets.FirstOrDefault(p => p.PetId == petId);
+            if (pet != null)
+            {
+                pet.IsActive = false; // Xóa mềm
+                _context.SaveChanges();
+            }
         }
     }
 }
