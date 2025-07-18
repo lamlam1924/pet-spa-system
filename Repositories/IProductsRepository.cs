@@ -22,5 +22,9 @@ namespace pet_spa_system1.Repositories
         Task<int> CountActiveProductsAsync();
         Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize);
         Task<Product?> GetProductWithReviewsByIdAsync(int productId);
+        Task AddProductReviewAsync(int userId, int productId, int rating, string comment, bool isAnonymous);
+        Task<List<Review>> GetRepliesForReviewAsync(int parentReviewId);
+        Task AddReplyToReviewAsync(int parentReviewId, int userId, string content);
+        Task<Review> GetLastReplyOfUserForParentAsync(int parentReviewId, int userId);
     }
 }

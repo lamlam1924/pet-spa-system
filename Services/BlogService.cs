@@ -149,8 +149,7 @@
 //                        ImageUrl = imageUrl,
 //                        DisplayOrder = displayOrder++,
 //                        CreatedAt = DateTime.Now
-//                    });
-//                }
+//                });
 //            }
 //        }
 

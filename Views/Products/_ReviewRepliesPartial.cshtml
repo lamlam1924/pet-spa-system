@@ -1,0 +1,11 @@
+@model pet_spa_system1.ViewModel.ReviewViewModel
+<div class="media mb-4 review-item" data-review-id="@Model.Id">
+    <img src="@Model.UserAvatar" alt="Reply" class="img-fluid mr-3 mt-1 rounded-circle" style="width: 35px;">
+    <div class="media-body">
+        <h6 class="mb-1">
+            @Model.ReviewerName
+            <small class="text-muted"> - <i>@Model.CreatedAt.ToString("dd/MM/yyyy")</i></small>
+        </h6>
+        <p>@Model.Comment</p>
+    </div>
+</div>

@@ -137,8 +137,124 @@ namespace pet_spa_system1.Repositories
         {
             return await _context.Products
                 .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
+                .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
 
+        }
+
+        public async Task AddProductReviewAsync(int userId, int productId, int rating, string comment, bool isAnonymous)
+        {
+            // Kiểm tra đã có review chưa
+            var existingReview = await _context.Reviews.FirstOrDefaultAsync(r => r.UserId == userId && r.ProductId == productId);
+            if (existingReview != null)
+            {
+                // Update review cũ
+                existingReview.Rating = rating;
+                existingReview.Comment = comment;
+                existingReview.Status = "Approved";
+                existingReview.CreatedAt = DateTime.Now;
+                // Nếu có trường IsAnonymous thì update luôn
+                var prop = existingReview.GetType().GetProperty("IsAnonymous");
+                if (prop != null)
+                {
+                    prop.SetValue(existingReview, isAnonymous);
+                }
+            }
+            else
+            {
+                // Thêm review mới
+                var review = new Review
+                {
+                    UserId = userId,
+                    ProductId = productId,
+                    Rating = rating,
+                    Comment = comment,
+                    Status = "Approved",
+                    CreatedAt = DateTime.Now,
+                };
+                var prop = review.GetType().GetProperty("IsAnonymous");
+                if (prop != null)
+                {
+                    prop.SetValue(review, isAnonymous);
+                }
+                _context.Reviews.Add(review);
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Review>> GetRepliesForReviewAsync(int parentReviewId)
+        {
+            return await _context.Reviews
+                .Where(r => r.ParentReviewId == parentReviewId)
+                .Include(r => r.User)
+                .OrderBy(r => r.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task AddReplyToReviewAsync(int parentReviewId, int userId, string content)
+        {
+            // Truy ngược lên review cha gốc
+            var parentReview = await _context.Reviews.FindAsync(parentReviewId);
+            if (parentReview == null)
+                throw new Exception("Parent review not found!");
+
+            // Chặn reply vào bình luận của chính mình
+            if (parentReview.UserId == userId)
+                throw new Exception("Bạn không thể trả lời bình luận của chính mình.");
+
+            var rootReview = parentReview;
+            while (rootReview.ParentReviewId != null)
+            {
+                rootReview = await _context.Reviews.FindAsync(rootReview.ParentReviewId);
+                if (rootReview == null)
+                    throw new Exception("Root review not found!");
+            }
+
+            var now = DateTime.Now;
+            // Không cần kiểm tra existed nữa, rely on unique index
+            var reply = new Review
+            {
+                ParentReviewId = parentReviewId,
+                UserId = userId,
+                Comment = content,
+                CreatedAt = now,
+                Status = "Approved",
+                Rating = 5 // Giá trị hợp lệ cho CHECK constraint
+            };
+            if (rootReview.ProductId != null)
+            {
+                reply.ProductId = rootReview.ProductId;
+                reply.ServiceId = null;
+            }
+            else if (rootReview.ServiceId != null)
+            {
+                reply.ServiceId = rootReview.ServiceId;
+                reply.ProductId = null;
+            }
+            else
+            {
+                throw new Exception("Không thể trả lời bình luận này vì không xác định được loại sản phẩm/dịch vụ.");
+            }
+            _context.Reviews.Add(reply);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("IX_Reviews_User_Parent_Comment"))
+                    return;
+                throw;
+            }
+        }
+
+        public async Task<Review> GetLastReplyOfUserForParentAsync(int parentReviewId, int userId)
+        {
+            return await _context.Reviews
+                .Include(r => r.User)
+                .Where(r => r.ParentReviewId == parentReviewId && r.UserId == userId)
+                .OrderByDescending(r => r.CreatedAt)
+                .FirstOrDefaultAsync();
         }
     }
 }

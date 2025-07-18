@@ -526,7 +526,7 @@ namespace pet_spa_system1.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
+         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
@@ -656,7 +656,7 @@ namespace pet_spa_system1.Controllers
             {
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
                 return RedirectToAction("Edit_Products", new { id = product.ProductId });
-            }        
+            }
         }
 
 
@@ -880,6 +880,6 @@ namespace pet_spa_system1.Controllers
             }
         }
 
-
+    
     }
 }
