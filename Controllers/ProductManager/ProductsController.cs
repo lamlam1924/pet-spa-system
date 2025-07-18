@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModel;
 
@@ -68,7 +66,7 @@ namespace pet_spa_system1.Controllers.ProductManager
                 Name = product.Name,
                 ImageUrl = product.ImageUrl,
                 Price = product.Price,
-                CategoryName = product.ProductCategory?.Name,
+                CategoryName = product.Category?.Name,
                 AverageRating = product.Reviews != null && product.Reviews.Count > 0
                     ? (int)Math.Round(product.Reviews.Average(r => r.Rating))
                     : 0,
@@ -90,7 +88,7 @@ namespace pet_spa_system1.Controllers.ProductManager
                 Name = s.Name,
                 ImageUrl = s.ImageUrl,
                 Price = s.Price,
-                CategoryName = s.ProductCategory?.Name,
+                CategoryName = s.Category?.Name,
                 AverageRating = s.Reviews != null && s.Reviews.Count > 0
                     ? (int)Math.Round(s.Reviews.Average(r => r.Rating))
                     : 0,

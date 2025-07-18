@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using pet_spa_system1.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using pet_spa_system1.Models;
 
 namespace pet_spa_system1.Repositories
 {
@@ -20,14 +17,10 @@ namespace pet_spa_system1.Repositories
         Task DisablePetAsync(int id);
         Task<List<Pet>> GetSuggestedPetsAsync(int speciesId, int excludePetId, int count);
         List<Pet> GetPetsByUserId(int userId);
-        List<Pet> GetAllPets();
-        void AddPet(Pet pet);
-        Pet GetById(int id);
-
-        /// <summary>
-        /// Lấy tất cả thú cưng kèm thông tin loài (Species)
-        /// </summary>
-        /// <returns>Danh sách Pet có include Species</returns>
+        Task<List<PetImage>> GetPetImagesAsync(int petId);
+        Task AddPetImageAsync(PetImage petImage);
+        Task DeletePetImageAsync(int imageId);
         IEnumerable<Pet> GetAllPetsWithSpecies();
+        
     }
 }

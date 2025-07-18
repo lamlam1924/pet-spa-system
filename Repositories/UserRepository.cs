@@ -126,26 +126,26 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    // TODO: Tri?n khai hàm l?y hi?u su?t làm vi?c
+    // TODO: Tri?n khai hï¿½m l?y hi?u su?t lï¿½m vi?c
     public async Task<StaffPerformanceStats> GetStaffPerformanceStatsAsync(int staffId)
     {
-        // Tính toán hi?u su?t t? b?ng Appointment, Order, ...
+        // Tï¿½nh toï¿½n hi?u su?t t? b?ng Appointment, Order, ...
         return new StaffPerformanceStats();
     }
 
-    // TODO: Tri?n khai hàm l?y tài li?u c?a nhân viên
+    // TODO: Tri?n khai hï¿½m l?y tï¿½i li?u c?a nhï¿½n viï¿½n
     public async Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId)
     {
         return new List<StaffDocument>();
     }
 
-    // TODO: Tri?n khai hàm upload tài li?u
+    // TODO: Tri?n khai hï¿½m upload tï¿½i li?u
     public async Task AddStaffDocumentAsync(StaffDocument doc)
     {
-        // Thêm doc vào DB
+        // Thï¿½m doc vï¿½o DB
     }
 
-    // TODO: Tri?n khai hàm reset m?t kh?u nhân viên
+    // TODO: Tri?n khai hï¿½m reset m?t kh?u nhï¿½n viï¿½n
     public async Task<string> ResetStaffPasswordAsync(int staffId)
     {
         // Sinh m?t kh?u m?i, c?p nh?t DB, tr? v? m?t kh?u m?i

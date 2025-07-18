@@ -1,13 +1,7 @@
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace pet_spa_system1.Controllers
 {
@@ -258,14 +252,14 @@ public async Task<IActionResult> TimelineScheduler(string keyword = "")
         ? new List<Appointment>()
         : _appointmentService.GetAppointments(keyword, 0, today, 0, 1, 100);
 
-    List<pet_spa_system1.ViewModels.TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
+    List<TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
     {
         return appts.Select(a => {
             var serviceDurations = a.AppointmentServices?.Select(asr => asr.Service.DurationMinutes ?? 0).ToList() ?? new List<int>();
             int totalDuration = serviceDurations.Sum();
             if (serviceDurations.Count > 1)
                 totalDuration += (serviceDurations.Count - 1) * 5; // Cộng 5 phút giữa các dịch vụ
-            return new pet_spa_system1.ViewModels.TimelineAppointmentViewModel
+            return new TimelineAppointmentViewModel
             {
                 AppointmentId = a.AppointmentId,
                 AppointmentDate = a.AppointmentDate,
@@ -281,7 +275,7 @@ public async Task<IActionResult> TimelineScheduler(string keyword = "")
         }).ToList();
     }
 
-    var vm = new pet_spa_system1.ViewModels.TimelineSchedulerViewModel
+    var vm = new TimelineSchedulerViewModel
     {
         StaffList = staffList,
         Appointments = MapAppointments(allAppointments),

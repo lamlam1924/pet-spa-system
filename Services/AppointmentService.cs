@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Services
 {
