@@ -1,6 +1,4 @@
-﻿@{
-    Layout = null;
-}
+﻿
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -151,6 +149,12 @@
                 </div>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="@Url.Action("ManageBlog", "Admin")">
+                    <i class="fas fa-fw fa-blog"></i>
+                    <span>Quản lý Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePromotions" aria-expanded="false">
                     <i class="fas fa-fw fa-tags"></i>
                     <span>Khuyến mãi</span>
@@ -173,7 +177,7 @@
             <hr class="sidebar-divider">
             <div class="version" id="version-ruangadmin">Phiên bản 1.1</div>
         </ul>
-        @await Html.PartialAsync("_SidebarPartial")
+        @* @await Html.PartialAsync("_SidebarPartial") *@
         <!-- End Sidebar -->
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
