@@ -1,0 +1,56 @@
+﻿@model List<pet_spa_system1.ViewModel.BlogViewModel>
+@{
+    ViewData["Title"] = "Bài viết của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Bài viết của tôi</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var blog in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        @if (!string.IsNullOrEmpty(blog.FeaturedImageUrl))
+                        {
+                            <img src="@blog.FeaturedImageUrl" class="card-img-top" alt="@blog.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@blog.Title</h5>
+                            <p class="card-text">@blog.ShortContent</p>
+                            <p class="card-text"><small class="text-muted">Trạng thái: @blog.Status - Đăng bởi: @blog.AuthorName - @blog.CreatedAt?.ToString("dd/MM/yyyy")</small></p>
+                            @if (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserId == blog.UserId)
+                            {
+                                <a href="@Url.Action("Edit", "Blogs", new { id = blog.BlogId })" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                            }
+                            <a href="@Url.Action("Detail", "Blogs", new { id = blog.BlogId })" class="btn btn-secondary btn-sm">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-blog fa-4x text-muted mb-3"></i>
+            <h4>Bạn chưa có bài viết nào</h4>
+            <p class="text-muted">Hãy tạo bài viết đầu tiên của bạn!</p>
+            <a href="@Url.Action("Create", "Blogs")" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Tạo bài viết
+            </a>
+        </div>
+    }
+</div>

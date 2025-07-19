@@ -29,9 +29,9 @@ public partial class Blog
 
     public virtual User? ApprovedByNavigation { get; set; }
 
-    public virtual ICollection<BlogImage> BlogImages { get; set; } = new List<BlogImage>();
-
     public virtual ICollection<BlogComment> BlogComments { get; set; } = new List<BlogComment>();
+
+    public virtual ICollection<BlogImage> BlogImages { get; set; } = new List<BlogImage>();
 
     public virtual ICollection<BlogLike> BlogLikes { get; set; } = new List<BlogLike>();
 

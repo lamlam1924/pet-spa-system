@@ -206,5 +206,12 @@ namespace pet_spa_system1.Services
                 Console.WriteLine("[PetService] DeletePetImageAsync: Image with id {imageId} not found.");
             }
         }
+
+        public List<Pet> GetAllPets()
+        {
+            throw new NotImplementedException();
+        }
     }
+
+
 }

@@ -13,15 +13,18 @@
             background: #f9f9f9;
             border-radius: 10px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-control {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+
         .btn-primary {
             background-color: #007bff;
             color: white;
@@ -29,9 +32,10 @@
             border: none;
             border-radius: 5px;
         }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
     </style>
 }
 
@@ -75,7 +79,7 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="FeaturedImageUrl" class="control-label">Hình ảnh nổi bật</label>
+            
             <input asp-for="FeaturedImage" type="file" class="form-control" accept="image/*" />
             <span asp-validation-for="FeaturedImageUrl" class="text-danger"></span>
             @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))

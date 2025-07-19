@@ -11,11 +11,10 @@ using pet_spa_system1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đọc cấu hình từ appsettings.json
-
+// Đọc cấu hình từ appsettings.json và appsettings.Local.json
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true); // thêm dòng này
+    .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 var smtpPass = builder.Configuration["Smtp:Pass"];
 
@@ -51,9 +50,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICheckoutRepository, CheckoutRepository>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-// Blog services
-//builder.Services.AddScoped<IBlogRepository, BlogRepository>();
-//builder.Services.AddScoped<IBlogService, BlogService>();
+
+// Blog services (thêm từ file của bạn)
+builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+builder.Services.AddScoped<IBlogService, BlogService>();
+
+// Order services (giữ từ file của nhóm bạn)
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
@@ -168,7 +170,8 @@ app.MapControllerRoute(
     name: "Admin",
     pattern: "Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" });
-// Blog routes
+
+// Blog routes (thêm từ file của bạn)
 app.MapControllerRoute(
     name: "BlogDetail",
     pattern: "Blogs/Detail/{id:int}",
