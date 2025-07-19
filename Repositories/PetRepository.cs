@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace pet_spa_system1.Repositories
 {
@@ -222,6 +218,11 @@ namespace pet_spa_system1.Repositories
             {
                 Console.WriteLine("[PetRepository] DeletePetImageAsync: Image with id {imageId} not found.");
             }
+        }
+
+        public IEnumerable<Pet> GetAllPetsWithSpecies()
+        {
+            return _context.Pets.Include(p => p.Species);
         }
     }
 }

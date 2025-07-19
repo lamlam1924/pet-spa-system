@@ -427,3 +427,6 @@ GO
 
 PRINT 'Database schema update completed successfully!';
 PRINT 'Please restart your application to apply the changes.';
+
+ALTER TABLE Services
+ADD ImageUrl NVARCHAR(255);

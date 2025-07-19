@@ -102,6 +102,13 @@
                 <div class="text-end">
                     <h5>Tổng cộng: <strong>@Model.TotalAmount.ToString("N0") đ</strong></h5>
                 </div>
+                  @if (order.StatusId < 3) // hoặc != 3, tùy logic
+                            {
+                                <form asp-action="CancelOrder" asp-controller="Order" method="post" style="display:inline;">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn hàng</button>
+                                </form>
+                            }
             </div>
         </div>
     </div>

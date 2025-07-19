@@ -1,8 +1,5 @@
 ﻿using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace pet_spa_system1.Services
 {
