@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
+using Role = pet_spa_system1.Models.Role;
 
 namespace pet_spa_system1.Services
 {
@@ -88,7 +83,7 @@ namespace pet_spa_system1.Services
         }
 
         // Lấy danh sách role active
-        public async Task<List<pet_spa_system1.Models.Role>> GetActiveRolesAsync()
+        public async Task<List<Role>> GetActiveRolesAsync()
         {
             return await _userRepository.GetActiveRolesAsync();
         }
@@ -286,7 +281,7 @@ namespace pet_spa_system1.Services
             return await _userRepository.ResetStaffPasswordAsync(staffId);
         }
 
-        public async Task<string> UploadAvatarAsync(Microsoft.AspNetCore.Http.IFormFile avatarFile)
+        public async Task<string> UploadAvatarAsync(IFormFile avatarFile)
         {
             var account = new Account(
                 "dprp1jbd9", // cloud_name
@@ -301,5 +296,19 @@ namespace pet_spa_system1.Services
             var uploadResult = await cloudinary.UploadAsync(uploadParams);
             return uploadResult.SecureUrl?.ToString();
         }
+        public async Task<(bool Success, string? Message)> UpdatePasswordWithUserIdAsync(int userId, string newPlainPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.IsActive != true)
+                return (false, "User not found or inactive");
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, newPlainPassword);
+            user.UpdatedAt = DateTime.Now;
+
+            await _userRepository.UpdateAsync(user);
+            Console.WriteLine("Update success " + newPlainPassword);
+            return (true, "Password updated successfully");
+        }
+
     }
 }

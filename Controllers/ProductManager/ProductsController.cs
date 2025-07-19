@@ -97,7 +97,7 @@ namespace pet_spa_system1.Controllers.ProductManager
                 Name = product.Name,
                 ImageUrl = product.ImageUrl,
                 Price = product.Price,
-                CategoryName = product.ProductCategory?.Name,
+                CategoryName = product.Category?.Name,
                 AverageRating = averageRating,
                 ReviewCount = reviewCount,
                 Reviews = parentReviews.Skip((reviewPage - 1) * pageSize).Take(pageSize).ToList()
@@ -111,7 +111,7 @@ namespace pet_spa_system1.Controllers.ProductManager
                 Name = s.Name,
                 ImageUrl = s.ImageUrl,
                 Price = s.Price,
-                CategoryName = s.ProductCategory?.Name,
+                CategoryName = s.Category?.Name,
                 AverageRating = s.Reviews != null && s.Reviews.Count > 0
                     ? (int)Math.Round(s.Reviews.Average(r => r.Rating))
                     : 0,

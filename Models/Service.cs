@@ -21,6 +21,8 @@ public partial class Service
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public virtual ICollection<AppointmentService> AppointmentServices { get; set; } = new List<AppointmentService>();
 
     public virtual SerCate Category { get; set; } = null!;

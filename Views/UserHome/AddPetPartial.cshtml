@@ -1,0 +1,125 @@
+﻿<div class="modal fade" id="addPetModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="addPetForm" class="modal-content"
+              hx-post="@Url.Action("AddPet", "UserHome")"
+              hx-target="#content-main"
+              hx-swap="innerHTML"
+              enctype="multipart/form-data">
+            <div class="modal-header" style="width:95%; margin:auto;">
+                <h5 class="modal-title">Thêm thú cưng mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-3" style="width:95%; margin:auto;">
+                    <!-- Form Inputs (Left Column) -->
+                    <div class="col-md-7" ">
+                        <div class="mb-2">
+                            <label for="add-pet-name" class="form-label">Tên</label>
+                            <input type="text" id="add-pet-name" name="Name" class="form-control" required>
+                        </div>
+                        <div class="mb-2">
+                            <label for="add-pet-species" class="form-label">Loài</label>
+                            <select id="add-pet-species" name="SpeciesId" class="form-control" required>
+                                <option value="">-- Chọn loài --</option>
+                                <option value="1">Chó</option>
+                                <option value="2">Mèo</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="add-pet-breed" class="form-label">Giống</label>
+                            <input type="text" id="add-pet-breed" name="Breed" class="form-control" required>
+                        </div>
+                        <div class="mb-2">
+                            <label for="add-pet-age" class="form-label">Tuổi</label>
+                            <input type="number" min="0" id="add-pet-age" name="Age" class="form-control" required>
+                        </div>
+                        <div class="mb-2">
+                            <label for="add-pet-gender" class="form-label">Giới tính</label>
+                            <select id="add-pet-gender" name="Gender" class="form-control" required>
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Male">Đực</option>
+                                <option value="Female">Cái</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="add-pet-note" class="form-label">Ghi chú</label>
+                            <textarea id="add-pet-note" name="Note" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    
+                    <!-- Upload Image (Right Column) -->
+                    <div class="col-md-5">
+                        <div class="mb-2 text-center">
+                            <label for="add-pet-image" class="form-label">Ảnh thú cưng</label>
+                            <input type="file" id="add-pet-image" name="ImageFile" class="form-control" accept="image/*" onchange="previewPetImage(this)">
+
+                            <div class="mt-3 position-relative d-inline-block">
+                                <img id="preview-image" src="" class="img-thumbnail d-none"
+                                     style="width: 180px; height: 180px; object-fit: cover;" alt="Preview">
+
+                                <!-- X icon to remove selected image -->
+                                <i id="remove-image-icon"
+                                   class="bi bi-x-circle-fill text-danger position-absolute top-0 start-100 translate-middle d-none"
+                                   role="button"
+                                   style="font-size: 1.4rem;"
+                                   onclick="removeSelectedImage()"
+                                   title="Xóa ảnh đã chọn">
+                                </i>
+                            </div>
+
+                            <p id="no-image-text" class="text-muted fst-italic mt-2">Chưa tải ảnh lên</p>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Thêm</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var modal = new bootstrap.Modal(document.getElementById('addPetModal'));
+    modal.show();
+
+    function previewPetImage(input) {
+        const preview = document.getElementById('preview-image');
+        const noImageText = document.getElementById('no-image-text');
+        const removeIcon = document.getElementById('remove-image-icon');
+        const file = input.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove("d-none");
+                removeIcon.classList.remove("d-none");
+                noImageText.classList.add("d-none");
+            };
+            reader.readAsDataURL(file);
+        } else {
+            removeSelectedImage();
+        }
+    }
+
+    function removeSelectedImage() {
+        const input = document.getElementById('add-pet-image');
+        const preview = document.getElementById('preview-image');
+        const removeIcon = document.getElementById('remove-image-icon');
+        const noImageText = document.getElementById('no-image-text');
+
+        input.value = '';
+        preview.src = '';
+        preview.classList.add('d-none');
+        removeIcon.classList.add('d-none');
+        noImageText.classList.remove('d-none');
+    }
+</script>
+

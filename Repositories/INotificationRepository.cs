@@ -1,8 +1,6 @@
 ﻿using pet_spa_system1.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace pet_spa_system1.Repo
+namespace pet_spa_system1.Repositories
 {
     public interface INotificationRepository
     {

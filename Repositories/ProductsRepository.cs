@@ -17,7 +17,7 @@ namespace pet_spa_system1.Repositories
         {
             return await _context.Products
                 .Include(p => p.Reviews)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -37,7 +37,7 @@ namespace pet_spa_system1.Repositories
         {
             return await _context.Products
                 .Where(p => p.IsActive == true)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -123,7 +123,7 @@ namespace pet_spa_system1.Repositories
                     Name = p.Name,
                     ImageUrl = p.ImageUrl,
                     Price = p.Price,
-                    CategoryName = p.ProductCategory.Name,
+                    CategoryName = p.Category.Name,
                     AverageRating = p.Reviews
                         .Where(r => r.Status == "Approved")
                         .Any() ? (int)Math.Round(p.Reviews
@@ -180,7 +180,7 @@ namespace pet_spa_system1.Repositories
             Name = p.Name,
             ImageUrl = p.ImageUrl,
             Price = p.Price,
-            CategoryName = p.ProductCategory.Name,
+            CategoryName = p.Category.Name,
             AverageRating = p.Reviews
                 .Where(r => r.Status == "Approved")
                 .Any() ? (int)Math.Round(p.Reviews

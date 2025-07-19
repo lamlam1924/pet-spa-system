@@ -57,7 +57,7 @@
                                         </div>
                                         <div class="col-md-7">
                                             <h3 id="product-name">@Model.Name</h3>
-                                            <p><strong>Danh mục:</strong> <span id="product-category">@(Model.ProductCategory?.Name ?? "No Category")</span></p>
+                                            <p><strong>Danh mục:</strong> <span id="product-category">@(Model.Category?.Name ?? "No Category")</span></p>
                                             <p><strong>Giá:</strong> <span id="product-price" class="text-danger">@Model.Price.ToString("F2")vnđ</span></p>
                                             <p><strong>Số lượng:</strong> <span id="product-stock">@Model.Stock</span> items</p>
 

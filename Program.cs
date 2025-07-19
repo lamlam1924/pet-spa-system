@@ -1,10 +1,15 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using pet_spa_system1.Models;
-using pet_spa_system1.Repo;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Repository;
 using pet_spa_system1.Services;

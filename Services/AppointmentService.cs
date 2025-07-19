@@ -526,7 +526,7 @@ namespace pet_spa_system1.Services
 
             return vm;
         }
-
+        
         public List<Appointment> GetPendingApprovalAppointments()
         {
             return _appointmentRepository.GetPendingApprovalAppointments();
@@ -544,7 +544,7 @@ namespace pet_spa_system1.Services
                 .Select(a => GetAdminAppointmentDetail(a.AppointmentId))
                 .ToList();
         }
-
+        
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
         public bool UpdateAppointmentStatusAndSendMail(int id, int statusId)
         {

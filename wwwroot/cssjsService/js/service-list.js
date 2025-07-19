@@ -84,20 +84,25 @@ $(document).on('click', '.btn-status-toggle', function(e) {
     // Disable button
     $this.prop('disabled', true);
     
-    // Simple but beautiful confirmation
+    // Unified confirmation dialog (matches service-detail.js)
+    const isRestore = !isActive;
+    const title = isRestore ? 'Kích hoạt dịch vụ này?' : 'Tạm ngưng dịch vụ này?';
+    const html = isRestore
+        ? `<div class="swal2-confirm-text"> Dịch vụ sẽ được <b>kích hoạt trở lại</b> và hiển thị cho khách hàng.</div>`
+        : `<div class="swal2-confirm-text"></i> Dịch vụ sẽ <b>tạm ngưng</b> và không hiển thị với khách hàng.</div>`;
+    const confirmButtonText = isRestore ? 'Kích hoạt' : 'Tạm ngưng';
+    const confirmBtnClass = isRestore ? 'btn-outline-success-custom' : 'btn-outline-danger-custom';
     Swal.fire({
-        title: isActive ? 'Tạm ngưng dịch vụ?' : 'Kích hoạt dịch vụ?',
-        text: isActive ? 'Dịch vụ sẽ không hiển thị với khách hàng' : 'Dịch vụ sẽ hoạt động trở lại',
+        title: title,
+        html: html,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: 'transparent',
-        cancelButtonColor: 'transparent',
-        confirmButtonText: isActive ? 'Tạm ngưng' : 'Kích hoạt',
+        confirmButtonText: confirmButtonText,
         cancelButtonText: 'Hủy',
         reverseButtons: true,
         customClass: {
             popup: 'simple-confirmation-popup',
-            confirmButton: isActive ? 'btn-outline-warning-custom' : 'btn-outline-success-custom',
+            confirmButton: confirmBtnClass,
             cancelButton: 'btn-outline-gray-custom'
         }
     }).then((result) => {

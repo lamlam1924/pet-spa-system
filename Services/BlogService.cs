@@ -533,72 +533,72 @@ public class BlogService : IBlogService
         {
 
             var uri = new Uri(imageUrl);
-        var segments = uri.AbsolutePath.Split('/');
+            var segments = uri.AbsolutePath.Split('/');
 
-        var uploadIndex = Array.IndexOf(segments, "upload");
-        if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
-        {
-            var pathParts = segments.Skip(uploadIndex + 2).ToArray();
-            var fullPath = string.Join("/", pathParts);
-
-            var lastDotIndex = fullPath.LastIndexOf('.');
-            if (lastDotIndex > 0)
+            var uploadIndex = Array.IndexOf(segments, "upload");
+            if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
             {
-                return fullPath.Substring(0, lastDotIndex);
-            }
-            return fullPath;
-        }
+                var pathParts = segments.Skip(uploadIndex + 2).ToArray();
+                var fullPath = string.Join("/", pathParts);
 
-        return string.Empty;
-    }
-                catch
+                var lastDotIndex = fullPath.LastIndexOf('.');
+                if (lastDotIndex > 0)
                 {
-                    return string.Empty;
+                    return fullPath.Substring(0, lastDotIndex);
                 }
+                return fullPath;
             }
 
-            public string GetShortContent(string content, int maxLength = 200)
-{
-    if (string.IsNullOrEmpty(content))
-        return string.Empty;
+            return string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
 
-    var plainText = Regex.Replace(content, "<.*?>", string.Empty);
-
-    if (plainText.Length <= maxLength)
-        return plainText;
-
-    return plainText.Substring(0, maxLength) + "...";
-}
-
-public bool CanUserEditBlog(int blogId, int userId, string userRole)
-{
-    if (userRole == "Admin")
-        return true;
-
-
-    return true;
-}
-
-public bool CanUserDeleteBlog(int blogId, int userId, string userRole)
-{
-    if (userRole == "Admin")
-        return true;
-
-    return true;
-}
-
-public string GetBlogStatusForUser(string userRole)
-{
-    return userRole switch
+    public string GetShortContent(string content, int maxLength = 200)
     {
-        "Admin" => "Draft",
-        "Staff" => "Draft",
-        "Customer" => "PendingApproval",
-        _ => "PendingApproval"
-    };
-}
+        if (string.IsNullOrEmpty(content))
+            return string.Empty;
 
-private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
+        var plainText = Regex.Replace(content, "<.*?>", string.Empty);
+
+        if (plainText.Length <= maxLength)
+            return plainText;
+
+        return plainText.Substring(0, maxLength) + "...";
+    }
+
+    public bool CanUserEditBlog(int blogId, int userId, string userRole)
+    {
+        if (userRole == "Admin")
+            return true;
+
+
+        return true;
+    }
+
+    public bool CanUserDeleteBlog(int blogId, int userId, string userRole)
+    {
+        if (userRole == "Admin")
+            return true;
+
+        return true;
+    }
+
+    public string GetBlogStatusForUser(string userRole)
+    {
+        return userRole switch
+        {
+            "Admin" => "Draft",
+            "Staff" => "Draft",
+            "Customer" => "PendingApproval",
+            _ => "PendingApproval"
+        };
+    }
+
+    private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
     {
         return new BlogCommentViewModel
         {
@@ -611,7 +611,7 @@ private BlogCommentViewModel MapToCommentViewModel(BlogComment comment)
             UserRole = GetUserRoleName(comment.User.RoleId),
             UserAvatar = comment.User.ProfilePictureUrl,
             ParentCommentId = comment.ParentCommentId,
-            Replies = comment.Replies.Where(r => r.Status == "Approved").Select(MapToCommentViewModel).ToList(),
+            Replies = comment.InverseParentComment.Where(r => r.Status == "Approved").Select(MapToCommentViewModel).ToList(),
             CanReply = true
         };
     }

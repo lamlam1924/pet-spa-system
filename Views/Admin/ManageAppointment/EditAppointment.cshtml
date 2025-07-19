@@ -1,408 +1,198 @@
-@model pet_spa_system1.Models.Appointment
+@model pet_spa_system1.ViewModel.AppointmentViewModel
 
 @{
-    ViewData["Title"] = "Chỉnh sửa lịch hẹn";
+    ViewData["Title"] = "Chỉnh sửa lịch hẹn #" + Model.AppointmentId;
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-detail.css" />
+    <!-- Select2 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+}
+
 <div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-        <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="@Url.Action("AppointmentList", "Admin")">Lịch hẹn</a></li>
-                    <li class="breadcrumb-item active">Chỉnh sửa</li>
-                </ol>
-            </nav>
-            <h3 class="mb-0 fw-bold">
-                <i class="fas fa-edit me-2"></i>Chỉnh sửa lịch hẹn #@Model.AppointmentId
+    <form asp-action="Edit" asp-controller="AdminAppointment" method="post">
+        <input type="hidden" name="AppointmentId" value="@Model.AppointmentId" />
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="m-0 fw-bold">
+                <i class="fas fa-calendar-alt me-2"></i> Chỉnh sửa lịch hẹn #@Model.AppointmentId
             </h3>
+            <div class="d-flex gap-2">
+                <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Lưu thay đổi
+                </button>
+            </div>
         </div>
-    </div>
 
-    <div class="card shadow border-0 mb-4">
-        <div class="card-header bg-white py-3">
-            <ul class="nav nav-tabs card-header-tabs" id="appointmentTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" 
-                        type="button" role="tab" aria-selected="true">
-                        <i class="fas fa-info-circle me-2"></i>Thông tin cơ bản
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" 
-                        type="button" role="tab" aria-selected="false">
-                        <i class="fas fa-paw me-2"></i>Thú cưng & Dịch vụ
-                    </button>
-                </li>
-            </ul>
-        </div>
-        <div class="card-body">
-            <form asp-action="AppointmentEdit" asp-controller="Admin" method="post" class="needs-validation" novalidate>
-                <input type="hidden" asp-for="AppointmentId" />
-                <input type="hidden" asp-for="UserId" />
-                <input type="hidden" asp-for="CreatedAt" />
-                <input type="hidden" asp-for="IsActive" />
-                
-                <div class="tab-content" id="appointmentTabContent">
-                    <!-- Tab thông tin cơ bản -->
-                    <div class="tab-pane fade show active" id="details" role="tabpanel">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-header bg-light">
-                                        <h5 class="card-title mb-0"><i class="fas fa-user me-2"></i>Thông tin khách hàng</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Khách hàng</label>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
-                                                    style="width: 32px; height: 32px;">
-                                                    @Model.User.FullName.Substring(0, 1)
-                                                </div>
-                                                <div>
-                                                    <div class="fw-medium">@Model.User?.FullName</div>
-                                                    <div class="small text-muted">@Model.User?.Phone</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-0">
-                                            <label class="form-label">Email</label>
-                                            <input type="email" class="form-control" value="@Model.User?.Email" readonly />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card border h-100">
-                                    <div class="card-header bg-light">
-                                        <h5 class="card-title mb-0"><i class="fas fa-calendar me-2"></i>Thời gian hẹn</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label asp-for="AppointmentDate" class="form-label">Ngày giờ hẹn <span class="text-danger">*</span></label>
-                                            <input type="datetime-local" class="form-control" asp-for="AppointmentDate" 
-                                                value="@Model.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")" required />
-                                            <div class="invalid-feedback">Vui lòng chọn ngày giờ hẹn</div>
-                                        </div>
-                                        <div class="mb-0">
-                                            <label asp-for="StatusId" class="form-label">Trạng thái <span class="text-danger">*</span></label>
-                                            <select class="form-select" asp-for="StatusId" asp-items="ViewBag.Statuses" required>
-                                                <option value="">-- Chọn trạng thái --</option>
-                                            </select>
-                                            <div class="invalid-feedback">Vui lòng chọn trạng thái</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card border">
-                                    <div class="card-header bg-light">
-                                        <h5 class="card-title mb-0"><i class="fas fa-user-tie me-2"></i>Nhân viên phụ trách</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <label asp-for="EmployeeId" class="form-label">Nhân viên</label>
-                                        <select class="form-select" asp-for="EmployeeId" asp-items="ViewBag.Employees">
-                                            <option value="">-- Chưa phân công --</option>
-                                        </select>
-                                        <div class="form-text">Chọn nhân viên phụ trách lịch hẹn này</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card border">
-                                    <div class="card-header bg-light">
-                                        <h5 class="card-title mb-0"><i class="fas fa-sticky-note me-2"></i>Ghi chú</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <label asp-for="Notes" class="form-label">Ghi chú</label>
-                                        <textarea class="form-control" asp-for="Notes" rows="4" 
-                                            placeholder="Nhập ghi chú hoặc yêu cầu đặc biệt..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 text-end">
-                                <button type="button" class="btn btn-primary" onclick="document.getElementById('services-tab').click()">
-                                    Tiếp theo <i class="fas fa-arrow-right ms-1"></i>
-                                </button>
-                            </div>
-                        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="m-0 fw-bold">Thông tin lịch hẹn</h5>
                     </div>
-                    
-                    <!-- Tab thú cưng & dịch vụ -->
-                    <div class="tab-pane fade" id="services" role="tabpanel">
-                        <div class="mb-4 p-3 border rounded bg-light">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-info-circle fs-4 text-primary me-2"></i>
-                                <div>
-                                    <h5 class="mb-0">Quản lý thú cưng và dịch vụ</h5>
-                                    <p class="mb-0 small text-muted">Thêm, xóa hoặc thay đổi các thú cưng và dịch vụ cho lịch hẹn này</p>
-                                </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">Trạng thái</h6>
+                                <!-- Trạng thái -->
+                                <select class="form-select" name="StatusId" required>
+            @foreach (var status in Model.Statuses)
+            {
+                <option value="@status.StatusId" selected="@(status.StatusId == Model.StatusId ? "selected" : null)">
+                    @status.StatusName
+                </option>
+            }
+                                </select>
+                            </div>
+                            
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">Ngày hẹn</h6>
+                                <input type="date" class="form-control" name="AppointmentDate" value="@Model.AppointmentDate.ToString("yyyy-MM-dd")" required />
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">Giờ hẹn</h6>
+                                <input type="time" class="form-control" name="AppointmentTime" value="@Model.AppointmentDate.ToString("HH:mm")" required />
                             </div>
                         </div>
 
-                        <div id="pet-service-container">
-                            @{
-                                var groupedServices = Model.AppointmentPets
-                                    .SelectMany(ap => Model.AppointmentServices
-                                        .Select(asv => new { Pet = ap.Pet, Service = asv.Service }))
-                                    .GroupBy(x => x.Pet.PetId)
-                                    .ToDictionary(g => g.Key, g => g.Select(x => x.Service).ToList());
-                            }
-
-                            @foreach (var petAppointment in Model.AppointmentPets)
-                            {
-                                var pet = petAppointment.Pet;
-                                var services = groupedServices.ContainsKey(pet.PetId) ? groupedServices[pet.PetId] : new List<pet_spa_system1.Models.Service>();
-                                
-                                <div class="pet-service-item card mb-3 border shadow-sm">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                        <h6 class="mb-0"><i class="fas fa-paw me-2"></i>Thú cưng và dịch vụ</h6>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">
-                                            <i class="fas fa-times"></i> Xóa
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-5">
-                                                <label class="form-label">Thú cưng <span class="text-danger">*</span></label>
-                                                <select name="PetIds[]" class="form-select pet-select" required>
-                                                    @foreach (var p in ViewBag.Pets as List<pet_spa_system1.Models.Pet>)
-                                                    {
-                                                        if (p.PetId == pet.PetId)
-                                                        {
-                                                            <option value="@p.PetId" selected>
-                                                                @p.Name (@p.Species, @p.Age tuổi)
-                                                            </option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@p.PetId">
-                                                                @p.Name (@p.Species, @p.Age tuổi)
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                                <div class="invalid-feedback">Vui lòng chọn thú cưng</div>
-                                            </div>
-                                            <div class="col-md-7">
-                                                <label class="form-label">Dịch vụ <span class="text-danger">*</span></label>
-                                                <select name="ServiceIds[]" class="form-select service-select" multiple required>
-                                                    @foreach (var s in ViewBag.Services as List<pet_spa_system1.Models.Service>)
-                                                    {
-                                                        var isSelected = services.Any(svc => svc.ServiceId == s.ServiceId);
-                                                        if (isSelected)
-                                                        {
-                                                            <option value="@s.ServiceId" selected>
-                                                                @s.Name - @s.Price.ToString("N0") VNĐ
-                                                            </option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@s.ServiceId">
-                                                                @s.Name - @s.Price.ToString("N0") VNĐ
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                                <div class="invalid-feedback">Vui lòng chọn ít nhất 1 dịch vụ</div>
-                                                <div class="form-text">Giữ Ctrl để chọn nhiều dịch vụ</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        <button type="button" id="add-row" class="btn btn-outline-secondary mb-4">
-                            <i class="fas fa-plus me-1"></i>Thêm cặp thú cưng - dịch vụ
-                        </button>
-                        
-                        <div class="alert alert-info">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-calculator me-2"></i>
-                                    <span>Tổng chi phí ước tính:</span>
-                                </div>
-                                <div id="total-cost" class="fw-bold fs-5">0 VNĐ</div>
-                            </div>
-                        </div>
-
-                        <div class="text-end mt-4">
-                            <button type="button" class="btn btn-outline-secondary me-2" onclick="document.getElementById('details-tab').click()">
-                                <i class="fas fa-arrow-left me-1"></i>Quay lại
-                            </button>
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-save me-1"></i>Lưu thay đổi
-                            </button>
-                            <a href="@Url.Action("AppointmentDetail", "Admin", new { id = Model.AppointmentId })" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-1"></i>Hủy
-                            </a>
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Ghi chú</h6>
+                            <textarea class="form-control" name="Notes" rows="2">@Model.Notes</textarea>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
 
-<!-- Template cho việc thêm mới -->
-<div id="pet-service-template" style="display:none;">
-    <div class="pet-service-item card mb-3 border shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-            <h6 class="mb-0"><i class="fas fa-paw me-2"></i>Thú cưng và dịch vụ</h6>
-            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">
-                <i class="fas fa-times"></i> Xóa
-            </button>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-5">
-                    <label class="form-label">Thú cưng <span class="text-danger">*</span></label>
-                    <select name="PetIds[]" class="form-select pet-select" required>
-                        <option value="">-- Chọn thú cưng --</option>
-                        @foreach (var pet in ViewBag.Pets as List<pet_spa_system1.Models.Pet>)
-                        {
-                            <option value="@pet.PetId">@pet.Name (@pet.Species, @pet.Age tuổi)</option>
-                        }
-                    </select>
-                    <div class="invalid-feedback">Vui lòng chọn thú cưng</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <h5 class="m-0 fw-bold">Thú cưng</h5>
+                                    <button type="button" class="btn btn-link text-success p-0" id="btnAddPet" title="Thêm thú cưng"><i class="fas fa-plus-circle fa-lg"></i></button>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group mb-2" id="selectedPetsList">
+                                    @foreach (var pet in Model.AllPets.Where(p => Model.SelectedPetIds.Contains(p.PetId)))
+                                    {
+                                        <li class="list-group-item py-2 px-2 d-flex align-items-center justify-content-between gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-light text-primary p-2"><i class="fas fa-paw"></i></span>
+                                                <span>@pet.Name (@pet.SpeciesName)</span>
+                                                <select name="PetStaffMapping[@pet.PetId]" class="form-select form-select-sm ms-2" style="width:150px;">
+                                                    <option value="">Chọn nhân viên</option>
+                                                    <option value="1">Nguyễn Văn A</option>
+                                                    <option value="2">Trần Thị B</option>
+                                                    <option value="3">Lê Văn C</option>
+                                                </select>
+                                            </div>
+                                            <button type="button" class="btn btn-link text-danger btn-remove-pet p-0" data-pet-id="@pet.PetId" title="Xóa"><i class="fas fa-times-circle fa-lg"></i></button>
+                                            <input type="hidden" name="SelectedPetIds" value="@pet.PetId" />
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownPetList" data-bs-toggle="dropdown" aria-expanded="false" style="display:none;">
+                                        Chọn thú cưng
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownPetList">
+                                        @foreach (var pet in Model.AllPets.Where(p => !Model.SelectedPetIds.Contains(p.PetId)))
+                                        {
+                                            <li><a class="dropdown-item add-pet-item" href="#" data-pet-id="@pet.PetId">@pet.Name (@pet.SpeciesName)</a></li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="m-0 fw-bold">Dịch vụ</h5>
+                                <button type="button" class="btn btn-link text-success p-0" id="btnAddService" title="Thêm dịch vụ"><i class="fas fa-plus-circle fa-lg"></i></button>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group mb-2" id="selectedServicesList">
+                                    @foreach (var service in Model.AllServices.Where(s => Model.SelectedServiceIds.Contains(s.ServiceId)))
+                                    {
+                                        <li class="list-group-item py-2 px-2 d-flex align-items-center justify-content-between gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-light text-success p-2"><i class="fas fa-spa"></i></span>
+                                                <span>@service.Name (@service.Price.ToString("N0") VNĐ)</span>
+                                            </div>
+                                            <button type="button" class="btn btn-link text-danger btn-remove-service p-0" data-service-id="@service.ServiceId" title="Xóa"><i class="fas fa-times-circle fa-lg"></i></button>
+                                            <input type="hidden" name="SelectedServiceIds" value="@service.ServiceId" />
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownServiceList" data-bs-toggle="dropdown" aria-expanded="false" style="display:none;">
+                                        Chọn dịch vụ
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownServiceList">
+                                        @foreach (var service in Model.AllServices.Where(s => !Model.SelectedServiceIds.Contains(s.ServiceId)))
+                                        {
+                                            <li><a class="dropdown-item add-service-item" href="#" data-service-id="@service.ServiceId">@service.Name (@service.Price.ToString("N0") VNĐ)</a></li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-7">
-                    <label class="form-label">Dịch vụ <span class="text-danger">*</span></label>
-                    <select name="ServiceIds[]" class="form-select service-select" multiple required>
-                        @foreach (var service in ViewBag.Services as List<pet_spa_system1.Models.Service>)
-                        {
-                            <option value="@service.ServiceId">@service.Name - @service.Price.ToString("N0") VNĐ</option>
-                        }
-                    </select>
-                    <div class="invalid-feedback">Vui lòng chọn ít nhất 1 dịch vụ</div>
-                    <div class="form-text">Giữ Ctrl để chọn nhiều dịch vụ</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="m-0 fw-bold">Thông tin khách hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Khách hàng</label>
+                            <select class="form-select customer-select" name="CustomerId" id="CustomerIdSelect" required>
+                                @foreach (var cus in Model.Customers.Where(c => c.RoleId == 2))
+                                {
+                                    var selected = cus.UserId == Model.CustomerId ? "selected" : null;
+                                    <option value="@cus.UserId"
+                                            data-phone="@cus.Phone"
+                                            data-email="@cus.Email"
+                                            data-address="@cus.Address"
+                                            selected="@selected">
+                                        @cus.FullName (@cus.Phone)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="CustomerPhone" name="CustomerPhone" value="@Model.CustomerPhone" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="CustomerEmail" name="CustomerEmail" value="@Model.CustomerEmail" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" id="CustomerAddress" name="CustomerAddress" value="@Model.CustomerAddress" readonly />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
-
 @section Scripts {
+    <script src="~/cssjsAppointment/js/edit-appointment.js"></script>
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Khởi tạo Select2
-            initializeSelect2();
-            
-            // Cập nhật tổng chi phí
-            updateTotalCost();
-            
-            // Xử lý thêm dòng mới
-            $('#add-row').click(function() {
-                var newRow = $('#pet-service-template').html();
-                $('#pet-service-container').append(newRow);
-                initializeSelect2();
-            });
-            
-            // Xóa dòng
-            $(document).on('click', '.btn-remove-row', function() {
-                if ($('.pet-service-item').length > 1) {
-                    $(this).closest('.pet-service-item').remove();
-                    updateTotalCost();
-                } else {
-                    alert('Phải có ít nhất một thú cưng cho lịch hẹn!');
-                }
-            });
-            
-            // Form validation
-            (function () {
-                'use strict'
-                var forms = document.querySelectorAll('.needs-validation')
-                Array.prototype.slice.call(forms)
-                    .forEach(function (form) {
-                        form.addEventListener('submit', function (event) {
-                            if (!form.checkValidity()) {
-                                event.preventDefault()
-                                event.stopPropagation()
-                            }
-                            form.classList.add('was-validated')
-                        }, false)
-                    })
-            })()
-            
-            // Xử lý khi thay đổi dịch vụ
-            $(document).on('change', '.service-select', function() {
-                updateTotalCost();
-            });
-            
-            function initializeSelect2() {
-                $('.pet-select').select2({
-                    theme: 'bootstrap-5',
-                    placeholder: 'Chọn thú cưng'
-                });
-                
-                $('.service-select').select2({
-                    theme: 'bootstrap-5',
-                    placeholder: 'Chọn dịch vụ',
-                    allowClear: true
-                });
-            }
-            
-            function updateTotalCost() {
-                let totalCost = 0;
-                $('.service-select').each(function() {
-                    const selectedServices = $(this).val();
-                    if (selectedServices) {
-                        selectedServices.forEach(serviceId => {
-                            const serviceOption = $(this).find(`option[value="${serviceId}"]`);
-                            const priceText = serviceOption.text().split('-')[1].trim();
-                            const price = parseInt(priceText.replace(/[^\d]/g, ''));
-                            totalCost += price;
-                        });
-                    }
-                });
-                
-                // Format số với dấu phân cách hàng nghìn
-                const formattedCost = new Intl.NumberFormat('vi-VN').format(totalCost);
-                $('#total-cost').text(formattedCost + ' VNĐ');
-            }
-        });
-    </script>
+    <script src="~/cssjsAppointment/js/customer-select.js"></script>
 }
-
-@section Styles {
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <style>
-        .select2-container {
-            width: 100% !important;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            font-weight: 500;
-        }
-        
-        .nav-tabs .nav-link {
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
-        }
-        
-        .nav-tabs .nav-link.active {
-            font-weight: 500;
-            color: #0d6efd;
-        }
-        
-        .was-validated .select2-selection {
-            border-color: #dc3545 !important;
-        }
-    </style>
-}
-
-
-

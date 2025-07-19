@@ -23,24 +23,25 @@
                     </span>
                 </div>
                 <div class="card-body">
-                    <!-- Ảnh dịch vụ -->
-                    <div class="service-image-upload-area mb-4 text-center">
-                        <label class="form-label d-block mb-2 fw-semibold">Ảnh dịch vụ</label>
-                        <div class="service-image-edit d-inline-flex flex-column align-items-center gap-2">
-                            <img id="serviceImagePreview"
-                                 src="/images/service-default.png"
-                                 alt="Ảnh dịch vụ"
-                                 class="rounded border service-image-thumb mb-2"
-                                 style="width: 100px; height: 100px; object-fit: cover;" />
-                            <input type="file" class="form-control-file" id="serviceImage" name="ImageFile" accept="image/*" disabled />
-                            <small class="form-text text-muted">Chức năng đổi ảnh sẽ sớm được bổ sung.</small>
-                        </div>
-                    </div>
-
                     <form id="editServiceForm" action="@Url.Action("EditService", "AdminService")" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="Input.ServiceId" value="@Model.Input.ServiceId" />
                         <input type="hidden" name="Input.CreatedAt" value="@Model.Input.CreatedAt?.ToString("o")" />
+
+                        <!-- Ảnh dịch vụ -->
+                        <div class="service-image-upload-area mb-4 text-center">
+                            <label class="form-label d-block mb-2 fw-semibold" for="serviceImage">Ảnh dịch vụ</label>
+                            <div class="service-image-edit d-inline-flex flex-column align-items-center gap-2">
+                                <img id="serviceImagePreview"
+                                     src="@(string.IsNullOrEmpty(Model.Input.ImageUrl) ? Url.Content("~/images/service-default.png") : Model.Input.ImageUrl)"
+                                     alt="Ảnh dịch vụ"
+                                     class="rounded border service-image-thumb mb-2"
+                                     style="width: 100px; height: 100px; object-fit: cover;" />
+                                <input type="file" class="form-control-file" id="serviceImage" name="ImageFile" accept="image/*" />
+                                @Html.ValidationMessage("ImageFile", new { @class = "text-danger" })
+                                <small class="form-text text-muted">Chọn ảnh mới để thay đổi ảnh dịch vụ.</small>
+                            </div>
+                        </div>
 
                         @Html.ValidationSummary(false, "", new { @class = "text-danger mb-4" })
 
@@ -54,8 +55,7 @@
                         
                         <!-- Danh mục -->
                         <div class="form-group mb-3">
-                            <label for="service
-                            " class="form-label required-field">Danh mục</label>
+                            <label for="serviceCategory" class="form-label required-field">Danh mục</label>
                             <select name="Input.CategoryId" class="form-control" id="serviceCategory" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 @foreach (var cat in Model.Categories)
@@ -165,7 +165,7 @@
                     <div class="card-body">
                         <div class="preview-card service-card animate-fade-in">
                             <div class="service-img mb-0" style="height:180px;">
-                                <img src="/images/service-default.png" alt="Ảnh dịch vụ" class="w-100 h-100" style="object-fit:cover;">
+                                <img src="@(string.IsNullOrEmpty(Model.Input.ImageUrl) ? Url.Content("~/images/service-default.png") : Model.Input.ImageUrl)" alt="Ảnh dịch vụ" class="w-100 h-100" style="object-fit:cover;">
                                 <span class="service-badge">
                                     @(Model.Input.IsActive == true ? "Hoạt động" : "Tạm ngưng")
                                 </span>
@@ -241,7 +241,6 @@
         var successMessage = '@Html.Raw(TempData["SuccessMessage"]?.ToString())';
         var errorMessage = '@Html.Raw(TempData["ErrorMessage"]?.ToString())';
         var formType = 'edit';
-        
         // Initialize service data for reset function
         var serviceData = {
             name: @Html.Raw(Json.Serialize(Model.Input.Name ?? "")),
@@ -250,9 +249,28 @@
             duration: '@Model.Input.DurationMinutes',
             description: @Html.Raw(Json.Serialize(Model.Input.Description ?? "")),
             isActive: @(Model.Input.IsActive == true ? "true" : "false"),
-            categoryName: @Html.Raw(Json.Serialize(Model.CategoryName ?? "")), // ✅ Sử dụng Model thay vì ViewBag
+            categoryName: @Html.Raw(Json.Serialize(Model.CategoryName ?? "")),
             formattedPrice: '@(Model.Input.Price?.ToString("N0") ?? "0") đ'
         };
+
+        // Preview image update on file select
+        document.addEventListener('DOMContentLoaded', function () {
+            var fileInput = document.getElementById('serviceImage');
+            var previewImg = document.getElementById('serviceImagePreview');
+            var previewCardImg = document.querySelector('.preview-card .service-img img');
+            if (fileInput && previewImg && previewCardImg) {
+                fileInput.addEventListener('change', function (e) {
+                    if (fileInput.files && fileInput.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (ev) {
+                            previewImg.src = ev.target.result;
+                            previewCardImg.src = ev.target.result;
+                        };
+                        reader.readAsDataURL(fileInput.files[0]);
+                    }
+                });
+            }
+        });
     </script>
     
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

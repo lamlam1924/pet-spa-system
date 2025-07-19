@@ -23,21 +23,47 @@
                     <h6 class="m-0 font-weight-bold text-primary">Thêm dịch vụ mới</h6>
                 </div>
                 <div class="card-body">
-                    <!-- Ảnh dịch vụ -->
-                    <div class="service-image-upload-area mb-4 text-center">
-                        <label class="form-label d-block mb-2 fw-semibold">Ảnh dịch vụ</label>
-                        <div class="service-image-edit d-inline-flex flex-column align-items-center gap-2">
-                            <img id="serviceImagePreview"
-                                 src="/images/service-default.png"
-                                 alt="Ảnh dịch vụ"
-                                 class="rounded border service-image-thumb mb-2"
-                                 style="width: 100px; height: 100px; object-fit: cover;" />
-                            <input type="file" class="form-control-file" id="serviceImage" name="ImageFile" accept="image/*" disabled />
-                            <small class="form-text text-muted">Chức năng đổi ảnh sẽ sớm được bổ sung.</small>
-                        </div>
-                    </div>
+
+
 
                     <form id="editServiceForm" action="@Url.Action("AddService", "AdminService")" method="post" enctype="multipart/form-data">
+                        <!-- Ảnh dịch vụ -->
+                        <div class="service-image-upload-area mb-4 text-center">
+                            <label class="form-label d-block mb-2 fw-semibold" for="serviceImage">Ảnh dịch vụ</label>
+                            <div class="service-image-edit d-inline-flex flex-column align-items-center gap-2">
+                                <img id="serviceImagePreview"
+                                     src="/images/service-default.png"
+                                     alt="Ảnh dịch vụ"
+                                     class="rounded border service-image-thumb mb-2"
+                                     style="width: 100px; height: 100px; object-fit: cover;" />
+                                <input type="file" class="form-control-file" id="serviceImage" name="ImageFile" accept="image/*" required />
+                                @Html.ValidationMessage("ImageFile", new { @class = "text-danger" })
+                                <small class="form-text text-muted">Chọn ảnh để thêm cho dịch vụ mới (bắt buộc).</small>
+                            </div>
+                        </div>
+                        <script>
+                            // Hiển thị preview ảnh khi chọn file mới cho cả 2 vị trí
+                            document.addEventListener('DOMContentLoaded', function () {
+                                var input = document.getElementById('serviceImage');
+                                var preview = document.getElementById('serviceImagePreview');
+                                var previewRight = document.getElementById('serviceImagePreviewRight');
+                                if (input && preview && previewRight) {
+                                    input.addEventListener('change', function (e) {
+                                        if (input.files && input.files[0]) {
+                                            var reader = new FileReader();
+                                            reader.onload = function (ev) {
+                                                preview.src = ev.target.result;
+                                                previewRight.src = ev.target.result;
+                                            };
+                                            reader.readAsDataURL(input.files[0]);
+                                        } else {
+                                            preview.src = '/images/service-default.png';
+                                            previewRight.src = '/images/service-default.png';
+                                        }
+                                    });
+                                }
+                            });
+                        </script>
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="Input.CreatedAt" value="@currentDateTime.ToString("o")" />
 
@@ -139,7 +165,7 @@
                     <div class="card-body">
                         <div class="preview-card service-card animate-fade-in">
                             <div class="service-img mb-0" style="height:180px;">
-                                <img src="/images/service-default.png" alt="Ảnh dịch vụ" class="w-100 h-100" style="object-fit:cover;">
+<img id="serviceImagePreviewRight" src="@(string.IsNullOrEmpty(Model.Input.ImageUrl) ? Url.Content("~/images/service-default.png") : Model.Input.ImageUrl)" alt="Ảnh dịch vụ" class="w-100 h-100" style="object-fit:cover;">
                                 <span class="service-badge">
                                     @(Model.Input.IsActive == true ? "Hoạt động" : "Tạm ngưng")
                                 </span>
