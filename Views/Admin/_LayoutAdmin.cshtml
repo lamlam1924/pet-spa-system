@@ -135,6 +135,7 @@
                     </div>
                 </div>
             </li>
+          
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="false">
                     <i class="fas fa-fw fa-credit-card"></i>
@@ -143,6 +144,7 @@
                 <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Quản lý thanh toán</h6>
+                        <a class="collapse-item" href="@Url.Action("OrderHistory", "Admin")">Danh Sách Đơn Hàng</a>
                         <a class="collapse-item" href="@Url.Content("~/Admin/Payment")">Danh sách thanh toán</a>
                         <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Xử lý hoàn tiền</a>
                     </div>

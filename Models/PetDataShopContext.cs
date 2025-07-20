@@ -213,6 +213,7 @@ public partial class PetDataShopContext : DbContext
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
+
         modelBuilder.Entity<BlogImage>(entity =>
         {
             entity.HasKey(e => e.ImageId).HasName("PK__Blog_Ima__7516F4EC38AEEF0C");

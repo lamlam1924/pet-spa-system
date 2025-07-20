@@ -72,8 +72,8 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Đăng ký ICloudinaryService
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
@@ -193,5 +193,6 @@ app.MapControllerRoute(
     name: "BlogCreate",
     pattern: "Blogs/Create",
     defaults: new { controller = "Blogs", action = "Create" });
+
 
 app.Run();

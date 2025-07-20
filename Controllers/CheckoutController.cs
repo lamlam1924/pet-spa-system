@@ -145,7 +145,7 @@ public async Task<IActionResult> PaymentCallbackVnpay()
     var order = await _checkoutService.GetOrderByIdAsync(orderId);
     if (response["Success"] == "true")
     {
-        order.StatusId = 2; // Completed
+        order.StatusId = 1; // Completed
         await _checkoutService.UpdateOrderAsync(order);
 
         // Lấy thông tin user

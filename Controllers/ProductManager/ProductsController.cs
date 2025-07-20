@@ -52,6 +52,7 @@ namespace pet_spa_system1.Controllers.ProductManager
         //    ViewBag.Categories = await _productService.GetAllProductCategoriesAsync();
         //    return View(product);
         //}
+        
 
         //=========================================================================================
         // Product detail with reviews and suggestions

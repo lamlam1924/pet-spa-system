@@ -104,14 +104,14 @@
                                 </tbody>
                             </table>
 
-                            @if (order.StatusId < 3)
+                            @if (order.StatusId <= 3)
                             {
                                 <form asp-action="CancelOrder" asp-controller="Order" method="post" class="d-inline cancel-form">
                                     <input type="hidden" name="orderId" value="@order.OrderID" />
                                     <button type="button" class="btn btn-danger btn-sm btn-cancel-order" data-orderid="@order.OrderID">Hủy đơn hàng</button>
                                 </form>
                             }
-                            else if (order.StatusId == 5)
+                            else if (order.StatusId >= 4)
                             {
                                 <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
                                     <input type="hidden" name="orderId" value="@order.OrderID" />
