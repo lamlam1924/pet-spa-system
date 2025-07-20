@@ -40,6 +40,78 @@
             color: #666;
             font-size: 14px;
         }
+        /* Custom header-top_area styles for professional look and color harmony */
+        .header-top_area {
+            background: #fff;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 8px 0;
+            font-size: 15px;
+        }
+        .header-top_area .short_contact_list ul,
+        .header-top_area .search_bar,
+        .header-top_area .dropdown {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .header-top_area .short_contact_list ul {
+            gap: 24px;
+            margin-bottom: 0;
+        }
+        .header-top_area .short_contact_list a,
+        .header-top_area .search_bar input,
+        .header-top_area .dropdown a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+        .header-top_area .short_contact_list a:hover,
+        .header-top_area .dropdown a:hover {
+            color: #007bff;
+        }
+        .header-top_area .search_bar input {
+            border: 1px solid #ced4da;
+            border-radius: 20px 0 0 20px;
+            padding: 6px 18px;
+            outline: none;
+            width: 180px;
+            background: #fff;
+            color: #333;
+            transition: border 0.2s;
+            font-size: 15px;
+        }
+        .header-top_area .search_bar .search_button {
+            border: 1px solid #FF4B00;
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+            background: #FF4B00;
+            color: #fff;
+            padding: 6px 18px;
+            transition: background 0.2s;
+            font-size: 16px;
+        }
+        .header-top_area .search_bar .search_button:hover {
+            background: #0056b3;
+        }
+        .header-top_area .dropdown .btn {
+            border-radius: 20px;
+            padding: 6px 18px;
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #333;
+            font-size: 16px;
+            margin-left: 73%;
+        }
+        .header-top_area .dropdown .btn:hover {
+            background: #e9ecef;
+        }
+        .header-top_area i {
+            margin-right: 6px;
+            font-size: 17px;
+            color: #FF4B00;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -47,18 +119,26 @@
         <div class="header-area ">
             <div class="header-top_area">
                 <div class="container">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-lg-5 col-md-5">
                             <div class="short_contact_list">
-                                <ul>
-                                    <li><a href="#"><i class="fa fa-phone mr-1"></i>+880 4664 216</a></li>
-                                    <li><a href="#"><i class="fa fa-clock-o mr-1"></i>Mon - Sat 10:00 - 7:00</a></li>
+                                <ul class="list-unstyled d-flex mb-0">
+                                    <li>
+                                        <a href="tel:+8804664216">
+                                            <i class="fa fa-phone me-1"></i> +880 4664 216
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-clock-o me-1"></i> Mon - Sat 10:00 - 7:00
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-4">
                             <div class="search_bar">
-                                <form action="#" method="get" class="search_container">
+                                <form action="#" method="get" class="search_container d-flex">
                                     <input type="text" placeholder="Tìm Kiếm..." name="search" class="search_input">
                                     <button type="submit" class="search_button">
                                         <i class="fa fa-search"></i>
@@ -67,41 +147,43 @@
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-3">
-                            <div class="dropdown">
-                                <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
-                                   id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-user"></i>
-                                    @{
-                                        var userId = Context.Session.GetInt32("CurrentUserId");
-                                        var userName = Context.Session.GetString("CurrentUserName");
-                                        var isAdmin = Context.Session.GetInt32("CurrentUserRoleId");
-
-                                       
-                                    }
-                                    @if (userId != null)
-                                    {
-                                        <span class="ms-2">@userName</span>
-                                    }
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                                    @if (userId != null)
-                                    {
+                            @{
+                                var userId = Context.Session.GetInt32("CurrentUserId");
+                                var userName = Context.Session.GetString("CurrentUserName");
+                                var isAdmin = Context.Session.GetInt32("CurrentUserRoleId");
+                                var userAvatar = Context.Session.GetString("CurrentUserAvatar");
+                            }
+                            @if (userId != null)
+                            {
+                                <div class="dropdown">
+                                    <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
+                                       id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" style="background:transparent; border:none; box-shadow:none; padding:0 8px;">
+                                        @if (!string.IsNullOrEmpty(userAvatar))
+                                        {
+                                            <img src="@userAvatar" alt="avatar" style="width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:0; border:none; box-shadow:none;">
+                                        }
+                                        else
+                                        {
+                                            <i class="fa fa-user" style="font-size: 28px; margin-right:0;"></i>
+                                        }
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownUser">
                                         <li>
                                             <a class="dropdown-item" href="@Url.Action("Index", "UserHome")">Trang cá nhân</a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
                                         </li>
-                                        if (isAdmin == 1) 
-                                        { 
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
-                                        </li>
+                                        @if (isAdmin == 1)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
+                                            </li>
                                         }
                                         <li>
                                             <a class="dropdown-item" href="@Url.Action("AllOrder", "Order")">Đơn hàng của bạn</a>
                                         </li>
-                                         <li>
+                                        <li>
                                             <hr class="dropdown-divider">
                                         </li>
                                         <li>
@@ -110,15 +192,17 @@
                                                 <button type="submit" class="dropdown-item">Đăng Xuất</button>
                                             </form>
                                         </li>
-                                    }
-                                    else
-                                    {
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("Login", "Login")">Đăng Nhập</a>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    <a class="btn btn-outline-primary" href="@Url.Action("Login", "Login")" style="border-radius: 20px; padding: 6px 18px; font-size: 16px;">
+                                        Đăng Nhập
+                                    </a>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

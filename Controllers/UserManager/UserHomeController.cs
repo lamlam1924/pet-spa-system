@@ -213,6 +213,14 @@ namespace pet_spa_system1.Controllers
             }
 
             HttpContext.Session.SetString("CurrentUserName", user.Username);
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            {
+                HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
+            }
+            else
+            {
+                HttpContext.Session.Remove("CurrentUserAvatar");
+            }
             TempData["SuccessMessage"] = result.Message;
             return RedirectToAction("Index");
         }

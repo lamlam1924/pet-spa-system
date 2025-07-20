@@ -47,6 +47,14 @@ namespace pet_spa_system1.Controllers
             if(user.Address != null) { 
                 HttpContext.Session.SetString("CurrentUserAddress", user.Address);
             }
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            {
+                HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
+            }
+            else
+            {
+                HttpContext.Session.Remove("CurrentUserAvatar");
+            }
 
             if (user.RoleId == 1)
             {
@@ -83,6 +91,14 @@ namespace pet_spa_system1.Controllers
             if (newUser.Address != null)
             {
                 HttpContext.Session.SetString("CurrentUserAddress", newUser.Address);
+            }
+            if (!string.IsNullOrEmpty(newUser.ProfilePictureUrl))
+            {
+                HttpContext.Session.SetString("CurrentUserAvatar", newUser.ProfilePictureUrl);
+            }
+            else
+            {
+                HttpContext.Session.Remove("CurrentUserAvatar");
             }
 
             return RedirectToAction("Index", "Home");
@@ -130,6 +146,14 @@ namespace pet_spa_system1.Controllers
             if (user.Address != null)
             {
                 HttpContext.Session.SetString("CurrentUserAddress", user.Address);
+            }
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            {
+                HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
+            }
+            else
+            {
+                HttpContext.Session.Remove("CurrentUserAvatar");
             }
 
 
