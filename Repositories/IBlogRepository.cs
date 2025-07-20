@@ -47,6 +47,4 @@ public interface IBlogRepository
     Task<List<Blog>> GetPopularBlogsAsync(int count = 5);
     Task<List<Blog>> GetRelatedBlogsAsync(int blogId, string? category = null, int count = 3);
     Task<string> GetUserRoleAsync(int userId);
-
-    
 }

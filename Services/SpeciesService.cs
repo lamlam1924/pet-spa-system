@@ -18,8 +18,11 @@ namespace pet_spa_system1.Services
         public Species GetSpeciesById(int id)
             => _speciesRepo.GetSpeciesById(id);
 
-        public string GetSpeciesNameById(int id)
-            => _speciesRepo.GetSpeciesNameById(id);
+        public string GetSpeciesNameById(int? id)
+        {
+            return id.HasValue ? _speciesRepo.GetSpeciesNameById(id.Value) : null;
+        }
+
 
         public void AddSpecies(Species species)
             => _speciesRepo.AddSpecies(species);
@@ -30,9 +33,6 @@ namespace pet_spa_system1.Services
         public void DeleteSpecies(int id)
             => _speciesRepo.DeleteSpecies(id);
 
-        public string GetSpeciesNameById(int? id)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

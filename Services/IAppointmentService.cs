@@ -3,6 +3,7 @@ using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModel;
 using System;
 using System.Collections.Generic;
+using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Services
 {
@@ -41,11 +42,11 @@ namespace pet_spa_system1.Services
 
         Appointment GetAppointmentDetails(int id);
 
-        AdminAppointmentViewModel PrepareCreateViewModel();
-        bool CreateAppointment(AdminAppointmentViewModel model);
+        AppointmentViewModel PrepareCreateViewModel();
+        bool CreateAppointment(AppointmentViewModel model);
 
-        AdminAppointmentViewModel PrepareEditViewModel(int id);
-        bool UpdateAppointment(AdminAppointmentViewModel model);
+        AppointmentViewModel PrepareEditViewModel(int id);
+        bool UpdateAppointment(AppointmentViewModel model);
 
         bool UpdateAppointmentStatus(int id, int statusId);
         bool DeleteAppointment(int id);

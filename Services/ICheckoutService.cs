@@ -19,5 +19,6 @@ namespace pet_spa_system1.Services
         Task<Order> CreateOrderAsync(Order order);
         Task UpdateOrderAsync(Order order);
         Task AddOrderItemsAsync(List<OrderItem> orderItems);
+        Task UpdateUserAsync(User user);
     }
 }

@@ -14,6 +14,7 @@
     </div>
     <div class="card shadow mb-4">
         <div class="card-body">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <form asp-action="Edit" asp-controller="AdminStaffSchedule" method="post">
                 <input type="hidden" asp-for="Appointment.AppointmentId" />
                 <input type="hidden" asp-for="Appointment.IsActive" />

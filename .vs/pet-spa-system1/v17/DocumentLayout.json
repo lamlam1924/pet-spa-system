@@ -34,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 388,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,15 +42,7 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
               "$type": "Document",
@@ -62,8 +54,7 @@
               "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-18T10:24:02.289Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-18T10:24:02.289Z"
             },
             {
               "$type": "Document",
@@ -73,7 +64,7 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "D:\\ki5\\main_final\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAALIAAAAAAAAAAAAAALwAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAALoAAAAAAAAAAAAAAMYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-18T09:48:02.8Z",
               "EditorCaption": ""
@@ -125,6 +116,14 @@
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAIAAABWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-07-18T08:13:59.902Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             }
           ]
         }

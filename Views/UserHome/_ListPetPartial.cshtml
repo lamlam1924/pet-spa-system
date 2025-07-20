@@ -8,10 +8,12 @@
         <a href="#"
            class="btn btn-success"
            hx-get="@Url.Action("AddPetPartial", "UserHome")"
-           hx-target="#content-main"
+           hx-target="#modal-container"
+           hx-trigger="click"
            hx-swap="innerHTML">
             <i class="bi bi-plus-circle"></i>
         </a>
+
     </div>
 
     @if (Model == null || !Model.Any())
@@ -44,9 +46,9 @@
                         <td>@pet.HealthCondition</td>
                         <td>@pet.Note</td>
                         <td class="text-center">
-                            <a href="#"
-                               hx-get="@Url.Action("EditPetPartial", "UserHome", new { id = i })"
-                               hx-target="#content-main"
+                           <a href="#"
+                               hx-get="@Url.Action("EditPetPartial", "UserHome", new { id = pet.Id })"
+                               hx-target="#modal-container"
                                hx-swap="innerHTML"
                                class="text-primary me-2"
                                title="Chỉnh sửa">
@@ -69,3 +71,5 @@
         </table>
     }
 </div>
+<!-- Container để load modal động -->
+<div id="modal-container"></div>

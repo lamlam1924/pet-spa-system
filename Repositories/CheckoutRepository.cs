@@ -72,5 +72,11 @@ namespace pet_spa_system1.Repositories
             _context.OrderItems.AddRange(orderItems);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

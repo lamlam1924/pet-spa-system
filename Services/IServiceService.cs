@@ -33,5 +33,8 @@ namespace pet_spa_system1.Services
         IEnumerable<Models.AppointmentService> GetAppointmentServicesByServiceId(int serviceId); // Cần thiết cho controllers
 
         void Save();
+
+        // Lấy toàn bộ danh sách dịch vụ cho xuất Excel (không phân trang)
+        List<ServiceListItem> GetAllServicesViewModel();
     }
 }

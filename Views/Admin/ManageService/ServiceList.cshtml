@@ -40,6 +40,7 @@
 @section Styles {
     @* <link rel="stylesheet" href="~/cssjsService/css/service-common.css" /> *@
     <link rel="stylesheet" href="~/cssjsService/css/service-list.css" />
+    <link rel="stylesheet" href="~/cssjsService/css/sweetalert2-admin.css" />
 }
 
 <div class="container-fluid" id="container-wrapper">
@@ -51,9 +52,9 @@
     }
     <div class="filter-section mb-3">
         <form method="get" action="@Url.Action("ServiceList", "AdminService")" id="filterForm">
-            <!-- DÒNG 1: Search + Giá + Button -->
-            <div class="row gy-2 gx-3 align-items-end mb-2">
-                <div class="col-md-4">
+            <!-- DÒNG 1: Search nổi bật -->
+            <div class="row mb-2">
+                <div class="col-12">
                     <div class="search-box w-100">
                         <input type="text" class="form-control form-control-sm" name="search"
                                value="@Model.Filter.Search" placeholder="Tìm theo tên, ID hoặc mô tả..." id="searchInput" autocomplete="off" />
@@ -63,6 +64,9 @@
                         </button>
                     </div>
                 </div>
+            </div>
+            <!-- DÒNG 2: Filter, Sort, Lọc, Xóa lọc -->
+            <div class="row align-items-end gy-2 gx-2">
                 <div class="col-md-2">
                     <input type="text" class="form-control form-control-sm price-input" name="priceFrom"
                            value="@(Model.Filter.PriceFrom > 0 ? Model.Filter.PriceFrom?.ToString("N0") : "")"
@@ -78,23 +82,9 @@
                            value="@(Model.Filter.PriceTo > 0 ? Model.Filter.PriceTo?.ToString("N0") : "")"
                            placeholder="Giá đến" autocomplete="off" />
                 </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
-                        <i class="fas fa-filter me-1"></i> Lọc
-                    </button>
-                    @if (hasFilter)
-                    {
-                        <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary btn-sm w-100" title="Xóa lọc">
-                            <i class="fas fa-times"></i>
-                        </a>
-                    }
-                </div>
-            </div>
-            <!-- DÒNG 2: Filter & Sort -->
-            <div class="row gy-2 gx-3 align-items-end">
                 <div class="col-md-2">
                     <select class="form-select form-select-sm" name="categoryId" id="categoryFilter">
-                        <option value="">Tất cả danh mục</option>
+                        <option value="">Chọn danh mục</option>
                         @if (Model?.Categories != null)
                         {
                             foreach (var category in Model.Categories)
@@ -113,7 +103,7 @@
                 </div>
                 <div class="col-md-2">
                     <select class="form-select form-select-sm" name="status" id="statusFilter">
-                        <option value="">Tất cả trạng thái</option>
+                        <option value="">Chọn trạng thái</option>
                         @if (currentStatus == "active")
                         {
                             <option value="active" selected="selected">Hoạt động</option>
@@ -132,8 +122,9 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <select class="form-select form-select-sm" name="sort" id="sortOrder">
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <select class="form-select form-select-sm w-auto" name="sort" id="sortOrder" style="min-width:170px;">
+                        <option value="">Sắp xếp</option>
                         @if (sort == "name_asc")
                         {
                             <option value="name_asc" selected="selected">Tên A → Z</option>
@@ -183,23 +174,47 @@
                             <option value="date_asc">Cũ nhất</option>
                         }
                     </select>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold">
+                        <i class="fas fa-filter me-1"></i> Lọc
+                    </button>
+                    @if (hasFilter)
+                    {
+                        <a href="@Url.Action("ServiceList", "AdminService")" class="btn btn-outline-secondary btn-sm px-4" title="Xóa lọc">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
                 </div>
             </div>
         </form>
     </div>
-
+    <!-- ===== ACTIONS DROPDOWN (TOP RIGHT) ===== -->
+    <div class="d-flex justify-content-end align-items-center mb-2" style="margin: 10px;">
+        <div class="dropdown">
+            <button class="btn btn-light border dropdown-toggle" type="button" id="tableActionsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Tùy chọn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="tableActionsDropdown">
+                <form method="post" asp-action="ExportToExcel" asp-controller="AdminService" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dropdown-item">
+                        <i class="fas fa-file-excel mr-2 text-success"></i> Xuất Excel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- ===== DATA TABLE ===== -->
     <div class="table-card">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="serviceTable">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-center" style="width:100px;">ID</th>
+                        <th class="text-center" style="width:150px;">ID</th>
                         <th>Tên dịch vụ</th>
                         <th>Danh mục</th>
-                        <th class="text-center">Giá</th>
+                        <th>Giá</th>
                         <th class="text-center">Trạng thái</th>
-                        <th class="text-center" style="width:110px;">Thao tác</th>
+                        <th class="text-center" style="width:120px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -259,7 +274,7 @@
                                                     data-service-id="@service.ServiceId"
                                                     data-current-status="true"
                                                     title="Tạm ngưng">
-                                                <i class="fas fa-pause text-warning"></i>
+                                                <i class="fas fa-trash text-danger"></i>
                                             </button>
                                         }
                                         else
@@ -269,7 +284,7 @@
                                                     data-service-id="@service.ServiceId"
                                                     data-current-status="false"
                                                     title="Kích hoạt">
-                                                <i class="fas fa-play text-success"></i>
+                                                <i class="fas fa-undo text-success"></i>
                                             </button>
                                         }
                                     </div>

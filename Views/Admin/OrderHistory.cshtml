@@ -1,0 +1,751 @@
+﻿@model List<pet_spa_system1.ViewModel.OrderViewModel>
+@{
+    ViewData["Title"] = "Order";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
+    <meta name="author" content="indrijunanda">
+    <title>petshop - Order History</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .badge-pending {
+            background-color: #ffc107;
+        }
+
+        .badge-preparing {
+            background-color: #17a2b8;
+        }
+
+        .badge-shipped {
+            background-color: #007bff;
+        }
+
+        .badge-delivered {
+            background-color: #28a745;
+        }
+
+        .badge-cancelled {
+            background-color: #dc3545;
+        }
+
+        .status-filter-btn {
+            margin: 2px;
+        }
+
+            .status-filter-btn.active {
+                box-shadow: 0 0 0 2px #007bff;
+            }
+
+        .btn-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .product-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .product-details {
+            color: #666;
+            font-size: 0.9em;
+            }
+    </style>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Container Fluid-->
+                <div class="container-fluid" id="container-wrapper">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Order History</h1>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="./">Home</a></li>
+                            <li class="breadcrumb-item"><a href="#">Orders</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Order History</li>
+                        </ol>
+                    </div>
+
+                    <!-- Success/Error Messages -->
+                    @* Xóa hoặc comment đoạn này:
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    *@
+
+                    <!-- Order History Content -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Order Management</h6>
+                                    <button id="btnAddOrder" class="m-0 float-right btn btn-primary btn-sm" type="button">
+                                        Add New Order <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <input type="text" id="orderSearch" class="form-control" placeholder="Search by customer name, order ID, or product...">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="text-right">
+                                                    <button class="btn btn-sm btn-outline-secondary status-filter-btn @(ViewBag.StatusFilter == "All" ? "active" : "")"
+                                                            onclick="window.location='@Url.Action("OrderHistory", "Admin", new { status = "All" })'">
+                                                        All
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning status-filter-btn @(ViewBag.StatusFilter == "Đang chờ xử lý" ? "active" : "")"
+                                                            onclick="window.location='@Url.Action("OrderHistory", "Admin", new { status = "Đang chờ xử lý" })'">
+                                                        Đang chờ xử lý
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info status-filter-btn @(ViewBag.StatusFilter == "Đang chuẩn bị" ? "active" : "")"
+                                                            onclick="window.location='@Url.Action("OrderHistory", "Admin", new { status = "Đang chuẩn bị" })'">
+                                                        Đang chuẩn bị
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary status-filter-btn @(ViewBag.StatusFilter == "Đã giao vận chuyển" ? "active" : "")"
+                                                            onclick="window.location='@Url.Action("OrderHistory", "Admin", new { status = "Đã giao vận chuyển" })'">
+                                                        Đã giao vận chuyển
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-success status-filter-btn @(ViewBag.StatusFilter == "Đã giao" ? "active" : "")"
+                                                            onclick="window.location='@Url.Action("OrderHistory", "Admin", new { status = "Đã giao" })'">
+                                                        Đã giao
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger status-filter-btn @(ViewBag.StatusFilter == "Đã hủy" ? "active" : "")"
+                                                            onclick="window.location='@Url.Action("OrderHistory", "Admin", new { status = "Đã hủy" })'">
+                                                        Đã hủy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Mã Đơn Hàng</th>
+                                                    <th>Khách Hàng</th>
+                                                    @* <th>Sản Phẩm</th>
+                                                    <th>Số Lượng</th> *@
+                                                    <th>Tổng Tiền</th>
+                                                    <th>Trạng Thái</th>
+                                                    <th>Ngày Đặt</th>
+                                                    <th>Địa Chỉ</th>
+                                                    <th>Hành Động</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="orderTableBody">
+                                                @foreach (var order in Model)
+                                                {
+                                                    <tr data-order-id="@order.OrderID" data-status="@order.Status">
+                                                        <td>@order.OrderID</td>
+                                                        <td>@order.CustomerName</td>
+                                                        @* <td>
+                                                            @if (order.Items != null && order.Items.Count > 0)
+                                                            {
+                                                                @order.Items[0].ProductName
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (order.Items != null && order.Items.Count > 0)
+                                                            {
+                                                                @order.Items.Sum(item => item.Quantity)
+                                                            }
+                                                        </td> *@
+                                                        <td>@order.TotalAmount.ToString("N0") đ</td>
+                                                        <td>
+                                                            @{
+                                                                var badgeClass = "";
+                                                                switch (order.Status)
+                                                                {
+                                                                    case "Đang chờ xử lý":
+                                                                        badgeClass = "badge-pending";
+                                                                        break;
+                                                                    case "Đang chuẩn bị":
+                                                                        badgeClass = "badge-preparing";
+                                                                        break;
+                                                                    case "Đã giao vận chuyển":
+                                                                        badgeClass = "badge-shipped";
+                                                                        break;
+                                                                    case "Đã giao":
+                                                                        badgeClass = "badge-delivered";
+                                                                        break;
+                                                                    case "Đã hủy":
+                                                                        badgeClass = "badge-cancelled";
+                                                                        break;
+                                                                }
+                                                            }
+                                                            <span class="badge @badgeClass">@order.Status</span>
+                                                        </td>
+                                                        <td>@(order.OrderDate?.ToString("dd/MM/yyyy HH:mm") ?? "")</td>
+                                                        <td>@order.CustomerAddress</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-info view-btn"
+                                                               data-order-id="@Convert.ToInt32(order.OrderID)"
+                                                               title="View Details">
+                                                              <i class="fas fa-eye"></i>
+                                                            </button>
+
+                                                            <button class="btn btn-sm btn-primary edit-btn @(order.StatusId == 4 || order.StatusId == 5 ? "btn-disabled" : "")" 
+                                                                    data-order-id="@order.OrderID" 
+                                                                    data-status="@order.Status"
+                                                                    title="Edit Status" 
+                                                                    @(order.StatusId == 4 || order.StatusId == 5 ? "disabled" : "")>
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-btn @(order.StatusId == 3 || order.StatusId == 4 ? "btn-disabled" : "")" 
+                                                                    data-order-id="@order.OrderID" 
+                                                                    title="Delete" 
+                                                                    @(order.StatusId == 3 || order.StatusId == 4 ? "disabled" : "")>
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                        <div class="d-flex justify-content-center mt-4">
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("OrderHistory", "Admin", new { page = i, status = ViewBag.StatusFilter })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Order History Content -->
+
+                </div>
+                <!---Container Fluid-->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Order Modal -->
+    <div class="modal fade" id="addOrderModal" tabindex="-1" role="dialog" aria-labelledby="addOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addOrderModalLabel">Add New Order</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="addOrderForm">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="add-customer">Customer Name</label>
+                            <input type="text" class="form-control" id="add-customer" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-product">Product</label>
+                            <input type="text" class="form-control" id="add-product" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-quantity">Quantity</label>
+                            <input type="number" class="form-control" id="add-quantity" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-amount">Total Amount</label>
+                            <input type="number" class="form-control" id="add-amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-status">Status</label>
+                            <select class="form-control" id="add-status" required>
+                                <option value="Đang chờ xử lí">Đang chờ xử lý</option>
+                                <option value="Đang chuẩn bị">Đang chuẩn bị</option>
+                                <option value="Đã giao vận chuyển">Đã giao vận chuyển</option>
+                                <option value="Đã giao">Đã giao</option>
+                                <option value="Đã hủy">Đã hủy</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-address">Shipping Address</label>
+                            <textarea class="form-control" id="add-address" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-date">Order Date</label>
+                            <input type="datetime-local" class="form-control" id="add-date" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Order Details Modal -->
+    <div class="modal fade" id="viewOrderModal" tabindex="-1" role="dialog" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewOrderModalLabel">Order Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold">Order Information</h6>
+                            <p><strong>Order ID:</strong> <span id="view-order-id"></span></p>
+                            <p><strong>Customer:</strong> <span id="view-customer"></span></p>
+                            <p><strong>Total Amount:</strong> <span id="view-amount"></span></p>
+                            <p><strong>Total Items:</strong> <span id="view-total-items"></span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold">Order Status & Dates</h6>
+                            <p><strong>Status:</strong> <span id="view-status-badge"></span></p>
+                            <p><strong>Order Date:</strong> <span id="view-date"></span></p>
+                            <p><strong>Shipping Address:</strong><br><span id="view-address"></span></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="font-weight-bold">Products</h6>
+                            <div id="view-products-list">
+                                <!-- Products will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editFromView">Edit Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Order Status Modal -->
+    <div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editOrderModalLabel">Update Order Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="editOrderForm" method="post" action="@Url.Action("UpdateOrderStatus", "Admin")">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit-order-id" name="orderId">
+                        <div class="form-group">
+                            <label for="edit-status">Status</label>
+                            <select class="form-control" id="edit-status" name="newStatus" required>
+                                <option value="Đang chờ xử lý">Đang chờ xử lý</option>
+                                <option value="Đang chuẩn bị">Đang chuẩn bị</option>
+                                <option value="Đã giao vận chuyển">Đã giao vận chuyển</option>
+                                <option value="Đã giao">Đã giao</option>
+                                <option value="Đã hủy">Đã hủy</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteOrderModal" tabindex="-1" role="dialog" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteOrderModalLabel">Confirm Delete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa đơn hàng này?</p>
+                    <p><strong>Order ID:</strong> <span id="delete-order-id"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <form method="post" action="@Url.Action("DeleteOrder", "Admin")" style="display: inline;">
+                        <input type="hidden" id="delete-order-id-input" name="orderId">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+       <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; min-width: 300px; z-index: 9999;">
+    <div id="mainToast" class="toast" data-delay="3500">
+        <div class="toast-header">
+            <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+        </div>
+        <div class="toast-body" id="toastBody"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Search functionality
+        document.getElementById('orderSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#orderTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Status filter functionality
+        document.querySelectorAll('.status-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+            document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+                
+                const statusFilter = e.target.dataset.status;
+                const rows = document.querySelectorAll('#orderTableBody tr');
+                
+                rows.forEach(row => {
+                    if (statusFilter === 'all' || row.dataset.status === statusFilter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+          });
+        });
+
+        // View order details
+                document.getElementById('orderTableBody').addEventListener('click', async function (e) {
+    if (e.target.closest('.view-btn')) {
+        const button = e.target.closest('.view-btn');
+        const orderId = parseInt(button.dataset.orderId, 10);
+        console.log("OrderId click:", orderId);
+
+        if (isNaN(orderId)) {
+            alert("Order ID không hợp lệ!");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/Admin/GetOrderDetail?orderId=${orderId}`);
+            const result = await res.json();
+            console.log("API result:", result);
+
+            if (!result.success) {
+                alert(result.message || "Không thể tải chi tiết đơn hàng.");
+              return;
+            }
+
+            const orderData = result.data;
+
+            // Populate modal
+            document.getElementById('view-order-id').textContent = orderData.orderID;
+            document.getElementById('view-customer').textContent = orderData.customerName;
+            document.getElementById('view-amount').textContent = (orderData.totalAmount ?? 0).toLocaleString('vi-VN') + ' đ';
+            document.getElementById('view-total-items').textContent = orderData.items ? orderData.items.length : 0;
+            document.getElementById('view-date').textContent = orderData.orderDate ? new Date(orderData.orderDate).toLocaleString('vi-VN') : '';
+            document.getElementById('view-address').textContent = orderData.customerAddress;
+            document.getElementById('editFromView').dataset.orderId = orderData.orderID;
+
+            // Badge
+            const statusBadge = document.getElementById('view-status-badge');
+            const badgeClassMap = {
+                'Đang chờ xử lý': 'badge-pending',
+                'Đang chuẩn bị': 'badge-preparing',
+                'Đã giao vận chuyển': 'badge-shipped',
+                'Đã giao': 'badge-delivered',
+                'Đã hủy': 'badge-cancelled'
+            };
+            statusBadge.innerHTML = `<span class="badge ${badgeClassMap[orderData.status] || 'badge-secondary'}">${orderData.status}</span>`;
+
+            // Hiển thị danh sách sản phẩm
+            const productsList = document.getElementById('view-products-list');
+            if (orderData.items && orderData.items.length > 0) {
+                let productsHtml = '';
+                let totalOrderValue = 0;
+
+                orderData.items.forEach((item, index) => {
+                    const totalPrice = (item.quantity || 0) * (item.unitPrice || 0);
+                    totalOrderValue += totalPrice;
+
+                    productsHtml += `
+                        <div class="product-item mb-3 p-3 border rounded bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <span class="badge badge-primary">${index + 1}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="product-name font-weight-bold text-primary">${item.productName || 'N/A'}</div>
+                                    <div class="product-details text-muted small">
+                                        <i class="fas fa-tag"></i> Đơn giá: ${(item.unitPrice ?? 0).toLocaleString('vi-VN')} đ
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span class="badge badge-info">SL: ${item.quantity || 0}</span>
+                                </div>
+                                <div class="col-md-3 text-right">
+                                    <div class="font-weight-bold text-success">
+                                        ${totalPrice.toLocaleString('vi-VN')} đ
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Tổng tiền
+                productsHtml += `
+                    <div class="mt-3 p-3 border-top">
+                        <div class="row">
+                            <div class="col-md-8 text-right">
+                                <strong>Tổng đơn hàng:</strong>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <span class="h5 text-success font-weight-bold">
+                                    ${totalOrderValue.toLocaleString('vi-VN')} đ
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                productsList.innerHTML = productsHtml;
+            } else {
+                productsList.innerHTML = '<p class="text-muted text-center py-3">Không có sản phẩm nào trong đơn hàng.</p>';
+            }
+
+            $('#viewOrderModal').modal('show');
+        } catch (error) {
+            alert("Lỗi khi tải dữ liệu đơn hàng: " + error.message);
+        }
+          }
+        });
+
+
+        // Edit from view modal
+        document.getElementById('editFromView').addEventListener('click', function(e) {
+            const orderId = e.target.dataset.orderId;
+          $('#viewOrderModal').modal('hide');
+            
+          setTimeout(() => {
+                const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+                // Cập nhật index vì đã bỏ 2 cột sản phẩm và số lượng
+                const statusCell = row.querySelector('td:nth-child(4) .badge');
+                const currentStatus = statusCell.textContent;
+                
+                document.getElementById('edit-order-id').value = orderId;
+                document.getElementById('edit-status').value = currentStatus;
+            $('#editOrderModal').modal('show');
+          }, 300);
+        });
+
+        // Edit order functionality
+        document.getElementById('orderTableBody').addEventListener('click', function(e) {
+          if (e.target.closest('.edit-btn')) {
+                const orderId = e.target.closest('.edit-btn').dataset.orderId;
+                const currentStatus = e.target.closest('.edit-btn').dataset.status;
+                
+                document.getElementById('edit-order-id').value = orderId;
+                document.getElementById('edit-status').value = currentStatus;
+            $('#editOrderModal').modal('show');
+          }
+        });
+
+        // Delete order functionality
+        document.getElementById('orderTableBody').addEventListener('click', function(e) {
+            if (e.target.closest('.delete-btn')) {
+                const orderId = e.target.closest('.delete-btn').dataset.orderId;
+                
+                document.getElementById('delete-order-id').textContent = orderId;
+                document.getElementById('delete-order-id-input').value = orderId;
+                $('#deleteOrderModal').modal('show');
+            }
+        });
+
+        function testModal() {
+            const testOrder = {
+                OrderID: "TEST-001",
+                CustomerName: "Test Customer",
+                OrderDate: "2023-10-27T10:00:00",
+                Status: "Đang chờ xử lý",
+                TotalAmount: 123456.78,
+                CustomerAddress: "123 Test St, Test City, TS",
+                Items: [
+                    { ProductName: "Test Product 1", Quantity: 2, UnitPrice: 10000.00 },
+                    { ProductName: "Test Product 2", Quantity: 1, UnitPrice: 20000.00 }
+                ]
+            };
+            document.getElementById('view-order-id').textContent = testOrder.OrderID;
+            document.getElementById('view-customer').textContent = testOrder.CustomerName;
+            document.getElementById('view-amount').textContent = testOrder.TotalAmount.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('view-total-items').textContent = testOrder.Items ? testOrder.Items.length : 0;
+            document.getElementById('view-date').textContent = testOrder.OrderDate ? new Date(testOrder.OrderDate).toLocaleString('vi-VN') : '';
+            document.getElementById('view-address').textContent = testOrder.CustomerAddress;
+            document.getElementById('editFromView').dataset.orderId = testOrder.OrderID;
+            
+            // Set status badge
+            const statusBadge = document.getElementById('view-status-badge');
+            let badgeClass = '';
+            switch (testOrder.Status) {
+                case 'Đang chờ xử lý':
+                    badgeClass = 'badge-pending';
+                    break;
+                case 'Đang chuẩn bị':
+                    badgeClass = 'badge-preparing';
+                    break;
+                case 'Đã giao vận chuyển':
+                    badgeClass = 'badge-shipped';
+                    break;
+                case 'Đã giao':
+                    badgeClass = 'badge-delivered';
+                    break;
+                case 'Đã hủy':
+                    badgeClass = 'badge-cancelled';
+                    break;
+            }
+            statusBadge.innerHTML = `<span class="badge ${badgeClass}">${testOrder.Status}</span>`;
+
+            // Populate products list với giao diện mới
+            const productsList = document.getElementById('view-products-list');
+            if (testOrder.Items && testOrder.Items.length > 0) {
+                let productsHtml = '';
+                let totalOrderValue = 0;
+                
+                testOrder.Items.forEach((item, index) => {
+                    const totalPrice = (item.Quantity || 0) * (item.UnitPrice || 0);
+                    totalOrderValue += totalPrice;
+                    
+                    productsHtml += `
+                        <div class="product-item mb-3 p-3 border rounded bg-light">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <span class="badge badge-primary">${index + 1}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="product-name font-weight-bold text-primary">${item.ProductName || 'N/A'}</div>
+                                    <div class="product-details text-muted small">
+                                        <i class="fas fa-tag"></i> Unit Price: ${item.UnitPrice ? item.UnitPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span class="badge badge-info">Qty: ${item.Quantity || 0}</span>
+                                </div>
+                                <div class="col-md-3 text-right">
+                                    <div class="font-weight-bold text-success">
+                                        ${totalPrice.toLocaleString('vi-VN')} đ
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Thêm tổng tiền
+                productsHtml += `
+                    <div class="mt-3 p-3 border-top">
+                        <div class="row">
+                            <div class="col-md-8 text-right">
+                                <strong>Total Order Value:</strong>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <span class="h5 text-success font-weight-bold">
+                                    ${totalOrderValue.toLocaleString('vi-VN')} đ
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                productsList.innerHTML = productsHtml;
+                  } else {
+                productsList.innerHTML = '<p class="text-muted text-center py-3">No products found in this order.</p>';
+            }
+            
+            console.log('Test modal data populated, showing modal...'); // Debug log
+            $('#viewOrderModal').modal('show');
+            }
+    </script>
+
+ <script>
+    $(function () {
+        // Success
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            showToast("Thành công", "@TempData["SuccessMessage"]", "success");
+            </text>
+        }
+        // Error
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+            showToast("Lỗi", "@TempData["ErrorMessage"]", "danger");
+            </text>
+        }
+    });
+
+    function showToast(title, message, type) {
+        $('#toastTitle').text(title);
+        $('#toastBody').html(message);
+        // Đổi màu header theo loại
+        let header = $('#mainToast .toast-header');
+        header.removeClass('bg-success bg-danger text-white');
+        if (type === 'success') header.addClass('bg-success text-white');
+        if (type === 'danger') header.addClass('bg-danger text-white');
+        $('#mainToast').toast('show');
+    }
+    </script>
+
+</body>
+</html>

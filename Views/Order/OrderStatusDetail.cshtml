@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <title>@ViewBag.Title</title>
-   >
+   
     <link href="@Url.Content("~/cssOrder/Ordercss.css")" rel="stylesheet">
     @* <style>
         .order-status .step {
@@ -67,6 +67,7 @@
                             foreach (var item in Model.Items)
                             {
                                 <tr>
+                                    
                                     <td>@item.ProductName</td>
                                     <td>@item.Quantity</td>
                                     <td>@item.UnitPrice?.ToString("N0") đ</td>
@@ -101,9 +102,48 @@
                 <div class="text-end">
                     <h5>Tổng cộng: <strong>@Model.TotalAmount.ToString("N0") đ</strong></h5>
                 </div>
+                  @if (Model.StatusId <= 3) // hoặc != 3, tùy logic
+                            {
+                                <form asp-action="CancelOrder" asp-controller="Order" method="post" style="display:inline;">
+                                    <input type="hidden" name="orderId" value="@Model.OrderID" />
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn hàng</button>
+                                </form>
+                            }
+                else if (Model.StatusId >=4)
+                {
+                    <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
+                        <input type="hidden" name="orderId" value="@Model.OrderID" />
+                        <button type="button" class="btn btn-success btn-sm btn-buy-again" data-orderid="@Model.OrderID">Mua lại</button>
+                    </form>
+                }
             </div>
         </div>
     </div>
-    
+    <script>
+        let formToSubmit = null;
+
+        // Khi bấm nút Hủy đơn hàng
+        $(document).on('click', '.btn-cancel-order', function () {
+            formToSubmit = $(this).closest('form');
+            $('#confirmModalBody').text('Bạn chắc chắn muốn hủy đơn hàng này?');
+            $('#confirmModal').modal('show');
+        });
+
+        // Khi bấm nút Mua lại
+        $(document).on('click', '.btn-buy-again', function () {
+            formToSubmit = $(this).closest('form');
+            $('#confirmModalBody').text('Bạn muốn mua lại đơn hàng này và chuyển đến trang giỏ hàng?');
+            $('#confirmModal').modal('show');
+        });
+
+        // Khi xác nhận trong modal
+        $('#confirmModalOk').on('click', function () {
+            if (formToSubmit) {
+                formToSubmit.submit();
+                formToSubmit = null;
+                $('#confirmModal').modal('hide');
+            }
+        });
+    </script>
 </body>
 </html>

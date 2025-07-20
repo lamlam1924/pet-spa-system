@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.ViewModels;
-using pet_spa_system1.ViewModel;
 using pet_spa_system1.Utils;
-using System.Security.Claims;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
 {
@@ -17,14 +16,16 @@ namespace pet_spa_system1.Controllers
         private readonly IServiceService _serviceService;
         private readonly IBlogService _blogService;
         private readonly IPetService _petService;
+        private readonly IOrderService _orderService;
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService,IPetService petService)
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService)
         {
             _context = context;
             _productService = productService;
             _serviceService = serviceService;
             _blogService = blogService;
             _petService = petService;
+            _orderService = orderService;
         }
         //=======================================================================================================================
         // SERVICE
@@ -42,7 +43,7 @@ namespace pet_spa_system1.Controllers
         //    model.SelectedCategoryId = categoryId;
         //    return View(model);
         //}
-
+        
         public IActionResult Index()
         {
             Console.WriteLine("[AdminController] Accessing Index...");
@@ -459,7 +460,7 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Product_Detail(int productID)
         {
             var product = await _context.Products
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productID);
 
             if (product == null)
@@ -478,7 +479,7 @@ namespace pet_spa_system1.Controllers
             var totalProducts = await _context.Products.CountAsync();
             var products = await _context.Products
                 .Include(p => p.Reviews)
-                .Include(p => p.ProductCategory)
+                .Include(p => p.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -948,6 +949,135 @@ namespace pet_spa_system1.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+       public IActionResult OrderHistory(string status = "All", int page = 1)
+{
+    int pageSize = 10;
+    int totalOrders;
+    List<OrderViewModel> orders;
+
+    if (status == "All")
+    {
+        orders = _orderService.GetOrdersPaged(page, pageSize, out totalOrders);
+    }
+    else
+    {
+        orders = _orderService.GetOrdersByStatusPaged(status, page, pageSize, out totalOrders);
+    }
+
+    ViewBag.CurrentPage = page;
+    ViewBag.TotalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
+    ViewBag.StatusFilter = status;
+
+    return View("~/Views/Admin/OrderHistory.cshtml", orders);
+}
+
+        [HttpPost]
+        public IActionResult UpdateOrderStatus(int orderId, string newStatus)
+        {
+            try
+            {
+                var order = _orderService.GetOrderById(orderId);
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy đơn hàng";
+                    return RedirectToAction("OrderHistory");
+                }
+
+                // Kiểm tra trạng thái hiện tại
+                if (order.StatusId == 4) // Đã giao
+                {
+                    TempData["ErrorMessage"] = "Không thể thay đổi trạng thái đơn hàng đã giao";
+                    return RedirectToAction("OrderHistory");
+                }
+
+                if (order.StatusId == 5) // Đã hủy
+                {
+                    TempData["ErrorMessage"] = "Không thể thay đổi trạng thái đơn hàng đã hủy";
+                    return RedirectToAction("OrderHistory");
+                }
+
+                // Cập nhật trạng thái
+                order.StatusId = MapStatusNameToId(newStatus);
+                _orderService.UpdateOrder(order);
+
+                TempData["SuccessMessage"] = "Cập nhật trạng thái đơn hàng thành công";
+                return RedirectToAction("OrderHistory");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Lỗi khi cập nhật trạng thái: " + ex.Message;
+                return RedirectToAction("OrderHistory");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteOrder(int orderId)
+        {
+            try
+            {
+                var order = _orderService.GetOrderById(orderId);
+                if (order == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy đơn hàng";
+                    return RedirectToAction("OrderHistory");
+                }
+
+                // Kiểm tra trạng thái đơn hàng trước khi xóa
+                if (order.StatusId == 3 || order.StatusId == 4) // Đã giao vận chuyển hoặc Đã giao
+                {
+                    TempData["ErrorMessage"] = "Không thể xóa đơn hàng đã giao vận chuyển hoặc đã giao";
+                    return RedirectToAction("OrderHistory");
+                }
+
+                _orderService.DeleteOrder(orderId);
+                TempData["SuccessMessage"] = "Xóa đơn hàng thành công";
+                return RedirectToAction("OrderHistory");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Lỗi khi xóa đơn hàng: " + ex.Message;
+                return RedirectToAction("OrderHistory");
+            }
+        }
+
+            [HttpGet]
+            public IActionResult GetOrderDetail(int orderId)
+            {
+                try
+                {
+                    Console.WriteLine($"[AdminController] GetOrderDetail called with orderId: {orderId}");
+                
+                    // Sử dụng GetOrderDetail từ OrderService
+                    var order = _orderService.GetOrderDetail(orderId);
+                    if (order == null)
+                    {
+                        Console.WriteLine($"[AdminController] Order not found for ID: {orderId}");
+                        return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
+                    }
+
+                
+                    return Json(new { success = true, data = order });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[AdminController] Error in GetOrderDetail: {ex.Message}");
+                    return Json(new { success = false, message = "Lỗi khi tải chi tiết đơn hàng: " + ex.Message });
+                }
+            }
+
+        // Helper: Map status name to id
+        private int MapStatusNameToId(string statusName)
+        {
+            switch (statusName)
+            {
+                case "Đang chờ xử lý": return 1;
+                case "Đang chuẩn bị": return 2;
+                case "Đã giao vận chuyển": return 3;
+                case "Đã giao": return 4;
+                case "Đã hủy": return 5;
+                default: return 1;
             }
         }
     }

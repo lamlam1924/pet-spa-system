@@ -21,6 +21,10 @@ public partial class Review
 
     public DateTime? CreatedAt { get; set; }
 
+    public int? ParentReviewId { get; set; }
+    public Review? ParentReview { get; set; }
+    public ICollection<Review>? Replies { get; set; }
+
     public virtual Product? Product { get; set; }
 
     public virtual Service? Service { get; set; }

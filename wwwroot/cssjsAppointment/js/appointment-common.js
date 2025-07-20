@@ -42,15 +42,73 @@ $(document).ready(function() {
             }
         }
         
-        // Nếu đang chuyển từ bước 2 sang bước 3, kiểm tra thông tin cá nhân
+        // Nếu đang chuyển từ bước 2 sang bước 3, kiểm tra thông tin cá nhân (validate step 2)
         if (currentStep === 2 && stepNumber === 3) {
-            if (!validatePersonalInfo()) {
+            if (!validateStep2()) {
                 return;
             }
-            
             // Cập nhật thông tin xác nhận ở bước 3
             updateConfirmationInfo();
         }
+    // ===== Validate các trường ở bước 2 =====
+    function validateStep2() {
+        // Kiểm tra họ tên
+        if (!$('#CustomerName').val().trim()) {
+            showToast('Vui lòng nhập họ tên', 'warning');
+            $('#CustomerName').focus();
+            return false;
+        }
+        // Kiểm tra số điện thoại
+        if (!$('#Phone').val().trim()) {
+            showToast('Vui lòng nhập số điện thoại', 'warning');
+            $('#Phone').focus();
+            return false;
+        }
+        // Kiểm tra email
+        const email = $('#Email').val().trim();
+        if (!email) {
+            showToast('Vui lòng nhập địa chỉ email', 'warning');
+            $('#Email').focus();
+            return false;
+        }
+        const emailRegex = /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/;
+        if (!emailRegex.test(email)) {
+            showToast('Địa chỉ email không hợp lệ', 'warning');
+            $('#Email').focus();
+            return false;
+        }
+        // Kiểm tra ngày hẹn
+        const dateVal = $('#AppointmentDate').val();
+        if (!dateVal) {
+            showToast('Vui lòng chọn ngày hẹn', 'warning');
+            $('#AppointmentDate').focus();
+            return false;
+        }
+        // Không cho phép chọn ngày trong quá khứ
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const selectedDate = new Date(dateVal);
+        if (selectedDate < today) {
+            showToast('Ngày hẹn không được là ngày trong quá khứ', 'warning');
+            $('#AppointmentDate').focus();
+            return false;
+        }
+        // Kiểm tra giờ hẹn
+        const timeVal = $('#AppointmentTime').val();
+        if (!timeVal) {
+            showToast('Vui lòng chọn giờ hẹn', 'warning');
+            $('#AppointmentTime').focus();
+            return false;
+        }
+        // Giờ phải từ 08:00 đến 20:00
+        const [hour, minute] = timeVal.split(":").map(Number);
+        if (hour < 8 || hour > 20 || (hour === 20 && minute > 0)) {
+            showToast('Giờ hẹn chỉ được từ 8h sáng đến 8h tối (08:00 - 20:00)', 'warning');
+            $('#AppointmentTime').focus();
+            return false;
+        }
+        return true;
+    }
         
         // Cập nhật bước hiện tại
         currentStep = stepNumber;

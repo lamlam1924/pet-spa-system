@@ -58,22 +58,6 @@
                                     };
                                 }
                                 <span class="badge bg-@badgeClass me-2">@Model.StatusName</span>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Thay đổi
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-right shadow">
-                                        @foreach (var status in ViewBag.Statuses ?? new List<pet_spa_system1.Models.StatusAppointment>())
-                                        {
-                                            <a class="dropdown-item status-change" 
-                                               href="#" 
-                                               data-status-id="@status.StatusId" 
-                                               data-appointment-id="@Model.AppointmentId">
-                                                @status.StatusName
-                                            </a>
-                                        }
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -293,27 +277,13 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="m-0 fw-bold">Thao tác</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="@Url.Action("Edit", "AdminAppointment", new { id = Model.AppointmentId })" class="btn btn-primary">
-                            <i class="fas fa-edit me-1"></i>Chỉnh sửa lịch hẹn
-                        </a>
-                        <button type="button" class="btn btn-outline-success" id="btnSendConfirmation">
-                            <i class="fas fa-envelope me-1"></i>Gửi email xác nhận
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            <i class="fas fa-trash-alt me-1"></i>Xóa lịch hẹn
-                        </button>
-                    </div>
-                </div>
+            <div class="card shadow-sm mb-4"></div>
+                
+                
             </div>
         </div>
     </div>
-</div>
+@* </div> *@
 
 <!-- Modal xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1">

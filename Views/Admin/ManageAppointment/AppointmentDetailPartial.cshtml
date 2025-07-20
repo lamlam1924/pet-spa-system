@@ -1,0 +1,11 @@
+@model pet_spa_system1.ViewModel.AdminAppointmentDetailViewModel
+<div class="p-2">
+    <h5 class="fw-bold mb-2"><i class="fas fa-calendar-alt me-2"></i>Chi tiết lịch hẹn #@Model.AppointmentId</h5>
+    <div><b>Khách hàng:</b> @Model.CustomerName</div>
+    <div><b>Nhân viên:</b> @Model.EmployeeName</div>
+    <div><b>Thời gian:</b> @Model.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</div>
+    <div><b>Dịch vụ:</b> @string.Join(", ", Model.Services?.Select(s => s.Name) ?? new List<string>())</div>
+    <div><b>Thú cưng:</b> @string.Join(", ", Model.Pets?.Select(p => p.Name) ?? new List<string>())</div>
+    <div><b>Trạng thái:</b> @Model.StatusName</div>
+    <div><b>Ghi chú:</b> @Model.Notes</div>
+</div>

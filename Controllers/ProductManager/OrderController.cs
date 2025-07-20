@@ -6,16 +6,23 @@ namespace pet_spa_system1.Controllers.ProductManager
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
+        private readonly ICartService _cartService;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, ICartService cartService)
         {
             _orderService = orderService;
+            _cartService = cartService;
         }
 
-        public IActionResult AllOrder()
+        public IActionResult AllOrder(int page = 1, int pageSize = 5)
         {
-            var userId = HttpContext.Session.GetInt32("CurrentUserId"); // Lấy userId từ session hoặc context;
-            var orders = _orderService.GetOrdersByUserId(userId);
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            int totalOrders;
+            var orders = _orderService.GetOrdersByUserIdPaged(userId, page, pageSize, out totalOrders);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalOrders = totalOrders;
             return View(orders);
         }
 
@@ -24,6 +31,37 @@ namespace pet_spa_system1.Controllers.ProductManager
             var order = _orderService.GetOrderDetail(orderId);
             if (order == null) return NotFound();
             return View(order);
+        }
+
+        [HttpPost]
+        public IActionResult CancelOrder(int orderId)
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var result = _orderService.CancelOrder(orderId, userId);
+            if (!result)
+            {
+                TempData["Error"] = "Không thể hủy đơn hàng này!";
+            }
+            else
+            {
+                TempData["Success"] = "Đã hủy đơn hàng thành công!";
+            }
+            return RedirectToAction("AllOrder");
+        }
+
+        [HttpPost]
+        public IActionResult BuyAgain(int orderId)
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var order = _orderService.GetOrderDetail(orderId);
+            if (order == null || userId == null) return NotFound();
+
+            // Thêm lại sản phẩm vào giỏ hàng
+            foreach (var item in order.Items)
+            {
+                _cartService.AddToCartAsync(userId.Value, item.ProductId, item.Quantity).Wait();
+            }
+            return RedirectToAction("Cart", "Cart");
         }
     }
 }
