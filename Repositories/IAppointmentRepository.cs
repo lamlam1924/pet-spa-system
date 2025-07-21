@@ -1,4 +1,4 @@
-        
+
 using pet_spa_system1.Models;
 using System;
 using System.Collections.Generic;
@@ -63,7 +63,7 @@ namespace pet_spa_system1.Repositories
         void DeleteAppointmentServices(int appointmentId);
 
         List<MonthlyAppointmentStats> GetMonthlyStats(int year);
-        
+
     }
 
     public class MonthlyAppointmentStats

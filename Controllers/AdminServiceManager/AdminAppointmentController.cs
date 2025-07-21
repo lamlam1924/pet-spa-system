@@ -190,12 +190,13 @@ namespace pet_spa_system1.Controllers
             else
                 return Json(new { success = false, message = "Không tìm thấy lịch hẹn" });
         }
-        
-         // Trang danh sách lịch hẹn cần duyệt
+
+        // Trang danh sách lịch hẹn cần duyệt
         public IActionResult ApprovalList()
         {
             // Lấy 2 danh sách: 1 = Chờ xác nhận, 6 = Yêu cầu hủy
-            var model = new ApprovalListTabsViewModel {
+            var model = new ApprovalListTabsViewModel
+            {
                 Pending = _appointmentService.GetPendingAppointments(),
                 PendingCancel = _appointmentService.GetPendingCancelAppointments()
             };
@@ -241,48 +242,48 @@ namespace pet_spa_system1.Controllers
             TempData["SuccessMessage"] = "Đã từ chối lịch hẹn.";
             return RedirectToAction("ApprovalList");
         }
-        
+
         // Timeline Scheduler View
-public async Task<IActionResult> TimelineScheduler(string keyword = "")
-{
-    var today = DateTime.Today;
-    var staffList = await _userService.GetStaffListAsync();
-    var allAppointments = _appointmentService.GetAppointments("", 0, today, 0, 1, 100);
-    var searchResults = string.IsNullOrWhiteSpace(keyword)
-        ? new List<Appointment>()
-        : _appointmentService.GetAppointments(keyword, 0, today, 0, 1, 100);
+        public async Task<IActionResult> TimelineScheduler(string keyword = "")
+        {
+            var today = DateTime.Today;
+            var staffList = await _userService.GetStaffListAsync();
+            var allAppointments = _appointmentService.GetAppointments("", 0, today, 0, 1, 100);
+            var searchResults = string.IsNullOrWhiteSpace(keyword)
+                ? new List<Appointment>()
+                : _appointmentService.GetAppointments(keyword, 0, today, 0, 1, 100);
 
-    List<TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
-    {
-        return appts.Select(a => {
-            var serviceDurations = a.AppointmentServices?.Select(asr => asr.Service.DurationMinutes ?? 0).ToList() ?? new List<int>();
-            int totalDuration = serviceDurations.Sum();
-            if (serviceDurations.Count > 1)
-                totalDuration += (serviceDurations.Count - 1) * 5; // Cộng 5 phút giữa các dịch vụ
-            return new TimelineAppointmentViewModel
+            List<TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
             {
-                AppointmentId = a.AppointmentId,
-                AppointmentDate = a.AppointmentDate,
-                EmployeeId = a.EmployeeId,
-                EmployeeName = a.Employee?.FullName,
-                CustomerName = a.User?.FullName,
-                PetNames = a.AppointmentPets?.Select(ap => ap.Pet?.Name ?? "").ToList() ?? new List<string>(),
-                ServiceNames = a.AppointmentServices?.Select(asr => asr.Service?.Name ?? "").ToList() ?? new List<string>(),
-                TotalDurationMinutes = totalDuration,
-                StatusId = a.StatusId,
-                EndTime = a.AppointmentDate.AddMinutes(totalDuration)
-            };
-        }).ToList();
-    }
+                return appts.Select(a => {
+                    var serviceDurations = a.AppointmentServices?.Select(asr => asr.Service.DurationMinutes ?? 0).ToList() ?? new List<int>();
+                    int totalDuration = serviceDurations.Sum();
+                    if (serviceDurations.Count > 1)
+                        totalDuration += (serviceDurations.Count - 1) * 5; // Cộng 5 phút giữa các dịch vụ
+                    return new TimelineAppointmentViewModel
+                    {
+                        AppointmentId = a.AppointmentId,
+                        AppointmentDate = a.AppointmentDate,
+                        EmployeeId = a.EmployeeId,
+                        EmployeeName = a.Employee?.FullName,
+                        CustomerName = a.User?.FullName,
+                        PetNames = a.AppointmentPets?.Select(ap => ap.Pet?.Name ?? "").ToList() ?? new List<string>(),
+                        ServiceNames = a.AppointmentServices?.Select(asr => asr.Service?.Name ?? "").ToList() ?? new List<string>(),
+                        TotalDurationMinutes = totalDuration,
+                        StatusId = a.StatusId,
+                        EndTime = a.AppointmentDate.AddMinutes(totalDuration)
+                    };
+                }).ToList();
+            }
 
-    var vm = new TimelineSchedulerViewModel
-    {
-        StaffList = staffList,
-        Appointments = MapAppointments(allAppointments),
-        SearchResults = MapAppointments(searchResults),
-        Keyword = keyword
-    };
-    return View("~/Views/Admin/ManageAppointment/TimelineScheduler.cshtml", vm);
-}
+            var vm = new TimelineSchedulerViewModel
+            {
+                StaffList = staffList,
+                Appointments = MapAppointments(allAppointments),
+                SearchResults = MapAppointments(searchResults),
+                Keyword = keyword
+            };
+            return View("~/Views/Admin/ManageAppointment/TimelineScheduler.cshtml", vm);
+        }
     }
 }

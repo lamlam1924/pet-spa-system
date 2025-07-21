@@ -54,32 +54,49 @@ public CheckoutController(ICheckoutService checkoutService, IConfiguration confi
     }
 
     [HttpPost]
-    public async Task<IActionResult> PlaceOrder(int PaymentMethodId)
+public async Task<IActionResult> PlaceOrder(int PaymentMethodId, string FullName, string Email, string Phone, string Address)
+{
+    var userId = HttpContext.Session.GetInt32("CurrentUserId");
+    if (userId == null)
     {
-        var userId = HttpContext.Session.GetInt32("CurrentUserId");
-        var userAddress = HttpContext.Session.GetString("CurrentUserAddress");
-        if (userId == null)
-        {
-            TempData["Error"] = "Vui lòng đăng nhập để tiếp tục thanh toán.";
-            return RedirectToAction("Login", "Login");
-        }
-        int userIdValue = userId.Value;
-        var cartItems = await _cartService.GetCartByUserIdAsync(userIdValue);
-        decimal productTotal = await _cartService.GetTotalAmountAsync(userIdValue); // chỉ là tiền hàng
-        decimal shippingFee = 30000; // phí giao hàng cố định
-        decimal discount = 0; // nếu có mã giảm giá thì trừ ở đây
-        decimal totalAmount = productTotal + shippingFee - discount;
-        // Tạo đơn hàng
-        var order = new Order
-        {
-            UserId = userIdValue,
-            OrderDate = DateTime.Now,
-            TotalAmount = totalAmount,
-            StatusId = 1, // Pending
-            CreatedAt = DateTime.Now,
-            ShippingAddress = userAddress,
-        };
-        await _checkoutService.CreateOrderAsync(order);
+        TempData["Error"] = "Vui lòng đăng nhập để tiếp tục thanh toán.";
+        return RedirectToAction("Login", "Login");
+    }
+    int userIdValue = userId.Value;
+
+    // Cập nhật lại thông tin user nếu cần
+    var user = await _checkoutService.GetUserByIdAsync(userIdValue);
+    bool needUpdate = false;
+    if (user.FullName != FullName) { user.FullName = FullName; needUpdate = true; }
+    
+    if (user.Phone != Phone) { user.Phone = Phone; needUpdate = true; }
+    if (user.Address != Address) { user.Address = Address; needUpdate = true; }
+    if (needUpdate)
+    {
+        await _checkoutService.UpdateUserAsync(user); // Bạn cần có hàm này trong service/repo
+    }
+
+    var cartItems = await _cartService.GetCartByUserIdAsync(userIdValue);
+    decimal productTotal = await _cartService.GetTotalAmountAsync(userIdValue);
+    decimal shippingFee = 30000;
+    decimal discount = 0;
+    decimal totalAmount = productTotal + shippingFee - discount;
+    if (string.IsNullOrEmpty(Address))
+{
+    TempData["Error"] = "Địa chỉ nhận hàng không được để trống.";
+    return RedirectToAction("Checkout");
+}
+    // Tạo đơn hàng, truyền ShippingAddress lấy từ Address vừa nhập
+    var order = new Order
+    {
+        UserId = userIdValue,
+        OrderDate = DateTime.Now,
+        TotalAmount = totalAmount,
+        StatusId = 1, // Pending
+        CreatedAt = DateTime.Now,
+        ShippingAddress = Address, // <-- Lưu địa chỉ nhận hàng
+    };
+    await _checkoutService.CreateOrderAsync(order);
         // Tạo các OrderItem từ giỏ hàng
 var orderItems = cartItems.Select(cart => new OrderItem
 {
@@ -128,7 +145,7 @@ public async Task<IActionResult> PaymentCallbackVnpay()
     var order = await _checkoutService.GetOrderByIdAsync(orderId);
     if (response["Success"] == "true")
     {
-        order.StatusId = 2; // Completed
+        order.StatusId = 1; // Completed
         await _checkoutService.UpdateOrderAsync(order);
 
         // Lấy thông tin user

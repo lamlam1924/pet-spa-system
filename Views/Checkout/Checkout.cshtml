@@ -116,78 +116,52 @@
                     </div>
                 </div>
 
-                <!-- Thông tin người nhận -->
-                <div class="card border-secondary mb-4">
-                    <div class="card-header bg-secondary border-0">
-                        <h4 class="font-weight-semi-bold m-0">Thông tin người nhận</h4>
-                    </div>
-                    <div class="card-body">
-                        @{
-                            bool isFullNameNull = string.IsNullOrEmpty(Model.User?.FullName);
-                            bool isEmailNull = string.IsNullOrEmpty(Model.User?.Email);
-                            bool isPhoneNull = string.IsNullOrEmpty(Model.User?.Phone);
-                            bool isAddressNull = string.IsNullOrEmpty(Model.User?.Address);
-                        }
-                        @if (isFullNameNull || isEmailNull || isPhoneNull || isAddressNull)
-                        {
-                            <div class="alert alert-danger">Vui lòng nhập đầy đủ thông tin người nhận!</div>
-                        }
-                        <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label>Họ và Tên</label>
-                                <input class="form-control" type="text" name="FullName" value="@(Model.User?.FullName ?? "")" placeholder="Nguyễn Văn A" required />
-                                @if (isFullNameNull)
-                                {
-                                    <small class="text-danger">Họ và tên không được để trống.</small>
-                                }
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label>E-mail</label>
-                                <input class="form-control" type="email" name="Email" value="@(Model.User?.Email ?? "")" placeholder="example@email.com" required />
-                                @if (isEmailNull)
-                                {
-                                    <small class="text-danger">Email không được để trống.</small>
-                                }
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label>Số điện thoại</label>
-                                <input class="form-control" type="text" name="Phone" value="@(Model.User?.Phone ?? "")" placeholder="0123 456 789" required />
-                                @if (isPhoneNull)
-                                {
-                                    <small class="text-danger">Số điện thoại không được để trống.</small>
-                                }
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label>Địa chỉ</label>
-                                <input class="form-control" type="text" name="Address" value="@(Model.User?.Address ?? "")" placeholder="123 Đường ABC, Quận XYZ" required />
-                                @if (isAddressNull)
-                                {
-                                    <small class="text-danger">Địa chỉ không được để trống.</small>
-                                }
-                            </div>
-                        </div>
-                    </div>
+               <form asp-action="PlaceOrder" asp-controller="Checkout" method="post" id="checkoutForm">
+    <!-- Thông tin người nhận -->
+    <div class="card border-secondary mb-4">
+        <div class="card-header bg-secondary border-0">
+            <h4 class="font-weight-semi-bold m-0">Thông tin người nhận</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Họ và Tên</label>
+                    <input class="form-control" type="text" name="FullName" value="@(Model.User?.FullName ?? "")" required />
                 </div>
-
-                <!-- Thanh toán -->
-                <div class="card border-secondary mb-5">
-                    <div class="card-header bg-secondary border-0">
-                        <h4 class="font-weight-semi-bold m-0">Phương Thức Thanh Toán</h4>
-                    </div>
-                    <form asp-action="PlaceOrder" asp-controller="Checkout" method="post" id="checkoutForm">
-                        @foreach (var method in Model.PaymentMethods)
-                        {
-                            <div class="form-group">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" class="custom-control-input" name="PaymentMethodId" id="pay-@method.PaymentMethodId" value="@method.PaymentMethodId" required />
-                                    <label class="custom-control-label" for="pay-@method.PaymentMethodId">@method.MethodName</label>
-                                </div>
-                            </div>
-                        }
-
-                        <button type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3" id="placeOrderBtn">Đặt Hàng</button>
-                    </form>
+                <div class="col-md-6 form-group">
+                    <label>E-mail</label>
+                    <input class="form-control" type="email" name="Email" value="@(Model.User?.Email ?? "")" required />
                 </div>
+                <div class="col-md-6 form-group">
+                    <label>Số điện thoại</label>
+                    <input class="form-control" type="text" name="Phone" value="@(Model.User?.Phone ?? "")" required />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Địa chỉ</label>
+                    <input class="form-control" type="text" name="Address" value="@(Model.User?.Address ?? "")" required />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Phương thức thanh toán -->
+    <div class="card border-secondary mb-5">
+        <div class="card-header bg-secondary border-0">
+            <h4 class="font-weight-semi-bold m-0">Phương Thức Thanh Toán</h4>
+        </div>
+        @foreach (var method in Model.PaymentMethods)
+        {
+            <div class="form-group">
+                <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" name="PaymentMethodId" id="pay-@method.PaymentMethodId" value="@method.PaymentMethodId" required />
+                    <label class="custom-control-label" for="pay-@method.PaymentMethodId">@method.MethodName</label>
+                </div>
+            </div>
+        }
+        <button type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3" id="placeOrderBtn">Đặt Hàng</button>
+    </div>
+</form>
+
+                
             </div>
         </div>
     </div>

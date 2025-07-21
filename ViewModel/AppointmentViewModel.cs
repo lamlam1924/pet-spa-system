@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using pet_spa_system1.Models;
@@ -232,8 +232,8 @@ namespace pet_spa_system1.ViewModel
         public int? DurationMinutes { get; set; }
     }
     #endregion
-    
-        // ViewModel cho trang duyệt lịch 2 tab (admin)
+
+    // ViewModel cho trang duyệt lịch 2 tab (admin)
     public class ApprovalListTabsViewModel
     {
         public List<AdminAppointmentDetailViewModel> Pending { get; set; } = new();

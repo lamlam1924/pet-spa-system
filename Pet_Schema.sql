@@ -307,6 +307,17 @@ CREATE TABLE Reviews (
 );
 GO
 
+CREATE TABLE Notifications (
+    NotificationId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL, -- nếu bạn muốn gắn thông báo cho từng người dùng
+    Title NVARCHAR(255) NOT NULL,
+    Message NVARCHAR(MAX) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    IsRead BIT NOT NULL DEFAULT 0,
+
+    FOREIGN KEY (UserId) REFERENCES Users(UserId) -- giả sử bạn đã có bảng Users
+);
+
 -- Table Blogs
 CREATE TABLE Blogs (
     BlogID INT PRIMARY KEY IDENTITY(1,1),
@@ -338,28 +349,7 @@ CREATE TABLE Blog_Images (
 );
 GO
 
-CREATE TABLE Blog_Comments (
-    CommentID INT PRIMARY KEY IDENTITY(1,1),
-    BlogID INT NOT NULL,
-    UserID INT NOT NULL,
-    ParentCommentID INT NULL, 
-    Content NVARCHAR(MAX) NOT NULL,
-    Status NVARCHAR(20) CHECK (Status IN ('Pending', 'Approved', 'Rejected')) DEFAULT 'Pending',
-    CreatedAt DATETIME2 DEFAULT GETDATE(),
-    UpdatedAt DATETIME2,
-    FOREIGN KEY (BlogID) REFERENCES Blogs(BlogID) ,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ,
-    FOREIGN KEY (ParentCommentID) REFERENCES Blog_Comments(CommentID)
-);
-CREATE TABLE Blog_Likes (
-    LikeID INT PRIMARY KEY IDENTITY(1,1),
-    BlogID INT NOT NULL,
-    UserID INT NOT NULL,
-    CreatedAt DATETIME2 DEFAULT GETDATE(),
-    FOREIGN KEY (BlogID) REFERENCES Blogs(BlogID) ,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ,
-    UNIQUE(BlogID, UserID) -- Mỗi user chỉ like 1 lần
-);
+
 
 ALTER TABLE Users
 ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
@@ -437,3 +427,6 @@ GO
 
 PRINT 'Database schema update completed successfully!';
 PRINT 'Please restart your application to apply the changes.';
+
+ALTER TABLE Services
+ADD ImageUrl NVARCHAR(255);

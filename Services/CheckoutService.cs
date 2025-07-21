@@ -71,6 +71,11 @@ namespace pet_spa_system1.Services
         {
             return _checkoutRepository.AddOrderItemsAsync(orderItems);
         }
+
+        public Task UpdateUserAsync(User user)
+        {
+            return _checkoutRepository.UpdateUserAsync(user);
+        }
     }
 
 

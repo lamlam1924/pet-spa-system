@@ -563,7 +563,8 @@ namespace pet_spa_system1.Services
                     if (!string.IsNullOrWhiteSpace(user?.Email))
                     {
                         // Gửi mail xác nhận hoặc hủy
-                        var viewModel = new AppointmentViewModel {
+                        var viewModel = new AppointmentViewModel
+                        {
                             CustomerName = user.FullName ?? user.Username,
                             Email = user.Email,
                             AppointmentDate = appointment.AppointmentDate.Date,

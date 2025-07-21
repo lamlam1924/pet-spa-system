@@ -21,6 +21,6 @@ namespace pet_spa_system1.Repositories
         Task AddPetImageAsync(PetImage petImage);
         Task DeletePetImageAsync(int imageId);
         IEnumerable<Pet> GetAllPetsWithSpecies();
-        
+
     }
 }

@@ -362,11 +362,11 @@ namespace pet_spa_system1.Repositories
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
-        
+
         public int CountPendingApprovalAppointments()
         {
             return _context.Appointments.Count(a => a.StatusId == 1);
-            
+
         }
 
         public int CountPendingCancelAppointments()

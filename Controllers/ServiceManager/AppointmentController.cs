@@ -108,7 +108,7 @@ namespace pet_spa_system1.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
-                
+
                 // Return JSON for AJAX requests
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
@@ -131,7 +131,7 @@ namespace pet_spa_system1.Controllers
             model.Categories = _serviceService.GetAllCategories().ToList();
             return View(model);
         }
-        
+
         // GET: /Appointment/Success
         public IActionResult Success()
         {
@@ -184,4 +184,3 @@ namespace pet_spa_system1.Controllers
         public int appointmentId { get; set; }
     }
 }
-
