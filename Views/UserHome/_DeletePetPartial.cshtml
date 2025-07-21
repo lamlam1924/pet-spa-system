@@ -1,0 +1,48 @@
+﻿@model dynamic
+
+<div class="modal fade" id="deletePetModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="deletePetForm" class="modal-content"
+              hx-post="@Url.Action("DeletePet", "UserHome")"
+              hx-target="#response-message"
+              hx-swap="innerHTML"
+              enctype="application/x-www-form-urlencoded">
+            @Html.AntiForgeryToken()
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa thú cưng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa thú cưng "<strong>@Model.PetName</strong>" (ID: @Model.PetId)?</p>
+                <p>Thao tác này sẽ xóa thú cưng khỏi danh sách và không thể khôi phục.</p>
+                <input type="hidden" name="id" value="@Model.PetId" />
+                <div id="response-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-danger">Xóa</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var modal = new bootstrap.Modal(document.getElementById('deletePetModal'));
+    modal.show();
+
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+        const response = JSON.parse(evt.detail.xhr.responseText);
+        const responseMessage = document.getElementById('response-message');
+        if (response && response.success) {
+            responseMessage.innerHTML = `<div class="alert alert-success">${response.message}</div>`;
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('deletePetModal')).hide();
+                htmx.ajax('GET', '@Url.Action("ListPetPartial", "UserHome")', '#content-main');
+            }, 1000);
+        } else if (response) {
+            responseMessage.innerHTML = `<div class="alert alert-danger">${response.message || 'Có lỗi xảy ra'}</div>`;
+        } else {
+            responseMessage.innerHTML = `<div class="alert alert-danger">Không nhận được phản hồi từ server</div>`;
+        }
+    });
+</script>

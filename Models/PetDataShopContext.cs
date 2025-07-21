@@ -77,7 +77,7 @@ public partial class PetDataShopContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
 
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=PetDataShop;User Id=sa;Password=123456789;TrustServerCertificate=true;");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-1TUBGEU\\SQLEXPRESS;Database=PetDataShop;User Id=sa;Password=123456;TrustServerCertificate=true;");
 
         
 
@@ -160,57 +160,59 @@ public partial class PetDataShopContext : DbContext
                 .HasConstraintName("FK__Appointme__Servi__114A936A");
         });
 
-        modelBuilder.Entity<Blog>(entity =>
-        {
-            entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E5030BDEFFE");
+modelBuilder.Entity<Blog>(entity =>
+{
+    entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E5030BDEFFE");
 
-            entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.Category).HasMaxLength(50);
-            entity.Property(e => e.ContentFormat)
-                .HasMaxLength(20)
-                .HasDefaultValue("Markdown");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("Draft");
-            entity.Property(e => e.Title).HasMaxLength(255);
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+    entity.Property(e => e.BlogId).HasColumnName("BlogID");
+    entity.Property(e => e.Category).HasMaxLength(50);
+    entity.Property(e => e.ContentFormat)
+        .HasMaxLength(20)
+        .HasDefaultValue("Markdown");
+    entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+    entity.Property(e => e.Status)
+        .HasMaxLength(20)
+        .HasDefaultValue("Draft");
+    entity.Property(e => e.Title).HasMaxLength(255);
+    entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.BlogApprovedByNavigations)
-                .HasForeignKey(d => d.ApprovedBy)
-                .HasConstraintName("FK__Blogs__ApprovedB__4A8310C6");
+    entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.BlogApprovedByNavigations)
+        .HasForeignKey(d => d.ApprovedBy)
+        .HasConstraintName("FK__Blogs__ApprovedB__4A8310C6");
 
-            entity.HasOne(d => d.User).WithMany(p => p.BlogUsers)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Blogs__UserID__498EEC8D");
-        });
+    entity.HasOne(d => d.User).WithMany(p => p.BlogUsers)
+        .HasForeignKey(d => d.UserId)
+        .HasConstraintName("FK__Blogs__UserID__498EEC8D");
+});
 
         modelBuilder.Entity<BlogComment>(entity =>
         {
-            entity.HasKey(e => e.CommentId);
+            entity.HasKey(e => e.CommentId).HasName("PK__Blog_Com__C3B4DFAAF93B126C");
 
             entity.ToTable("Blog_Comments");
 
             entity.Property(e => e.CommentId).HasColumnName("CommentID");
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.ParentCommentId).HasColumnName("ParentCommentID");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments)
                 .HasForeignKey(d => d.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Comm__BlogI__7D0E9093");
 
-            entity.HasOne(d => d.User).WithMany()
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
                 .HasForeignKey(d => d.ParentCommentId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasConstraintName("FK__Blog_Comm__Paren__7EF6D905");
+
+            entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Comm__UserI__7E02B4CC");
         });
 
         modelBuilder.Entity<BlogImage>(entity =>
@@ -230,55 +232,28 @@ public partial class PetDataShopContext : DbContext
                 .HasConstraintName("FK__Blog_Imag__BlogI__503BEA1C");
         });
 
-        modelBuilder.Entity<BlogComment>(entity =>
-        {
-            entity.HasKey(e => e.CommentId);
-
-            entity.ToTable("Blog_Comments");
-
-            entity.Property(e => e.CommentId).HasColumnName("CommentID");
-            entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.ParentCommentId).HasColumnName("ParentCommentID");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("Pending");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-
-            entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments)
-                .HasForeignKey(d => d.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(d => d.User).WithMany()
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
-                .HasForeignKey(d => d.ParentCommentId)
-                .OnDelete(DeleteBehavior.NoAction);
-        });
-
         modelBuilder.Entity<BlogLike>(entity =>
         {
-            entity.HasKey(e => e.LikeId);
+            entity.HasKey(e => e.LikeId).HasName("PK__Blog_Lik__A2922CF4AA0D3D5E");
 
             entity.ToTable("Blog_Likes");
 
+            entity.HasIndex(e => new { e.BlogId, e.UserId }, "UQ__Blog_Lik__854F129BBE713DCD").IsUnique();
+
             entity.Property(e => e.LikeId).HasColumnName("LikeID");
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-
-            entity.HasIndex(e => new { e.BlogId, e.UserId })
-                .IsUnique();
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogLikes)
                 .HasForeignKey(d => d.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Like__BlogI__03BB8E22");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User).WithMany(p => p.BlogLikes)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Like__UserI__04AFB25B");
         });
 
         modelBuilder.Entity<Cart>(entity =>

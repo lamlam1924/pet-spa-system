@@ -23,7 +23,7 @@ public partial class BlogComment
 
     public virtual Blog Blog { get; set; } = null!;
 
-    public virtual ICollection<BlogComment> InverseParentComment { get; set; } = new List<BlogComment>();
+    public virtual ICollection<BlogComment> Replies { get; set; } = new List<BlogComment>();
 
     public virtual BlogComment? ParentComment { get; set; }
 
