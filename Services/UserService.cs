@@ -29,6 +29,7 @@ namespace pet_spa_system1.Services
             if (user == null)
                 return null;
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+
             return result == PasswordVerificationResult.Success ? user : null;
         }
 

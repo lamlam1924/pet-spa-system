@@ -69,11 +69,24 @@
                     <span>hoặc sử dụng email của bạn để đăng ký</span>
                     <input class="input-login" type="text" placeholder="Name" name="Register.Name" value="@Model.Register?.Name" />
                     <input class="input-login" type="email" placeholder="Email" name="Register.Email" value="@Model.Register?.Email" />
-                    <input class="input-login" type="password" placeholder="Password" name="Register.Password" />
+                    <div class="position-relative"  style="width: 100%;">
+                        <input class="input-login" type="password" placeholder="Password" name="Register.Password" />
+                        <span class="toggle-password" toggle="#register-password" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
+                            <i class="fa fa-eye-slash"></i>
+                        </span>
+                    </div>
                     <button type="submit">Đăng Ký</button>
                 </form>
             </div>
             <div class="form-container sign-in-container">
+                @if (TempData["ResetSuccess"] != null)
+                {
+                    <div class="alert alert-success" style="margin-bottom:10px;">@TempData["ResetSuccess"]</div>
+                }
+                @if (TempData["ResetFail"] != null)
+                {
+                    <div class="alert alert-danger" style="margin-bottom:10px;">@TempData["ResetFail"]</div>
+                }
                 <form class="form-login" asp-controller="Login" asp-action="Login" method="post">
                     <h1>Đăng Nhập</h1>
                     <div class="social-container">
@@ -81,7 +94,12 @@
                     </div>
                     <span>hoặc sử dụng tài khoản của bạn</span>
                     <input class="input-login" type="email" placeholder="Email" name="Login.Email" value="@Model.Login?.Email" />
-                    <input class="input-login" type="password" placeholder="Password" name="Login.Password" />
+                    <div class="position-relative" style="width: 100%;">
+                        <input class="input-login" id="login-password" type="password" placeholder="Password" name="Login.Password" />
+                        <span class="toggle-password" toggle="#login-password" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
+                            <i class="fa fa-eye-slash"></i>
+                        </span>
+                    </div>
                     <div style="display: flex; align-items: center;">
                         <label style="margin: 0; display: flex; align-items: center;">
                             <input type="checkbox" style="margin-right: 5px;" name="Login.RememberMe" /> Duy trì đăng nhập
@@ -90,6 +108,21 @@
                     <div style="text-align: right; margin-bottom: 10px;">
                         <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Quên mật khẩu?</a>
                     </div>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        var firstError = ViewData.ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault();
+                        if (firstError != null)
+                        {
+                            <div class="text-danger" style="margin-bottom:10px;">
+                                @firstError.ErrorMessage
+                            </div>
+                        }
+                        // Kiểm tra lỗi mật khẩu null
+                        if (string.IsNullOrEmpty(Model.Login?.Password))
+                        {
+                            <div class="text-danger" style="margin-bottom:10px;">Vui lòng nhập mật khẩu.</div>
+                        }
+                    }
                     <button type="submit">Đăng Nhập</button>
                 </form>
             </div>
@@ -153,11 +186,17 @@
                             <div class="mb-3">
                                 <label class="form-label">Mật khẩu mới</label>
                                 <input type="password" class="form-control" id="newPassword" name="NewPassword" required placeholder="Nhập mật khẩu mới">
+                                <span class="toggle-password" toggle="#newPassword" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
+                                    <i class="fa fa-eye-slash"></i>
+                                </span>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Xác nhận mật khẩu mới</label>
                                 <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword" required placeholder="Nhập lại mật khẩu mới">
+                                <span class="toggle-password" toggle="#confirmPassword" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
+                                    <i class="fa fa-eye-slash"></i>
+                                </span>
                             </div>
 
                             <div class="text-danger" id="passwordError" style="display:none;">Mật khẩu xác nhận không khớp</div>
@@ -221,8 +260,23 @@
         });
     </script>
 
-
-
+    <script>
+        // Toggle password visibility for all .toggle-password
+        document.querySelectorAll('.toggle-password').forEach(function (el) {
+            el.addEventListener('click', function () {
+                var input = document.querySelector(this.getAttribute('toggle'));
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.querySelector('i').classList.remove('fa-eye-slash');
+                    this.querySelector('i').classList.add('fa-eye');
+                } else {
+                    input.type = 'password';
+                    this.querySelector('i').classList.remove('fa-eye');
+                    this.querySelector('i').classList.add('fa-eye-slash');
+                }
+            });
+        });
+    </script>
 
 
     <!-- footer_end  -->

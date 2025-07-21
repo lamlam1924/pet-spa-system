@@ -18,10 +18,12 @@ namespace pet_spa_system1.Controllers
     {
 
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public LoginController(IUserService userService)
+        public LoginController(IUserService userService, IEmailService emailService)
         {
             _userService = userService;
+            _emailService = emailService;
         }
 
 
@@ -178,6 +180,107 @@ namespace pet_spa_system1.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string Email)
+        {
+            // Kiểm tra email có tồn tại không
+            var user = await _userService.GetUserByEmail(Email);
+            if (user == null)
+            {
+                ViewBag.ShowModal = "forgot";
+                ModelState.AddModelError("", "Email không tồn tại trong hệ thống.");
+                return View("Login", new LoginRegisterViewModel());
+            }
+
+            // Tạo OTP 6 số
+            var random = new Random();
+            var otp = random.Next(100000, 999999).ToString();
+
+            // Lưu OTP và email vào TempData (hoặc Session nếu cần)
+            TempData["ResetOtp"] = otp;
+            TempData["ResetEmail"] = Email;
+            TempData["ShowStep2"] = true;
+
+            // Gửi email
+            var title = "OTP resetPassword";
+            var body = $"Mã OTP đặt lại mật khẩu của bạn là: <b>{otp}</b>";
+            _emailService.SendEmailWithMessage(title, body, Email);
+
+            // Hiển thị lại modal bước nhập OTP
+            ViewBag.ShowModal = "forgot";
+            ViewBag.ShowStep2 = true;
+            ViewBag.ResetEmail = Email;
+            return View("Login", new LoginRegisterViewModel());
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyOtpAndResetPassword(string Email, string OtpCode, string NewPassword, string ConfirmPassword)
+        {
+            // Lấy OTP và email đã lưu
+            var savedOtp = TempData["ResetOtp"] as string;
+            var savedEmail = TempData["ResetEmail"] as string;
+
+            // Đảm bảo giữ lại TempData cho lần render tiếp theo nếu cần
+            TempData.Keep("ResetOtp");
+            TempData.Keep("ResetEmail");
+
+            if (string.IsNullOrEmpty(savedOtp) || string.IsNullOrEmpty(savedEmail) || !string.Equals(Email, savedEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                ViewBag.ShowModal = "forgot";
+                ViewBag.ShowStep2 = true;
+                ViewBag.ResetEmail = Email;
+                ModelState.AddModelError("", "Thông tin xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.");
+                return View("Login", new LoginRegisterViewModel());
+            }
+
+            if (OtpCode != savedOtp)
+            {
+                ViewBag.ShowModal = "forgot";
+                ViewBag.ShowStep2 = true;
+                ViewBag.ResetEmail = Email;
+                ModelState.AddModelError("", "Mã OTP không đúng. Vui lòng kiểm tra lại.");
+                return View("Login", new LoginRegisterViewModel());
+            }
+
+            if (NewPassword != ConfirmPassword)
+            {
+                ViewBag.ShowModal = "forgot";
+                ViewBag.ShowStep2 = true;
+                ViewBag.ResetEmail = Email;
+                ModelState.AddModelError("", "Mật khẩu xác nhận không khớp.");
+                return View("Login", new LoginRegisterViewModel());
+            }
+
+            // Đặt lại mật khẩu
+            var user = await _userService.GetUserByEmail(Email);
+            if (user == null)
+            {
+                ViewBag.ShowModal = "forgot";
+                ViewBag.ShowStep2 = true;
+                ViewBag.ResetEmail = Email;
+                ModelState.AddModelError("", "Không tìm thấy tài khoản.");
+                return View("Login", new LoginRegisterViewModel());
+            }
+            var result = await _userService.UpdatePasswordWithUserIdAsync(user.UserId, NewPassword);
+            if (!result.Success)
+            {
+                TempData.Remove("ResetOtp");
+                TempData.Remove("ResetEmail");
+                TempData.Remove("ShowStep2");
+                TempData["ResetFail"] = result.Message ?? "Đặt lại mật khẩu thất bại.";
+                return RedirectToAction("Login");
+            }
+
+            // Xóa OTP khỏi TempData
+            TempData.Remove("ResetOtp");
+            TempData.Remove("ResetEmail");
+            TempData.Remove("ShowStep2");
+
+            // Hiển thị thông báo thành công (có thể chuyển sang trang đăng nhập)
+            TempData["ResetSuccess"] = "Đặt lại mật khẩu thành công.";
+            return RedirectToAction("Login");
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
