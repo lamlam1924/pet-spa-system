@@ -714,19 +714,16 @@ namespace pet_spa_system1.Controllers
         // BLOG MANAGEMENT
         public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            // Lấy CurrentUserId từ session
-            int? currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
-            string currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
-            Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1; // Giá trị mặc định nếu null
+            Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, CurrentUserRoleId: {currentUserRoleId}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
 
-
-
-            if (!currentUserId.HasValue)
+            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3)) // Admin or Staff
             {
-                Console.WriteLine("[AdminController] Redirecting to Login due to null user ID.");
+                Console.WriteLine("[AdminController] Redirecting to Login due to insufficient permissions or null user ID.");
                 return RedirectToAction("Login", "Login");
             }
-
 
             var model = await _blogService.GetAdminDashboardAsync();
 
@@ -778,15 +775,18 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveBlog(int blogId)
         {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            Console.WriteLine($"[AdminController] ApproveBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
+
+            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3))
             {
                 return Json(new { success = false, message = "Không có quyền thực hiện." });
             }
 
             try
             {
-                var success = await _blogService.ApproveBlogAsync(blogId, currentUser.UserId);
+                var success = await _blogService.ApproveBlogAsync(blogId, currentUserId.Value);
                 if (success)
                 {
                     return Json(new { success = true, message = "Blog đã được duyệt thành công." });
@@ -806,15 +806,18 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
         {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            Console.WriteLine($"[AdminController] RejectBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
+
+            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3))
             {
                 return Json(new { success = false, message = "Không có quyền thực hiện." });
             }
 
             try
             {
-                var success = await _blogService.RejectBlogAsync(blogId, currentUser.UserId, reason);
+                var success = await _blogService.RejectBlogAsync(blogId, currentUserId.Value, reason);
                 if (success)
                 {
                     return Json(new { success = true, message = "Blog đã bị từ chối." });
@@ -834,15 +837,18 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PublishBlog(int blogId)
         {
-            var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            Console.WriteLine($"[AdminController] PublishBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
+
+            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3))
             {
                 return Json(new { success = false, message = "Không có quyền thực hiện." });
             }
 
             try
             {
-                var success = await _blogService.PublishBlogAsync(blogId, currentUser.UserId);
+                var success = await _blogService.PublishBlogAsync(blogId, currentUserId.Value);
                 if (success)
                 {
                     return Json(new { success = true, message = "Blog đã được xuất bản." });
@@ -862,46 +868,21 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBlogAdmin(int blogId)
         {
-            //var currentUser = HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
-            //if (currentUser == null || (currentUser.RoleId != 1 && currentUser.RoleId != 3))
-                int? currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
-            var currentUserName = HttpContext.Session.GetString("CurrentUserName");
-            if (!currentUserId.HasValue)
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            Console.WriteLine($"[AdminController] DeleteBlogAdmin - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
+
+            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3))
             {
                 return Json(new { success = false, message = "Không có quyền thực hiện." });
-                return Json(new { success = false, message = "Vui lòng đăng nhập." });
-            }
-
-            // Lấy RoleId từ database dựa trên UserId
-            var user = await _context.Users.FindAsync(currentUserId.Value);
-            if (user == null)
-            {
-                return Json(new { success = false, message = "Không tìm thấy thông tin người dùng." });
-            }
-
-            // Debug: Kiểm tra RoleId
-            Console.WriteLine($"[AdminController] Deleting blog {blogId} by User {currentUserId.Value} with RoleId {user.RoleId}");
-
-            // Kiểm tra quyền: Chỉ Admin (RoleId = 1) hoặc Moderator (RoleId = 3) được xóa
-            if (user.RoleId != 1 && user.RoleId != 3)
-            {
-                return Json(new { success = false, message = "Không có quyền thực hiện hành động này." });
             }
 
             try
             {
                 var success = await _blogService.DeleteBlogAsync(blogId, currentUserId.Value);
-                var blog = await _blogService.GetBlogDetailAsync(blogId);
-                if (blog == null)
-                {
-                    return Json(new { success = false, message = "Blog không tồn tại." });
-                }
-
-                
                 if (success)
                 {
                     return Json(new { success = true, message = "Blog đã được xóa." });
-                    return Json(new { success = true, message = "Blog đã được xóa thành công." });
                 }
                 else
                 {
@@ -913,5 +894,6 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
+
     }
 }

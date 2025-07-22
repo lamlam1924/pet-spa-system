@@ -13,7 +13,7 @@
             margin-bottom: 30px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         .blog-item {
             background: white;
             border-radius: 15px;
@@ -22,25 +22,25 @@
             transition: all 0.3s ease;
             margin-bottom: 30px;
         }
-        
-        .blog-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
+
+            .blog-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            }
+
         .blog_item_img {
             position: relative;
             overflow: hidden;
             height: 250px;
         }
-        
-        .blog_item_img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        
+
+            .blog_item_img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+
         .blog_item_date {
             position: absolute;
             top: 20px;
@@ -52,37 +52,37 @@
             text-decoration: none;
             font-weight: 600;
         }
-        
+
         .blog_details {
             padding: 25px;
         }
-        
-        .blog_details h2 a {
-            color: #1f2937;
-            text-decoration: none;
-        }
-        
-        .blog_details h2 a:hover {
-            color: #2563eb;
-        }
-        
+
+            .blog_details h2 a {
+                color: #1f2937;
+                text-decoration: none;
+            }
+
+                .blog_details h2 a:hover {
+                    color: #2563eb;
+                }
+
         .blog-info-link {
             list-style: none;
             padding: 0;
             display: flex;
             gap: 20px;
         }
-        
-        .blog-info-link li {
-            color: #9ca3af;
-            font-size: 0.9rem;
-        }
-        
-        .blog-info-link li i {
-            margin-right: 8px;
-            color: #2563eb;
-        }
-        
+
+            .blog-info-link li {
+                color: #9ca3af;
+                font-size: 0.9rem;
+            }
+
+                .blog-info-link li i {
+                    margin-right: 8px;
+                    color: #2563eb;
+                }
+
         .blog-category-badge {
             background: #eff6ff;
             color: #2563eb;
@@ -93,7 +93,7 @@
             margin-bottom: 10px;
             display: inline-block;
         }
-        
+
         .create-blog-btn {
             position: fixed;
             bottom: 30px;
@@ -116,12 +116,16 @@
             justify-content: center;
         }
 
-        .create-blog-btn:hover {
-            background: #e55a2b !important;
-            color: white !important;
-            transform: translateY(-2px);
-            text-decoration: none !important;
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+            .create-blog-btn:hover {
+                background: #e55a2b !important;
+                color: white !important;
+                transform: translateY(-2px);
+                text-decoration: none !important;
+                box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+            }
+
+        .edit-btn {
+            margin-top: 10px;
         }
     </style>
 }
@@ -196,17 +200,21 @@
                                     {
                                         <span class="blog-category-badge">@blog.Category</span>
                                     }
-                                    
+
                                     <a class="d-inline-block" href="@Url.Action("Detail", "Blogs", new { id = blog.BlogId })">
                                         <h2>@blog.Title</h2>
                                     </a>
                                     <p>@blog.ShortContent</p>
-                                    
+
                                     <ul class="blog-info-link">
                                         <li><i class="fa fa-user"></i> @blog.AuthorName</li>
                                         <li><i class="fa fa-comments"></i> @blog.CommentCount Bình luận</li>
                                         <li><i class="fa fa-heart"></i> @blog.LikeCount Lượt thích</li>
                                     </ul>
+                                    @if (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserId == blog.UserId)
+                                    {
+                                        <a href="@Url.Action("Edit", "Blogs", new { id = blog.BlogId })" class="btn btn-primary btn-sm edit-btn">Chỉnh sửa</a>
+                                    }
                                 </div>
                             </article>
                         }
@@ -256,7 +264,7 @@
                     }
                 </div>
             </div>
-            
+
             <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="blog_right_sidebar">
@@ -286,10 +294,6 @@
 </section>
 
 <!-- Create Blog Button -->
-<!-- Debug: User authenticated = @User.Identity.IsAuthenticated -->
-<!-- Debug: User name = @User.Identity.Name -->
-<!-- Debug: User roles = @string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value)) -->
-
 @if (User.Identity.IsAuthenticated)
 {
     <a href="@Url.Action("Create", "Blogs")" class="create-blog-btn">
@@ -298,28 +302,12 @@
 }
 else
 {
-    <!-- Show this if not authenticated -->
     <div style="position: fixed; bottom: 30px; right: 30px; background: red; color: white; padding: 15px; border-radius: 10px; z-index: 9999; font-weight: bold;">
         <a href="@Url.Action("Login", "Login")" style="color: white; text-decoration: none;">
             <i class="fas fa-sign-in-alt"></i> Đăng nhập để viết blog
         </a>
     </div>
 }
-
-@* <!-- BACKUP BUTTON - Always visible for testing --> *@
-@* <div style="position: fixed; bottom: 100px; right: 30px; z-index: 9999;"> *@
-@*     <a href="@Url.Action("Create", "Blogs")" *@
-@*        style="background: #28a745; color: white; padding: 12px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);"> *@
-@*         <i class="fas fa-edit"></i> Viết Blog *@
-@*     </a> *@
-@* </div> *@
-@* else *@
-@* { *@
-@*     <!-- Show login prompt for non-authenticated users --> *@
-@*     <a href="@Url.Action("Login", "Login")" class="create-blog-btn" title="Đăng nhập để viết blog"> *@
-@*         <i class="fas fa-sign-in-alt"></i> Đăng nhập *@
-@*     </a> *@
-@* } *@
 
 @section Scripts {
     <script>

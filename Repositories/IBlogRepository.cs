@@ -15,16 +15,16 @@ public interface IBlogRepository
     Task UpdateBlogAsync(Blog blog);
     Task DeleteBlogAsync(int blogId);
     Task<int> CountPublishedBlogsAsync(string? category = null, string? search = null);
-    
+
     Task ApproveBlogAsync(int blogId, int approvedBy);
     Task RejectBlogAsync(int blogId, int approvedBy);
     Task PublishBlogAsync(int blogId);
     Task ArchiveBlogAsync(int blogId);
-    
+
     Task AddBlogImageAsync(BlogImage blogImage);
     Task<List<BlogImage>> GetBlogImagesAsync(int blogId);
     Task DeleteBlogImageAsync(int imageId);
-    
+
     Task<List<BlogComment>> GetBlogCommentsAsync(int blogId);
     Task<BlogComment?> GetCommentByIdAsync(int commentId);
     Task<int> AddCommentAsync(BlogComment comment);
@@ -33,15 +33,15 @@ public interface IBlogRepository
     Task ApproveCommentAsync(int commentId);
     Task RejectCommentAsync(int commentId);
     Task<int> CountBlogCommentsAsync(int blogId);
-    
+
     Task<bool> IsLikedByUserAsync(int blogId, int userId);
     Task<int> CountBlogLikesAsync(int blogId);
     Task AddLikeAsync(int blogId, int userId);
     Task RemoveLikeAsync(int blogId, int userId);
     Task<List<BlogLike>> GetBlogLikesAsync(int blogId);
-    
+
     Task<List<string>> GetBlogCategoriesAsync();
-    
+
     Task<int> CountBlogsByStatusAsync(string status);
     Task<List<Blog>> GetRecentBlogsAsync(int count = 5);
     Task<List<Blog>> GetPopularBlogsAsync(int count = 5);

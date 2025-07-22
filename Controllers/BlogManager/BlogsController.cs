@@ -21,10 +21,23 @@ namespace pet_spa_system1.Controllers
 
         public async Task<IActionResult> Index(int page = 1, string? category = null, string? search = null, string sortBy = "newest")
         {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            ViewBag.CurrentUser = userId.HasValue ? new User { UserId = userId.Value } : null;
             var model = await _blogService.GetBlogListAsync(page, 10, category, search, sortBy);
             return View(model);
         }
+        public async Task<IActionResult> MyBlogs()
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Login");
+            }
 
+            var blogs = await _blogService.GetBlogsByUserAsync(userId.Value);
+            ViewBag.CurrentUser = new User { UserId = userId.Value }; // Gán CurrentUser để kiểm tra quyền
+            return View(blogs);
+        }
         public async Task<IActionResult> Blog(int page = 1, string? category = null, string? search = null, string sortBy = "newest")
         {
             return await Index(page, category, search, sortBy);
@@ -54,7 +67,54 @@ namespace pet_spa_system1.Controllers
             var model = await _blogService.GetBlogCreateViewModelAsync();
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> RejectedBlogs()
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Login");
+            }
 
+            var rejectedBlogs = await _blogService.GetRejectedBlogsByUserAsync(userId.Value);
+            return View(rejectedBlogs);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateRejectedBlog(int blogId, BlogCreateViewModel model)
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("RejectedBlogs", model);
+            }
+
+            try
+            {
+                var success = await _blogService.UpdateBlogAsync(blogId, model, userId.Value);
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Bài viết đã được cập nhật và gửi lại để duyệt.";
+                    return RedirectToAction("RejectedBlogs");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Không thể cập nhật bài viết.";
+                    return View("RejectedBlogs", model);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
+                return View("RejectedBlogs", model);
+            }
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BlogCreateViewModel model)
@@ -187,35 +247,38 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteBlog(int blogId)
         {
-            var userId = HttpContext.Session.GetInt32("CurrentUserId");
-            if (!userId.HasValue)
+            Console.WriteLine($"[BlogController] DeleteBlog POST called - BlogId: {blogId}, Request: {HttpContext.Request.Path}");
+
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            Console.WriteLine($"[BlogController] CurrentUserId: {currentUserId ?? -1}");
+
+            if (!currentUserId.HasValue)
             {
-                return RedirectToAction("Login", "Login");
+                Console.WriteLine("[BlogController] User not logged in.");
+                return Json(new { success = false, message = "Vui lòng đăng nhập để xóa bài viết." });
             }
 
             try
             {
-                var user = await _context.Users.FindAsync(userId.Value);
-                var userRole = GetUserRole(user?.RoleId ?? 0);
-                var success = await _blogService.DeleteBlogAsync(id, userId.Value);
-
-                if (!success)
+                Console.WriteLine("[BlogController] Attempting to delete blog...");
+                var success = await _blogService.DeleteBlogAsync(blogId, currentUserId.Value);
+                if (success)
                 {
-                    TempData["ErrorMessage"] = "Không thể xóa blog này.";
+                    Console.WriteLine("[BlogController] Blog deleted successfully.");
+                    return Json(new { success = true, message = "Bài viết đã được xóa thành công!" });
                 }
                 else
                 {
-                    TempData["SuccessMessage"] = "Blog đã được xóa thành công.";
+                    Console.WriteLine("[BlogController] Failed to delete blog.");
+                    return Json(new { success = false, message = "Không thể xóa bài viết này." });
                 }
-
-                return RedirectToAction("Blog");
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi xóa blog: " + ex.Message;
-                return RedirectToAction("Detail", new { id });
+                Console.WriteLine($"[BlogController] Error deleting blog: {ex.Message} - StackTrace: {ex.StackTrace}");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi xóa bài viết: " + ex.Message });
             }
         }
 
@@ -238,23 +301,44 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Nội dung bình luận không được để trống." });
             }
 
+            var blog = await _context.Blogs.FindAsync(blogId);
+            if (blog == null || blog.Status != "Published")
+            {
+                System.Diagnostics.Debug.WriteLine($"Blog {blogId} not found or not published, status: {blog?.Status}");
+                return Json(new { success = false, message = "Bài viết chưa được duyệt, không thể bình luận." });
+            }
+
+            if (parentCommentId.HasValue)
+            {
+                var parentComment = await _context.BlogComments
+                    .FirstOrDefaultAsync(c => c.CommentId == parentCommentId.Value && c.BlogId == blogId);
+                if (parentComment == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Invalid parentCommentId: {parentCommentId.Value} not found or not in blog {blogId}");
+                    return Json(new { success = false, message = "Bình luận cha không hợp lệ." });
+                }
+            }
+
             try
             {
                 var user = await _context.Users.FindAsync(userId.Value);
                 var success = await _blogService.AddCommentAsync(blogId, content.Trim(), userId.Value, parentCommentId);
-                System.Diagnostics.Debug.WriteLine($"AddCommentAsync result: {success}");
+                System.Diagnostics.Debug.WriteLine($"AddCommentAsync result: {success}, parentCommentId used: {parentCommentId}");
 
                 if (success)
                 {
+                    var userRole = GetUserRole(user?.RoleId ?? 0);
+                    var createdAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
                     return Json(new
                     {
                         success = true,
-                        message = "Bình luận đã được gửi thành công!",
+                        message = parentCommentId.HasValue ? "Trả lời đã được gửi thành công!" : "Bình luận đã được gửi thành công!",
                         userName = user?.FullName ?? user?.Username,
-                        userRole = GetUserRole(user?.RoleId ?? 0),
-                        createdAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                        userRole = userRole,
+                        createdAt = createdAt,
                         content = content.Trim(),
-                        parentCommentId = parentCommentId
+                        parentCommentId = parentCommentId,
+                        status = "Approved" // Đảm bảo trả về trạng thái Approved
                     });
                 }
                 else
@@ -268,7 +352,6 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleLike(int blogId)
@@ -277,6 +360,14 @@ namespace pet_spa_system1.Controllers
             if (!userId.HasValue)
             {
                 return Json(new { success = false, message = "Bạn cần đăng nhập để thích bài viết." });
+            }
+
+            // Kiểm tra trạng thái bài viết
+            var blog = await _context.Blogs.FindAsync(blogId);
+            if (blog == null || blog.Status != "Published")
+            {
+                System.Diagnostics.Debug.WriteLine($"Blog {blogId} not found or not published, status: {blog?.Status}");
+                return Json(new { success = false, message = "Bài viết chưa được duyệt, không thể thích." });
             }
 
             try
@@ -298,17 +389,7 @@ namespace pet_spa_system1.Controllers
             }
         }
 
-        public async Task<IActionResult> MyBlogs()
-        {
-            var userId = HttpContext.Session.GetInt32("CurrentUserId");
-            if (!userId.HasValue)
-            {
-                return RedirectToAction("Login", "Login");
-            }
 
-            var blogs = await _blogService.GetBlogsByUserAsync(userId.Value);
-            return View(blogs);
-        }
 
         [HttpGet]
         public async Task<IActionResult> GetRecentBlogs(int count = 5)

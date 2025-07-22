@@ -16,20 +16,20 @@
             margin-bottom: 20px;
         }
 
-        .blog-meta i {
-            margin-right: 5px;
-        }
+            .blog-meta i {
+                margin-right: 5px;
+            }
 
         .blog-content {
             line-height: 1.8;
             font-size: 16px;
         }
 
-        .blog-content img {
-            max-width: 100%;
-            height: auto;
-            margin: 20px 0;
-        }
+            .blog-content img {
+                max-width: 100%;
+                height: auto;
+                margin: 20px 0;
+            }
 
         .like-section {
             margin: 30px 0;
@@ -46,15 +46,21 @@
             transition: all 0.3s;
         }
 
-        .like-btn.liked {
-            background: #e74c3c;
-            color: white;
-        }
+            .like-btn.liked {
+                background: #e74c3c;
+                color: white;
+            }
 
-        .like-btn:hover {
-            background: #e74c3c;
-            color: white;
-        }
+            .like-btn:hover {
+                background: #e74c3c;
+                color: white;
+            }
+
+            .like-btn.disabled-btn {
+                background: #ccc !important;
+                cursor: not-allowed !important;
+                pointer-events: none !important;
+            }
 
         .comments-section {
             margin-top: 50px;
@@ -72,9 +78,9 @@
             padding: 20px 0;
         }
 
-        .comment-item:last-child {
-            border-bottom: none;
-        }
+            .comment-item:last-child {
+                border-bottom: none;
+            }
 
         .comment-author {
             font-weight: bold;
@@ -102,6 +108,7 @@
         .reply-form {
             margin-top: 15px;
             padding-left: 40px;
+            display: none;
         }
 
         .comment-replies {
@@ -119,7 +126,7 @@
             margin-left: 5px;
         }
 
-        .staff-badge {
+        .employee-badge {
             background: #28a745;
         }
 
@@ -131,21 +138,14 @@
             margin-bottom: 20px;
         }
 
-        .related-blog-item img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
+            .related-blog-item img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-radius: 5px;
+            }
 
-        .comment-item.highlight {
-            background-color: #e8f5e8;
-            border-left: 4px solid #28a745;
-            padding-left: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .new-comment {
+        .comment-item.new-comment {
             animation: slideIn 0.5s ease-out;
         }
 
@@ -154,6 +154,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -181,6 +182,7 @@
         </div>
     </div>
 </div>
+
 <!-- Blog Detail Area -->
 <section class="blog_area single-post-area section-padding">
     <div class="container">
@@ -193,6 +195,10 @@
                             <img class="img-fluid" src="@Model.Blog.FeaturedImageUrl" alt="@Model.Blog.Title">
                         </div>
                     }
+                    @if (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserId == Model.Blog.UserId)
+                    {
+                        <a href="@Url.Action("Edit", "Blogs", new { id = Model.Blog.BlogId })" class="btn btn-primary mb-3">Chỉnh sửa</a>
+                    }
                     <div class="blog_details">
                         <h2>@Model.Blog.Title</h2>
                         <ul class="blog-info-link mt-3 mb-4">
@@ -202,8 +208,8 @@
                                 <li><i class="fa fa-tag"></i> @Model.Blog.Category</li>
                             }
                             <li><i class="fa fa-calendar"></i> @Model.Blog.PublishedAt?.ToString("dd/MM/yyyy")</li>
-                            <li><i class="fa fa-comments"></i> @Model.Blog.CommentCount Bình luận</li>
-                            <li><i class="fa fa-heart"></i> @Model.Blog.LikeCount Lượt thích</li>
+                            <li><i class="fa fa-comments"></i> @(Model.Blog.Status == "Published" ? Model.Blog.CommentCount : 0) Bình luận</li>
+                            <li><i class="fa fa-heart"></i> @(Model.Blog.Status == "Published" ? Model.Blog.LikeCount : 0) Lượt thích</li>
                         </ul>
                         <div class="blog-content">
                             @Html.Raw(Model.Blog.Content)
@@ -211,11 +217,12 @@
 
                         <!-- Like Section -->
                         <div class="like-section">
-                            <button type="button" class="like-btn @(Model.Blog.IsLikedByCurrentUser ? "liked" : "")"
-                                    onclick="toggleLike(@Model.Blog.BlogId)">
+                            <button type="button" class="like-btn @(Model.Blog.Status == "Published" ? (Model.Blog.IsLikedByCurrentUser ? "liked" : "") : "disabled-btn")"
+                                    onclick="@(Model.Blog.Status == "Published" ? "toggleLike(" + Model.Blog.BlogId + ")" : "")"
+                            @(Model.Blog.Status != "Published" ? "disabled" : "")>
                                 <i class="fa fa-heart"></i>
-                                <span id="like-count">@Model.Blog.LikeCount</span>
-                                <span id="like-text">@(Model.Blog.IsLikedByCurrentUser ? "Đã thích" : "Thích")</span>
+                                <span id="like-count">@(Model.Blog.Status == "Published" ? Model.Blog.LikeCount : 0)</span>
+                                <span id="like-text">@(Model.Blog.Status == "Published" ? (Model.Blog.IsLikedByCurrentUser ? "Đã thích" : "Thích") : "Không khả dụng")</span>
                             </button>
                         </div>
                     </div>
@@ -223,24 +230,29 @@
 
                 <!-- Comments Section -->
                 <div class="comments-section">
-                    <h4>@Model.Blog.CommentCount Bình luận</h4>
+                    <h4>@(Model.Blog.Status == "Published" ? Model.Blog.CommentCount + " Bình luận" : "Bài viết chưa được duyệt, không có bình luận")</h4>
 
                     <!-- Comment Form -->
-                    @if (ViewBag.CurrentUser != null)
+                    @if (ViewBag.CurrentUser != null && Model.Blog.Status == "Published")
                     {
                         <div class="comment-form">
                             <h5>Để lại bình luận</h5>
                             <form id="comment-form">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="blogId" value="@Model.Blog.BlogId" />
-                                <input type="hidden" name="parentCommentId" value="" />
+                                <input type="hidden" name="parentCommentId" id="comment-parent-id" value="" />
                                 <div class="form-group">
-                                    <textarea name="content" class="form-control" rows="4"
-                                              placeholder="Nhập bình luận của bạn..." required></textarea>
+                                    <textarea name="content" class="form-control" id="comment-content" rows="4" placeholder="Nhập bình luận của bạn..." required></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Gửi bình luận</button>
-                                <button type="button" class="btn btn-secondary" onclick="cancelReply()" style="display:none;">Hủy trả lời</button>
+                                <button type="button" class="btn btn-secondary cancel-reply" style="display:none;">Hủy trả lời</button>
                             </form>
+                        </div>
+                    }
+                    else if (ViewBag.CurrentUser != null && (Model.Blog.Status == "Draft" || Model.Blog.Status == "PendingApproval"))
+                    {
+                        <div class="comment-form">
+                            <p>Bài viết chưa được duyệt, không thể bình luận.</p>
                         </div>
                     }
                     else
@@ -252,63 +264,68 @@
 
                     <!-- Comments List -->
                     <div class="comments-list">
-                        @foreach (var comment in Model.Comments)
+                        @if (Model.Comments.Any())
                         {
-                            <div class="comment-item" data-comment-id="@comment.CommentId">
-                                <div class="comment-header">
-                                    <span class="comment-author">@comment.UserName</span>
-                                    @if (comment.UserRole == "Admin")
-                                    {
-                                        <span class="author-badge">ADMIN</span>
-                                    }
-                                    else if (comment.UserRole == "Staff")
-                                    {
-                                        <span class="author-badge staff-badge">NHÂN VIÊN</span>
-                                    }
-                                    <span class="comment-date">@comment.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
-                                </div>
-                                <div class="comment-content">
-                                    @comment.Content
-                                </div>
-                                @if (ViewBag.CurrentUser != null)
-                                {
-                                    <button type="button" class="reply-btn" onclick="showReplyForm(@comment.CommentId)">
-                                        Trả lời
-                                    </button>
-                                }
-
-                                <!-- Replies -->
-                                @if (comment.Replies.Any())
-                                {
-                                    <div class="comment-replies">
-                                        @foreach (var reply in comment.Replies)
+                            @foreach (var comment in Model.Comments)
+                            {
+                                <div class="comment-item" data-comment-id="@comment.CommentId" data-level="0">
+                                    <div class="comment-header">
+                                        <span class="comment-author">@comment.UserName</span>
+                                        @if (comment.UserRole == "Admin")
                                         {
-                                            <div class="comment-item" data-comment-id="@reply.CommentId">
-                                                <div class="comment-header">
-                                                    <span class="comment-author">@reply.UserName</span>
-                                                    @if (reply.UserRole == "Admin")
-                                                    {
-                                                        <span class="author-badge">ADMIN</span>
-                                                    }
-                                                    else if (reply.UserRole == "Staff")
-                                                    {
-                                                        <span class="author-badge staff-badge">NHÂN VIÊN</span>
-                                                    }
-                                                    <span class="comment-date">@reply.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
-                                                </div>
-                                                <div class="comment-content">
-                                                    @reply.Content
-                                                </div>
-                                            </div>
+                                            <span class="author-badge">ADMIN</span>
                                         }
+                                        else if (comment.UserRole == "Staff")
+                                        {
+                                            <span class="author-badge employee-badge">NHÂN VIÊN</span>
+                                        }
+                                        <span class="comment-date">@comment.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
                                     </div>
-                                }
-                            </div>
-                        }
+                                    <div class="comment-content">
+                                        @comment.Content
+                                    </div>
+                                    @if (ViewBag.CurrentUser != null && Model.Blog.Status == "Published" && comment.ParentCommentId == null)
+                                    {
+                                        <button type="button" class="reply-btn" data-comment-id="@comment.CommentId">Trả lời</button>
+                                    }
+                                    <div class="reply-form" id="reply-form-@comment.CommentId" style="display:none;">
+                                        <textarea class="form-control mb-2" id="reply-content-@comment.CommentId" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                                        <button class="btn btn-sm btn-success submit-reply" data-blog-id="@Model.Blog.BlogId" data-comment-id="@comment.CommentId">Gửi</button>
+                                        <button class="btn btn-sm btn-secondary cancel-reply" onclick="cancelReply('@comment.CommentId')">Hủy</button>
+                                    </div>
 
-                        @if (!Model.Comments.Any())
+                                    <!-- Replies -->
+                                    @if (comment.Replies.Any())
+                                    {
+                                        <div class="comment-replies">
+                                            @foreach (var reply in comment.Replies)
+                                            {
+                                                <div class="comment-item" data-comment-id="@reply.CommentId" data-level="1">
+                                                    <div class="comment-header">
+                                                        <span class="comment-author">@reply.UserName</span>
+                                                        @if (reply.UserRole == "Admin")
+                                                        {
+                                                            <span class="author-badge">ADMIN</span>
+                                                        }
+                                                        else if (reply.UserRole == "Staff")
+                                                        {
+                                                            <span class="author-badge employee-badge">NHÂN VIÊN</span>
+                                                        }
+                                                        <span class="comment-date">@reply.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
+                                                    </div>
+                                                    <div class="comment-content">
+                                                        @reply.Content
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                        else if (Model.Blog.Status != "Published")
                         {
-                            <p class="text-center text-muted">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+                            <p class="text-center text-muted">Bài viết chưa được duyệt, không có bình luận để hiển thị.</p>
                         }
                     </div>
                 </div>
@@ -361,6 +378,7 @@
 </section>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         // Toggle Like functionality
         function toggleLike(blogId) {
@@ -376,8 +394,6 @@
                         $('#like-count').text(response.likeCount);
                         $('#like-text').text(response.isLiked ? 'Đã thích' : 'Thích');
                         $('.like-btn').toggleClass('liked', response.isLiked);
-
-                        // Show success message
                         showMessage(response.message, 'success');
                     } else {
                         showMessage(response.message, 'error');
@@ -393,153 +409,140 @@
         $(document).ready(function() {
             $('#comment-form').on('submit', function(e) {
                 e.preventDefault();
-
-                console.log('Form submitted'); // Debug log
-
                 var formData = $(this).serialize();
-                console.log('Form data:', formData); // Debug log
-
                 $.ajax({
                     url: '@Url.Action("AddComment", "Blogs")',
                     type: 'POST',
                     data: formData,
                     success: function(response) {
-                        console.log('Response:', response); // Debug log
                         if (response.success) {
                             showMessage(response.message, 'success');
-
-                            // Add new comment to DOM
                             addCommentToDOM(response);
-
-                            // Clear form
-                            $('#comment-form textarea[name="content"]').val('');
-                            $('#comment-form input[name="parentCommentId"]').val('');
-
-                            // Hide reply form if showing
-                            cancelReply();
-
-                            // Update comment count
+                            $('#comment-content').val('');
+                            $('#comment-parent-id').val('');
+                            $('.cancel-reply').hide();
                             updateCommentCount();
                         } else {
                             showMessage(response.message, 'error');
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.log('AJAX Error:', xhr, status, error); // Debug log
+                        console.log('AJAX Error:', xhr, status, error);
                         showMessage('Có lỗi xảy ra khi gửi bình luận.', 'error');
                     }
                 });
             });
-        });
 
-        // Show reply form
-        function showReplyForm(commentId) {
-            // Hide all other reply forms
-            $('.reply-form').remove();
-
-            // Set parent comment ID
-            $('#comment-form input[name="parentCommentId"]').val(commentId);
-            $('#comment-form textarea[name="content"]').attr('placeholder', 'Nhập câu trả lời của bạn...');
-            $('#comment-form .btn-secondary').show();
-
-            // Scroll to comment form
-            $('html, body').animate({
-                scrollTop: $('#comment-form').offset().top - 100
-            }, 500);
-        }
-
-        // Cancel reply
-        function cancelReply() {
-            $('#comment-form input[name="parentCommentId"]').val('');
-            $('#comment-form textarea[name="content"]').attr('placeholder', 'Nhập bình luận của bạn...');
-            $('#comment-form .btn-secondary').hide();
-        }
-
-        // Add comment to DOM
-        function addCommentToDOM(response) {
-            var badgeHtml = '';
-            if (response.userRole === 'Admin') {
-                badgeHtml = '<span class="author-badge">ADMIN</span>';
-            } else if (response.userRole === 'Staff') {
-                badgeHtml = '<span class="author-badge staff-badge">NHÂN VIÊN</span>';
-            }
-
-            var replyButtonHtml = '@ViewBag.CurrentUser' != null ?
-                '<button type="button" class="reply-btn" onclick="showReplyForm(\'new\')">Trả lời</button>' : '';
-
-            var commentHtml = '<div class="comment-item new-comment" data-comment-id="new">' +
-                                '<div class="comment-header">' +
-                                    '<span class="comment-author">' + response.userName + '</span>' +
-                                    badgeHtml +
-                                    '<span class="comment-date">' + response.createdAt + '</span>' +
-                                '</div>' +
-                                '<div class="comment-content">' + response.content + '</div>' +
-                                replyButtonHtml +
-                              '</div>';
-
-            if (response.parentCommentId) {
-                // This is a reply - add to replies section
-                var parentComment = $('.comment-item[data-comment-id="' + response.parentCommentId + '"]');
-                var repliesSection = parentComment.find('.comment-replies');
-                if (repliesSection.length === 0) {
-                    // Create replies section if it doesn't exist
-                    repliesSection = $('<div class="comment-replies"></div>');
-                    parentComment.append(repliesSection);
-                }
-                repliesSection.append(commentHtml);
-            } else {
-                // This is a main comment - add to comments list
-                if ($('.comments-list .comment-item').length === 0) {
-                    // No comments yet, replace the "no comments" message
-                    $('.comments-list').html(commentHtml);
-                } else {
-                    // Add to end of comments list
-                    $('.comments-list').append(commentHtml);
-                }
-            }
-
-            // Highlight new comment
-            $('.new-comment').addClass('highlight');
-            setTimeout(function() {
-                $('.new-comment').removeClass('highlight new-comment');
-            }, 3000);
-        }
-
-        // Update comment count
-        function updateCommentCount() {
-            var currentCount = parseInt($('.comments-section h4').text().match(/\d+/)[0]);
-            var newCount = currentCount + 1;
-            $('.comments-section h4').text(newCount + ' Bình luận');
-
-            // Also update in blog info if exists
-            $('.blog-info-link li').each(function() {
-                var text = $(this).text();
-                if (text.includes('Bình luận')) {
-                    $(this).html('<i class="fa fa-comments"></i> ' + newCount + ' Bình luận');
-                }
+            $('.reply-btn').click(function(e) {
+                e.preventDefault();
+                var commentId = $(this).data('comment-id');
+                $('.reply-form').hide();
+                $('#reply-form-' + commentId).show();
+                $('.cancel-reply').show();
             });
-        }
 
-        // Show message function
-        function showMessage(message, type) {
-            var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            var alertHtml = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
-                           message +
-                           '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                           '<span aria-hidden="true">&times;</span>' +
-                           '</button>' +
-                           '</div>';
+            $('.submit-reply').click(function(e) {
+                e.preventDefault();
+                var blogId = $(this).data('blog-id');
+                var commentId = $(this).data('comment-id');
+                var content = $('#reply-content-' + commentId).val();
+                $.ajax({
+                    url: '@Url.Action("AddComment", "Blogs")',
+                    type: 'POST',
+                    data: {
+                        blogId: blogId,
+                        content: content,
+                        parentCommentId: commentId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showMessage(response.message, 'success');
+                            addCommentToDOM(response);
+                            $('#reply-form-' + commentId).hide();
+                            $('#reply-content-' + commentId).val('');
+                            $('.cancel-reply').hide();
+                            updateCommentCount();
+                        } else {
+                            showMessage(response.message, 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('AJAX Error:', xhr, status, error);
+                        showMessage('Có lỗi xảy ra khi gửi trả lời.', 'error');
+                    }
+                });
+            });
 
-            // Remove existing alerts
-            $('.alert').remove();
+            $('.cancel-reply').click(function(e) {
+                e.preventDefault();
+                var commentId = $(this).data('comment-id') || $(this).closest('.reply-form').attr('id').replace('reply-form-', '');
+                $('#reply-form-' + commentId).hide();
+                $('.cancel-reply').hide();
+            });
 
-            // Add new alert at top of comments section
-            $('.comments-section').prepend(alertHtml);
+            function addCommentToDOM(response) {
+                var badgeHtml = response.userRole === 'Admin' ? '<span class="author-badge">ADMIN</span>' :
+                                response.userRole === 'Staff' ? '<span class="author-badge employee-badge">NHÂN VIÊN</span>' : '';
+                var commentHtml = `
+                    <div class="comment-item new-comment" data-comment-id="${response.commentId}">
+                        <div class="comment-header">
+                            <span class="comment-author">${response.userName}</span>
+                            ${badgeHtml}
+                            <span class="comment-date">${response.createdAt}</span>
+                        </div>
+                        <div class="comment-content">${response.content}</div>
+                        ${response.parentCommentId ? '' : '<button type="button" class="reply-btn" data-comment-id="' + response.commentId + '">Trả lời</button>'}
+                        <div class="reply-form" id="reply-form-${response.commentId}" style="display:none;">
+                            <textarea class="form-control mb-2" id="reply-content-${response.commentId}" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                            <button class="btn btn-sm btn-success submit-reply" data-blog-id="@Model.Blog.BlogId" data-comment-id="${response.commentId}">Gửi</button>
+                            <button class="btn btn-sm btn-secondary cancel-reply" onclick="cancelReply('${response.commentId}')">Hủy</button>
+                        </div>
+                    </div>`;
 
-            // Auto hide after 5 seconds
-            setTimeout(function() {
-                $('.alert').fadeOut();
-            }, 5000);
-        }
+                if (response.parentCommentId) {
+                    var parentComment = $('.comment-item[data-comment-id="' + response.parentCommentId + '"]');
+                    var repliesSection = parentComment.find('.comment-replies');
+                    if (repliesSection.length === 0) {
+                        repliesSection = $('<div class="comment-replies"></div>');
+                        parentComment.append(repliesSection);
+                    }
+                    repliesSection.append(commentHtml);
+                } else {
+                    if ($('.comments-list .comment-item').length === 0) {
+                        $('.comments-list').html(commentHtml);
+                    } else {
+                        $('.comments-list').prepend(commentHtml);
+                    }
+                }
+
+                $('.new-comment').addClass('highlight');
+                setTimeout(() => $('.new-comment').removeClass('highlight new-comment'), 3000);
+            }
+
+            function updateCommentCount() {
+                var currentCount = parseInt($('.comments-section h4').text().match(/\d+/)?.[0]) || 0;
+                var newCount = currentCount + 1;
+                $('.comments-section h4').text(newCount + ' Bình luận');
+                $('.blog-info-link li').each(function() {
+                    if ($(this).text().includes('Bình luận')) {
+                        $(this).html('<i class="fa fa-comments"></i> ' + newCount + ' Bình luận');
+                    }
+                });
+            }
+
+            function showMessage(message, type) {
+                var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                var alertHtml = `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">${message}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button></div>`;
+                $('.alert').remove();
+                $('.comments-section').prepend(alertHtml);
+                setTimeout(() => $('.alert').fadeOut(), 5000);
+            }
+
+            function cancelReply(commentId) {
+                $('#reply-form-' + commentId).hide();
+                $('.cancel-reply').hide();
+            }
+        });
     </script>
 }
