@@ -27,8 +27,6 @@ public partial class PetDataShopContext : DbContext
 
     public virtual DbSet<BlogImage> BlogImages { get; set; }
 
-    
-
     public virtual DbSet<BlogLike> BlogLikes { get; set; }
 
     public virtual DbSet<Cart> Carts { get; set; }
@@ -46,6 +44,8 @@ public partial class PetDataShopContext : DbContext
     public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
 
     public virtual DbSet<Pet> Pets { get; set; }
+
+    public virtual DbSet<PetImage> PetImages { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
 
@@ -72,14 +72,10 @@ public partial class PetDataShopContext : DbContext
     public virtual DbSet<StatusOrder> StatusOrders { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-    public virtual DbSet<PetImage> PetImages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=PetDataShop;User Id=sa;Password=123456;TrustServerCertificate=true;");
-
-        
+        => optionsBuilder.UseSqlServer("Server=localhost;Database=PetDataShop;User Id=sa;Password=123456;MultipleActiveResultSets=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,7 +114,7 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<AppointmentPet>(entity =>
         {
-            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64C84F2A401");
+            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64CA6DA51B6");
 
             entity.HasIndex(e => new { e.AppointmentId, e.PetId }, "UQ_AppointmentPet").IsUnique();
 
@@ -130,12 +126,12 @@ public partial class PetDataShopContext : DbContext
             entity.HasOne(d => d.Appointment).WithMany(p => p.AppointmentPets)
                 .HasForeignKey(d => d.AppointmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Appointme__Appoi__1CBC4616");
+                .HasConstraintName("FK__Appointme__Appoi__0A9D95DB");
 
             entity.HasOne(d => d.Pet).WithMany(p => p.AppointmentPets)
                 .HasForeignKey(d => d.PetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Appointme__PetID__1DB06A4F");
+                .HasConstraintName("FK__Appointme__PetID__0B91BA14");
         });
 
         modelBuilder.Entity<AppointmentService>(entity =>
@@ -187,32 +183,33 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<BlogComment>(entity =>
         {
-            entity.HasKey(e => e.CommentId);
+            entity.HasKey(e => e.CommentId).HasName("PK__Blog_Com__C3B4DFAAF93B126C");
 
             entity.ToTable("Blog_Comments");
 
             entity.Property(e => e.CommentId).HasColumnName("CommentID");
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.ParentCommentId).HasColumnName("ParentCommentID");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments)
                 .HasForeignKey(d => d.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Comm__BlogI__7D0E9093");
 
-            entity.HasOne(d => d.User).WithMany()
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
                 .HasForeignKey(d => d.ParentCommentId)
-                .OnDelete(DeleteBehavior.NoAction);
-        });
+                .HasConstraintName("FK__Blog_Comm__Paren__7EF6D905");
 
+            entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Comm__UserI__7E02B4CC");
+        });
 
         modelBuilder.Entity<BlogImage>(entity =>
         {
@@ -231,28 +228,28 @@ public partial class PetDataShopContext : DbContext
                 .HasConstraintName("FK__Blog_Imag__BlogI__503BEA1C");
         });
 
-
         modelBuilder.Entity<BlogLike>(entity =>
         {
-            entity.HasKey(e => e.LikeId);
+            entity.HasKey(e => e.LikeId).HasName("PK__Blog_Lik__A2922CF4AA0D3D5E");
 
             entity.ToTable("Blog_Likes");
 
+            entity.HasIndex(e => new { e.BlogId, e.UserId }, "UQ__Blog_Lik__854F129BBE713DCD").IsUnique();
+
             entity.Property(e => e.LikeId).HasColumnName("LikeID");
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-
-            entity.HasIndex(e => new { e.BlogId, e.UserId })
-                .IsUnique();
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogLikes)
                 .HasForeignKey(d => d.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Like__BlogI__03BB8E22");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User).WithMany(p => p.BlogLikes)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Blog_Like__UserI__04AFB25B");
         });
 
         modelBuilder.Entity<Cart>(entity =>
@@ -417,9 +414,22 @@ public partial class PetDataShopContext : DbContext
                 .HasConstraintName("FK__Pets__UserID__571DF1D5");
         });
 
+        modelBuilder.Entity<PetImage>(entity =>
+        {
+            entity.HasKey(e => e.PetImageId).HasName("PK__PetImage__7938993353A29DA7");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+            entity.HasOne(d => d.Pet).WithMany(p => p.PetImages)
+                .HasForeignKey(d => d.PetId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PetImages__PetId__09746778");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6EDB8594779");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED2D221A24");
 
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
@@ -434,7 +444,7 @@ public partial class PetDataShopContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Products__Catego__5FB337D6");
+                .HasConstraintName("FK__Products__Catego__4D94879B");
         });
 
         modelBuilder.Entity<ProductCategory>(entity =>
@@ -469,7 +479,6 @@ public partial class PetDataShopContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.MinOrderValue).HasColumnType("decimal(10, 2)");
         });
-        
 
         modelBuilder.Entity<PromotionProduct>(entity =>
         {
@@ -497,7 +506,7 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<PromotionService>(entity =>
         {
-            entity.HasKey(e => e.PromotionServiceId).HasName("PK__Promotio__1F3D298998EA52F1");
+            entity.HasKey(e => e.PromotionServiceId).HasName("PK__Promotio__1F3D2989A0791F9F");
 
             entity.ToTable("Promotion_Services");
 
@@ -511,12 +520,12 @@ public partial class PetDataShopContext : DbContext
             entity.HasOne(d => d.Promotion).WithMany(p => p.PromotionServices)
                 .HasForeignKey(d => d.PromotionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Promotion__Promo__09A971A2");
+                .HasConstraintName("FK__Promotion__Promo__778AC167");
 
             entity.HasOne(d => d.Service).WithMany(p => p.PromotionServices)
                 .HasForeignKey(d => d.ServiceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Promotion__Servi__0A9D95DB");
+                .HasConstraintName("FK__Promotion__Servi__787EE5A0");
         });
 
         modelBuilder.Entity<Review>(entity =>
@@ -531,6 +540,10 @@ public partial class PetDataShopContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.ParentReview).WithMany(p => p.InverseParentReview)
+                .HasForeignKey(d => d.ParentReviewId)
+                .HasConstraintName("FK_Reviews_ParentReview");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.ProductId)
@@ -585,6 +598,7 @@ public partial class PetDataShopContext : DbContext
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");

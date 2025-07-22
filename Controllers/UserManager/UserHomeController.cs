@@ -79,7 +79,7 @@ namespace pet_spa_system1.Controllers
                 Address = currentUser.Address,
                 FullName = currentUser.FullName,
                 ProfilePictureUrl = currentUser.ProfilePictureUrl,
-                
+
             };
 
             return PartialView("_HosoPartial", userModel);
@@ -127,7 +127,7 @@ namespace pet_spa_system1.Controllers
             return await NotificationsPartial(); // reload lại view với danh sách rỗng
         }
 
-        
+
         public IActionResult ListPetPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -137,7 +137,7 @@ namespace pet_spa_system1.Controllers
        {
            Id = p.PetId,
            Name = p.Name,
-           Species =  _speciesService.GetSpeciesNameById(p.SpeciesId), // tránh null
+           Species = _speciesService.GetSpeciesNameById(p.SpeciesId), // tránh null
            Gender = p.Gender,
            HealthCondition = p.HealthCondition,
            Note = p.SpecialNotes
@@ -158,7 +158,7 @@ namespace pet_spa_system1.Controllers
             return PartialView("_ListOrderPartial", orders);
         }
 
-    public IActionResult AddPetPartial()
+        public IActionResult AddPetPartial()
         {
             // Nếu cần truyền model, có thể truyền model rỗng hoặc dữ liệu mặc định
             return PartialView("AddPetPartial");

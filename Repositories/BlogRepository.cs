@@ -95,7 +95,7 @@ public class BlogRepository : IBlogRepository
             .Include(b => b.BlogComments.Where(c => c.Status == "Approved"))
                 .ThenInclude(c => c.User)
             .Include(b => b.BlogComments.Where(c => c.Status == "Approved"))
-                .ThenInclude(c => c.InverseParentComment.Where(r => r.Status == "Approved"))
+                .ThenInclude(c => c.Replies.Where(r => r.Status == "Approved"))
                 .ThenInclude(r => r.User)
             .Include(b => b.BlogLikes)
                 .ThenInclude(l => l.User)
@@ -235,7 +235,7 @@ public class BlogRepository : IBlogRepository
     {
         return await _context.BlogComments
             .Include(c => c.User)
-            .Include(c => c.InverseParentComment.Where(r => r.Status == "Approved"))
+            .Include(c => c.Replies.Where(r => r.Status == "Approved"))
                 .ThenInclude(r => r.User)
             .Where(c => c.BlogId == blogId && c.Status == "Approved" && c.ParentCommentId == null)
             .OrderBy(c => c.CreatedAt)

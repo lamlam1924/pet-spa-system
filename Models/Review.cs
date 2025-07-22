@@ -22,8 +22,10 @@ public partial class Review
     public DateTime? CreatedAt { get; set; }
 
     public int? ParentReviewId { get; set; }
-    public Review? ParentReview { get; set; }
-    public ICollection<Review>? Replies { get; set; }
+
+    public virtual ICollection<Review> InverseParentReview { get; set; } = new List<Review>();
+
+    public virtual Review? ParentReview { get; set; }
 
     public virtual Product? Product { get; set; }
 
