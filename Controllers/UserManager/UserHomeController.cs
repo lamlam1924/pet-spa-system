@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
-using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace pet_spa_system1.Controllers
 {
@@ -23,6 +21,7 @@ namespace pet_spa_system1.Controllers
         private readonly IProductService _productService;
         private readonly IOrderStatusService _orderStatusService;
         private readonly INotificationService _notificationService;
+
         public UserHomeController(
             IUserService userService,
             IPetService petService,
@@ -33,14 +32,15 @@ namespace pet_spa_system1.Controllers
             IOrderStatusService orderStatusService,
             INotificationService notificationService)
         {
-            _userService = userService;
-            _petService = petService;
-            _speciesService = speciesService;
-            _orderService = orderService;
-            _orderItemService = orderItemService;
-            _productService = productService;
-            _orderStatusService = orderStatusService;
-            _notificationService = notificationService;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _petService = petService ?? throw new ArgumentNullException(nameof(petService));
+            _speciesService = speciesService ?? throw new ArgumentNullException(nameof(speciesService));
+            _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+            _orderItemService = orderItemService ?? throw new ArgumentNullException(nameof(orderItemService));
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
+            _orderStatusService = orderStatusService ?? throw new ArgumentNullException(nameof(orderStatusService));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            Console.WriteLine("[UserHomeController] Services injected successfully.");
         }
 
         public async Task<IActionResult> Index()
@@ -64,8 +64,9 @@ namespace pet_spa_system1.Controllers
                 FullName = currentUser.FullName,
                 ProfilePictureUrl = currentUser.ProfilePictureUrl
             };
-            return View(userModel); // truyền model vào view
+            return View(userModel);
         }
+
         public async Task<IActionResult> Hoso(string successMessage = null, string errorMessage = null)
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -82,14 +83,17 @@ namespace pet_spa_system1.Controllers
 
             };
 
+            ViewBag.SuccessMessage = successMessage;
+            ViewBag.ErrorMessage = errorMessage;
             return PartialView("_HosoPartial", userModel);
         }
 
         public IActionResult ChangePasswordPartial()
         {
-            var model = new ChangePasswordViewModel(); // model trống ban đầu
+            var model = new ChangePasswordViewModel();
             return PartialView("_ChangePasswordPartial", model);
         }
+
         public async Task<IActionResult> NotificationsPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -114,7 +118,7 @@ namespace pet_spa_system1.Controllers
 
             await _notificationService.MarkAllAsReadAsync(userId.Value);
 
-            return await NotificationsPartial(); // reload lại view với thông báo đã đọc
+            return await NotificationsPartial();
         }
 
         [HttpPost]
@@ -124,7 +128,7 @@ namespace pet_spa_system1.Controllers
 
             await _notificationService.DeleteAllAsync(userId.Value);
 
-            return await NotificationsPartial(); // reload lại view với danh sách rỗng
+            return await NotificationsPartial();
         }
 
 
@@ -146,25 +150,86 @@ namespace pet_spa_system1.Controllers
 
             return PartialView("_ListPetPartial", pets);
         }
-        public async Task<IActionResult> ListOrderPartial()
+
+        public async Task<IActionResult> DeletePetPartial(int id)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để xóa thú cưng.");
+            }
+
+            var pet = _petService.GetPetsByUserId(userId.Value).FirstOrDefault(p => p.PetId == id);
+            if (pet == null)
+            {
+                return PartialView("_ErrorPartial", "Không tìm thấy thú cưng để xóa.");
+            }
+
+            return PartialView("_DeletePetPartial", new { PetId = id, PetName = pet.Name });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePet(int id)
+        {
+            Console.WriteLine("[UserHomeController] DeletePet POST called for PetId: " + id);
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                Console.WriteLine("[UserHomeController] UserId is null");
+                return Json(new { success = false, message = "Vui lòng đăng nhập để xóa thú cưng." });
+            }
+
+            var pet = _petService.GetPetsByUserId(userId.Value).FirstOrDefault(p => p.PetId == id);
+            if (pet == null)
+            {
+                Console.WriteLine("[UserHomeController] Pet not found for PetId: " + id);
+                return Json(new { success = false, message = "Không tìm thấy thú cưng để xóa." });
+            }
+
+            try
+            {
+                Console.WriteLine("[UserHomeController] Attempting to delete pet... PetId: " + id + ", UserId: " + userId);
+                await _petService.DeletePetAsync(id);
+                Console.WriteLine("[UserHomeController] Pet deleted successfully, PetId: " + id);
+                return Json(new { success = true, message = "Xóa thú cưng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[UserHomeController] Error deleting pet: " + ex.Message + " - StackTrace: " + ex.StackTrace);
+                return Json(new { success = false, message = "Có lỗi xảy ra khi xóa thú cưng: " + ex.Message });
+            }
+        }
+
+        public IActionResult ListOrderPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
             if (userId == null)
             {
                 return PartialView("_ListOrderPartial", new List<pet_spa_system1.ViewModel.OrderViewModel>());
             }
-            // Lấy danh sách đơn hàng động từ service
-            var orders = await Task.Run(() => _orderService.GetOrdersByUserId(userId));
+            var orders = _orderService.GetOrdersByUserId(userId);
             return PartialView("_ListOrderPartial", orders);
         }
 
         public IActionResult AddPetPartial()
         {
-            // Nếu cần truyền model, có thể truyền model rỗng hoặc dữ liệu mặc định
-            return PartialView("AddPetPartial");
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để thêm thú cưng.");
+            }
+
+            var species = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+            var model = new PetDetailViewModel
+            {
+                SpeciesList = species
+            };
+            return PartialView("AddPetPartial", model);
         }
 
-        public IActionResult EditPetPartial(int id)
+        public async Task<IActionResult> EditPetPartial(int id)
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
             if (userId == null)
@@ -176,71 +241,115 @@ namespace pet_spa_system1.Controllers
             {
                 return PartialView("_ErrorPartial", "Không tìm thấy thú cưng.");
             }
-            // Chuyển sang ViewModel nếu cần
-            var petViewModel = new pet_spa_system1.ViewModel.PetViewModel
+            var speciesList = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+            var model = new PetDetailViewModel
             {
-                Id = pet.PetId,
-                Name = pet.Name,
-                Species = _speciesService.GetSpeciesNameById(pet.SpeciesId),
-                Gender = pet.Gender,
-                HealthCondition = pet.HealthCondition,
-                Note = pet.SpecialNotes
+                Pet = pet,
+                SpeciesList = speciesList
             };
-            return PartialView("EditPetPartial", petViewModel);
+            return PartialView("EditPetPartial", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePet(int id, PetDetailViewModel model, IFormFile ImageFile)
+        {
+            Console.WriteLine("[UserHomeController] UpdatePet POST called");
+            Console.WriteLine($"Received data: PetId={id}, Name={model.Pet?.Name}, SpeciesId={model.Pet?.SpeciesId}, " +
+                              $"Gender={model.Pet?.Gender}, UserId={model.Pet?.UserId}, IsActive={model.Pet?.IsActive}");
+
+            // Gán PetId từ route để đảm bảo không bị override
+            model.Pet.PetId = id;
+
+            // Loại bỏ validation cho ImageFile nếu không bắt buộc
+            ModelState.Remove("ImageFile");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
+                model.SpeciesList = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+                return PartialView("EditPetPartial", model);
+            }
+
+            var pet = model.Pet;
+            if (pet.SpeciesId == null)
+            {
+                Console.WriteLine("[UserHomeController] Warning: SpeciesId is null");
+                model.SpeciesList = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+                return PartialView("EditPetPartial", model);
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                Console.WriteLine("[UserHomeController] UserId is null, returning ErrorPartial");
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để chỉnh sửa thú cưng.");
+            }
+
+            // Lấy pet hiện tại để giữ nguyên IsActive
+            var existingPet = await _petService.GetPetByIdAsync(pet.PetId);
+            if (existingPet == null)
+            {
+                Console.WriteLine("[UserHomeController] Existing pet not found for PetId: " + pet.PetId);
+                return Json(new { success = false, message = "Không tìm thấy thú cưng để cập nhật" });
+            }
+
+            // Cập nhật các thuộc tính từ form, giữ nguyên IsActive
+            existingPet.Name = pet.Name;
+            existingPet.SpeciesId = pet.SpeciesId;
+            existingPet.Breed = pet.Breed;
+            existingPet.Age = pet.Age;
+            existingPet.Gender = pet.Gender;
+            existingPet.SpecialNotes = pet.SpecialNotes;
+            existingPet.UserId = userId.Value; // Gán UserId từ session
+
+            var images = ImageFile != null ? new List<IFormFile> { ImageFile } : new List<IFormFile>();
+            try
+            {
+                Console.WriteLine("[UserHomeController] Attempting to update pet... IsActive before: " + existingPet.IsActive);
+                await _petService.UpdatePetAsync(existingPet, images);
+                Console.WriteLine("[UserHomeController] Pet updated successfully, PetId: " + existingPet.PetId + ", IsActive after: " + existingPet.IsActive);
+                return Json(new { success = true, message = "Cập nhật thú cưng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[UserHomeController] Error processing pet: " + ex.Message + " - StackTrace: " + ex.StackTrace);
+                return Json(new { success = false, message = $"Lỗi khi cập nhật thú cưng: {ex.Message}" });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateUserProfile(UserViewModel model, IFormFile Avatar)
         {
-            // Bỏ qua lỗi required cho Avatar nếu không upload file mới
-            // if (ModelState.ContainsKey("Avatar") && Avatar == null)
-            // {
-            //     ModelState["Avatar"].Errors.Clear();
-            // }
             ModelState.Remove("Avatar");
-            Console.WriteLine("🔧 [UpdateUserProfile] Bắt đầu cập nhật hồ sơ...");
 
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("❌ [ModelState] Danh sách lỗi chi tiết:");
-                foreach (var key in ModelState.Keys)
-                {
-                    var errors = ModelState[key].Errors;
-                    if (errors.Count == 0)
-                    {
-                        Console.WriteLine($"    ⚪ Field: {key}, No error.");
-                    }
-                    foreach (var error in errors)
-                    {
-                        Console.WriteLine($"    🔴 Field: {key}, Error: {error.ErrorMessage}");
-                    }
-                }
-                Console.WriteLine($"Tổng số lỗi: {ModelState.Values.SelectMany(v => v.Errors).Count()}");
-                Console.WriteLine("Các key trong ModelState:");
-                foreach (var key in ModelState.Keys)
-                {
-                    Console.WriteLine($"- {key}");
-                }
                 return await Hoso(errorMessage: "Dữ liệu không hợp lệ.");
             }
 
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-            Console.WriteLine($"ℹ️ [Session] CurrentUserId: {userId}");
 
             if (userId == null)
             {
-                Console.WriteLine("❌ [Session] Không tìm thấy CurrentUserId trong session.");
                 return await Hoso(errorMessage: "Không tìm thấy người dùng.");
             }
 
             var user = await _userService.GetUserByIdAsync(userId.Value);
             if (user == null)
             {
-                Console.WriteLine($"❌ [DB] Không tìm thấy user với ID = {userId}");
                 return await Hoso(errorMessage: "Không tìm thấy người dùng.");
             }
-
-            Console.WriteLine($"✅ [User] Tìm thấy user: {user.Username} - Bắt đầu cập nhật thông tin...");
 
             user.FullName = model.FullName;
             user.Username = model.UserName;
@@ -249,25 +358,14 @@ namespace pet_spa_system1.Controllers
 
             if (Avatar != null && Avatar.Length > 0)
             {
-                Console.WriteLine($"📸 [Avatar] File name: {Avatar.FileName}, size: {Avatar.Length}");
                 string imageUrl = await _userService.UploadAvatarAsync(Avatar);
                 if (!string.IsNullOrEmpty(imageUrl))
                 {
-                    Console.WriteLine("✅ [Avatar] Upload thành công. URL: " + imageUrl);
                     user.ProfilePictureUrl = imageUrl;
                 }
-                else
-                {
-                    Console.WriteLine("⚠️ [Avatar] Upload thất bại hoặc URL rỗng.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("ℹ️ [Avatar] Không có avatar mới được upload.");
             }
 
             var result = await _userService.EditUserAsync(user);
-            Console.WriteLine($"📝 [DB Update] Kết quả cập nhật: {(result.Success ? "Thành công" : "Thất bại")}. Message: {result.Message}");
 
             if (!result.Success)
             {
@@ -275,36 +373,66 @@ namespace pet_spa_system1.Controllers
             }
 
             HttpContext.Session.SetString("CurrentUserName", user.Username);
-            Console.WriteLine("✅ [Session] Cập nhật CurrentUserName trong session.");
 
             return await Hoso(successMessage: result.Message ?? "Cập nhật thành công.");
         }
 
 
+
         [HttpPost]
-        public IActionResult DeletePet(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPet(PetDetailViewModel model, IFormFile ImageFile)
         {
-            _petService.DisablePetAsync(id);
-            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-            var pets = _petService.GetPetsByUserId(userId.Value)
-                .Select(p => new PetViewModel
+            Console.WriteLine("[UserHomeController] AddPet POST called");
+            Console.WriteLine($"Received data: Name={model.Pet?.Name}, SpeciesId={model.Pet?.SpeciesId}, " +
+                              $"Breed={model.Pet?.Breed}, Age={model.Pet?.Age}, Gender={model.Pet?.Gender}, " +
+                              $"SpecialNotes={model.Pet?.SpecialNotes}, ImageFile={ImageFile?.FileName}");
+
+            // Loại bỏ validation cho ImageFile
+            ModelState.Remove("ImageFile");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
                 {
-                    Id = p.PetId,
-                    Name = p.Name,
-                    Species = _speciesService.GetSpeciesNameById(p.SpeciesId),
-                    Gender = p.Gender,
-                    HealthCondition = p.HealthCondition,
-                    Note = p.SpecialNotes
-                }).ToList();
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
+                model.SpeciesList = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+                return PartialView("AddPetPartial", model);
+            }
 
-            return PartialView("_ListPetPartial", pets); // hoặc đổi tên tương ứng nếu bạn dùng tên khác
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                Console.WriteLine("[UserHomeController] UserId is null, returning ErrorPartial");
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để thêm thú cưng.");
+            }
+
+            var pet = model.Pet;
+            pet.UserId = userId.Value;
+            pet.CreatedAt = DateTime.Now;
+            pet.IsActive = true; // Đảm bảo pet mới được active
+
+            var images = ImageFile != null ? new List<IFormFile> { ImageFile } : new List<IFormFile>();
+            try
+            {
+                Console.WriteLine("[UserHomeController] Attempting to add pet... Name: " + pet.Name);
+                await _petService.CreatePetAsync(pet, images);
+                Console.WriteLine("[UserHomeController] Pet added successfully, PetId: " + pet.PetId);
+                return Json(new { success = true, message = "Thêm thú cưng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[UserHomeController] Error adding pet: " + ex.Message + " - StackTrace: " + ex.StackTrace);
+                return Json(new { success = false, message = $"Lỗi khi thêm thú cưng: {ex.Message}" });
+            }
         }
-
-        //public IActionResult AddPetPartial()
-        //{
-        //    // Nếu cần truyền model, có thể truyền model rỗng hoặc dữ liệu mặc định
-        //    return PartialView("AddPetPartial");
-        //}
-
     }
 }

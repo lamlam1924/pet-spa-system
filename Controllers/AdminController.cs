@@ -181,42 +181,15 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Add_New_Pet()
         {
             Console.WriteLine("[AdminController] Add_New_Pet called");
-            var species = await _petService.GetAllSpeciesAsync();
-            if (species == null || !species.Any())
-            {
-                Console.WriteLine("[AdminController] Warning: No species data available.");
-            }
-            var emailClaim = User?.FindFirstValue(ClaimTypes.Email);
-            int? defaultUserId = null;
-            if (!string.IsNullOrEmpty(emailClaim))
-            {
-                Console.WriteLine($"[AdminController] EmailClaim received: {emailClaim}");
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailClaim);
-                if (user != null)
-                {
-                    defaultUserId = user.UserId;
-                    Console.WriteLine($"[AdminController] Default UserId mapped: {defaultUserId}");
-                }
-                else
-                {
-                    Console.WriteLine("[AdminController] Warning: Email not found in database, using default 1.");
-                    defaultUserId = 1;
-                }
-            }
-            else
-            {
-                Console.WriteLine("[AdminController] Warning: No EmailClaim, using default 1.");
-                defaultUserId = 1;
-            }
+            var species = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
             var users = await _context.Users.ToListAsync();
-            ViewBag.Users = new SelectList(users, "UserId", "FullName");
-            ViewBag.DefaultUserId = defaultUserId;
-            var viewModel = new PetDetailViewModel
-            {
-                Pet = new Pet(),
-                SpeciesList = species
-            };
-            return View(viewModel);
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUser = currentUserId.HasValue ? await _context.Users.FindAsync(currentUserId.Value) : null;
+            ViewBag.CurrentUserId = currentUserId;
+            ViewBag.CurrentUserName = currentUser?.FullName ?? "Chưa đăng nhập";
+            ViewBag.Users = new SelectList(users, "UserId", "FullName", currentUserId);
+            ViewBag.Species = species;
+            return View(new PetDetailViewModel { Pet = new Pet { UserId = currentUserId }, SpeciesList = species });
         }
 
         [HttpPost]
@@ -224,7 +197,7 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Add_New_Pet(PetDetailViewModel viewModel, List<IFormFile> Images)
         {
             Console.WriteLine("[AdminController] Add_New_Pet POST called");
-            Console.WriteLine($"[AdminController] Received data: Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}");
+            Console.WriteLine($"[AdminController] Received data: Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, UserId={viewModel.Pet.UserId}");
 
             ModelState.Remove("OwnerName");
             ModelState.Remove("SpeciesName");
@@ -235,41 +208,22 @@ namespace pet_spa_system1.Controllers
 
             if (!ModelState.IsValid)
             {
-                foreach (var state in ModelState)
+                Console.WriteLine("[AdminController] ModelState is invalid");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
-                    if (state.Value?.Errors.Count > 0)
-                    {
-                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
-                        foreach (var error in state.Value.Errors)
-                        {
-                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
-                        }
-                    }
+                    Console.WriteLine($"❌ {error.ErrorMessage}");
                 }
-                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
-                var users = await _context.Users.ToListAsync();
-                ViewBag.Users = new SelectList(users, "UserId", "FullName");
-                ViewBag.DefaultUserId = 1;
+                PrepareViewData(viewModel);
                 return View(viewModel);
             }
 
             var pet = viewModel.Pet;
-            Console.WriteLine($"[AdminController] Validated Pet data: Name={pet.Name}, SpeciesId={pet.SpeciesId}, Gender={pet.Gender}, UserId={pet.UserId}");
-
+            pet.UserId = pet.UserId ?? HttpContext.Session.GetInt32("CurrentUserId") ?? 1; // Mặc định session UserId
             if (pet.SpeciesId == null)
             {
                 ModelState.AddModelError("Pet.SpeciesId", "Loài là trường bắt buộc.");
-                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
-                var users = await _context.Users.ToListAsync();
-                ViewBag.Users = new SelectList(users, "UserId", "FullName");
-                ViewBag.DefaultUserId = 1;
+                PrepareViewData(viewModel);
                 return View(viewModel);
-            }
-
-            if (pet.UserId == null || pet.UserId == 0)
-            {
-                Console.WriteLine("[AdminController] Warning: No valid UserId selected, using default 1.");
-                pet.UserId = 1;
             }
 
             pet.CreatedAt = DateTime.Now;
@@ -285,14 +239,17 @@ namespace pet_spa_system1.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[AdminController] Error creating pet: {ex.Message} - StackTrace: {ex.StackTrace}");
+                Console.WriteLine($"[AdminController] Error creating pet: {ex.Message}");
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
-                viewModel.SpeciesList = await _petService.GetAllSpeciesAsync();
-                var users = await _context.Users.ToListAsync();
-                ViewBag.Users = new SelectList(users, "UserId", "FullName");
-                ViewBag.DefaultUserId = 1;
+                PrepareViewData(viewModel);
                 return View(viewModel);
             }
+        }
+
+        private void PrepareViewData(PetDetailViewModel viewModel)
+        {
+            viewModel.SpeciesList = _petService.GetAllSpeciesAsync().Result ?? new List<Species>();
+            ViewBag.Users = new SelectList(_context.Users.ToListAsync().Result, "UserId", "FullName");
         }
 
         [HttpGet]
@@ -306,7 +263,6 @@ namespace pet_spa_system1.Controllers
                 .ToListAsync();
             return Json(users);
         }
-
         public async Task<IActionResult> Edit_Pet(int id)
         {
             var pet = await _petService.GetPetByIdAsync(id);
@@ -445,8 +401,16 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePet(int id)
         {
-            await _petService.DeletePetAsync(id);
-            TempData["SuccessMessage"] = "Xóa thú cưng thành công!";
+            try
+            {
+                await _petService.DeletePetAsync(id);
+                TempData["SuccessMessage"] = "Xóa thú cưng thành công!";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AdminController] Error deleting pet: {ex.Message}");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi xóa thú cưng: " + ex.Message;
+            }
             return RedirectToAction("Pets_List");
         }
 
@@ -1067,5 +1031,6 @@ namespace pet_spa_system1.Controllers
                 default: return 1;
             }
         }
+
     }
 }

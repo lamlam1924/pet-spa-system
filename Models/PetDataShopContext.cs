@@ -156,30 +156,30 @@ public partial class PetDataShopContext : DbContext
                 .HasConstraintName("FK__Appointme__Servi__114A936A");
         });
 
-        modelBuilder.Entity<Blog>(entity =>
-        {
-            entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E5030BDEFFE");
+modelBuilder.Entity<Blog>(entity =>
+{
+    entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E5030BDEFFE");
 
-            entity.Property(e => e.BlogId).HasColumnName("BlogID");
-            entity.Property(e => e.Category).HasMaxLength(50);
-            entity.Property(e => e.ContentFormat)
-                .HasMaxLength(20)
-                .HasDefaultValue("Markdown");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("Draft");
-            entity.Property(e => e.Title).HasMaxLength(255);
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+    entity.Property(e => e.BlogId).HasColumnName("BlogID");
+    entity.Property(e => e.Category).HasMaxLength(50);
+    entity.Property(e => e.ContentFormat)
+        .HasMaxLength(20)
+        .HasDefaultValue("Markdown");
+    entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+    entity.Property(e => e.Status)
+        .HasMaxLength(20)
+        .HasDefaultValue("Draft");
+    entity.Property(e => e.Title).HasMaxLength(255);
+    entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.BlogApprovedByNavigations)
-                .HasForeignKey(d => d.ApprovedBy)
-                .HasConstraintName("FK__Blogs__ApprovedB__4A8310C6");
+    entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.BlogApprovedByNavigations)
+        .HasForeignKey(d => d.ApprovedBy)
+        .HasConstraintName("FK__Blogs__ApprovedB__4A8310C6");
 
-            entity.HasOne(d => d.User).WithMany(p => p.BlogUsers)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Blogs__UserID__498EEC8D");
-        });
+    entity.HasOne(d => d.User).WithMany(p => p.BlogUsers)
+        .HasForeignKey(d => d.UserId)
+        .HasConstraintName("FK__Blogs__UserID__498EEC8D");
+});
 
         modelBuilder.Entity<BlogComment>(entity =>
         {
