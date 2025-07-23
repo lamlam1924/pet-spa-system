@@ -1266,7 +1266,18 @@
           "System.Runtime": "4.3.1"
         }
       },
+<<<<<<< HEAD
       "System.Formats.Asn1/9.0.6": {},
+=======
+      "System.Formats.Asn1/9.0.6": {
+        "runtime": {
+          "lib/net9.0/System.Formats.Asn1.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.625.26613"
+          }
+        }
+      },
+>>>>>>> 7ad5585432a49dd862f5765829f14f8afcd2cf80
       "System.Globalization/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.1",
@@ -1736,7 +1747,18 @@
         }
       },
       "System.Text.Encodings.Web/4.7.2": {},
+<<<<<<< HEAD
       "System.Text.Json/9.0.6": {},
+=======
+      "System.Text.Json/9.0.6": {
+        "runtime": {
+          "lib/net9.0/System.Text.Json.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.625.26613"
+          }
+        }
+      },
+>>>>>>> 7ad5585432a49dd862f5765829f14f8afcd2cf80
       "System.Text.RegularExpressions/4.3.1": {
         "dependencies": {
           "System.Runtime": "4.3.1"

@@ -11,7 +11,7 @@ public interface IUserService
 
     User? GetUserInfo(int userId);
 
-    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null);
+    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null, int page = 1, int pageSize = 10);
     Task<List<User>> GetDeletedUsersAsync();
     Task<List<Role>> GetActiveRolesAsync();
     Task<(bool Success, string? Message, string? DefaultPassword)> CreateUserAsync(User user);

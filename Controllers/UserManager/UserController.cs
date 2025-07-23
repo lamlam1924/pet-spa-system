@@ -16,25 +16,34 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List(string search = "", string sort = "", int? roleId = null)
+        public async Task<IActionResult> List(string search = "", string sort = "", int? roleId = null, int page = 1, int pageSize = 10)
         {
-            var users = await _userService.GetActiveUsersAsync(search, sort);
+            var users = await _userService.GetActiveUsersAsync(search, sort, page, pageSize);
+            // Lấy tất cả user để đếm tổng số (không phân trang)
+            var allUsers = await _userService.GetActiveUsersAsync(search, sort, 1, int.MaxValue);
             if (roleId.HasValue)
-                users = users.Where(u => u.RoleId == roleId.Value).ToList();
-            return Json(users.Select(u => new
             {
-                u.UserId,
-                u.Username,
-                u.Email,
-                u.FullName,
-                u.Phone,
-                u.Address,
-                Role = u.Role != null ? u.Role.RoleName : "N/A",
-                RoleId = u.RoleId,
-                Status = u.IsActive == true ? "On" : "Off",
-                CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
-                IsActive = u.IsActive
-            }));
+                users = users.Where(u => u.RoleId == roleId.Value).ToList();
+                allUsers = allUsers.Where(u => u.RoleId == roleId.Value).ToList();
+            }
+            var totalCount = allUsers.Count;
+            return Json(new {
+                data = users.Select(u => new
+                {
+                    u.UserId,
+                    u.Username,
+                    u.Email,
+                    u.FullName,
+                    u.Phone,
+                    u.Address,
+                    Role = u.Role != null ? u.Role.RoleName : "N/A",
+                    RoleId = u.RoleId,
+                    Status = u.IsActive == true ? "On" : "Off",
+                    CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
+                    IsActive = u.IsActive
+                }),
+                totalCount
+            });
         }
 
         [HttpGet]
