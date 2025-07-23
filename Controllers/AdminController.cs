@@ -533,7 +533,6 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
-
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -547,7 +546,6 @@ namespace pet_spa_system1.Controllers
                         }
                     }
                 }
-                // Gửi lại categories nếu có lỗi
                 viewModel.Categories = await _productService.GetAllProductCategoriesAsync();
                 return View(viewModel);
             }
@@ -580,7 +578,6 @@ namespace pet_spa_system1.Controllers
 
             try
             {
-                // thêm hoặc cập nhật
                 await _productService.CreateProductAsync(product);
                 TempData["SuccessMessage"] = "Thêm sản phẩm thành công!";
                 return RedirectToAction("Add_New_Product");
@@ -590,7 +587,6 @@ namespace pet_spa_system1.Controllers
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
                 return RedirectToAction("Add_New_Product");
             }
-
         }
         //=======================================================================================================================
 

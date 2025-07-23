@@ -144,43 +144,5 @@
     <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
     <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
 
-
-
-    @* <script>
-        // Preview ảnh khi chọn
-        $("#image").on("change", function () {
-          const file = this.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              // Bạn có thể hiện ảnh preview tại đây nếu muốn
-              console.log("Ảnh đã chọn:", e.target.result);
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-
-        // Gửi form bằng AJAX (nếu dùng AJAX)
-        $("#createProductForm").submit(function (e) {
-          e.preventDefault();
-          const formData = new FormData(this);
-
-          $.ajax({
-            url: '/Admin/AddProduct', // chỉnh URL đúng controller của bạn
-            method: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (res) {
-              alert("Thêm sản phẩm thành công!");
-              location.href = "/Admin/Products_List";
-            },
-            error: function () {
-              alert("Thêm sản phẩm thất bại.");
-            }
-          });
-        });
-    </script> *@
-
 </body>
 </html>
