@@ -46,7 +46,8 @@ namespace pet_spa_system1.Controllers
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
             HttpContext.Session.SetString("CurrentUserName", user.Username);
             HttpContext.Session.SetInt32("CurrentUserRoleId", user.RoleId);
-            if(user.Address != null) { 
+            if (user.Address != null)
+            {
                 HttpContext.Session.SetString("CurrentUserAddress", user.Address);
             }
 
@@ -59,7 +60,7 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-           
+
         }
 
 
