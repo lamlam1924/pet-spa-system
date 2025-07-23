@@ -721,7 +721,7 @@ namespace pet_spa_system1.Controllers
         {
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
-            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1; // Giá trị mặc định nếu null
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, CurrentUserRoleId: {currentUserRoleId}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
 
             if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3)) // Admin or Staff
@@ -809,37 +809,6 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
-        {
-            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
-            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
-            Console.WriteLine($"[AdminController] RejectBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
-
-            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3))
-            {
-                return Json(new { success = false, message = "Không có quyền thực hiện." });
-            }
-
-            try
-            {
-                var success = await _blogService.RejectBlogAsync(blogId, currentUserId.Value, reason);
-                if (success)
-                {
-                    return Json(new { success = true, message = "Blog đã bị từ chối." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Không thể từ chối blog này." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PublishBlog(int blogId)
         {
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -899,10 +868,11 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-        //=======================================================================================================
-        // OrderHistory
 
-        public IActionResult OrderHistory(string status = "All", int page = 1)
+//=======================================================================================================
+// OrderHistory
+
+public IActionResult OrderHistory(string status = "All", int page = 1)
 {
     int pageSize = 10;
     int totalOrders;

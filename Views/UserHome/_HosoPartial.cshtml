@@ -7,6 +7,17 @@
       hx-post="@Url.Action("UpdateUserProfile", "UserHome")"
       hx-target="#content-main"
       hx-swap="innerHTML">
+    @{
+        // Lấy vai trò từ session
+        var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
+        string roleName = roleId switch
+        {
+            1 => "Admin",
+            2 => "Customer",
+            3 => "Employee",
+            _ => "Unknown"
+        };
+    }
     <input type="hidden" name="ProfilePictureUrl" value="@Model.ProfilePictureUrl" />
 
     <div class="card shadow p-4">
@@ -14,6 +25,10 @@
 
         <div class="row">
             <div class="col-md-8">
+                <div class="mb-3">
+                    <label for="Role" class="form-label fw-bold">Vai trò</label>
+                    <input type="text" class="form-control" id="Role" name="Role" value="@roleName" readonly />
+                </div>
                 <div class="mb-3">
                     <label for="Email" class="form-label fw-bold">Email</label>
                     <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" readonly />
@@ -70,4 +85,5 @@
             // KHÔNG tự động submit form ở đây
         }
     });
+
 </script>
