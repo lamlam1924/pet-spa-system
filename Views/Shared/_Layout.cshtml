@@ -142,7 +142,10 @@
                                             <a href="@Url.Content("~/Blogs/Blog")">bài viết <i class="ti-angle-down"></i></a>
                                             <ul class="submenu">
                                                 <li><a href="@Url.Content("~/Blogs/Blog")">bài viết</a></li>
-                                                <li><a href="@Url.Content("~/Blogs/MyBlogs")">bài viết của tôi</a></li>
+                                                @if (userId != null && (isAdmin == 1 || isAdmin == 3)) // Chỉ hiển thị cho Admin và Staff
+                                                {
+                                                    <li><a href="@Url.Content("~/Blogs/MyBlogs")">bài viết của tôi</a></li>
+                                                }
                                             </ul>
                                         </li>
                                         <li>

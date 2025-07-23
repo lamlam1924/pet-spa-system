@@ -3,6 +3,8 @@
 @model UserViewModel
 @{
     Layout = null;
+    // Lấy vai trò từ session
+    var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -294,9 +296,12 @@
                     <a href="#" class="nav-link" hx-get="@Url.Action("NotificationsPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
                         <i class="bi bi-bell"></i> Thông Báo
                     </a>
-                    <a href="#" class="nav-link" hx-get="@Url.Action("ListPetPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
-                        <i class="fa-solid fa-paw" style="margin-right: 15px;"></i> Danh sách thú cưng
-                    </a>
+                    @if (roleId == 2) // Chỉ hiển thị cho Customer (RoleID = 2)
+                    {
+                        <a href="#" class="nav-link" hx-get="@Url.Action("ListPetPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
+                            <i class="fa-solid fa-paw" style="margin-right: 15px;"></i> Danh sách thú cưng
+                        </a>
+                    }
                     @* <a href="#" class="nav-link" hx-get="@Url.Action("ListOrderPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
                         <i class="fa-solid fa-shopping-cart" style="margin-right: 15px;"></i>
                         Danh sách đơn hàng

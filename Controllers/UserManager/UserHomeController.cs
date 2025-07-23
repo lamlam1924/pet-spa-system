@@ -213,7 +213,7 @@ namespace pet_spa_system1.Controllers
             return PartialView("_ListOrderPartial", orders);
         }
 
-        public IActionResult AddPetPartial()
+        public async Task<IActionResult> AddPetPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
             if (userId == null)

@@ -256,9 +256,13 @@
                             <p class="text-muted">Hãy là người đầu tiên chia sẻ kiến thức của bạn!</p>
                             @if (User.Identity.IsAuthenticated)
                             {
-                                <a href="@Url.Action("Create", "Blogs")" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Tạo bài viết đầu tiên
-                                </a>
+                                var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
+                                if (roleId == 1 || roleId == 3) // Chỉ hiển thị cho Admin và Staff
+                                {
+                                    <a href="@Url.Action("Create", "Blogs")" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Tạo bài viết đầu tiên
+                                    </a>
+                                }
                             }
                         </div>
                     }
@@ -296,9 +300,13 @@
 <!-- Create Blog Button -->
 @if (User.Identity.IsAuthenticated)
 {
-    <a href="@Url.Action("Create", "Blogs")" class="create-blog-btn">
-        <i class="fas fa-plus"></i> Viết Blog
-    </a>
+    var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
+    if (roleId == 1 || roleId == 3) // Chỉ hiển thị cho Admin và Staff
+    {
+        <a href="@Url.Action("Create", "Blogs")" class="create-blog-btn">
+            <i class="fas fa-plus"></i> Viết Blog
+        </a>
+    }
 }
 else
 {
