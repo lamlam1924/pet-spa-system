@@ -18,8 +18,9 @@ namespace pet_spa_system1.Controllers
         private readonly IPetService _petService;
         private readonly IOrderService _orderService;
         private readonly IPaymentService _paymentService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService, IPaymentService paymentService)
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService, IPaymentService paymentService, ICloudinaryService cloudinaryService)
         {
             _context = context;
             _productService = productService;
@@ -28,6 +29,7 @@ namespace pet_spa_system1.Controllers
             _petService = petService;
             _orderService = orderService;
             _paymentService = paymentService;
+            _cloudinaryService = cloudinaryService;
         }
         //=======================================================================================================================
         // SERVICE
@@ -552,22 +554,17 @@ namespace pet_spa_system1.Controllers
 
             var product = viewModel.Product;
 
-            // Upload ảnh
+            // Upload ảnh lên Cloudinary
             if (Image != null && Image.Length > 0)
             {
-                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imgProducts");
-                if (!Directory.Exists(imagePath))
-                    Directory.CreateDirectory(imagePath);
-
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
-                var filePath = Path.Combine(imagePath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var imageUrl = await _cloudinaryService.UploadImageAsync(Image, "Products");
+                if (string.IsNullOrEmpty(imageUrl))
                 {
-                    await Image.CopyToAsync(stream);
+                    TempData["ErrorMessage"] = "Không thể upload ảnh lên Cloudinary.";
+                    viewModel.Categories = await _productService.GetAllProductCategoriesAsync();
+                    return View(viewModel);
                 }
-
-                product.ImageUrl = "/imgProducts/" + fileName;
+                product.ImageUrl = imageUrl;
             }
 
             product.CreatedAt = DateTime.Now;
