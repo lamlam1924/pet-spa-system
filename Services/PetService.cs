@@ -111,6 +111,35 @@ namespace pet_spa_system1.Services
         public async Task DeletePetAsync(int id)
         {
             Console.WriteLine($"[PetService] DeletePetAsync called for id: {id}");
+            var pet = await _repository.GetPetByIdAsync(id);
+            if (pet == null)
+            {
+                Console.WriteLine("[PetService] Pet not found for id: {id}");
+                throw new KeyNotFoundException("Pet not found.");
+            }
+
+            // Lấy danh sách ảnh của pet
+            var petImages = await _repository.GetPetImagesAsync(id);
+            if (petImages != null && petImages.Any())
+            {
+                foreach (var image in petImages)
+                {
+                    // Xóa ảnh trên Cloudinary
+                    var deleteResult = await _cloudinaryService.DeleteImageAsync(image.ImageUrl);
+                    if (deleteResult)
+                    {
+                        Console.WriteLine($"[PetService] Image deleted from Cloudinary, ImageUrl: {image.ImageUrl}");
+                        // Xóa bản ghi ảnh trong database
+                        await _repository.DeletePetImageAsync(image.PetImageId);
+                    }
+                    else
+                    {
+                        Console.WriteLine("[PetService] Failed to delete image from Cloudinary.");
+                    }
+                }
+            }
+
+            // Xóa pet
             await _repository.DeletePetAsync(id);
         }
 

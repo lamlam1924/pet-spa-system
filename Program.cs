@@ -194,5 +194,6 @@ app.MapControllerRoute(
     pattern: "Blogs/Create",
     defaults: new { controller = "Blogs", action = "Create" });
 
+    app.Run();
 
-app.Run();
+

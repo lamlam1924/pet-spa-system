@@ -56,8 +56,8 @@ namespace pet_spa_system1.Services
         /// <summary>
         /// User gửi yêu cầu hủy lịch hẹn (chuyển trạng thái sang PendingCancel)
         /// </summary>
-        /// <param name="appointmentId"></param>
-        /// <param name="userId"></param>
+        /// <param name = "appointmentId" ></ param >
+        /// < param name="userId"></param>
         /// <returns>true nếu thành công, false nếu thất bại</returns>
         bool RequestCancelAppointment(int appointmentId, int userId);
 

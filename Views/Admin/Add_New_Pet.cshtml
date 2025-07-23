@@ -1,204 +1,343 @@
 ﻿@using pet_spa_system1.ViewModel
+@using pet_spa_system1.Models  <!-- Đảm bảo namespace cho Species -->
 @model PetDetailViewModel
 @{
     ViewBag.Title = "Thêm thú cưng";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
-    <meta name="author" content="indrijunanda">
-    <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
-    <title>petshop - Thêm thú cưng</title>
-    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
-    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
-    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
-</head>
-<body id="page-top">
-    <div id="wrapper">
+<!-- Đảm bảo hỗ trợ tiếng Việt -->
+<meta charset="utf-8">
 
-        <div id="content-wrapper" class="d-flex flex-column">
-            <div id="content">
-             
-                <div class="container-fluid" id="container-wrapper">
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
-                            <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Pets_List")">Thú cưng</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Thêm thú cưng</li>
-                        </ol>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card shadow">
-                                <div class="card-header py-3">
-                                    <h4 class="m-0 font-weight-bold">➕ Thêm thú cưng mới</h4>
+<div class="container-fluid" id="container-wrapper">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Home</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Pets_List", "Admin")">Thú cưng</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thêm thú cưng</li>
+        </ol>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow-sm">
+                <div class="card-header py-3" style="background-color: #FF5722; color: white; border-radius: 5px 5px 0 0;">
+                    <h4 class="m-0 font-weight-bold">➕ Thêm Thú Cưng Mới</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                    }
+
+                    <form id="addPetForm" asp-action="Add_New_Pet" asp-controller="Admin" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.Name" class="font-weight-bold text-orange">Tên thú cưng <span class="text-danger">*</span></label>
+                                    <input asp-for="Pet.Name" class="form-control" required />
+                                    <span asp-validation-for="Pet.Name" class="text-danger"></span>
+                                    <div class="invalid-feedback">Vui lòng nhập tên thú cưng.</div>
                                 </div>
-                                <div class="card-body">
-                                    <form id="addPetForm" asp-action="Add_New_Pet" asp-controller="Admin" method="post" enctype="multipart/form-data">
-                                        @Html.AntiForgeryToken()
-                                        <div class="form-group">
-                                            <label asp-for="Pet.Name">Tên thú cưng</label>
-                                            <input asp-for="Pet.Name" class="form-control" required />
-                                            <span asp-validation-for="Pet.Name" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.Breed">Giống</label>
-                                            <input asp-for="Pet.Breed" class="form-control" />
-                                            <span asp-validation-for="Pet.Breed" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.SpeciesId">Loài</label>
-                                            <select asp-for="Pet.SpeciesId" class="form-control" asp-items="@(new SelectList(Model.SpeciesList, "SpeciesId", "SpeciesName"))" required>
-                                                <option value="">Chọn loài</option>
-                                            </select>
-                                            <span asp-validation-for="Pet.SpeciesId" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.Age">Tuổi</label>
-                                            <input asp-for="Pet.Age" class="form-control" type="number" min="0" />
-                                            <span asp-validation-for="Pet.Age" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.Gender">Giới tính</label>
-                                            <select asp-for="Pet.Gender" class="form-control" required>
-                                                <option value="">Chọn giới tính</option>
-                                                <option value="Male">Đực</option>
-                                                <option value="Female">Cái</option>
-                                            </select>
-                                            <span asp-validation-for="Pet.Gender" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.HealthCondition">Tình trạng sức khỏe</label>
-                                            <textarea asp-for="Pet.HealthCondition" class="form-control" rows="3"></textarea>
-                                            <span asp-validation-for="Pet.HealthCondition" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.SpecialNotes">Ghi chú đặc biệt</label>
-                                            <textarea asp-for="Pet.SpecialNotes" class="form-control" rows="3"></textarea>
-                                            <span asp-validation-for="Pet.SpecialNotes" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.LastSpaVisit">Lần spa gần nhất</label>
-                                            <input asp-for="Pet.LastSpaVisit" class="form-control" type="date" />
-                                            <span asp-validation-for="Pet.LastSpaVisit" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label asp-for="Pet.IsActive">Trạng thái</label>
-                                            <select asp-for="Pet.IsActive" class="form-control">
-                                                <option value="true">Active</option>
-                                                <option value="false">Inactive</option>
-                                            </select>
-                                            <span asp-validation-for="Pet.IsActive" class="text-danger"></span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Tìm kiếm chủ thú cưng</label>
-                                            <input type="text" id="searchOwner" name="searchOwner" class="form-control" placeholder="Nhập email hoặc tên..." />
-                                            <select asp-for="Pet.UserId" id="ownerSelect" class="form-control" asp-items="ViewBag.Users">
-                                                <option value="">Chọn chủ sở hữu</option>
-                                            </select>
-                                            <span asp-validation-for="Pet.UserId" class="text-danger"></span>
-                                        </div>
-                                        <!-- Thêm chỗ upload ảnh -->
-                                        <div class="form-group">
-                                            <label asp-for="PetImages">Ảnh của thú cưng</label>
-                                            <input type="file" name="Images" class="form-control-file" accept="image/*" multiple />
-                                            <span asp-validation-for="PetImages" class="text-danger"></span>
-                                        </div>
-                                        <div class="mt-3">
-                                            <button type="submit" class="btn btn-success px-4">💾 Lưu thú cưng</button>
-                                            <a href="@Url.Action("Pets_List")" class="btn btn-secondary">Quay lại</a>
-                                        </div>
-                                    </form>
-                                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
-                                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-                                    <script>
-                                        $(document).ready(function () {
-                                            $('#searchOwner').on('input', function () {
-                                                var searchTerm = $(this).val();
-                                                if (searchTerm.length > 2) { // Tìm kiếm khi nhập ít nhất 3 ký tự
-                                                    $.ajax({
-                                                        url: '@Url.Action("SearchOwners", "Admin")',
-                                                        type: 'GET',
-                                                        data: { term: searchTerm },
-                                                        success: function (data) {
-                                                            var $select = $('#ownerSelect');
-                                                            $select.empty();
-                                                            $select.append($('<option>', { value: '', text: 'Chọn chủ sở hữu' }));
-                                                            $.each(data, function (index, item) {
-                                                                $select.append($('<option>', {
-                                                                    value: item.userId,
-                                                                    text: item.fullName + ' (' + item.email + ')'
-                                                                }));
-                                                            });
-                                                        },
-                                                        error: function () {
-                                                            alert('Lỗi khi tìm kiếm chủ sở hữu.');
-                                                        }
-                                                    });
-                                                }
-                                            });
-
-                                            $('#addPetForm').on('submit', function (e) {
-                                                if ($(this).valid()) {
-                                                    console.log('Form is valid, submitting...');
-                                                    console.log('Form data:', $(this).serialize());
-                                                } else {
-                                                    e.preventDefault();
-                                                    console.log('Form validation failed');
-                                                }
-                                            });
-
-                                            var successMessage = '@Html.Raw(Json.Serialize(TempData["SuccessMessage"]))';
-                                            var errorMessage = '@Html.Raw(Json.Serialize(TempData["ErrorMessage"]))';
-
-                                            if (successMessage && successMessage !== 'null') {
-                                                Swal.fire({
-                                                    icon: 'success',
-                                                    title: 'Thành công',
-                                                    text: successMessage.replace(/"/g, ''),
-                                                    confirmButtonText: 'OK'
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        window.location.href = '@Url.Action("Pets_List", "Admin")';
-                                                    }
-                                                });
-                                            }
-
-                                            if (errorMessage && errorMessage !== 'null') {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Lỗi',
-                                                    text: errorMessage.replace(/"/g, ''),
-                                                    confirmButtonText: 'OK'
-                                                });
-                                            }
-                                        });
-                                    </script>
-                                    @section Scripts {
-                                        <partial name="_ValidationScriptsPartial" />
-                                    }
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.Breed" class="font-weight-bold text-orange">Giống</label>
+                                    <input asp-for="Pet.Breed" class="form-control" />
+                                    <span asp-validation-for="Pet.Breed" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.SpeciesId" class="font-weight-bold text-orange">Loài <span class="text-danger">*</span></label>
+                                    @{
+                                        var speciesList = Model.SpeciesList != null ? Model.SpeciesList : new List<Species>();
+                                    }
+                                    <select asp-for="Pet.SpeciesId" class="form-control custom-select" asp-items="@(new SelectList(speciesList, "SpeciesId", "SpeciesName"))" required>
+                                        <option value="">Chọn loài</option>
+                                    </select>
+                                    <span asp-validation-for="Pet.SpeciesId" class="text-danger"></span>
+                                    <div class="invalid-feedback">Vui lòng chọn loài.</div>
+                                    @if (!speciesList.Any())
+                                    {
+                                        <small class="text-danger">Không có dữ liệu loài. Vui lòng kiểm tra database hoặc service.</small>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.Age" class="font-weight-bold text-orange">Tuổi</label>
+                                    <input asp-for="Pet.Age" class="form-control" type="number" min="0" />
+                                    <span asp-validation-for="Pet.Age" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.Gender" class="font-weight-bold text-orange">Giới tính <span class="text-danger">*</span></label>
+                                    <select asp-for="Pet.Gender" class="form-control custom-select" required>
+                                        <option value="">Chọn giới tính</option>
+                                        <option value="Male">Đực</option>
+                                        <option value="Female">Cái</option>
+                                    </select>
+                                    <span asp-validation-for="Pet.Gender" class="text-danger"></span>
+                                    <div class="invalid-feedback">Vui lòng chọn giới tính.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.HealthCondition" class="font-weight-bold text-orange">Tình trạng sức khỏe</label>
+                                    <textarea asp-for="Pet.HealthCondition" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="Pet.HealthCondition" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.SpecialNotes" class="font-weight-bold text-orange">Ghi chú đặc biệt</label>
+                                    <textarea asp-for="Pet.SpecialNotes" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="Pet.SpecialNotes" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.LastSpaVisit" class="font-weight-bold text-orange">Lần spa gần nhất</label>
+                                    <input asp-for="Pet.LastSpaVisit" class="form-control" type="date" />
+                                    <span asp-validation-for="Pet.LastSpaVisit" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Pet.IsActive" class="font-weight-bold text-orange">Trạng thái</label>
+                                    <select asp-for="Pet.IsActive" class="form-control custom-select">
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                    <span asp-validation-for="Pet.IsActive" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-orange">Tìm kiếm chủ thú cưng</label>
+                                    <input type="text" id="ownerSearch" class="form-control" placeholder="Nhập email hoặc tên..." />
+                                    <input type="hidden" asp-for="Pet.UserId" id="ownerId" />
+                                    <span asp-validation-for="Pet.UserId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold text-orange">Ảnh của thú cưng</label>
+                            <input type="file" name="Images" class="form-control-file" accept="image/*" multiple />
+                            <small class="form-text text-muted">Tối đa 5 ảnh, định dạng JPG/PNG.</small>
+                            <span class="text-danger" id="imagesValidationError"></span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-orange btn-lg px-4">💾 Lưu Thú Cưng</button>
+                            <a href="@Url.Action("Pets_List", "Admin")" class="btn btn-secondary btn-lg ml-2">Quay Lại</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
-    <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
-    <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
-    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
-</body>
-</html>
+</div>
+
+<style>
+    .text-orange {
+        color: #FF5722 !important; /* Màu cam đậm */
+    }
+
+    .btn-orange {
+        background-color: #FF5722;
+        border-color: #FF5722;
+        color: white;
+    }
+
+        .btn-orange:hover {
+            background-color: #FF8A50; /* Màu cam nhạt khi hover */
+            border-color: #FF8A50;
+        }
+
+    .card-header {
+        border-radius: 5px 5px 0 0;
+    }
+
+    .form-control.custom-select {
+        border-color: #FF5722;
+    }
+
+    .form-control:focus {
+        border-color: #FF8A50;
+        box-shadow: 0 0 5px rgba(255, 87, 34, 0.5);
+    }
+
+    .ui-autocomplete {
+        z-index: 1050;
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: white;
+        border: 1px solid #FF5722;
+        border-radius: 5px;
+    }
+
+    .ui-menu-item {
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+        .ui-menu-item:hover {
+            background-color: #FF8A50;
+            color: white;
+        }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Lấy tên người dùng hiện tại từ session qua ViewBag
+            var currentUserId = '@ViewBag.CurrentUserId';
+            var currentUserName = '@ViewBag.CurrentUserName';
+            if (currentUserId && currentUserName !== "Chưa đăng nhập") {
+                $('#ownerSearch').val(currentUserName);
+                $('#ownerId').val(currentUserId);
+            }
+
+            // Validation form
+            $('#addPetForm').validate({
+                rules: {
+                    "Pet.Name": { required: true },
+                    "Pet.SpeciesId": { required: true },
+                    "Pet.Gender": { required: true }
+                },
+                messages: {
+                    "Pet.Name": "Vui lòng nhập tên.",
+                    "Pet.SpeciesId": "Vui lòng chọn loài.",
+                    "Pet.Gender": "Vui lòng chọn giới tính."
+                },
+                errorElement: "span",
+                errorClass: "text-danger",
+                highlight: function (element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function (form) {
+                    console.log('Form is valid, submitting...', $(form).serialize());
+                    form.submit();
+                }
+            });
+
+            // Autocomplete cho chủ thú cưng
+            $('#ownerSearch').autocomplete({
+                source: function (request, response) {
+                    var searchTerm = request.term;
+                    console.log('Searching for:', searchTerm);
+                    $.ajax({
+                        url: '@Url.Action("SearchOwners", "Admin")',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { term: searchTerm },
+                        success: function (data) {
+                            console.log('Data received:', data);
+                            var suggestions = data
+                                .filter(item => item.fullName && item.email && item.fullName.trim().length > 0)
+                                .map(item => ({
+                                    label: item.fullName.trim() + ' (' + item.email.trim() + ')',
+                                    value: item.userId
+                                }));
+                            response(suggestions);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Không thể tải danh sách chủ sở hữu.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                },
+                minLength: 1,
+                select: function (event, ui) {
+                    console.log('Selected:', ui.item);
+                    $('#ownerId').val(ui.item.value);
+                    $('#ownerSearch').val(ui.item.label);
+                    return false;
+                },
+                open: function () {
+                    $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+                },
+                close: function () {
+                    $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div>" + item.label + "</div>")
+                    .appendTo(ul);
+            };
+
+            // Hiển thị thông báo
+            var successMessage = '@TempData["SuccessMessage"]';
+            var errorMessage = '@TempData["ErrorMessage"]';
+
+            if (successMessage && successMessage !== "null") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: successMessage.replace(/"/g, ''),
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '@Url.Action("Pets_List", "Admin")';
+                    }
+                });
+            }
+
+            if (errorMessage && errorMessage !== "null") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: errorMessage.replace(/"/g, ''),
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    </script>
+}

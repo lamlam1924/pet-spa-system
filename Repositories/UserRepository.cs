@@ -48,8 +48,10 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null)
+    public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null, int page = 1, int pageSize = 10)
     {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
         var users = _context.Users.Include(u => u.Role)
             .Where(u => u.IsActive == true && (u.Role == null || u.Role.IsActive == true));
         if (!string.IsNullOrEmpty(search))
@@ -60,7 +62,7 @@ public class UserRepository : IUserRepository
             users = users.OrderBy(u => u.Username);
         else if (sort == "created")
             users = users.OrderByDescending(u => u.CreatedAt);
-        return await users.ToListAsync();
+        return await users.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
     public async Task<List<User>> GetDeletedUsersAsync()

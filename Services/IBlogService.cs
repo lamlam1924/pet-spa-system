@@ -40,10 +40,10 @@ public interface IBlogService
     Task<string> UploadImageAsync(IFormFile file);
     Task<bool> DeleteImageAsync(string imageUrl);
 
+    Task<List<BlogViewModel>> GetRejectedBlogsByUserAsync(int userId);
+
     string GetShortContent(string content, int maxLength = 200);
     bool CanUserEditBlog(int blogId, int userId, string userRole);
     bool CanUserDeleteBlog(int blogId, int userId, string userRole);
     string GetBlogStatusForUser(string userRole);
 }
-
-

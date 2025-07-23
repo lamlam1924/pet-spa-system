@@ -409,6 +409,7 @@
                                     <tbody id="userTableBody"></tbody>
                                 </table>
                             </div>
+                            <div id="paginationContainer" class="d-flex justify-content-center my-3"></div>
 
                             <!-- DELETED USERS TABLE -->
                             <div class="table-responsive d-none" id="deletedUsersTable">
@@ -667,8 +668,12 @@
                             filterByRole(3);
                         }
 
-                        function fetchUsers(search = '', sort = '', roleId = '') {
-                            let url = `/User/List?search=${search}&sort=${sort}`;
+                        let currentPage = 1;
+                        const pageSize = 10;
+                        let totalCount = 0;
+
+                        function fetchUsers(search = '', sort = '', roleId = '', page = 1) {
+                            let url = `/User/List?search=${search}&sort=${sort}&page=${page}&pageSize=${pageSize}`;
                             if (roleId) url += `&roleId=${roleId}`;
                             fetch(url)
                                 .then(res => {
@@ -677,7 +682,12 @@
                                     }
                                     return res.json();
                                 })
-                                .then(data => {
+                                .then(result => {
+                                    console.log('API result:', result);
+                                    const data = result.data || result;
+                                    totalCount = result.totalCount || data.length;
+                                    console.log('data:', data);
+                                    console.log('totalCount:', totalCount, 'currentPage:', currentPage, 'pageSize:', pageSize);
                                     const tbody = document.getElementById("userTableBody");
                                     if (!tbody) {
                                         console.error('userTableBody element not found');
@@ -723,11 +733,47 @@
                                         </tr>
                                         `;
                                     });
+                                    renderPagination();
                                 })
                                 .catch(error => {
                                     console.error('Error fetching users:', error);
                                     alert('Error loading users: ' + error.message);
                                 });
+                        }
+
+                        function renderPagination() {
+                            const paginationContainerId = 'paginationContainer';
+                            let container = document.getElementById(paginationContainerId);
+                            if (!container) {
+                                container = document.createElement('div');
+                                container.id = paginationContainerId;
+                                container.className = 'd-flex justify-content-center my-3';
+                                const table = document.getElementById('activeUsersTable');
+                                if (table) table.parentNode.insertBefore(container, table.nextSibling);
+                            }
+                            const totalPages = Math.ceil(totalCount / pageSize);
+                            console.log('renderPagination: totalPages', totalPages, 'currentPage', currentPage, 'totalCount', totalCount, 'pageSize', pageSize);
+                            if (totalPages <= 1) {
+                                container.innerHTML = '';
+                                return;
+                            }
+                            let html = '<nav><ul class="pagination">';
+                            html += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}"><a class="page-link" href="#" onclick="gotoPage(${currentPage - 1});return false;">&laquo;</a></li>`;
+                            for (let i = 1; i <= totalPages; i++) {
+                                html += `<li class="page-item${i === currentPage ? ' active' : ''}"><a class="page-link" href="#" onclick="gotoPage(${i});return false;">${i}</a></li>`;
+                            }
+                            html += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}"><a class="page-link" href="#" onclick="gotoPage(${currentPage + 1});return false;">&raquo;</a></li>`;
+                            html += '</ul></nav>';
+                            container.innerHTML = html;
+                        }
+
+                        function gotoPage(page) {
+                            if (page < 1) page = 1;
+                            const totalPages = Math.ceil(totalCount / pageSize);
+                            if (page > totalPages) page = totalPages;
+                            currentPage = page;
+                            const search = document.getElementById('searchInput')?.value || '';
+                            fetchUsers(search, '', currentRoleFilter, currentPage);
                         }
 
                         // Hàm escape HTML để tránh XSS
@@ -1066,7 +1112,7 @@
                             }
 
                             // Load users when page loads
-                            fetchUsers();
+                            fetchUsers('', '', '', currentPage);
                         });
 
                         // Legacy support for window.onload
@@ -1076,7 +1122,7 @@
                                 return;
                             }
                             // DOM already loaded
-                            fetchUsers();
+                            fetchUsers('', '', '', currentPage);
                             // Highlight nút 'Tất cả' khi load trang
                             document.getElementById('btnFilterAll').classList.add('active');
                             document.getElementById('btnFilterStaff').classList.remove('active');
