@@ -185,7 +185,7 @@ public async Task<IActionResult> PaymentCallbackVnpay()
     OrderId = order.OrderId,
     UserId = order.UserId, // <-- Bổ sung dòng này
     Amount = order.TotalAmount,
-    PaymentMethodId = 1,
+    PaymentMethodId = 2,
     TransactionId = transactionNo,
     PaymentDate = DateTime.Now
 };

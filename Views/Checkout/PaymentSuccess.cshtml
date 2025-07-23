@@ -1,11 +1,12 @@
 ﻿@model pet_spa_system1.ViewModel.OrderConfirmationViewModel
 
 @{
-    ViewData["Title"] = "Thanh toán thành công";
+    ViewData["Title"] = "Đặt hàng thành công";
     Layout = "~/Views/Shared/_Layout.cshtml"; // hoặc layout bạn đang dùng
 }
 
-<style>body {
+<style>
+    body {
     background-color: #f4f6f8;
     font-family: 'Segoe UI', sans-serif;
 }
@@ -59,7 +60,7 @@
 </style>
 
 <div class="confirmation-container">
-    <h2>🎉 Thanh toán thành công!</h2>
+    <h2>🎉 Đặt hàng thành công!</h2>
     <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Đơn hàng của bạn sẽ được xử lý sớm.</p>
 
     @if (Model != null)
