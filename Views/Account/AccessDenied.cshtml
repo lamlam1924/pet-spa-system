@@ -1,0 +1,72 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+    <link rel="stylesheet" href="@Url.Content("~/css/denied.css")">
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="error-code">403</div>
+        <div class="error-icon">🔒</div>
+        <h1>Truy cập bị từ chối</h1>
+        <p class="message">
+            Bạn không có quyền truy cập trang này.<br>
+            Vui lòng liên hệ quản trị viên hoặc kiểm tra lại quyền của bạn.
+        </p>
+        <div class="actions">
+            <a href="/" class="btn btn-primary">
+                🏠 Về trang chủ
+            </a>
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                ← Quay lại
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Tạo hiệu ứng particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Hiệu ứng hover cho các nút
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px) scale(1.05)';
+            });
+
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Khởi tạo particles khi trang load
+        window.addEventListener('load', createParticles);
+
+        // Thêm hiệu ứng parallax nhẹ khi di chuyển chuột
+        document.addEventListener('mousemove', (e) => {
+            const container = document.querySelector('.container');
+            const x = (e.clientX / window.innerWidth) * 10 - 5;
+            const y = (e.clientY / window.innerHeight) * 10 - 5;
+
+            container.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    </script>
+</body>
+</html>

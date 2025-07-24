@@ -51,6 +51,14 @@ namespace pet_spa_system1.Controllers
             {
                 HttpContext.Session.SetString("CurrentUserAddress", user.Address);
             }
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            {
+                HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
+            }
+            else
+            {
+                HttpContext.Session.Remove("CurrentUserAvatar");
+            }
 
             if (user.RoleId == 1)
             {

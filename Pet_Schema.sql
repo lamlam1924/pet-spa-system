@@ -432,3 +432,51 @@ ALTER TABLE Services
 ADD ImageUrl NVARCHAR(255);
 
 sp_help 'Blogs';
+
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUsers';
+SELECT * FROM AspNetRoles;
+SELECT * FROM AspNetRoles WHERE Name = 'Admin';
+SELECT * FROM AspNetUserRoles ;
+SELECT Id, Email FROM AspNetUsers;
+
+SELECT Id, Name FROM AspNetRoles;
+
+INSERT INTO AspNetUserRoles (UserId, RoleId)
+VALUES ('d3e36069-461b-453b-a73d-8adbff5e54e1', '4f570f43-2518-4de8-96cd-9c400b32cfdf');
+
+SELECT u.Email, r.Name
+FROM AspNetUsers u
+JOIN AspNetUserRoles ur ON u.Id = ur.UserId
+JOIN AspNetRoles r ON ur.RoleId = r.Id
+WHERE u.Email = '82vodanh@gmail.com'
+
+
+CREATE TABLE AppointmentServiceImages (
+    ImageID INT PRIMARY KEY IDENTITY(1,1),
+    AppointmentServiceID INT NOT NULL,
+    ImgUrl NVARCHAR(500) NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_ServiceImages_AppointmentService 
+        FOREIGN KEY (AppointmentServiceID) REFERENCES AppointmentServices(AppointmentServiceID)
+        ON DELETE CASCADE
+);
+
+INSERT INTO AppointmentServiceStatus (StatusName)
+VALUES 
+('Pending'),        -- 1
+('In Progress'),    -- 2
+('Completed'),      -- 3
+('Cancelled');      -- 4
+CREATE TABLE AppointmentServiceStatus (
+    StatusID INT PRIMARY KEY IDENTITY(1,1),
+    StatusName NVARCHAR(100) NOT NULL
+);
+
+-- Thêm cột Status (FK tới AppointmentServiceStatus)
+ALTER TABLE AppointmentServices
+ADD Status INT;
+
+-- Thêm ràng buộc khóa ngoại Status → AppointmentServiceStatus
+ALTER TABLE AppointmentServices
+ADD CONSTRAINT FK_AppointmentServices_Status
+FOREIGN KEY (Status) REFERENCES AppointmentServiceStatus(StatusID);

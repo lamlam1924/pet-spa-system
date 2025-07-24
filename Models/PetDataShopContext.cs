@@ -202,26 +202,22 @@ modelBuilder.Entity<Blog>(entity =>
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Blog_Comm__BlogI__7D0E9093");
 
-<<<<<<< HEAD
+
             entity.HasOne(d => d.User).WithMany()
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-=======
->>>>>>> caf0fec5e77fc7fd96ab76012aa2ddb9d1331367
             entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
                 .HasForeignKey(d => d.ParentCommentId)
                 .HasConstraintName("FK__Blog_Comm__Paren__7EF6D905");
 
-<<<<<<< HEAD
-=======
+
             entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Blog_Comm__UserI__7E02B4CC");
         });
 
->>>>>>> caf0fec5e77fc7fd96ab76012aa2ddb9d1331367
         modelBuilder.Entity<BlogImage>(entity =>
         {
             entity.HasKey(e => e.ImageId).HasName("PK__Blog_Ima__7516F4EC38AEEF0C");
@@ -239,7 +235,7 @@ modelBuilder.Entity<Blog>(entity =>
                 .HasConstraintName("FK__Blog_Imag__BlogI__503BEA1C");
         });
 
-<<<<<<< HEAD
+
         modelBuilder.Entity<BlogComment>(entity =>
         {
             entity.HasKey(e => e.CommentId);
@@ -268,8 +264,7 @@ modelBuilder.Entity<Blog>(entity =>
                 .OnDelete(DeleteBehavior.NoAction);
         });
 
-=======
->>>>>>> caf0fec5e77fc7fd96ab76012aa2ddb9d1331367
+
         modelBuilder.Entity<BlogLike>(entity =>
         {
             entity.HasKey(e => e.LikeId).HasName("PK__Blog_Lik__A2922CF4AA0D3D5E");
@@ -483,7 +478,7 @@ modelBuilder.Entity<Blog>(entity =>
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
 
-            entity.HasOne(d => d.ProductCategory).WithMany(p => p.Products)
+            entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products__Catego__4D94879B");

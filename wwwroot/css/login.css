@@ -6,7 +6,8 @@
 }
 
 .body-login {
-    background: #f6f5f7;
+
+    background: #ffb79c;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,10 +15,11 @@
     font-family: 'Montserrat', sans-serif;
     height: 80vh;
     margin-bottom: 50px;
-    background-image: url('../img/banner/banner.png');
+   
     background-repeat: no-repeat;
     background-position: center;
     background-size: 100% auto;
+    
 }
 
     .body-login h1 {
