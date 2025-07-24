@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="appointment-services">
                         <h5>Dịch vụ</h5>
                         ${appointment.services.map(service => 
-                            `<span class="service-tag${!service.isActive ? ' inactive' : ''}">${service.name}</span>`
+                            `<span class="service-tag">${service.name}</span>`
                         ).join('')}
                     </div>
                     <div class="appointment-pets">
@@ -436,5 +436,79 @@ document.addEventListener('DOMContentLoaded', function() {
         toastElement.addEventListener('hidden.bs.toast', function() {
             toastElement.remove();
         });
+    }
+
+    // ===== Khởi tạo Modal Chi tiết Lịch hẹn =====
+    initAppointmentDetailModal();
+    function initAppointmentDetailModal() {
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('.appointment-card');
+            if (card && !e.target.classList.contains('btn-review') && !e.target.classList.contains('btn-cancel-request')) {
+                const monthGroup = card.closest('.time-group-content');
+                const month = monthGroup ? monthGroup.getAttribute('data-month') : null;
+                // Tìm index của card trong nhóm tháng
+                const cards = Array.from(monthGroup.querySelectorAll('.appointment-card'));
+                const idx = cards.indexOf(card);
+                // Lấy dữ liệu appointment tương ứng
+                const grouped = groupAppointmentsByMonth(appointmentData);
+                const appointments = grouped[month] || [];
+                const appointment = appointments[idx];
+                if (appointment) {
+                    showAppointmentDetailModal(appointment);
+                }
+            }
+        });
+    }
+    function showAppointmentDetailModal(appointment) {
+        const modal = document.getElementById('appointmentDetailModal');
+        const content = document.getElementById('appointmentDetailContent');
+        if (!modal || !content) return;
+        // Render thông tin chi tiết
+        let html = `<div class='row'>
+            <div class='col-md-6'>
+                <h6>Khách hàng</h6>
+                <div><b>Họ tên:</b> ${appointment.customerName || ''}</div>
+                <div><b>SĐT:</b> ${appointment.phone || ''}</div>
+                <div><b>Email:</b> ${appointment.email || ''}</div>
+            </div>
+            <div class='col-md-6'>
+                <h6>Lịch hẹn</h6>
+                <div><b>Ngày:</b> ${formatDate(appointment.appointmentDate)}</div>
+                <div><b>Giờ:</b> ${appointment.appointmentTime || ''}</div>
+                <div><b>Ghi chú:</b> ${appointment.notes || ''}</div>
+                <div><b>Trạng thái:</b> <span class='${getStatusClass(appointment.statusId)}'>${appointment.statusName}</span></div>
+            </div>
+        </div><hr/>
+        <h6>Dịch vụ đã chọn</h6>
+        <div class='row'>`;
+        if (appointment.services && appointment.services.length > 0) {
+            appointment.services.forEach(service => {
+                html += `<div class='col-md-6 mb-3'>
+                    <div class='card'>
+                        <div class='card-body'>
+                            <div class='d-flex justify-content-between align-items-center'>
+                                <div>
+                                    <b>${service.name}</b><br/>
+                                    <span class='badge ${getStatusClass(service.statusId)}'>${service.statusName || ''}</span>
+                                </div>
+                                <div class='text-end'>
+                                    <span class='text-muted'>${service.price ? service.price.toLocaleString() + ' đ' : ''}</span>
+                                </div>
+                            </div>
+                            <div class='mt-2'>${service.description || ''}</div>
+                            <div class='mt-2'>
+                                <b>Hình ảnh thú cưng sau dịch vụ:</b><br/>
+                                ${service.petImages && service.petImages.length > 0 ? service.petImages.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:80px;max-height:80px;'/>`).join('') : '<span class="text-muted">Chưa có hình ảnh</span>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        } else {
+            html += `<div class='col-12'><span class='text-muted'>Không có dịch vụ nào.</span></div>`;
+        }
+        html += `</div>`;
+        content.innerHTML = html;
+        new bootstrap.Modal(modal).show();
     }
 });

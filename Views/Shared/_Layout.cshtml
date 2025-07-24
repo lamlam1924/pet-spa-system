@@ -112,6 +112,10 @@
             color: #FF4B00;
             vertical-align: middle;
         }
+
+        #navigation a {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -389,6 +393,22 @@
     <script src="@Url.Content("~/js/jquery.form.js")"></script>
     <script src="@Url.Content("~/js/jquery.validate.min.js")"></script>
     <script src="@Url.Content("~/js/mail-script.js")"></script>
+    <script src="@Url.Content("~/js/main.js")"></script>
+    <script>
+        $('#datepicker').datepicker({
+            iconsLibrary: 'fontawesome',
+            disableDaysOfWeek: [0, 0],
+        });
+        $('#datepicker2').datepicker({
+            iconsLibrary: 'fontawesome',
+            icons: {
+                rightIcon: '<span class="fa fa-caret-down"></span>'
+            }
+        });
+        var timepicker = $('#timepicker').timepicker({
+            format: 'HH.MM'
+        });
+    </script>
     <script>
         $(document).ready(function () {
             $('.add-to-cart-btn').on('click', function (event) {

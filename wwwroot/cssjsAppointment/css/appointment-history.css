@@ -341,10 +341,10 @@
     font-size: 0.85rem;
 }
 
-.service-tag.inactive {
+/*.service-tag.inactive {
     text-decoration: line-through;
     opacity: 0.6;
-}
+}*/
 
 .appointment-actions {
     display: flex;
@@ -770,5 +770,35 @@
     background-color: #343a40;
     border-color: #343a40;
     color: #fff;
+}
+
+/* Modal chi tiết lịch hẹn */
+#appointmentDetailModal .modal-header {
+    background: linear-gradient(135deg, #f14437 0%, #ff6b6b 100%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1.5px solid #f14437;
+}
+#appointmentDetailModal .modal-title {
+    color: #fff;
+    font-weight: 700;
+}
+#appointmentDetailModal .modal-body {
+    background: #f8f9fa;
+}
+#appointmentDetailContent .card {
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(241,68,55,0.07);
+}
+#appointmentDetailContent .badge {
+    font-size: 0.95rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+#appointmentDetailContent img.img-thumbnail {
+    border-radius: 8px;
+    border: 1.5px solid #e0e0e0;
+    margin-right: 5px;
+    margin-bottom: 5px;
 }
 
