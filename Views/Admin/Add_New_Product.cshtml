@@ -124,6 +124,23 @@
                                                 });
                                             }
                                         });
+                                                                         // Thêm xử lý submit form
+                                        document.getElementById('createProductForm').addEventListener('submit', function(e) {
+                                            e.preventDefault();
+
+                                            // Kiểm tra validation trước khi submit
+                                            if (this.checkValidity()) {
+                                                // Submit form
+                                                this.submit();
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: 'Lỗi',
+                                                    text: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+                                                    showConfirmButton: true
+                                                });
+                                            }
+                                        });
                                     </script>
                                 </div>
                             </div>
@@ -141,11 +158,11 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-    
-    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+
+    @* <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
     <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
     <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
-    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
+    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script> *@
 
 </body>
 </html>
