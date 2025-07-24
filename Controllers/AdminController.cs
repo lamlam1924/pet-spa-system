@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
 {
+    //[Authorize]
     public class AdminController : Controller
     {
         private readonly PetDataShopContext _context;
@@ -54,6 +56,7 @@ namespace pet_spa_system1.Controllers
             if (!User.Identity?.IsAuthenticated ?? true)
             {
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
             }
             ViewBag.Title = "Admin Dashboard";
             return View();
@@ -61,12 +64,22 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Payment()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var payments = _paymentService.GetAllPayments();
             return View(payments);
         }
 
         public async Task<IActionResult> Pets_List(int page = 1, string searchName = "", string searchOwner = "", bool? isActive = null, string sortOrder = "name", string speciesName = "")
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine($"[AdminController] Pets_List called, page: {page}, searchName: {searchName}, searchOwner: {searchOwner}, isActive: {isActive}, sortOrder: {sortOrder}, speciesName: {speciesName}");
             const int pageSize = 10;
 
@@ -139,6 +152,11 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> DeletePetImage(int imageId, string imageUrl)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 Console.WriteLine($"[AdminController] DeletePetImage called, imageId: {imageId}, imageUrl: {imageUrl}");
@@ -159,6 +177,11 @@ namespace pet_spa_system1.Controllers
         }
         public async Task<IActionResult> Pet_Detail(int petId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var (pet, suggestedPets) = await _petService.GetPetDetailWithSuggestionsAsync(petId);
             if (pet == null)
             {
@@ -182,6 +205,11 @@ namespace pet_spa_system1.Controllers
 
         public async Task<IActionResult> Add_New_Pet()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine("[AdminController] Add_New_Pet called");
             var species = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
             var users = await _context.Users.ToListAsync();
@@ -198,6 +226,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Pet(PetDetailViewModel viewModel, List<IFormFile> Images)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine("[AdminController] Add_New_Pet POST called");
             Console.WriteLine($"[AdminController] Received data: Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, UserId={viewModel.Pet.UserId}");
 
@@ -257,6 +290,11 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchOwners(string term)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var users = await _context.Users
                 .Where(u => (u.Email != null && u.Email.Contains(term)) ||
                            (u.FullName != null && u.FullName.Contains(term)) ||
@@ -267,6 +305,11 @@ namespace pet_spa_system1.Controllers
         }
         public async Task<IActionResult> Edit_Pet(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var pet = await _petService.GetPetByIdAsync(id);
             if (pet == null)
             {
@@ -292,6 +335,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit_Pet(int id, PetDetailViewModel viewModel, List<IFormFile> Images)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine("[AdminController] Edit_Pet POST called");
             Console.WriteLine($"Received data: PetId={id}, Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, " +
                               $"Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}, IsActive={viewModel.Pet.IsActive}, " +
@@ -368,6 +416,11 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> DisablePet(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var pet = await _petService.GetPetByIdAsync(id);
             if (pet == null)
             {
@@ -385,6 +438,11 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> RestorePet(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var pet = await _petService.GetPetByIdAsync(id);
             if (pet == null)
             {
@@ -403,6 +461,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePet(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 await _petService.DeletePetAsync(id);
@@ -421,13 +484,25 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult List_Customer()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             return View();
         }
+            
 
         //=======================================================================================================================
         // Hiển thị danh sách sản phẩm
         public async Task<IActionResult> Product_Detail(int productID)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var product = await _context.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productID);
@@ -443,6 +518,11 @@ namespace pet_spa_system1.Controllers
 
         public async Task<IActionResult> Products_List(int page = 1)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             const int pageSize = 15; // Số sản phẩm trên mỗi trang
             var totalProducts = await _context.Products.CountAsync();
@@ -478,6 +558,11 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult AddService(Service service)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.AddService(service);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -494,6 +579,11 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult EditService(Service service)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.UpdateService(service);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -501,6 +591,11 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult SoftDeleteService(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.SoftDeleteService(id);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -508,6 +603,11 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult RestoreService(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.RestoreService(id);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -521,6 +621,11 @@ namespace pet_spa_system1.Controllers
 
         public async Task<IActionResult> Add_New_Product()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var categories = await _productService.GetAllProductCategoriesAsync();
             var viewModel = new ProductViewModel
             {
@@ -535,6 +640,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -590,6 +700,11 @@ namespace pet_spa_system1.Controllers
         //Edit Products
         public async Task<IActionResult> Edit_Products(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var product = await _productService.GetProductByIdAsync(id);
             if (product == null)
             {
@@ -610,6 +725,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit_Products(ProductViewModel viewModel, IFormFile? Image)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var product = await _productService.GetProductByIdAsync(viewModel.Product.ProductId);
             if (product == null) return NotFound();
 
@@ -624,6 +744,11 @@ namespace pet_spa_system1.Controllers
             // Nếu có ảnh mới
             if (Image != null && Image.Length > 0)
             {
+                if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imgProducts");
                 if (!Directory.Exists(imagePath))
                     Directory.CreateDirectory(imagePath);
@@ -664,6 +789,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             await _productService.DisableProductAsync(id);
             TempData["SuccessMessage"] = "Đã ngừng kích hoạt sản phẩm.";
             return RedirectToAction("Products_List");
@@ -674,6 +804,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnableProduct(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             await _productService.EnableProductAsync(id);
             TempData["SuccessMessage"] = "Đã kích hoạt sản phẩm.";
             return RedirectToAction("Products_List");
@@ -695,16 +830,32 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Refund()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             return View();
         }
 
         public IActionResult Staff()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View();
         }
 
         public IActionResult StaffSchedule()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View("StaffSchedule");
         }
 
@@ -712,6 +863,12 @@ namespace pet_spa_system1.Controllers
         // BLOG MANAGEMENT
         public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1; // Giá trị mặc định nếu null
@@ -773,6 +930,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveBlog(int blogId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] ApproveBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -804,6 +967,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] RejectBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -835,6 +1004,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PublishBlog(int blogId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] PublishBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -866,6 +1041,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBlogAdmin(int blogId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] DeleteBlogAdmin - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -897,7 +1078,13 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult OrderHistory(string status = "All", int page = 1)
 {
-    int pageSize = 10;
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            int pageSize = 10;
     int totalOrders;
     List<OrderViewModel> orders;
 
@@ -920,6 +1107,12 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult UpdateOrderStatus(int orderId, string newStatus)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             try
             {
                 var order = _orderService.GetOrderById(orderId);
@@ -959,6 +1152,12 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult DeleteOrder(int orderId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             try
             {
                 var order = _orderService.GetOrderById(orderId);
@@ -989,7 +1188,13 @@ namespace pet_spa_system1.Controllers
             [HttpGet]
             public IActionResult GetOrderDetail(int orderId)
             {
-                try
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            try
                 {
                     Console.WriteLine($"[AdminController] GetOrderDetail called with orderId: {orderId}");
                 

@@ -220,6 +220,11 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/StaffDetail/{id}")]
         public async Task<IActionResult> StaffDetail(int id, [FromServices] IAdminStaffScheduleService scheduleService)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var staff = await _userService.GetStaffDetailAsync(id);
             if (staff == null) return NotFound();
             var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
@@ -353,6 +358,11 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/UserDetail/{id}")]
         public async Task<IActionResult> UserDetail(int id, [FromServices] IUserService userService)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             var pets = await userService.GetPetsByUserIdAsync(id);
@@ -376,6 +386,11 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/UserDetail/{id}")]
         public async Task<IActionResult> UserDetail(int id, [FromForm] string FullName, [FromForm] string Email, [FromForm] string Phone, [FromForm] string Address, IFormFile AvatarFile, [FromServices] IUserService userService)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             // Upload avatar if provided
@@ -400,6 +415,11 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/List_Customer")]
         public async Task<IActionResult> List_Customer()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var users = await _userService.GetActiveUsersAsync();
             var customers = users.Where(u => u.RoleId == 2).ToList();
             // Chỉ định rõ đường dẫn view

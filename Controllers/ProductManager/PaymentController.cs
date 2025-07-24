@@ -52,6 +52,11 @@ namespace pet_spa_system1.Controllers.ProductManager
         [HttpGet]
         public IActionResult GetPaymentMethods()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             // Lấy từ DB, ví dụ:
             var methods = _context.PaymentMethods.Select(m => new { m.PaymentMethodId, m.MethodName }).ToList();
             return Json(methods);

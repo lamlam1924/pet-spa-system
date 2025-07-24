@@ -14,6 +14,11 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public IActionResult GetAppointmentDetail(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var vm = _appointmentService.GetAdminAppointmentDetail(id);
             if (vm == null)
                 return Content("<div class='text-danger'>Không tìm thấy lịch hẹn.</div>", "text/html");
@@ -28,6 +33,11 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Dashboard()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var viewModel = _appointmentService.GetDashboardData();
             return View("~/Views/Admin/ManageAppointment/AppointmentDashboard.cshtml", viewModel);
         }
@@ -35,6 +45,12 @@ namespace pet_spa_system1.Controllers
         public IActionResult List(string searchTerm = "", int statusId = 0,
             DateTime? date = null, int employeeId = 0, int page = 1)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             const int pageSize = 10;
 
             var appointments = _appointmentService.GetAppointments(
@@ -64,6 +80,12 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Calendar()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             // Lấy toàn bộ lịch hẹn hoặc theo range phù hợp cho calendar
             var appointments = _appointmentService.GetAppointments();
             return View("~/Views/Admin/ManageAppointment/AppointmentCalendar.cshtml", appointments);
@@ -72,12 +94,24 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public JsonResult GetAppointmentsForCalendar(DateTime start, DateTime end)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return Json(new { error = "Unauthorized" });
+            }
+
             var events = _appointmentService.GetAppointmentsForCalendar(start, end);
             return Json(events);
         }
 
         public IActionResult Detail(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var vm = _appointmentService.GetAdminAppointmentDetail(id);
             if (vm == null)
                 return NotFound();
@@ -87,6 +121,12 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Create()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var viewModel = _appointmentService.PrepareCreateViewModel();
             // Lọc lại Employees nếu cần
             if (viewModel.Employees != null)
@@ -98,6 +138,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(AppointmentViewModel model)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             if (!ModelState.IsValid)
             {
                 var updatedModel = _appointmentService.PrepareCreateViewModel();
@@ -126,6 +172,12 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Edit(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var vm = _appointmentService.PrepareEditViewModel(id);
             if (vm == null) return NotFound();
             // Lọc lại Employees nếu cần
@@ -137,6 +189,12 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult Edit(AppointmentViewModel vm)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             if (!ModelState.IsValid) return View(vm);
             _appointmentService.UpdateAppointment(vm);
             return RedirectToAction("List");
@@ -146,6 +204,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var success = _appointmentService.DeleteAppointment(id);
 
             if (success)
@@ -163,6 +227,12 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public JsonResult GetPetsByCustomer(int userId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
             var pets = _appointmentService.GetCustomerPets(userId);
             return Json(pets.Select(p => new { p.PetId, p.Name, Type = p.Species?.SpeciesName ?? "Unknown" }));
         }
@@ -170,6 +240,11 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public JsonResult GetDashboardStats()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return Json(new { success = false, message = "Unauthorized" });
+            }
             var stats = _appointmentService.GetDashboardStats();
 
             return Json(new
@@ -183,6 +258,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public JsonResult QuickUpdateStatus(int id, int statusId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return Json(new { success = false, message = "Unauthorized" });
+            }
             var success = _appointmentService.UpdateAppointmentStatus(id, statusId);
 
             if (success)
@@ -194,6 +274,11 @@ namespace pet_spa_system1.Controllers
         // Trang danh sách lịch hẹn cần duyệt
         public IActionResult ApprovalList()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             // Lấy 2 danh sách: 1 = Chờ xác nhận, 6 = Yêu cầu hủy
             var model = new ApprovalListTabsViewModel
             {
@@ -207,6 +292,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ApproveCancel(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             // Chuyển trạng thái sang Đã hủy (5) và gửi mail
             _appointmentService.UpdateAppointmentStatusAndSendMail(id, 5);
             TempData["SuccessMessage"] = "Đã duyệt hủy lịch hẹn.";
@@ -217,6 +308,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RejectCancel(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             // Chuyển trạng thái về Đã xác nhận (2) hoặc trạng thái trước đó
             _appointmentService.UpdateAppointmentStatus(id, 2);
             TempData["SuccessMessage"] = "Đã từ chối yêu cầu hủy.";
@@ -227,6 +323,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ApproveAppointment(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             // Chuyển trạng thái sang Đã xác nhận (2) và gửi mail
             _appointmentService.UpdateAppointmentStatusAndSendMail(id, 2);
             TempData["SuccessMessage"] = "Đã duyệt lịch hẹn.";
@@ -237,6 +338,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RejectAppointment(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             // Chuyển trạng thái sang Đã hủy (4)
             _appointmentService.UpdateAppointmentStatus(id, 4);
             TempData["SuccessMessage"] = "Đã từ chối lịch hẹn.";
@@ -246,6 +352,12 @@ namespace pet_spa_system1.Controllers
         // Timeline Scheduler View
         public async Task<IActionResult> TimelineScheduler(string keyword = "")
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var today = DateTime.Today;
             var staffList = await _userService.GetStaffListAsync();
             var allAppointments = _appointmentService.GetAppointments("", 0, today, 0, 1, 100);
@@ -255,6 +367,7 @@ namespace pet_spa_system1.Controllers
 
             List<TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
             {
+
                 return appts.Select(a => {
                     var serviceDurations = a.AppointmentServices?.Select(asr => asr.Service.DurationMinutes ?? 0).ToList() ?? new List<int>();
                     int totalDuration = serviceDurations.Sum();

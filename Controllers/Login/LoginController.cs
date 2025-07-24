@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
@@ -50,14 +51,6 @@ namespace pet_spa_system1.Controllers
             {
                 HttpContext.Session.SetString("CurrentUserAddress", user.Address);
             }
-            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
-            {
-                HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
-            }
-            else
-            {
-                HttpContext.Session.Remove("CurrentUserAvatar");
-            }
 
             if (user.RoleId == 1)
             {
@@ -95,14 +88,6 @@ namespace pet_spa_system1.Controllers
             {
                 HttpContext.Session.SetString("CurrentUserAddress", newUser.Address);
             }
-            if (!string.IsNullOrEmpty(newUser.ProfilePictureUrl))
-            {
-                HttpContext.Session.SetString("CurrentUserAvatar", newUser.ProfilePictureUrl);
-            }
-            else
-            {
-                HttpContext.Session.Remove("CurrentUserAvatar");
-            }
 
             return RedirectToAction("Index", "Home");
         }
@@ -116,63 +101,64 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GoogleResponse()
         {
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            if (!result.Succeeded) return RedirectToAction("Login");
-
-            var claims = result.Principal.Identities
-                .FirstOrDefault()?.Claims.Select(claim =>
-                    new
-                    {
-                        claim.Type,
-                        claim.Value
-                    });
+            if (!result.Succeeded)
+                return RedirectToAction("Login");
 
             var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
             var name = result.Principal.FindFirst(ClaimTypes.Name)?.Value;
-            Console.WriteLine(email + " " + name + " khong lay duoc email");
-            // TODO: Check user in database, auto-register or login
-            // Example: Save session
+
+            Console.WriteLine($"Google login: {email} - {name}");
+
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError("", "Không lấy được email từ Google.");
+                return View("Login", new LoginRegisterViewModel());
+            }
+
+            // ✅ Kiểm tra user trong database
             var user = await _userService.GetUserByEmail(email);
+
             if (user == null)
             {
-
+                // ✅ Người dùng mới -> tạo user với RoleId = 2 (User)
                 user = await _userService.RegisterByGoogle(email, name);
-
+                user.RoleId = 2; // đảm bảo RoleId là 2
+                Console.WriteLine($"Tạo user mới với email {email}, role: {user.RoleId}");
             }
-            //var user = new User { Email = email, FullName = name };
+            else
+            {
+                Console.WriteLine($"Đăng nhập người dùng cũ, role: {user.RoleId}");
+            }
+
+            // ✅ Lưu thông tin người dùng vào Session
             HttpContext.Session.SetInt32("CurrentUserId", user.UserId);
             HttpContext.Session.SetString("CurrentUserName", user.Username);
-            // lưu role vào session nếu cần
             HttpContext.Session.SetInt32("CurrentUserRoleId", user.RoleId);
-            if (user.Address != null)
-            {
+
+            if (!string.IsNullOrEmpty(user.Address))
                 HttpContext.Session.SetString("CurrentUserAddress", user.Address);
-            }
+
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
-            {
                 HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
-            }
             else
-            {
                 HttpContext.Session.Remove("CurrentUserAvatar");
-            }
 
-
+            // ✅ Kiểm tra lại session hoạt động chưa
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-
             if (userId.HasValue)
             {
-                Console.WriteLine($"User ID = {userId.Value}");
+                Console.WriteLine($"Đăng nhập thành công, User ID: {userId.Value}");
             }
             else
             {
-                Console.WriteLine("Chưa đăng nhập hoặc session đã hết hạn");
+                Console.WriteLine("Session không hoạt động hoặc chưa đăng nhập.");
             }
 
-
-
+            // ✅ Chuyển hướng theo RoleId
             if (user.RoleId == 1)
             {
                 return RedirectToAction("Index", "Admin");
@@ -182,6 +168,7 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(string Email)
@@ -296,4 +283,3 @@ namespace pet_spa_system1.Controllers
     }
 
 }
-
