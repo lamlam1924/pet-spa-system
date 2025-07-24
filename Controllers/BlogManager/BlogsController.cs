@@ -11,7 +11,7 @@ namespace pet_spa_system1.Controllers
     public class BlogsController : Controller
     {
         private readonly IBlogService _blogService;
-        private readonly PetDataShopContext _context; // Giả sử bạn có DbContext
+        private readonly PetDataShopContext _context;
 
         public BlogsController(IBlogService blogService, PetDataShopContext context)
         {
@@ -26,6 +26,7 @@ namespace pet_spa_system1.Controllers
             var model = await _blogService.GetBlogListAsync(page, 10, category, search, sortBy);
             return View(model);
         }
+
         public async Task<IActionResult> MyBlogs()
         {
             var userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -34,10 +35,18 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff xem MyBlogs
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền xem danh sách bài viết của mình.";
+                return RedirectToAction("Index");
+            }
+
             var blogs = await _blogService.GetBlogsByUserAsync(userId.Value);
-            ViewBag.CurrentUser = new User { UserId = userId.Value }; // Gán CurrentUser để kiểm tra quyền
+            ViewBag.CurrentUser = new User { UserId = userId.Value };
             return View(blogs);
         }
+
         public async Task<IActionResult> Blog(int page = 1, string? category = null, string? search = null, string sortBy = "newest")
         {
             return await Index(page, category, search, sortBy);
@@ -64,9 +73,60 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff được tạo
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền tạo bài viết.";
+                return RedirectToAction("Index");
+            }
+
             var model = await _blogService.GetBlogCreateViewModelAsync();
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(BlogCreateViewModel model)
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff được tạo
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền tạo bài viết.";
+                return RedirectToAction("Index");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.AvailableCategories = await _blogService.GetCategoriesAsync();
+                return View(model);
+            }
+
+            try
+            {
+                var blogId = await _blogService.CreateBlogAsync(model, userId.Value);
+
+                if (currentUserRoleId == 1 || currentUserRoleId == 3) // Admin/Staff tự xuất bản
+                {
+                    await _blogService.PublishBlogAsync(blogId, userId.Value);
+                    TempData["SuccessMessage"] = "Blog đã được tạo và xuất bản thành công.";
+                }
+
+                return RedirectToAction("Detail", new { id = blogId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Có lỗi xảy ra khi tạo blog: " + ex.Message);
+                model.AvailableCategories = await _blogService.GetCategoriesAsync();
+                return View(model);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> RejectedBlogs()
         {
@@ -74,6 +134,13 @@ namespace pet_spa_system1.Controllers
             if (!userId.HasValue)
             {
                 return RedirectToAction("Login", "Login");
+            }
+
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff xem rejected blogs
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền xem bài viết bị từ chối.";
+                return RedirectToAction("Index");
             }
 
             var rejectedBlogs = await _blogService.GetRejectedBlogsByUserAsync(userId.Value);
@@ -90,6 +157,13 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff cập nhật
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền cập nhật bài viết.";
+                return RedirectToAction("RejectedBlogs");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View("RejectedBlogs", model);
@@ -100,7 +174,15 @@ namespace pet_spa_system1.Controllers
                 var success = await _blogService.UpdateBlogAsync(blogId, model, userId.Value);
                 if (success)
                 {
-                    TempData["SuccessMessage"] = "Bài viết đã được cập nhật và gửi lại để duyệt.";
+                    if (currentUserRoleId == 1 || currentUserRoleId == 3) // Admin/Staff tự xuất bản
+                    {
+                        await _blogService.PublishBlogAsync(blogId, userId.Value);
+                        TempData["SuccessMessage"] = "Bài viết đã được cập nhật và xuất bản.";
+                    }
+                    else
+                    {
+                        TempData["SuccessMessage"] = "Bài viết đã được cập nhật và gửi lại để duyệt.";
+                    }
                     return RedirectToAction("RejectedBlogs");
                 }
                 else
@@ -115,45 +197,6 @@ namespace pet_spa_system1.Controllers
                 return View("RejectedBlogs", model);
             }
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BlogCreateViewModel model)
-        {
-            var userId = HttpContext.Session.GetInt32("CurrentUserId");
-            if (!userId.HasValue)
-            {
-                return RedirectToAction("Login", "Login");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                model.AvailableCategories = await _blogService.GetCategoriesAsync();
-                return View(model);
-            }
-
-            try
-            {
-                var blogId = await _blogService.CreateBlogAsync(model, userId.Value);
-
-                var user = await _context.Users.FindAsync(userId.Value);
-                if (user?.RoleId == 2)
-                {
-                    TempData["SuccessMessage"] = "Blog của bạn đã được gửi và đang chờ duyệt.";
-                }
-                else
-                {
-                    TempData["SuccessMessage"] = "Blog đã được tạo thành công.";
-                }
-
-                return RedirectToAction("Detail", new { id = blogId });
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Có lỗi xảy ra khi tạo blog: " + ex.Message);
-                model.AvailableCategories = await _blogService.GetCategoriesAsync();
-                return View(model);
-            }
-        }
 
         public async Task<IActionResult> Edit(int id)
         {
@@ -161,6 +204,13 @@ namespace pet_spa_system1.Controllers
             if (!userId.HasValue)
             {
                 return RedirectToAction("Login", "Login");
+            }
+
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff chỉnh sửa
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền chỉnh sửa bài viết.";
+                return RedirectToAction("Index");
             }
 
             var blog = await _blogService.GetBlogDetailAsync(id);
@@ -176,7 +226,7 @@ namespace pet_spa_system1.Controllers
                 return Forbid();
             }
 
-            var categories = await _blogService.GetCategoriesAsync(); // Giả sử trả về List<string>
+            var categories = await _blogService.GetCategoriesAsync();
             var availableCategories = categories.Select(c => new SelectListItem
             {
                 Value = c,
@@ -190,11 +240,11 @@ namespace pet_spa_system1.Controllers
                 Category = blog.Blog.Category,
                 Status = blog.Blog.Status ?? "Draft",
                 FeaturedImageUrl = blog.Blog.FeaturedImageUrl,
-                AvailableCategories = categories // Gán danh sách thô, sẽ xử lý trong view
+                AvailableCategories = categories
             };
 
-            ViewBag.AvailableCategories = availableCategories; // Truyền dưới dạng SelectListItem qua ViewBag
-            ViewBag.BlogId = id; // Truyền id qua ViewBag
+            ViewBag.AvailableCategories = availableCategories;
+            ViewBag.BlogId = id;
             return View(model);
         }
 
@@ -208,6 +258,13 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff chỉnh sửa
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền chỉnh sửa bài viết.";
+                return RedirectToAction("Index");
+            }
+
             if (!ModelState.IsValid)
             {
                 var categories = await _blogService.GetCategoriesAsync();
@@ -216,7 +273,7 @@ namespace pet_spa_system1.Controllers
                     Value = c,
                     Text = c
                 }).ToList();
-                ViewBag.BlogId = id; // Đảm bảo id được truyền lại khi lỗi
+                ViewBag.BlogId = id;
                 return View(model);
             }
 
@@ -228,7 +285,12 @@ namespace pet_spa_system1.Controllers
                     return NotFound();
                 }
 
-                TempData["SuccessMessage"] = "Bài viết đã được cập nhật thành công.";
+                if (currentUserRoleId == 1 || currentUserRoleId == 3) // Admin/Staff tự xuất bản
+                {
+                    await _blogService.PublishBlogAsync(id, userId.Value);
+                    TempData["SuccessMessage"] = "Bài viết đã được cập nhật và xuất bản thành công.";
+                }
+
                 return RedirectToAction("Detail", new { id });
             }
             catch (Exception ex)
@@ -240,7 +302,7 @@ namespace pet_spa_system1.Controllers
                     Value = c,
                     Text = c
                 }).ToList();
-                ViewBag.BlogId = id; // Đảm bảo id được truyền lại khi lỗi
+                ViewBag.BlogId = id;
                 return View(model);
             }
         }
@@ -258,6 +320,13 @@ namespace pet_spa_system1.Controllers
             {
                 Console.WriteLine("[BlogController] User not logged in.");
                 return Json(new { success = false, message = "Vui lòng đăng nhập để xóa bài viết." });
+            }
+
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            if (currentUserRoleId != 1 && currentUserRoleId != 3) // Chỉ Admin/Staff xóa
+            {
+                Console.WriteLine("[BlogController] Access denied: Insufficient permissions to delete blog.");
+                return Json(new { success = false, message = "Bạn không có quyền xóa bài viết." });
             }
 
             try
@@ -338,7 +407,7 @@ namespace pet_spa_system1.Controllers
                         createdAt = createdAt,
                         content = content.Trim(),
                         parentCommentId = parentCommentId,
-                        status = "Approved" // Đảm bảo trả về trạng thái Approved
+                        status = "Approved"
                     });
                 }
                 else
@@ -352,6 +421,7 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleLike(int blogId)
@@ -362,7 +432,6 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Bạn cần đăng nhập để thích bài viết." });
             }
 
-            // Kiểm tra trạng thái bài viết
             var blog = await _context.Blogs.FindAsync(blogId);
             if (blog == null || blog.Status != "Published")
             {
@@ -388,8 +457,6 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> GetRecentBlogs(int count = 5)

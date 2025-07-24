@@ -871,7 +871,7 @@ namespace pet_spa_system1.Controllers
 
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
-            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1; // Giá trị mặc định nếu null
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] ManageBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserName: {currentUserName}, CurrentUserRoleId: {currentUserRoleId}, IsAuthenticated: {User.Identity?.IsAuthenticated}");
 
             if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3)) // Admin or Staff
@@ -1073,10 +1073,11 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-        //=======================================================================================================
-        // OrderHistory
 
-        public IActionResult OrderHistory(string status = "All", int page = 1)
+//=======================================================================================================
+// OrderHistory
+
+public IActionResult OrderHistory(string status = "All", int page = 1)
 {
             if (!User.Identity?.IsAuthenticated ?? true)
             {

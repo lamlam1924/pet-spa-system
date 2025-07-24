@@ -213,7 +213,7 @@ namespace pet_spa_system1.Controllers
             return PartialView("_ListOrderPartial", orders);
         }
 
-        public async Task<IActionResult> AddPetPartialAsync()
+        public async Task<IActionResult> AddPetPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
             if (userId == null)
@@ -373,7 +373,6 @@ namespace pet_spa_system1.Controllers
             }
 
             HttpContext.Session.SetString("CurrentUserName", user.Username);
-
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
             {
                 HttpContext.Session.SetString("CurrentUserAvatar", user.ProfilePictureUrl);
@@ -383,8 +382,8 @@ namespace pet_spa_system1.Controllers
                 HttpContext.Session.Remove("CurrentUserAvatar");
             }
             TempData["SuccessMessage"] = result.Message;
-            return RedirectToAction("Index");
-            Console.WriteLine("✅ [Session] Cập nhật CurrentUserName trong session.");
+            //return RedirectToAction("Index");
+            //Console.WriteLine("✅ [Session] Cập nhật CurrentUserName trong session.");
 
 
             return await Hoso(successMessage: result.Message ?? "Cập nhật thành công.");

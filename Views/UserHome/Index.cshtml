@@ -2,7 +2,9 @@
 
 @model UserViewModel
 @{
-    Layout = null;
+    // Layout = null;
+    // Lấy vai trò từ session
+    var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -253,7 +255,7 @@
     }
 
 
-    <!-- Header -->
+  @*   <!-- Header -->
     <div class="header">
         <div class="container">
             <nav class="navbar navbar-expand-lg">
@@ -263,7 +265,7 @@
                 </div>
             </nav>
         </div>
-    </div>
+    </div> *@
 
     <!-- Main Content -->
     <div class="container mt-4">
@@ -294,12 +296,18 @@
                     <a href="#" class="nav-link" hx-get="@Url.Action("NotificationsPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
                         <i class="bi bi-bell"></i> Thông Báo
                     </a>
-                    <a href="#" class="nav-link" hx-get="@Url.Action("ListPetPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
-                        <i class="fa-solid fa-paw" style="margin-right: 15px;"></i> Danh sách thú cưng
-                    </a>
-                    <a href="#" class="nav-link" hx-get="@Url.Action("ListOrderPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
+                    @if (roleId == 2) // Chỉ hiển thị cho Customer (RoleID = 2)
+                    {
+                        <a href="#" class="nav-link" hx-get="@Url.Action("ListPetPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
+                            <i class="fa-solid fa-paw" style="margin-right: 15px;"></i> Danh sách thú cưng
+                        </a>
+                    }
+                    @* <a href="#" class="nav-link" hx-get="@Url.Action("ListOrderPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
                         <i class="fa-solid fa-shopping-cart" style="margin-right: 15px;"></i>
                         Danh sách đơn hàng
+                    </a> *@
+                    <a href="@Url.Action("Index", "Home")" class="nav-link" style="color:#fd7e14;font-weight:500;">
+                        <i class="fa fa-arrow-left me-2"></i>Quay lại
                     </a>
                 </nav>
             </div>
