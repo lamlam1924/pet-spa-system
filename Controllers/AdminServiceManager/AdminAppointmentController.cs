@@ -5,13 +5,15 @@ using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
 {
-    public class AdminAppointmentController : Controller
+[Route("AdminAppointment")]
+public class AdminAppointmentController : Controller
 
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IUserService _userService;
 
         [HttpGet]
+        [Route("GetAppointmentDetail")]
         public IActionResult GetAppointmentDetail(int id)
         {
             var vm = _appointmentService.GetAdminAppointmentDetail(id);
@@ -35,6 +37,12 @@ namespace pet_spa_system1.Controllers
         public IActionResult List(string searchTerm = "", int statusId = 0,
             DateTime? date = null, int employeeId = 0, int page = 1)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             const int pageSize = 10;
 
             var appointments = _appointmentService.GetAppointments(
@@ -49,7 +57,7 @@ namespace pet_spa_system1.Controllers
             {
                 Appointments = appointments,
                 StatusList = _appointmentService.GetAllStatuses(),
-                Employees = employees,
+                EmployeeList = employees, // truyền cho UI duyệt/gán
                 // Nếu cần filter khách hàng, dịch vụ, thú cưng thì bổ sung:
                 // Customers = _appointmentService.GetCustomers(),
                 // Services = _appointmentService.GetAllServices(),
@@ -88,9 +96,9 @@ namespace pet_spa_system1.Controllers
         public IActionResult Create()
         {
             var viewModel = _appointmentService.PrepareCreateViewModel();
-            // Lọc lại Employees nếu cần
-            if (viewModel.Employees != null)
-                viewModel.Employees = viewModel.Employees.Where(u => u.RoleId == 3).ToList();
+            // Lọc lại EmployeeList nếu cần
+            if (viewModel.EmployeeList != null)
+                viewModel.EmployeeList = viewModel.EmployeeList.Where(u => u.RoleId == 3).ToList();
             return View("~/Views/Admin/ManageAppointment/AddAppointment.cshtml", viewModel);
         }
 
@@ -128,9 +136,9 @@ namespace pet_spa_system1.Controllers
         {
             var vm = _appointmentService.PrepareEditViewModel(id);
             if (vm == null) return NotFound();
-            // Lọc lại Employees nếu cần
-            if (vm.Employees != null)
-                vm.Employees = vm.Employees.Where(u => u.RoleId == 3).ToList();
+            // Lọc lại EmployeeList nếu cần
+            if (vm.EmployeeList != null)
+                vm.EmployeeList = vm.EmployeeList.Where(u => u.RoleId == 3).ToList();
             return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", vm);
         }
 
@@ -180,6 +188,7 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpPost]
+        [Route("QuickUpdateStatus")]
         [ValidateAntiForgeryToken]
         public JsonResult QuickUpdateStatus(int id, int statusId)
         {
@@ -191,47 +200,94 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Không tìm thấy lịch hẹn" });
         }
 
-        // Trang danh sách lịch hẹn cần duyệt
-        public IActionResult ApprovalList()
+
+        // [HttpPost]
+        // [ValidateAntiForgeryToken]
+        // public IActionResult ApproveCancel(int id)
+        // {
+        //     // Chuyển trạng thái sang Đã hủy (5) và gửi mail
+        //     _appointmentService.UpdateAppointmentStatusAndSendMail(id, 5);
+        //     TempData["SuccessMessage"] = "Đã duyệt hủy lịch hẹn.";
+        //     return RedirectToAction("ApprovalList");
+        // }
+
+        [HttpGet]
+        [Route("/AdminServiceManager/AdminAppointment/ApproveAppointments")]
+        public IActionResult ApproveAppointments(string customer = "", string pet = "", string service = "", string status = "", int page = 1)
         {
-            // Lấy 2 danh sách: 1 = Chờ xác nhận, 6 = Yêu cầu hủy
-            var model = new ApprovalListTabsViewModel
+            // Trả về View kèm ViewModel, truyền tham số lọc cho service
+            var model = _appointmentService.GetPendingAppointmentsViewModel(customer, pet, service, status, page);
+            return View("~/Views/Admin/ManageAppointment/ApproveAppointments.cshtml", model);
+        }
+
+        [HttpPost("ApproveAndAssignStaff")]
+        [ValidateAntiForgeryToken]
+        public IActionResult ApproveAndAssignStaff([FromBody] ApproveAssignRequest request)
+        {
+            if (request == null || request.AppointmentId <= 0 || request.StaffId <= 0)
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+
+            var result = _appointmentService.AdminApproveAndAssignStaff(request);
+
+            if (result.Success)
             {
-                Pending = _appointmentService.GetPendingAppointments(),
-                PendingCancel = _appointmentService.GetPendingCancelAppointments()
-            };
-            return View("~/Views/Admin/ManageAppointment/ApprovalList.cshtml", model);
+                // Gửi mail thông báo cho khách hàng
+                try
+                {
+                    _appointmentService.SendAppointmentNotificationMail(request.AppointmentId, "approved", request.StaffId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Mail] Lỗi gửi mail thông báo duyệt/gán: {ex.Message}");
+                }
+                return Ok(new {
+                    success = true,
+                    message = result.Message,
+                    updated = result.Updated
+                });
+            }
+            else
+            {
+                return Ok(new {
+                    success = false,
+                    message = result.Message
+                });
+            }
         }
 
-        [HttpPost]
+        [HttpPost("AutoAssignStaff")]
         [ValidateAntiForgeryToken]
-        public IActionResult ApproveCancel(int id)
+        public IActionResult AutoAssignStaff([FromBody] AutoAssignRequest request)
+
         {
-            // Chuyển trạng thái sang Đã hủy (5) và gửi mail
-            _appointmentService.UpdateAppointmentStatusAndSendMail(id, 5);
-            TempData["SuccessMessage"] = "Đã duyệt hủy lịch hẹn.";
-            return RedirectToAction("ApprovalList");
+            if (request == null || request.AppointmentId <= 0)
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+
+            var appointment = _appointmentService.GetAppointmentById(request.AppointmentId);
+            if (appointment == null)
+                return Ok(new { success = false, message = "Không tìm thấy lịch hẹn" });
+
+            var assignedStaffId = _appointmentService.AutoAssignStaffForAppointment(appointment);
+
+            if (assignedStaffId == null)
+                return Ok(new { success = false, message = "Không tìm được nhân viên phù hợp" });
+
+            return Ok(new { success = true });
         }
 
-        [HttpPost]
+        [HttpPost("CheckConflict")]
         [ValidateAntiForgeryToken]
-        public IActionResult RejectCancel(int id)
+        public IActionResult CheckConflict([FromBody] CheckConflictRequest request)
         {
-            // Chuyển trạng thái về Đã xác nhận (2) hoặc trạng thái trước đó
-            _appointmentService.UpdateAppointmentStatus(id, 2);
-            TempData["SuccessMessage"] = "Đã từ chối yêu cầu hủy.";
-            return RedirectToAction("ApprovalList");
+            if (request == null || request.StaffId <= 0 || request.DurationMinutes <= 0)
+                return BadRequest(new { conflict = false, message = "Dữ liệu không hợp lệ" });
+
+            bool conflict =
+                _appointmentService.IsTimeConflict(request.AppointmentDate, request.StaffId, request.DurationMinutes);
+
+            return Ok(new { conflict });
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult ApproveAppointment(int id)
-        {
-            // Chuyển trạng thái sang Đã xác nhận (2) và gửi mail
-            _appointmentService.UpdateAppointmentStatusAndSendMail(id, 2);
-            TempData["SuccessMessage"] = "Đã duyệt lịch hẹn.";
-            return RedirectToAction("ApprovalList");
-        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -239,51 +295,70 @@ namespace pet_spa_system1.Controllers
         {
             // Chuyển trạng thái sang Đã hủy (4)
             _appointmentService.UpdateAppointmentStatus(id, 4);
+            // Gửi mail thông báo cho khách hàng
+            try
+            {
+                _appointmentService.SendAppointmentNotificationMail(id, "rejected", null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Mail] Lỗi gửi mail thông báo từ chối/hủy: {ex.Message}");
+            }
             TempData["SuccessMessage"] = "Đã từ chối lịch hẹn.";
             return RedirectToAction("ApprovalList");
         }
 
-        // Timeline Scheduler View
-        public async Task<IActionResult> TimelineScheduler(string keyword = "")
+        public IActionResult ManagementTimeline(DateTime? date)
         {
-            var today = DateTime.Today;
-            var staffList = await _userService.GetStaffListAsync();
-            var allAppointments = _appointmentService.GetAppointments("", 0, today, 0, 1, 100);
-            var searchResults = string.IsNullOrWhiteSpace(keyword)
-                ? new List<Appointment>()
-                : _appointmentService.GetAppointments(keyword, 0, today, 0, 1, 100);
-
-            List<TimelineAppointmentViewModel> MapAppointments(List<Appointment> appts)
-            {
-                return appts.Select(a => {
-                    var serviceDurations = a.AppointmentServices?.Select(asr => asr.Service.DurationMinutes ?? 0).ToList() ?? new List<int>();
-                    int totalDuration = serviceDurations.Sum();
-                    if (serviceDurations.Count > 1)
-                        totalDuration += (serviceDurations.Count - 1) * 5; // Cộng 5 phút giữa các dịch vụ
-                    return new TimelineAppointmentViewModel
-                    {
-                        AppointmentId = a.AppointmentId,
-                        AppointmentDate = a.AppointmentDate,
-                        EmployeeId = a.EmployeeId,
-                        EmployeeName = a.Employee?.FullName,
-                        CustomerName = a.User?.FullName,
-                        PetNames = a.AppointmentPets?.Select(ap => ap.Pet?.Name ?? "").ToList() ?? new List<string>(),
-                        ServiceNames = a.AppointmentServices?.Select(asr => asr.Service?.Name ?? "").ToList() ?? new List<string>(),
-                        TotalDurationMinutes = totalDuration,
-                        StatusId = a.StatusId,
-                        EndTime = a.AppointmentDate.AddMinutes(totalDuration)
-                    };
-                }).ToList();
-            }
-
-            var vm = new TimelineSchedulerViewModel
-            {
-                StaffList = staffList,
-                Appointments = MapAppointments(allAppointments),
-                SearchResults = MapAppointments(searchResults),
-                Keyword = keyword
-            };
-            return View("~/Views/Admin/ManageAppointment/TimelineScheduler.cshtml", vm);
+            var selectedDate = date ?? DateTime.Today;
+            var viewModel = _appointmentService.GetManagementTimelineData(selectedDate);
+            return View("~/Views/Admin/ManageAppointment/ManagementTimeline.cshtml", viewModel);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateStaffAndTime([FromBody] ShiftUpdateRequest request)
+        {
+            if (request == null || request.AppointmentId <= 0)
+                return BadRequest(new { success = false });
+
+            if (request.NewHour < 8 || request.NewHour > 20)
+                return BadRequest(new { success = false, message = "Giờ làm việc không hợp lệ." });
+
+            var appointment = _appointmentService.GetAppointmentById(request.AppointmentId);
+            if (appointment == null)
+                return NotFound(new { success = false });
+
+            // Cập nhật nhân viên
+            appointment.EmployeeId = request.NewStaffId;
+
+            // Cập nhật giờ bắt đầu
+            var date = appointment.AppointmentDate.Date;
+            appointment.AppointmentDate = new DateTime(date.Year, date.Month, date.Day, request.NewHour, 0, 0);
+
+            // Cập nhật giờ kết thúc
+            // Tính toán giờ kết thúc thông qua service
+            int duration = _appointmentService.CalculateDurationMinutes(appointment.AppointmentId);
+            var endTime = appointment.AppointmentDate.AddMinutes(duration);
+            // Nếu cần lưu endTime vào ViewModel hoặc trả về cho client thì xử lý tại đây
+
+            // Chuyển đổi sang ViewModel nếu cần
+            var appointmentVm = new AppointmentViewModel
+            {
+                AppointmentId = appointment.AppointmentId,
+                AppointmentDate = appointment.AppointmentDate,
+                CustomerId = appointment.UserId,
+                EmployeeIds = appointment.EmployeeId.HasValue ? new List<int> { appointment.EmployeeId.Value } : new List<int>(),
+                StatusId = appointment.StatusId,
+                Notes = appointment.Notes,
+                SelectedPetIds = appointment.AppointmentPets?.Select(p => p.PetId).ToList() ?? new List<int>(),
+                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ?? new List<int>()
+            };
+            _appointmentService.UpdateAppointment(appointmentVm);
+
+            return Ok(new { success = true });
+        }
+
+
     }
 }

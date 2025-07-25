@@ -1,0 +1,232 @@
+@model pet_spa_system1.ViewModel.RealtimeShiftViewModel
+@{
+    ViewData["Title"] = "Quản lý lịch làm việc";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+<style>
+    .appointment-card {
+        background-color: #f1f1f1;
+        border-radius: 5px;
+        cursor: move;
+        font-size: 0.9em;
+        padding: 4px 8px;
+        margin: 2px;
+    }
+
+</style>
+
+<div class="container-fluid py-4">
+    <h2 class="text-success mb-4">Quản lý lịch làm việc hôm nay</h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="timelineTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="table-tab" data-toggle="tab" href="#tableView" role="tab">Xem theo bảng</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="drag-tab" data-toggle="tab" href="#dragDropView" role="tab">Sắp xếp nhân viên</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Table view -->
+        <div class="tab-pane fade show active" id="tableView" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                        <tr>
+                            <th>Nhân viên</th>
+                            @foreach (var hour in Model.Hours)
+                            {
+                                <th>@hour:00</th>
+                            }
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var staff in Model.StaffShifts)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="@staff.AvatarUrl" width="40" height="40" class="rounded-circle me-2" />
+                                    @staff.StaffName
+                                </td>
+                                @foreach (var hour in Model.Hours)
+                                {
+                                    var shift = staff.HourStatus.ContainsKey(hour) ? staff.HourStatus[hour] : null;
+                                    if (shift != null)
+                                    {
+                                        <td class="dropzone"
+                                            data-hour="@hour"
+                                            data-staff-id="@staff.UserId"
+                                            style="min-height: 50px;">
+                                            @if (shift != null)
+                                            {
+                                                <div class="appointment-card p-1 border"
+                                                     draggable="true"
+                                                     data-appointment-id="@shift.AppointmentId">
+                                                    @shift.StatusText
+                                                </div>
+                                            }
+                                        </td>
+
+                                    }
+                                    else
+                                    {
+                                        <td>-</td>
+                                    }
+                                }
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drag & Drop view -->
+        <div class="tab-pane fade" id="dragDropView" role="tabpanel">
+            <div class="row">
+                @foreach (var staff in Model.StaffShifts)
+                {
+                    <div class="col-md-3 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <img src="@staff.AvatarUrl" width="30" height="30" class="rounded-circle mr-2" />
+                                @staff.StaffName
+                            </div>
+                            <div class="card-body dropzone" data-staff-id="@staff.UserId" style="min-height:150px;">
+                                @if (staff.Appointments != null)
+                                {
+                                    foreach (var appointment in staff.Appointments)
+                                    {
+                                        <div class="appointment-card mb-2 p-2 border"
+                                             draggable="true"
+                                             data-appointment-id="@appointment.AppointmentId">
+                                            Lịch: @appointment.AppointmentDate:HH\\:mm - @appointment.EndTime:HH\\:mm
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Styles {
+    <style>
+    .timeline-table th, .timeline-table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .timeline-table td {
+        min-width: 70px;
+        position: relative;
+        height: 50px;
+    }
+
+    .timeline-table .position-absolute {
+        font-size: 0.9rem;
+        z-index: 2;
+    }
+
+    .bg-inprogress {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .bg-upcoming {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .bg-completed {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .bg-absent {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.nav-tabs a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        document.querySelectorAll('.dropzone').forEach(zone => {
+            new Sortable(zone, {
+                group: 'appointments',
+                animation: 150,
+                onAdd: function (evt) {
+                    const appointmentId = evt.item.dataset.appointmentId;
+                    const newStaffId = evt.to.dataset.staffId;
+
+                    fetch('/AdminAppointment/UpdateStaffForAppointment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({
+                            appointmentId: appointmentId,
+                            newStaffId: newStaffId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            alert("Cập nhật thất bại!");
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+<script>
+    document.querySelectorAll('#tableView .dropzone').forEach(zone => {
+        new Sortable(zone, {
+            group: 'appointments',
+            animation: 150,
+            onAdd: function (evt) {
+                const appointmentId = evt.item.dataset.appointmentId;
+                const newStaffId = evt.to.dataset.staffId;
+                const newHour = evt.to.dataset.hour;
+
+                fetch('/AdminAppointment/UpdateStaffAndTime', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        appointmentId: appointmentId,
+                        newStaffId: newStaffId,
+                        newHour: parseInt(newHour)
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            alert("Cập nhật thất bại!");
+                            location.reload(); // Nếu thất bại thì reload lại UI
+                        }
+                    });
+            }
+        });
+    });
+
+</script>

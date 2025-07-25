@@ -1,0 +1,114 @@
+body {
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    background: #f6f8fa;
+}
+.card {
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 16px 0 rgba(60,72,88,0.08);
+    transition: box-shadow 0.2s;
+}
+.card:hover {
+    box-shadow: 0 4px 24px 0 rgba(60,72,88,0.16);
+    border: 1px solid #e0e7ef;
+}
+.badge {
+    font-size: 0.95em;
+    border-radius: 1rem;
+    padding: 0.35em 0.8em;
+    font-weight: 500;
+}
+.badge.bg-dark {
+    background: linear-gradient(90deg,#232526 0,#414345 100%);
+}
+.badge.bg-danger {
+    background: linear-gradient(90deg,#ff5858 0,#f09819 100%);
+    color: #fff;
+}
+.badge.bg-success {
+    background: linear-gradient(90deg,#43cea2 0,#185a9d 100%);
+    color: #fff;
+}
+.btn {
+    border-radius: 1rem;
+    font-weight: 500;
+    transition: box-shadow 0.2s, background 0.2s;
+}
+.btn-dark {
+    background: linear-gradient(90deg,#232526 0,#414345 100%);
+    color: #fff;
+    border: none;
+}
+.btn-outline-dark {
+    border: 1.5px solid #232526;
+    color: #232526;
+    background: #fff;
+}
+.btn-outline-info {
+    border: 1.5px solid #17a2b8;
+    color: #17a2b8;
+    background: #fff;
+}
+.btn:hover, .btn:focus {
+    box-shadow: 0 2px 8px 0 rgba(60,72,88,0.12);
+    opacity: 0.95;
+}
+.dropdown-menu {
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px 0 rgba(60,72,88,0.10);
+}
+.dropdown-item {
+    border-radius: 0.75rem;
+    transition: background 0.2s;
+}
+.dropdown-item:hover {
+    background: #f0f4fa;
+}
+.rounded-4 {
+    border-radius: 1.5rem !important;
+}
+.sticky-top {
+    top: 0;
+    z-index: 100;
+}
+.modal-content {
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 24px 0 rgba(60,72,88,0.18);
+}
+.modal-header {
+    border-bottom: none;
+    background: #f6f8fa;
+    border-radius: 1.5rem 1.5rem 0 0;
+}
+.modal-title {
+    font-weight: 600;
+    color: #232526;
+}
+.form-control, .form-select {
+    border-radius: 1rem;
+    border: 1.5px solid #e0e7ef;
+    font-size: 1em;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #43cea2;
+    box-shadow: 0 2px 8px 0 rgba(60,72,88,0.10);
+}
+.select-appointment {
+    accent-color: #43cea2;
+    width: 1.2em;
+    height: 1.2em;
+}
+.pagination .page-link {
+    border-radius: 1rem !important;
+    font-weight: 500;
+    color: #232526;
+}
+.pagination .active .page-link {
+    background: linear-gradient(90deg,#43cea2 0,#185a9d 100%);
+    color: #fff;
+    border: none;
+}
+@media (max-width: 768px) {
+    .card-body { padding: 1rem; }
+    .modal-lg { max-width: 98vw; }
+    .row.g-3 { gap: 1rem; }
+}

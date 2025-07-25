@@ -1,20 +1,17 @@
-
-
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace pet_spa_system1.Repositories
 {
     public class AppointmentRepository : IAppointmentRepository
     {
         private readonly PetDataShopContext _context;
+
         public AppointmentRepository(PetDataShopContext context)
         {
             _context = context;
         }
+
         /// <summary>
         /// Cập nhật thông tin lịch hẹn (bao gồm trạng thái)
         /// </summary>
@@ -167,9 +164,9 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Status)
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets)
-                    .ThenInclude(ap => ap.Pet)
+                .ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices)
-                    .ThenInclude(asr => asr.Service)
+                .ThenInclude(asr => asr.Service)
                 .AsQueryable();
 
             query = ApplyFilters(query, searchTerm, statusId, date, employeeId);
@@ -231,9 +228,9 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Status)
                 .Include(a => a.User)
                 .Include(a => a.AppointmentPets)
-                    .ThenInclude(ap => ap.Pet)
+                .ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices)
-                    .ThenInclude(as_ => as_.Service)
+                .ThenInclude(as_ => as_.Service)
                 .Where(a => a.AppointmentDate >= start && a.AppointmentDate <= end)
                 .ToList();
         }
@@ -254,7 +251,6 @@ namespace pet_spa_system1.Repositories
         {
             _context.Appointments.Add(appointment);
         }
-
 
 
         public void Delete(int id)
@@ -308,7 +304,7 @@ namespace pet_spa_system1.Repositories
         public List<User> GetCustomers()
         {
             return _context.Users
-                .Where(u => u.RoleId == 3)
+                .Where(u => u.RoleId == 2)
                 .ToList();
         }
 
@@ -366,12 +362,48 @@ namespace pet_spa_system1.Repositories
         public int CountPendingApprovalAppointments()
         {
             return _context.Appointments.Count(a => a.StatusId == 1);
-
         }
 
         public int CountPendingCancelAppointments()
         {
             return _context.Appointments.Count(a => a.StatusId == 6);
         }
+
+        // Repository trả entity hoặc entity list, không có EndTime
+        public List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date)
+        {
+            return _context.Appointments
+                .Include(a => a.AppointmentServices)
+                .ThenInclude(s => s.Service)
+                .Where(a => a.EmployeeId == staffId && a.AppointmentDate.Date == date.Date)
+                .ToList();
+        }
+
+        public bool HasTimeConflict(int staffId, DateTime newStart, DateTime newEnd, int? excludeAppointmentId = null)
+        {
+            return _context.Appointments
+                .Where(a => a.EmployeeId == staffId)
+                .Where(a => excludeAppointmentId == null || a.AppointmentId != excludeAppointmentId)
+                .Any(a =>
+                    newStart < a.AppointmentDate.AddMinutes(a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
+                    && newEnd > a.AppointmentDate
+                );
+
+
+        }
+        
+        public List<Appointment> GetAppointmentsByStatus(int statusId)
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.AppointmentServices)
+                .ThenInclude(asv => asv.Service)
+                .Include(a => a.AppointmentPets)
+                .ThenInclude(ap => ap.Pet)
+                .Where(a => a.StatusId == statusId)
+                .ToList();
+        }
+
     }
 }

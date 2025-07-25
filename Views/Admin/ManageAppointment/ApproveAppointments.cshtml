@@ -1,0 +1,227 @@
+<link rel="stylesheet" href="~/css/approve-appointments.css" />
+
+<!-- jQuery & Bootstrap đã được import ở _LayoutAdmin.cshtml, không import lại để tránh xung đột -->
+
+// ...existing code...
+@model pet_spa_system1.ViewModel.ApproveAppointmentsViewModel
+@{
+    ViewData["Title"] = "Duyệt lịch hẹn";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    var grouped = Model.PendingAppointments.OrderBy(a => a.AppointmentDate)
+        .GroupBy(a => a.AppointmentDate.Date)
+        .OrderBy(g => g.Key)
+        .ToList();
+    int pageSize = 12;
+    int page = Model.Page ?? 1;
+    var pagedGroups = grouped.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+}
+
+<div class="container-fluid mt-3">
+    <h2 class="mb-4">Duyệt lịch hẹn</h2>
+    <!-- Bộ lọc & tìm kiếm -->
+    <form id="filter-form" class="row mb-3 align-items-end">
+        @Html.AntiForgeryToken()
+        <div class="col-md-3">
+            <label for="search-customer" class="form-label">Khách hàng</label>
+            <input type="text" id="search-customer" class="form-control" placeholder="Tìm theo tên khách..." />
+        </div>
+        <div class="col-md-3">
+            <label for="search-pet" class="form-label">Thú cưng</label>
+            <input type="text" id="search-pet" class="form-control" placeholder="Tìm theo tên thú cưng..." />
+        </div>
+        <div class="col-md-3">
+            <label for="search-service" class="form-label">Dịch vụ</label>
+            <input type="text" id="search-service" class="form-control" placeholder="Tìm theo dịch vụ..." />
+        </div>
+        <div class="col-md-2">
+            <label for="filter-status" class="form-label">Trạng thái</label>
+            <select id="filter-status" class="form-select">
+                <option value="">Tất cả</option>
+                @if (Model.Statuses != null)
+                {
+                    foreach (var status in Model.Statuses)
+                    {
+                        <option value="@status.StatusId">@status.StatusName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button type="button" id="btn-filter" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </form>
+    <div id="appointments-list">
+        @if (pagedGroups.Count == 0)
+        {
+            <div class="alert alert-info">Không có lịch hẹn chờ duyệt.</div>
+        }
+        else
+        {
+            int groupIndex = 0;
+            foreach (var group in pagedGroups)
+            {
+                var collapseId = $"collapse-{group.Key:yyyyMMdd}";
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="cursor:pointer; background-color:#f8f9fa;" data-toggle="collapse" data-target="#@collapseId" aria-expanded="@(groupIndex == 0 ? "true" : "false")" aria-controls="@collapseId">
+                        <h5 class="mb-0 text-primary">@group.Key.ToString("dd/MM/yyyy")</h5>
+                        <span class="badge badge-info">@group.Count() lịch hẹn</span>
+                        <span class="ml-auto"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div id="@collapseId" class="collapse @(groupIndex == 0 ? "show" : "")">
+                        <div class="card-body">
+                            <div class="row">
+                                @foreach (var appointment in group)
+                                {
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card shadow">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Khách: @appointment.CustomerName</h6>
+                                                <p class="card-text">Thú cưng: @string.Join(", ", appointment.SelectedPets.Select(p => p.Name))</p>
+                                                <p class="card-text">Dịch vụ: @string.Join(", ", appointment.SelectedServices.Select(s => s.Name))</p>
+                                                <p class="card-text">Thời gian: @appointment.AppointmentDate.ToString("HH:mm")</p>
+                                                <select class="form-control staff-dropdown mb-2">
+                                                    <option value="">Chọn nhân viên</option>
+                                                    @foreach (var staff in Model.StaffList)
+                                                    {
+                                                        <option value="@staff.UserId">@staff.FullName</option>
+                                                    }
+                                                </select>
+                                                <button class="btn btn-success btn-approve" data-appointment-id="@appointment.AppointmentId">Duyệt & Gán nhân viên</button>
+                                                <button class="btn btn-info btn-auto-assign" data-appointment-id="@appointment.AppointmentId" aria-label="Tự động gán nhân viên">Tự động gán</button>
+                                                <button class="btn btn-secondary btn-detail" data-appointment-id="@appointment.AppointmentId" aria-label="Xem chi tiết lịch hẹn">Chi tiết</button>
+                                                <select class="form-control status-dropdown mt-2" data-appointment-id="@appointment.AppointmentId">
+                                                    @if (Model.Statuses != null && Model.Statuses.Any())
+                                                    {
+                                                        foreach (var status in Model.Statuses)
+                                                        {
+                                                            <option value="@status.StatusId" selected="@(appointment.StatusId == status.StatusId ? "selected" : null)">@status.StatusName</option>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <option disabled>Không có danh sách trạng thái</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                groupIndex++;
+            }
+        }
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="~/js/jquery.counterup.min.js"></script>
+    <script src="~/js/waypoints.min.js"></script>
+    <script src="~/js/main.js"></script>
+    <script>
+    $(document).ready(function() {
+        let loading = false;
+        function loadPage(page, filters = {}) {
+            if (loading) return;
+            loading = true;
+            let url = '/Admin/ManageAppointment/ApproveAppointments?page=' + page;
+            if (filters) {
+                url += '&customer=' + encodeURIComponent(filters.customer || '');
+                url += '&pet=' + encodeURIComponent(filters.pet || '');
+                url += '&service=' + encodeURIComponent(filters.service || '');
+                url += '&status=' + encodeURIComponent(filters.status || '');
+            }
+            $.get(url, function (data) {
+                $('#appointments-list').html($(data).find('#appointments-list').html());
+                loading = false;
+            });
+        }
+        $(window).on('scroll', function () {
+            if ($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
+                let nextPage = $('.pagination .active').next().find('button').text();
+                if (nextPage) loadPage(nextPage, getFilters());
+            }
+        });
+        function getFilters() {
+            return {
+                customer: $('#search-customer').val(),
+                pet: $('#search-pet').val(),
+                service: $('#search-service').val(),
+                status: $('#filter-status').val()
+            };
+        }
+        $('#btn-filter').on('click', function() {
+            loadPage(1, getFilters());
+        });
+        $('#search-customer, #search-pet, #search-service').on('keypress', function(e) {
+            if (e.which === 13) {
+                loadPage(1, getFilters());
+            }
+        });
+        $(document.body).on('click', '.btn-detail', function() {
+            console.log('Chi tiết click');
+            let id = $(this).data('appointment-id');
+        $.get('/AdminAppointment/GetAppointmentDetail?id=' + id, function(data) {
+                $('#detailModalBody').html(data);
+            });
+        });
+        $(document.body).on('click', '.btn-approve', function(e) {
+            console.log('Duyệt & Gán click');
+            e.preventDefault();
+            let id = $(this).data('appointment-id');
+            let staffId = $(this).closest('.card-body').find('.staff-dropdown').val();
+            if (!staffId) { alert('Vui lòng chọn nhân viên!'); return; }
+            $.ajax({
+                url: '/AdminAppointment/ApproveAndAssignStaff',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ AppointmentId: id, StaffId: staffId }),
+                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                success: function(res) {
+                    if (res.success) {
+                        alert('Đã duyệt và gán nhân viên thành công!');
+                        loadPage($('.pagination .active').text(), getFilters());
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        });
+        $(document.body).on('click', '.btn-auto-assign', function() {
+            console.log('Tự động gán click');
+            let id = $(this).data('appointment-id');
+            $.ajax({
+                url: '/AdminAppointment/AutoAssignStaff',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ AppointmentId: id }),
+                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                success: function(res) {
+                    if (res.success) {
+                        alert('Đã tự động gán nhân viên!');
+                        loadPage($('.pagination .active').text(), getFilters());
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        });
+        $(document.body).on('change', '.status-dropdown', function() {
+            let id = $(this).data('appointment-id');
+            let statusId = $(this).val();
+            $.post('/AdminAppointment/QuickUpdateStatus', { id: id, statusId: statusId }, function(res) {
+                if (res.success) {
+                    alert('Đã cập nhật trạng thái!');
+                    loadPage($('.pagination .active').text(), getFilters());
+                } else {
+                    alert(res.message);
+                }
+            });
+        });
+    });
+    </script>
+}

@@ -48,6 +48,9 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
 builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
 
+// Đăng ký log service cho lịch sử duyệt/gán
+builder.Services.AddScoped<pet_spa_system1.Services.IAppointmentLogService, pet_spa_system1.Services.AppointmentLogService>();
+
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -160,6 +163,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ======= ROUTING =======
+
+app.MapControllerRoute(
+    name: "AdminAppointment",
+    pattern: "AdminAppointment/{action}/{id?}",
+    defaults: new { controller = "AdminAppointment" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

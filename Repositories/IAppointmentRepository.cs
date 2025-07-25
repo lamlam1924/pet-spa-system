@@ -63,7 +63,10 @@ namespace pet_spa_system1.Repositories
         void DeleteAppointmentServices(int appointmentId);
 
         List<MonthlyAppointmentStats> GetMonthlyStats(int year);
+        
+        List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
 
+        List<Appointment> GetAppointmentsByStatus(int statusId);
     }
 
     public class MonthlyAppointmentStats

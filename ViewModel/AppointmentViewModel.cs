@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using pet_spa_system1.Models;
-using pet_spa_system1.Repositories;
+﻿using pet_spa_system1.Models;
 
 namespace pet_spa_system1.ViewModel
 {
@@ -16,6 +12,7 @@ namespace pet_spa_system1.ViewModel
     }
 
     #region Base Models
+
     public class AppointmentBaseViewModel
     {
         public int AppointmentId { get; set; }
@@ -25,34 +22,15 @@ namespace pet_spa_system1.ViewModel
         public List<int> SelectedPetIds { get; set; } = new();
         public List<int> SelectedServiceIds { get; set; } = new();
     }
+
     #endregion
 
-    #region Timeline Scheduler
-    public class TimelineAppointmentViewModel
-    {
-        public int AppointmentId { get; set; }
-        public DateTime AppointmentDate { get; set; }
-        public int? EmployeeId { get; set; }
-        public string? EmployeeName { get; set; }
-        public string? CustomerName { get; set; }
-        public List<string> PetNames { get; set; } = new();
-        public List<string> ServiceNames { get; set; } = new();
-        public int TotalDurationMinutes { get; set; }
-        public int StatusId { get; set; }
-        public DateTime EndTime { get; set; } // Thời gian kết thúc thực tế
-    }
-    public class TimelineSchedulerViewModel
-    {
-        public List<User> StaffList { get; set; } = new();
-        public List<TimelineAppointmentViewModel> Appointments { get; set; } = new();
-        public string Keyword { get; set; } = string.Empty;
-        public List<TimelineAppointmentViewModel> SearchResults { get; set; } = new();
-    }
-    #endregion
 
     #region Customer Appointment
     public class AppointmentViewModel : AppointmentBaseViewModel
     {
+        // Danh sách nhân viên cho UI duyệt/gán
+        public List<User> EmployeeList { get; set; } = new();
         public string CustomerName { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -80,7 +58,6 @@ namespace pet_spa_system1.ViewModel
         public int CustomerId { get; set; }
         public string? Notes { get; set; }
         public List<StatusAppointment> Statuses { get; set; } = new();
-        public List<User> Employees { get; set; } = new();
         public List<User> Customers { get; set; } = new();
         public List<PetInfo> AllPets { get; set; } = new();
         public List<Service> AllServices { get; set; } = new();
@@ -91,6 +68,10 @@ namespace pet_spa_system1.ViewModel
         public List<int> SelectedPetIds { get; set; } = new();
         public List<int> SelectedServiceIds { get; set; } = new();
         public List<CategoryInfo> CategoriesAdmin { get; set; } = new(); // Đổi tên để tránh trùng lặp
+        public int DurationMinutes { get; set; }
+        public List<AppointmentServiceViewModel> AppointmentServices { get; set; } = new();
+        public DateTime EndTime { get; set; }
+        public int? SuggestedStaffId { get; set; }
         // --- End gộp ---
 
         // Định nghĩa class CategoryInfo và ServiceInfo lồng bên trong ViewModel (nếu chưa có)
@@ -100,6 +81,7 @@ namespace pet_spa_system1.ViewModel
             public string? Name { get; set; }
             public List<ServiceInfo> Services { get; set; } = new();
         }
+
         public class ServiceInfo
         {
             public int ServiceId { get; set; }
@@ -109,6 +91,67 @@ namespace pet_spa_system1.ViewModel
         }
     }
 
+    public class AppointmentListViewModel
+    {
+        public List<Appointment> Appointments { get; set; } = new();
+
+        public List<StatusAppointment> StatusList { get; set; } = new();
+
+        // Danh sách nhân viên cho UI duyệt/gán
+        public List<User> EmployeeList { get; set; } = new();
+
+        public List<User> Customers { get; set; } = new();
+        public List<Service> Services { get; set; } = new();
+        public List<Pet> Pets { get; set; } = new();
+    }
+
+    public class AppointmentItemViewModel
+    {
+        public int AppointmentId { get; set; }
+        public DateTime AppointmentDate { get; set; }
+
+        // Dịch vụ
+        public List<ServiceViewModel> Services { get; set; } = new();
+
+        // Tổng thời gian (phút) => tính từ Service.Duration
+        public int DurationMinutes { get; set; }
+
+        // Giờ kết thúc => tính từ AppointmentDate + DurationMinutes
+        public DateTime EndTime { get; set; }
+
+        // Các phần khác (khách hàng, thú cưng, trạng thái, nhân viên,...)
+        public string CustomerName { get; set; } = string.Empty;
+        public string? CustomerPhone { get; set; }
+        public int StatusId { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+        public string? StaffName { get; set; }
+        public List<string> PetNames { get; set; } = new();
+        public decimal TotalPrice => Services?.Sum(s => s.Price) ?? 0;
+        
+        public AppointmentItemViewModel MapToViewModel(Appointment appointment)
+        {
+            return new AppointmentItemViewModel
+            {
+                AppointmentId = appointment.AppointmentId,
+                AppointmentDate = appointment.AppointmentDate,
+                CustomerName = appointment.User?.FullName ?? "",
+                CustomerPhone = appointment.User?.Phone,
+                StatusId = appointment.StatusId,
+                StatusName = appointment.Status?.StatusName ?? "",
+                StaffName = appointment.Employee?.FullName,
+                PetNames = appointment.AppointmentPets?.Select(p => p.Pet.Name).ToList() ?? new List<string>(),
+                Services = appointment.AppointmentServices?.Select(s => new ServiceViewModel
+                {
+                    Name = s.Service.Name,
+                    Duration = s.Service.DurationMinutes.Value,
+                    Price = s.Service.Price
+                }).ToList() ?? new List<ServiceViewModel>()
+            };
+        }
+
+    }
+
+    
     public class AppointmentHistoryItemViewModel
     {
         public int AppointmentId { get; set; }
@@ -125,6 +168,7 @@ namespace pet_spa_system1.ViewModel
         public List<AppointmentHistoryItemViewModel> Appointments { get; set; } = new();
         public List<StatusAppointment> Statuses { get; set; } = new();
     }
+
     #endregion
 
     #region Admin Appointment
@@ -164,9 +208,11 @@ namespace pet_spa_system1.ViewModel
         // Today's appointments
         public List<DailyAppointmentSummaryViewModel> RecentAppointments { get; set; } = new();
     }
+
     #endregion
 
     #region Admin Appointment Detail
+
     public class AdminAppointmentDetailViewModel
     {
         // Lịch hẹn
@@ -231,27 +277,12 @@ namespace pet_spa_system1.ViewModel
         public decimal Price { get; set; }
         public int? DurationMinutes { get; set; }
     }
+
     #endregion
 
-    // ViewModel cho trang duyệt lịch 2 tab (admin)
-    public class ApprovalListTabsViewModel
+    public class ApproveRequestModel
     {
-        public List<AdminAppointmentDetailViewModel> Pending { get; set; } = new();
-        public List<AdminAppointmentDetailViewModel> PendingCancel { get; set; } = new();
-
-        // Thêm 2 property đếm số lượng
-        public int PendingCount => Pending?.Count ?? 0;
-        public int PendingCancelCount => PendingCancel?.Count ?? 0;
-    }
-
-    public class AppointmentListViewModel
-    {
-        public List<Appointment> Appointments { get; set; } = new();
-        public List<StatusAppointment> StatusList { get; set; } = new();
-        // Thêm các property cho filter hoặc hiển thị nếu cần
-        public List<User> Employees { get; set; } = new();
-        public List<User> Customers { get; set; } = new();
-        public List<Service> Services { get; set; } = new();
-        public List<Pet> Pets { get; set; } = new();
+        public int AppointmentId { get; set; }
+        public int StaffId { get; set; }
     }
 }

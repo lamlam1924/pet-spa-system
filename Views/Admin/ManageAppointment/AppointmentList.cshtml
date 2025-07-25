@@ -158,6 +158,9 @@
                                     <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("Edit", "AdminAppointment", new { id = item.AppointmentId })">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                    <button class="btn btn-outline-info" title="Duyệt & Gán nhân viên" data-bs-toggle="modal" data-bs-target="#approveAssignModal" data-id="@item.AppointmentId" data-employee="@(item.Employee?.UserId ?? 0)">
+                        <i class="fas fa-user-check"></i>
+                    </button>
                                     <button class="btn btn-outline-danger" title="Xóa" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.AppointmentId">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -191,6 +194,43 @@
                 </ul>
             </nav>
         </div>
+
+<!-- Modal duyệt lịch & gán nhân viên -->
+<div class="modal fade" id="approveAssignModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="approveAssignForm" method="post" action="@Url.Action("ApproveAndAssign", "AdminAppointment")">
+                <div class="modal-header">
+                    <h5 class="modal-title">Duyệt lịch & Gán nhân viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="approveAssignAppointmentId" name="AppointmentId" />
+                    <div class="mb-3">
+                        <label for="employeeSelect" class="form-label">Chọn nhân viên thực hiện</label>
+                        <select class="form-select" id="employeeSelect" name="EmployeeId" required>
+                            <option value="">-- Chọn nhân viên --</option>
+                            @foreach (var emp in Model.EmployeeList)
+                            {
+                            <option value="@emp.UserId">@emp.FullName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" value="true" id="sendEmailConfirm" name="SendEmail" checked>
+                        <label class="form-check-label" for="sendEmailConfirm">
+                            Gửi email xác nhận cho khách hàng
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-info">Duyệt & Gán nhân viên</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
     </div>
 
 <!-- Modal xóa lịch hẹn -->
@@ -218,6 +258,17 @@
 
 @section Scripts {
     <script src="~/cssjsappointment/js/appointment-list.js"></script>
+    <script>
+        // Gán dữ liệu vào modal khi click nút duyệt/gán
+        $('#approveAssignModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var appointmentId = button.data('id');
+            var employeeId = button.data('employee');
+            var modal = $(this);
+            modal.find('#approveAssignAppointmentId').val(appointmentId);
+            modal.find('#employeeSelect').val(employeeId);
+        });
+    </script>
 }
 
 @section Styles {

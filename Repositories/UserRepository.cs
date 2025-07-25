@@ -1,16 +1,15 @@
-        
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
-
 
 namespace pet_spa_system1.Repositories;
 
 public class UserRepository : IUserRepository
-
 {
+    public User FindById(int userId)
+    {
+        // Giả sử dùng Entity Framework
+        return _context.Users.FirstOrDefault(u => u.UserId == userId);
+    }
     private readonly PetDataShopContext _context;
 
     public UserRepository(PetDataShopContext context)
@@ -150,6 +149,26 @@ public class UserRepository : IUserRepository
     {
         // Sinh m?t kh?u m?i, c?p nh?t DB, tr? v? m?t kh?u m?i
         return "newpassword123";
+    }
+    
+    public List<pet_spa_system1.ViewModel.StaffViewModel> GetStaffList()
+    {
+        var staffList = _context.Users.Where(u => u.RoleId == 3).ToList();
+        var now = DateTime.Now;
+        var staffViewModels = new List<pet_spa_system1.ViewModel.StaffViewModel>();
+        foreach (var staff in staffList)
+        {
+            // Kiểm tra nhân viên có lịch hẹn trùng giờ hiện tại không
+            var isBusy = _context.Appointments.Any(a => a.EmployeeId == staff.UserId && a.AppointmentDate.Date == now.Date && a.AppointmentDate.Hour == now.Hour && a.StatusId != 4);
+            staffViewModels.Add(new pet_spa_system1.ViewModel.StaffViewModel
+            {
+                UserId = staff.UserId,
+                FullName = staff.FullName ?? staff.Username ?? $"NV{staff.UserId}",
+                IsBusy = isBusy,
+                ProfilePictureUrl = staff.ProfilePictureUrl
+            });
+        }
+        return staffViewModels;
     }
     
     

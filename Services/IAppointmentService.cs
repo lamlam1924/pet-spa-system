@@ -1,4 +1,5 @@
 ﻿using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModel;
 using System;
@@ -7,9 +8,16 @@ using pet_spa_system1.ViewModels;
 
 namespace pet_spa_system1.Services
 {
-
     public interface IAppointmentService
     {
+        /// <summary>
+        /// Gửi mail thông báo cho khách hàng khi lịch hẹn được duyệt/gán hoặc bị từ chối/hủy
+        /// </summary>
+        /// <param name="appointmentId">Id lịch hẹn</param>
+        /// <param name="type">Kiểu thông báo: approved, rejected</param>
+        /// <param name="staffId">Id nhân viên được gán (nếu có)</param>
+        void SendAppointmentNotificationMail(int appointmentId, string type, int? staffId);
+        int CalculateDurationMinutes(int appointmentId);
         bool SaveAppointment(AppointmentViewModel vm, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
         Appointment GetAppointmentById(int appointmentId);
@@ -66,8 +74,21 @@ namespace pet_spa_system1.Services
         /// <summary>
         /// Lấy danh sách lịch hẹn cần duyệt (status 6 hoặc 7)
         /// </summary>
-        List<Appointment> GetPendingApprovalAppointments();
+        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "", int page = 1);
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
-        bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
+        // bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
+
+        public List<AppointmentViewModel> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+        RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
+        bool TryUpdateAppointmentStaff(int appointmentId, int newStaffId);
+
+        bool ApproveAndAssignStaff(int appointmentId, int staffId);
+        ApproveAssignResult AdminApproveAndAssignStaff(ApproveAssignRequest request);
+
+        int? AutoAssignStaffForAppointment(Appointment appointment);
+
+        bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
+
+
     }
 }

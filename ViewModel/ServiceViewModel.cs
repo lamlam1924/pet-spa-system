@@ -101,7 +101,6 @@ namespace pet_spa_system1.ViewModel
         // ===== COLLECTIONS =====
         public IEnumerable<TopServiceItem> TopServices { get; set; } = new List<TopServiceItem>();
         public IEnumerable<CategoryStatsItem> CategoryStats { get; set; } = new List<CategoryStatsItem>();
-        public ServiceTrendData TrendData { get; set; } = new ServiceTrendData();
 
         // ✅ THÊM CÁC PROPERTIES BỊ THIẾU:
         public IEnumerable<Service> RecentServices { get; set; } = new List<Service>();
@@ -143,14 +142,7 @@ namespace pet_spa_system1.ViewModel
         public string Title { get; set; } = "";
     }
 
-    public class ServiceTrendData
-    {
-        public int NewServicesThisMonth { get; set; }
-        public int NewServicesLastMonth { get; set; }
-        public decimal RevenueGrowth { get; set; }
-        public decimal BookingGrowth { get; set; }
-        public string TrendDirection { get; set; } = "up";
-    }
+    
 
     // Service Input ViewModel (for Add/Edit forms)
     public class ServiceInputViewModel
@@ -231,6 +223,9 @@ namespace pet_spa_system1.ViewModel
         public int TotalServices => Summary?.TotalServices ?? 0;
         public int ActiveServices => Summary?.ActiveServices ?? 0;
         public int InactiveServices => Summary?.InactiveServices ?? 0;
+        public string Name { get; set; } = string.Empty;
+        public int Duration { get; set; } // in minutes
+        public decimal Price { get; set; }
     }
 
     // (Đã dọn, chỉ giữ lại 1 class ServiceInputViewModel ở trên)
