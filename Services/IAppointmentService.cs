@@ -69,5 +69,20 @@ namespace pet_spa_system1.Services
         List<Appointment> GetPendingApprovalAppointments();
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
         bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
+
+        // Thêm API lấy chi tiết lịch hẹn cho modal
+        AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
+
+        // AppointmentServiceImage
+        IEnumerable<AppointmentServiceImage> GetImagesByAppointmentServiceId(int appointmentServiceId);
+        AppointmentServiceImage? GetImageById(int imageId);
+        void AddImage(AppointmentServiceImage image);
+        void DeleteImage(int imageId);
+
+        // AppointmentServiceStatus
+        IEnumerable<AppointmentServiceStatus> GetAllServiceStatuses();
+        AppointmentServiceStatus? GetServiceStatusById(int statusId);
+        void AddServiceStatus(AppointmentServiceStatus status);
+        void DeleteServiceStatus(int statusId);
     }
 }

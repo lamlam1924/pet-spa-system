@@ -13,6 +13,12 @@ namespace pet_spa_system1.ViewModel
         public string Category { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Duration { get; set; }
+        public List<string> PetImages { get; set; } = new(); // Thêm property này
+        public int StatusId { get; set; } // trạng thái từng dịch vụ
+        public string StatusName { get; set; } = string.Empty; // tên trạng thái từng dịch vụ
+        public List<string> PetImagesBefore { get; set; } = new();
+        public List<string> PetImagesAfter { get; set; } = new();
+
     }
 
     #region Base Models

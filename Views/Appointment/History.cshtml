@@ -10,7 +10,11 @@
 <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-common.css" />
 <link rel="stylesheet" href="~/cssjsAppointment/css/appointment-history.css" />
 <link rel="stylesheet" href="~/cssjsAppointment/css/toast-custom.css" />
-
+<style>
+    .modal-content {
+        top: 75px;
+    }
+</style>
 <section class="history-section">
     <div class="container">
         <div class="row">
@@ -148,6 +152,120 @@
                         <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <!-- Modal Chi tiết lịch hẹn -->
+<div class="modal fade" id="appointmentDetailModal" tabindex="-1" aria-labelledby="appointmentDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentDetailModalLabel">Chi tiết dịch vụ trong lịch hẹn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetailContent">
+                    <!-- Nội dung chi tiết sẽ được render bằng JS -->
+                    
+                    <h6>Dịch vụ đã chọn</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <b>Tắm gội</b><br/>
+                                            <span class="badge status-completed">Hoàn thành</span>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="text-muted">Nhân viên: Nguyễn Văn B</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Thêm các dịch vụ khác tương tự -->
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div> *@
+<div class="modal fade" id="appointmentDetailModal" tabindex="-1" aria-labelledby="appointmentDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="appointmentDetailModalLabel">Chi tiết dịch vụ theo tiến trình</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetailContent">
+                    <!-- Timeline sẽ render ở đây -->
+                    <div class="timeline">
+                        <!-- Item timeline mẫu -->
+                        <div class="timeline-item mb-4">
+                            <div class="d-flex">
+                                <div class="timeline-dot bg-success me-3"></div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">1. Tắm gội</h6>
+                                        <span class="badge bg-success">Hoàn thành</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        Nhân viên thực hiện: <strong>Nguyễn Văn B</strong><br>
+                                        Ghi chú: Dùng sữa tắm trị ve
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-md-3 col-6">
+                                            <img src="/images/service1_img1.jpg" class="img-fluid rounded shadow-sm" alt="Ảnh 1">
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <img src="/images/service1_img2.jpg" class="img-fluid rounded shadow-sm" alt="Ảnh 2">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thêm các item dịch vụ khác tương tự -->
+                        <div class="timeline-item mb-4">
+                            <div class="d-flex">
+                                <div class="timeline-dot bg-warning me-3"></div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">2. Cắt móng</h6>
+                                        <span class="badge bg-warning text-dark">Đang thực hiện</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        Nhân viên thực hiện: <strong>Lê Thị A</strong><br>
+                                        Ghi chú: Móng chân bị xước nhẹ
+                                    </div>
+                                    <!-- Không có ảnh -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dịch vụ chưa thực hiện -->
+                        <div class="timeline-item mb-4">
+                            <div class="d-flex">
+                                <div class="timeline-dot bg-secondary me-3"></div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">3. Sấy lông</h6>
+                                        <span class="badge bg-secondary">Chưa thực hiện</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        Nhân viên thực hiện: <em>Chưa phân công</em>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ... -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>

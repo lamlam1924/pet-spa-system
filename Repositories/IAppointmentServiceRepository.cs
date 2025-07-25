@@ -18,5 +18,16 @@ namespace pet_spa_system1.Repositories
 
         void Save();
         
+        // AppointmentServiceImage
+        IEnumerable<AppointmentServiceImage> GetImagesByAppointmentServiceId(int appointmentServiceId);
+        AppointmentServiceImage? GetImageById(int imageId);
+        void AddImage(AppointmentServiceImage image);
+        void DeleteImage(int imageId);
+
+        // AppointmentServiceStatus
+        IEnumerable<AppointmentServiceStatus> GetAllStatuses();
+        AppointmentServiceStatus? GetStatusById(int statusId);
+        void AddStatus(AppointmentServiceStatus status);
+        void DeleteStatus(int statusId);
     }
 }

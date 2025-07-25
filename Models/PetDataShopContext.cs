@@ -21,6 +21,10 @@ public partial class PetDataShopContext : DbContext
 
     public virtual DbSet<AppointmentService> AppointmentServices { get; set; }
 
+    public virtual DbSet<AppointmentServiceImage> AppointmentServiceImages { get; set; }
+
+    public virtual DbSet<AppointmentServiceStatus> AppointmentServiceStatus { get; set; }
+
     public virtual DbSet<Blog> Blogs { get; set; }
 
     public virtual DbSet<BlogComment> BlogComments { get; set; }
@@ -328,6 +332,14 @@ modelBuilder.Entity<Blog>(entity =>
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Notificat__UserI__7755B73D");
         });
+        modelBuilder.Entity<AppointmentServiceImage>(entity =>
+        {
+            entity.HasKey(e => e.ImageId); // 🔑 Chỉ rõ khóa chính
+        });
+        modelBuilder.Entity<AppointmentServiceStatus>(entity =>
+        {
+            entity.HasKey(e => e.StatusId);  // 🔑 Chỉ định rõ khóa chính
+        });
 
         modelBuilder.Entity<Order>(entity =>
         {
@@ -486,6 +498,18 @@ modelBuilder.Entity<Blog>(entity =>
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products__Catego__4D94879B");
         });
+        modelBuilder.Entity<AppointmentService>()
+    .HasOne(d => d.StatusNavigation)
+    .WithMany(p => p.AppointmentServices)
+    .HasForeignKey(d => d.Status)
+    .HasConstraintName("FK_AppointmentServices_Status");
+
+        modelBuilder.Entity<AppointmentServiceImage>()
+            .HasOne(d => d.AppointmentService)
+            .WithMany(p => p.AppointmentServiceImages)
+            .HasForeignKey(d => d.AppointmentServiceId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_ServiceImages_AppointmentService");
 
         modelBuilder.Entity<ProductCategory>(entity =>
         {

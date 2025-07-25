@@ -177,6 +177,23 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
             }
         }
+
+        // GET: /Appointment/Detail/{id}
+        [HttpGet]
+        public IActionResult Detail(int id)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để xem chi tiết lịch hẹn." });
+            }
+            var detail = _appointmentService.GetAppointmentDetailWithPetImages(id, userId.Value);
+            if (detail == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy lịch hẹn." });
+            }
+            return Json(new { success = true, data = detail });
+        }
     }
 
     public class RequestCancelDto
