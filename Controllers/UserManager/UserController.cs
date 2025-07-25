@@ -220,6 +220,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/StaffDetail/{id}")]
         public async Task<IActionResult> StaffDetail(int id, [FromServices] IAdminStaffScheduleService scheduleService)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var staff = await _userService.GetStaffDetailAsync(id);
             if (staff == null) return NotFound();
             var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
@@ -353,6 +370,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/UserDetail/{id}")]
         public async Task<IActionResult> UserDetail(int id, [FromServices] IUserService userService)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             var pets = await userService.GetPetsByUserIdAsync(id);
@@ -376,6 +410,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/UserDetail/{id}")]
         public async Task<IActionResult> UserDetail(int id, [FromForm] string FullName, [FromForm] string Email, [FromForm] string Phone, [FromForm] string Address, IFormFile AvatarFile, [FromServices] IUserService userService)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             // Upload avatar if provided
@@ -400,6 +451,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/List_Customer")]
         public async Task<IActionResult> List_Customer()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var users = await _userService.GetActiveUsersAsync();
             var customers = users.Where(u => u.RoleId == 2).ToList();
             // Chỉ định rõ đường dẫn view

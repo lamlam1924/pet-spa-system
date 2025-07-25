@@ -8,10 +8,11 @@
     <link rel="icon" href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" />
 
     <!-- CSS chung -->
-    <link href="~/vendorAdmin/fontawesome-free/css/all.min.css" rel="stylesheet" />
-    <link href="~/vendorAdmin/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/cssAdmin/ruang-admin.min.css" rel="stylesheet" />
+    <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.css" />
     @RenderSection("Styles", required: false)
@@ -279,12 +280,12 @@
     </div>
 
     <!-- JS chung -->
-    <script src="~/vendorAdmin/jquery/jquery.min.js"></script>
-    <!-- <script src="~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js"></script> -->
+    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+    <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script> 
     <!-- Sử dụng Bootstrap 5 CDN để đảm bảo tab hoạt động đúng -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/vendorAdmin/jquery-easing/jquery.easing.min.js"></script>
-    <script src="~/jsAdmin/ruang-admin.min.js"></script>
+    <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
+    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("Scripts", required: false)
 </body>

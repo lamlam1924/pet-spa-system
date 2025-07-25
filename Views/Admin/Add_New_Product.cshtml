@@ -13,11 +13,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Admin dashboard for Paws & Claws Pet Shop">
     <meta name="author" content="indrijunanda">
-    <link href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" rel="icon">
+    <link href="@Url.Content("~/img/logo/pet-logo.png")" rel="icon">
     <title>petshop - Dashboard</title>
+
     <link href="@Url.Content("~/vendorAdmin/fontawesome-free/css/all.min.css")" rel="stylesheet" type="text/css">
     <link href="@Url.Content("~/vendorAdmin/bootstrap/css/bootstrap.min.css")" rel="stylesheet" type="text/css">
     <link href="@Url.Content("~/cssAdmin/ruang-admin.min.css")" rel="stylesheet">
+    
 </head>
 <body id="page-top">
     <div id="wrapper">
@@ -50,7 +52,8 @@
                                 </div>
 
                                 <div class="card-body">
-                                    <form id="createProductForm" enctype="multipart/form-data" method="post" asp-action="Add_New_Product" method="post">
+                                    <form id="createProductForm" asp-action="Add_New_Product" asp-controller="Admin" enctype="multipart/form-data" method="post">
+
                                         <div class="form-group">
                                             <label asp-for="Product.CategoryId">Loại sản phẩm</label>
                                             <select asp-for="Product.CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))" required></select>
@@ -93,7 +96,7 @@
                                     </form>
 
                                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                                    
                                     <script>
                                         document.addEventListener("DOMContentLoaded", function () {
                                             var successMessage = @Html.Raw(JsonSerializer.Serialize(TempData["SuccessMessage"]));
@@ -121,6 +124,23 @@
                                                 });
                                             }
                                         });
+                                                                         // Thêm xử lý submit form
+                                        document.getElementById('createProductForm').addEventListener('submit', function(e) {
+                                            e.preventDefault();
+
+                                            // Kiểm tra validation trước khi submit
+                                            if (this.checkValidity()) {
+                                                // Submit form
+                                                this.submit();
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: 'Lỗi',
+                                                    text: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+                                                    showConfirmButton: true
+                                                });
+                                            }
+                                        });
                                     </script>
                                 </div>
                             </div>
@@ -139,48 +159,10 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
+    @* <script src="@Url.Content("~/vendorAdmin/jquery/jquery.min.js")"></script>
     <script src="@Url.Content("~/vendorAdmin/bootstrap/js/bootstrap.bundle.min.js")"></script>
     <script src="@Url.Content("~/vendorAdmin/jquery-easing/jquery.easing.min.js")"></script>
-    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script>
-
-
-
-    @* <script>
-        // Preview ảnh khi chọn
-        $("#image").on("change", function () {
-          const file = this.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              // Bạn có thể hiện ảnh preview tại đây nếu muốn
-              console.log("Ảnh đã chọn:", e.target.result);
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-
-        // Gửi form bằng AJAX (nếu dùng AJAX)
-        $("#createProductForm").submit(function (e) {
-          e.preventDefault();
-          const formData = new FormData(this);
-
-          $.ajax({
-            url: '/Admin/AddProduct', // chỉnh URL đúng controller của bạn
-            method: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (res) {
-              alert("Thêm sản phẩm thành công!");
-              location.href = "/Admin/Products_List";
-            },
-            error: function () {
-              alert("Thêm sản phẩm thất bại.");
-            }
-          });
-        });
-    </script> *@
+    <script src="@Url.Content("~/jsAdmin/ruang-admin.min.js")"></script> *@
 
 </body>
 </html>
