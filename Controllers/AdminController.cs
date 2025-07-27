@@ -706,7 +706,7 @@ namespace pet_spa_system1.Controllers
             var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
 
             if (userId == null || roleId == null)
-            {
+            {   
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }

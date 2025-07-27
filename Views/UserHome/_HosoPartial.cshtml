@@ -1,5 +1,41 @@
 ﻿@model pet_spa_system1.ViewModel.UserViewModel
 
+<style>
+    .alert-box {
+        position: fixed;
+        top: 100px;
+        right: 10px;
+        z-index: 9999;
+        padding: 20px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: white;
+        font-weight: 500;
+        opacity: 0.95;
+        transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+    .success-alert { background-color: #28a745; }
+    .error-alert { background-color: #dc3545; }
+    .alert-hide {
+        opacity: 0;
+        transform: translateX(100%);
+        pointer-events: none;
+    }
+</style>
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert-box success-alert" id="successAlert">
+        @ViewBag.SuccessMessage
+    </div>
+}
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert-box error-alert" id="errorAlert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
 <form asp-action="UpdateUserProfile"
       asp-controller="UserHome"
       method="post"
@@ -74,16 +110,30 @@
 </form>
 
 <script>
-    document.getElementById('avatarInput').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById('avatarPreview').src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-            // KHÔNG tự động submit form ở đây
+    function autoHideAlerts() {
+        const successAlert = document.getElementById("successAlert");
+        const errorAlert = document.getElementById("errorAlert");
+
+        if (successAlert) {
+            setTimeout(() => {
+                successAlert.classList.add("alert-hide");
+            }, 2000);
+        }
+
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.classList.add("alert-hide");
+            }, 2000);
+        }
+    }
+
+    // Gọi khi partial load lần đầu
+    autoHideAlerts();
+
+    // Gọi lại mỗi khi HTMX swap nội dung
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.target && evt.target.id === "content-main") {
+            autoHideAlerts();
         }
     });
-
 </script>

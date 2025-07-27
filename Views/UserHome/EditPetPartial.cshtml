@@ -158,11 +158,19 @@
         const response = JSON.parse(evt.detail.xhr.responseText);
         const responseMessage = document.getElementById('response-message');
         if (response && response.success) {
-            responseMessage.innerHTML = `<div class="alert alert-success">${response.message}</div>`;
+            // Hiển thị toast ngoài modal
+            Swal.fire({
+                icon: 'success',
+                title: response.message,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
             setTimeout(() => {
                 bootstrap.Modal.getInstance(document.getElementById('editPetModal')).hide();
                 htmx.ajax('GET', '@Url.Action("ListPetPartial", "UserHome")', '#content-main');
-            }, 1000);
+            }, 2000); // Đợi đúng 2 giây
         } else if (response) {
             responseMessage.innerHTML = `<div class="alert alert-danger">${response.message || 'Có lỗi xảy ra'}</div>`;
         } else {
