@@ -221,10 +221,17 @@ namespace pet_spa_system1.Controllers
             }
             return Json(new { success = true, data = detail });
         }
+
+        public IActionResult AppointmentDetail()
+        {
+            return View();
+        }
+
     }
 
     public class RequestCancelDto
     {
         public int appointmentId { get; set; }
     }
+    
 }
