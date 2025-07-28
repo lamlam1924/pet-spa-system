@@ -84,5 +84,7 @@ namespace pet_spa_system1.Services
         AppointmentServiceStatus? GetServiceStatusById(int statusId);
         void AddServiceStatus(AppointmentServiceStatus status);
         void DeleteServiceStatus(int statusId);
+
+        public List<EmployeeScheduleViewModel> GetUpcomingScheduleByEmployee(int employeeId);
     }
 }

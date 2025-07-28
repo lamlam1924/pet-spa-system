@@ -373,5 +373,18 @@ namespace pet_spa_system1.Repositories
         {
             return _context.Appointments.Count(a => a.StatusId == 6);
         }
+        public List<Appointment> GetUpcomingAppointmentsByEmployeeId(int employeeId)
+        {
+            var today = DateTime.Today;
+            return _context.Appointments
+                .Include(a => a.Status)
+                .Include(a => a.User)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
+                .Where(a => a.EmployeeId == employeeId && a.AppointmentDate > today && a.StatusId == 1) 
+                .OrderBy(a => a.AppointmentDate)
+                .ToList();
+        }
+
     }
 }
