@@ -10,6 +10,5 @@
         public string Status { get; set; }
         public string TransactionId { get; set; }
         public DateTime? PaymentDate { get; set; }
-        // Có thể bổ sung thêm danh sách sản phẩm nếu cần
     }
 }
