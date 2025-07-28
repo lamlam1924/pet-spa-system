@@ -194,9 +194,9 @@ namespace pet_spa_system1.Repositories
             {
                 query = query.Where(a => a.AppointmentServices.Any(asv => asv.Service != null && asv.Service.Name.Contains(filter.Service)));
             }
-            if (filter.StatusId > 0)
+            if (filter.StatusIds != null && filter.StatusIds.Count > 0)
             {
-                query = query.Where(a => a.StatusId == filter.StatusId);
+                query = query.Where(a => filter.StatusIds.Contains(a.StatusId));
             }
             if (filter.Date.HasValue)
             {
@@ -297,8 +297,9 @@ namespace pet_spa_system1.Repositories
 
         public List<User> GetEmployeeUsers()
         {
+            // RoleId == 3 là nhân viên (sửa lại cho đúng hệ thống của bạn nếu khác)
             return _context.Users
-                .Where(u => u.RoleId == 2)
+                .Where(u => u.RoleId == 3)
                 .ToList();
         }
 

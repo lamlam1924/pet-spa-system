@@ -18,6 +18,72 @@ namespace pet_spa_system1.Services
 
     public class AppointmentService : IAppointmentService
     {
+        // Chuẩn bị ViewModel cho Edit (Admin)
+        public AdminAppointmentDetailViewModel PrepareAdminEditViewModel(int id)
+        {
+            var oldVm = PrepareEditViewModel(id); // Tận dụng logic cũ
+            if (oldVm == null) return new AdminAppointmentDetailViewModel();
+
+            // Map sang model mới
+            var detailVm = new AdminAppointmentDetailViewModel
+            {
+                AppointmentId = oldVm.AppointmentId,
+                AppointmentDate = oldVm.AppointmentDate,
+                Notes = oldVm.Notes,
+                StatusId = oldVm.StatusId,
+                // Các trường hiển thị
+                CustomerName = oldVm.CustomerName,
+                CustomerPhone = oldVm.CustomerPhone,
+                CustomerEmail = oldVm.CustomerEmail,
+                CustomerAddress = oldVm.CustomerAddress,
+                EmployeeId = oldVm.EmployeeIds.FirstOrDefault(),
+                EmployeeList = oldVm.EmployeeList,
+                EmployeeName = oldVm.EmployeeList?.FirstOrDefault(e => e.UserId == oldVm.EmployeeIds.FirstOrDefault())?.FullName,
+                Pets = oldVm.AllPets,
+                Services = oldVm.AllServices.Select(s => new pet_spa_system1.ViewModel.ServiceInfo {
+                    ServiceId = s.ServiceId,
+                    Name = s.Name,
+                    CategoryName = s.Category != null ? s.Category.Name : null,
+                    Price = s.Price,
+                    DurationMinutes = s.DurationMinutes
+                }).ToList(),
+                CreatedAt = oldVm.AppointmentDate,
+                UpdatedAt = DateTime.Now,
+                // Các trường cho form
+                StatusList = oldVm.Statuses?.Select(x => new StatusAppointment { StatusId = x.StatusId, StatusName = x.StatusName }).ToList() ?? new List<StatusAppointment>(),
+                SelectedPetIds = oldVm.SelectedPetIds,
+                AllPets = oldVm.AllPets,
+                SelectedServiceIds = oldVm.SelectedServiceIds,
+                AllServices = oldVm.AllServices.Select(s => new pet_spa_system1.ViewModel.ServiceInfo {
+                    ServiceId = s.ServiceId,
+                    Name = s.Name,
+                    CategoryName = s.Category != null ? s.Category.Name : null,
+                    Price = s.Price,
+                    DurationMinutes = s.DurationMinutes
+                }).ToList(),
+                EmployeeIds = oldVm.EmployeeIds,
+                // EmployeeList đã gán ở trên
+            };
+            return detailVm;
+        }
+
+        // Cập nhật lại lịch hẹn từ AdminAppointmentDetailViewModel
+        public void UpdateAppointmentFromAdminDetail(AdminAppointmentDetailViewModel vm)
+        {
+            // Map sang AppointmentViewModel để tái sử dụng logic cũ
+            var updateVm = new AppointmentViewModel
+            {
+                AppointmentId = vm.AppointmentId,
+                AppointmentDate = vm.AppointmentDate,
+                Notes = vm.Notes,
+                StatusId = vm.StatusId,
+                SelectedPetIds = vm.SelectedPetIds,
+                SelectedServiceIds = vm.SelectedServiceIds,
+                EmployeeIds = vm.EmployeeIds,
+                // Có thể bổ sung các trường khác nếu cần
+            };
+            UpdateAppointment(updateVm);
+        }
         /// <summary>
         /// Gửi mail thông báo cho khách hàng khi lịch hẹn được duyệt/gán hoặc bị từ chối/hủy
         /// </summary>
@@ -243,7 +309,7 @@ namespace pet_spa_system1.Services
             viewModel.RecentAppointments = recentAppointments.Select(a => new DailyAppointmentSummaryViewModel
             {
                 AppointmentId = a.AppointmentId,
-                CustomerName = a.User.FullName,
+                CustomerName = a.User?.FullName ?? string.Empty,
                 AppointmentDate = a.AppointmentDate,
                 StatusName = a.Status.StatusName,
                 StatusId = a.StatusId,
@@ -308,27 +374,36 @@ namespace pet_spa_system1.Services
                     SpeciesName = p.Species != null ? p.Species.SpeciesName : null
                 }).ToList();
 
+            var customers = _appointmentRepository.GetCustomers();
+            var employees = _appointmentRepository.GetEmployeeUsers();
             var viewModel = new AppointmentViewModel
             {
                 Statuses = GetAllStatuses(),
-                Customers = _appointmentRepository.GetCustomers(),
+                Customers = customers,
                 AllPets = petInfos,
-                AllServices = _appointmentRepository.GetActiveServices().ToList()
+                AllServices = _appointmentRepository.GetActiveServices().ToList(),
+                Users = customers.Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem {
+                    Value = u.UserId.ToString(),
+                    Text = $"{u.FullName} - {u.Phone} - {u.Email}"
+                }).ToList(),
+                Staffs = employees.Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem {
+                    Value = u.UserId.ToString(),
+                    Text = $"{u.FullName} - {u.Phone} - {u.Email}"
+                }).ToList(),
+                AppointmentDate = DateTime.Today.AddDays(1).AddHours(9)
             };
             return viewModel;
         }
 
-        public bool CreateAppointment(AppointmentViewModel model)
+        public bool CreateAppointment(AppointmentViewModel model, out int newAppointmentId)
         {
+            newAppointmentId = 0;
             try
             {
                 var appointment = new Appointment
                 {
                     UserId = model.CustomerId,
-                    // Nếu chỉ lưu 1 nhân viên chính, lấy nhân viên đầu tiên
-                    EmployeeId = model.EmployeeIds != null && model.EmployeeIds.Count > 0
-                        ? model.EmployeeIds[0]
-                        : (int?)null,
+                    EmployeeId = model.StaffId != 0 ? model.StaffId : (int?)null,
                     AppointmentDate = model.AppointmentDate,
                     StatusId = model.StatusId,
                     Notes = model.Notes,
@@ -336,14 +411,14 @@ namespace pet_spa_system1.Services
                     CreatedAt = DateTime.Now
                 };
 
-                _appointmentRepository.Add(appointment);
-                _appointmentRepository.Save();
+                // Use repository method that returns the new ID
+                newAppointmentId = _appointmentRepository.AddAppointment(appointment);
 
                 if (model.SelectedPetIds != null && model.SelectedPetIds.Any())
                 {
                     foreach (var petId in model.SelectedPetIds)
                     {
-                        _appointmentRepository.AddAppointmentPet(appointment.AppointmentId, petId);
+                        _appointmentRepository.AddAppointmentPet(newAppointmentId, petId);
                     }
                 }
 
@@ -351,11 +426,27 @@ namespace pet_spa_system1.Services
                 {
                     foreach (var serviceId in model.SelectedServiceIds)
                     {
-                        _appointmentRepository.AddAppointmentService(appointment.AppointmentId, serviceId);
+                        _appointmentRepository.AddAppointmentService(newAppointmentId, serviceId);
                     }
                 }
 
                 _appointmentRepository.Save();
+
+                // Gửi email xác nhận cho khách hàng khi admin tạo lịch thủ công
+                try
+                {
+                    var appointmentWithUser = _appointmentRepository.GetById(newAppointmentId);
+                    if (appointmentWithUser != null && appointmentWithUser.User != null && !string.IsNullOrEmpty(appointmentWithUser.User.Email))
+                    {
+                        var emailModel = BuildAppointmentEmailModel<AppointmentConfirmationEmailModel>(appointmentWithUser);
+                        _emailService.SendAppointmentConfirmation(emailModel);
+                    }
+                }
+                catch (Exception exMail)
+                {
+                    Console.WriteLine($"[CreateAppointment] Gửi email thất bại: {exMail.Message}");
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -461,19 +552,19 @@ namespace pet_spa_system1.Services
             var appointments = _appointmentRepository.GetAppointments(filter)
                 .Where(a => a.StatusId == 2 && a.AppointmentDate > from && a.AppointmentDate <= to)
                 .ToList();
-            foreach (var appointment in appointments)
-            {
-                if (!string.IsNullOrEmpty(appointment.User?.Email))
+            appointments
+                .Where(appointment => !string.IsNullOrEmpty(appointment.User?.Email))
+                .ToList()
+                .ForEach(appointment =>
                 {
                     var model = new AppointmentReminderEmailModel
                     {
                         ToEmail = appointment.User.Email,
-                        CustomerName = appointment.User.FullName,
+                        CustomerName = appointment.User?.FullName ?? string.Empty,
                         AppointmentDateTime = appointment.AppointmentDate
                     };
                     _emailService.SendAppointmentReminder(model);
-                }
-            }
+                });
         }
 
         public bool DeleteAppointment(int id)
@@ -654,10 +745,9 @@ namespace pet_spa_system1.Services
 
                     var hourStatus = new Dictionary<int, ShiftStatus>();
 
-                    foreach (var appointment in appointments)
+                    appointments.ToList().ForEach(appointment =>
                     {
                         int hour = appointment.AppointmentDate.Hour;
-
                         // Nếu trong cùng 1 giờ có nhiều lịch thì chỉ ghi đè, bạn có thể tùy biến thêm
                         hourStatus[hour] = new ShiftStatus
                         {
@@ -666,7 +756,7 @@ namespace pet_spa_system1.Services
                             ColorClass = "bg-inprogress",
                             TimeRange = $"{appointment.AppointmentDate:HH:mm} - {appointment.EndTime:HH:mm}"
                         };
-                    }
+                    });
 
                     var staffShift = new StaffShift
                     {
@@ -842,20 +932,45 @@ namespace pet_spa_system1.Services
         public AppointmentViewModel PrepareEditViewModel(int id)
         {
             var appointment = _appointmentRepository.GetById(id);
-            if (appointment == null) return new AppointmentViewModel();
-            // Map các trường cần thiết từ entity sang ViewModel
-            var vm = new AppointmentViewModel
+            if (appointment == null) return null;
+
+            // Lấy danh sách nhân viên (RoleId = 3)
+            var allEmployees = _appointmentRepository.GetEmployeeUsers();
+            var employeeList = allEmployees?.Where(u => u.RoleId == 3).ToList() ?? new List<User>();
+
+            var model = new AppointmentViewModel
             {
                 AppointmentId = appointment.AppointmentId,
                 AppointmentDate = appointment.AppointmentDate,
                 Notes = appointment.Notes,
                 StatusId = appointment.StatusId,
+                CustomerId = appointment.UserId,
+                CustomerName = appointment.User?.FullName ?? string.Empty,
+                StaffId = appointment.EmployeeId ?? 0,
+                EmployeeName = allEmployees?.FirstOrDefault(e => e.UserId == (appointment.EmployeeId ?? 0))?.FullName ?? string.Empty,
                 SelectedPetIds = appointment.AppointmentPets?.Select(p => p.PetId).ToList() ?? new List<int>(),
-                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ??
-                                     new List<int>(),
-                // Thêm các trường khác nếu cần
+                SelectedPets = appointment.AppointmentPets?.Select(p => new AppointmentPetViewModel
+                {
+                    PetId = p.PetId,
+                    Name = p.Pet?.Name ?? string.Empty,
+                    Breed = p.Pet?.Breed ?? string.Empty
+                }).ToList() ?? new List<AppointmentPetViewModel>(),
+                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ?? new List<int>(),
+                SelectedServices = appointment.AppointmentServices?.Select(s => new AppointmentServiceInfo
+                {
+                    ServiceId = s.ServiceId,
+                    Name = s.Service?.Name ?? string.Empty,
+                    CategoryName = s.Service?.Category?.Name,
+                    Price = s.Service?.Price ?? 0,
+                    DurationMinutes = s.Service?.DurationMinutes
+                }).ToList() ?? new List<AppointmentServiceInfo>(),
+                EmployeeList = employeeList,
+                AllPets = _petRepository.GetPetsByUserId(appointment.UserId)
+                    .Select(p => new PetInfo { PetId = p.PetId, Name = p.Name }).ToList(),
+                AllServices = _appointmentRepository.GetAllServices(),
+                Statuses = _appointmentRepository.GetAllStatuses(),
             };
-            return vm;
+            return model;
         }
 
 
@@ -957,6 +1072,27 @@ namespace pet_spa_system1.Services
                     ? new List<int> { appointment.EmployeeId.Value }
                     : new List<int>()
             };
+        }
+
+        public List<User> GetCustomers()
+        {
+            return _appointmentRepository.GetCustomers();
+        }
+
+        public List<Pet> GetAllPets()
+        {
+            return _appointmentRepository.GetAllPets();
+        }
+        public List<Service> GetAllServices()
+        {
+            return _appointmentRepository.GetAllServices();
+        }
+
+        public List<User> GetAllCustomersAndStaffs()
+        {
+            var customers = _appointmentRepository.GetCustomers();
+            var staffs = _appointmentRepository.GetEmployeeUsers();
+            return customers.Concat(staffs).ToList();
         }
     }
 }

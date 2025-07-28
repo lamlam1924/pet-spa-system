@@ -79,7 +79,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (var item in Model.Appointments)
+                    @foreach (var item in Model.Appointments.OrderByDescending(x => x.AppointmentDate))
                     {
                         <tr>
                             <td class="ps-3 fw-medium">@item.AppointmentId</td>
@@ -158,9 +158,9 @@
                                     <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("Edit", "AdminAppointment", new { id = item.AppointmentId })">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                    <button class="btn btn-outline-info" title="Duyệt & Gán nhân viên" data-bs-toggle="modal" data-bs-target="#approveAssignModal" data-id="@item.AppointmentId" data-employee="@(item.Employee?.UserId ?? 0)">
+                    @* <button class="btn btn-outline-info" title="Duyệt & Gán nhân viên" data-bs-toggle="modal" data-bs-target="#approveAssignModal" data-id="@item.AppointmentId" data-employee="@(item.Employee?.UserId ?? 0)">
                         <i class="fas fa-user-check"></i>
-                    </button>
+                    </button> *@
                                     <button class="btn btn-outline-danger" title="Xóa" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.AppointmentId">
                                         <i class="fas fa-trash"></i>
                                     </button>

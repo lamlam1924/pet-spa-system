@@ -1,10 +1,6 @@
 ﻿using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
-using pet_spa_system1.Repositories;
-using pet_spa_system1.ViewModel;
-using System;
-using System.Collections.Generic;
-using pet_spa_system1.ViewModels;
+
 
 namespace pet_spa_system1.Services
 {
@@ -14,6 +10,7 @@ namespace pet_spa_system1.Services
         /// Gửi mail nhắc lịch cho các lịch hẹn sắp tới (trước 1 ngày)
         /// </summary>
         void SendUpcomingAppointmentReminders();
+
         /// <summary>
         /// Gửi mail thông báo cho khách hàng khi lịch hẹn được duyệt/gán hoặc bị từ chối/hủy
         /// </summary>
@@ -21,6 +18,7 @@ namespace pet_spa_system1.Services
         /// <param name="type">Kiểu thông báo: approved, rejected</param>
         /// <param name="staffId">Id nhân viên được gán (nếu có)</param>
         void SendAppointmentNotificationMail(int appointmentId, string type, int? staffId);
+
         int CalculateDurationMinutes(int appointmentId);
         bool SaveAppointment(AppointmentViewModel vm, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
@@ -38,13 +36,11 @@ namespace pet_spa_system1.Services
 
         List<StatusAppointment> GetAllStatuses();
         List<User> GetEmployees();
-
-        List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
-
-        Appointment GetAppointmentDetails(int id);
+        List<User> GetCustomers();
+        List<User> GetAllCustomersAndStaffs();
 
         AppointmentViewModel PrepareCreateViewModel();
-        bool CreateAppointment(AppointmentViewModel model);
+        bool CreateAppointment(AppointmentViewModel model, out int newAppointmentId);
 
         AppointmentViewModel PrepareEditViewModel(int id);
         bool UpdateAppointment(AppointmentViewModel model);
@@ -67,11 +63,12 @@ namespace pet_spa_system1.Services
         /// <summary>
         /// Lấy danh sách lịch hẹn cần duyệt (status 6 hoặc 7)
         /// </summary>
-        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "");
+        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "",
+            string service = "", string status = "");
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
         // bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
 
-        public List<AppointmentViewModel> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+        List<AppointmentViewModel> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
         RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
         bool TryUpdateAppointmentStaff(int appointmentId, int newStaffId);
 
@@ -81,7 +78,10 @@ namespace pet_spa_system1.Services
         int? AutoAssignStaffForAppointment(Appointment appointment);
 
         bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
-
-
+        AdminAppointmentDetailViewModel PrepareAdminEditViewModel(int id);
+        void UpdateAppointmentFromAdminDetail(AdminAppointmentDetailViewModel vm);
+        List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
+        List<Pet> GetAllPets();
+        List<Service> GetAllServices();
     }
 }

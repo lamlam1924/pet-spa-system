@@ -23,38 +23,38 @@ namespace pet_spa_system1.ViewModel
 
     public class AppointmentViewModel : AppointmentBaseViewModel
     {
-        public List<User> EmployeeList { get; set; } = new();
-        public string CustomerName { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public User? User { get; set; }
-        public int StatusId { get; set; }
-        public string StatusName { get; set; } = string.Empty;
+        // Đảm bảo property CustomerId để binding đúng với select2 và controller
+        // --- Properties for user booking form (Views/Appointment/Appointment.cshtml) ---
+        public List<Pet> Pets { get; set; } = new();
         public List<Service> Services { get; set; } = new();
         public List<SerCate> Categories { get; set; } = new();
-        public List<Pet> Pets { get; set; } = new();
-        public List<AppointmentPetViewModel> SelectedPets { get; set; } = new();
-        public List<AppointmentServiceInfo> SelectedServices { get; set; } = new();
-        public new int AppointmentId { get; set; }
-        public new DateTime AppointmentDate { get; set; }
-        public List<int> EmployeeIds { get; set; } = new();
-        public int CustomerId { get; set; }
-        public new string? Notes { get; set; }
-        public List<StatusAppointment> Statuses { get; set; } = new();
-        public List<User> Customers { get; set; } = new();
-        public List<PetInfo> AllPets { get; set; } = new();
-        public List<Service> AllServices { get; set; } = new();
+        public User? User { get; set; }
+        public string? Phone { get; set; }
+        // AppointmentDate, AppointmentTime, Notes đã có ở base
         public string? CustomerPhone { get; set; }
         public string? CustomerEmail { get; set; }
         public string? CustomerAddress { get; set; }
-        public int? UserId { get; set; }
-        public new List<int> SelectedPetIds { get; set; } = new();
-        public new List<int> SelectedServiceIds { get; set; } = new();
-        public List<CategoryInfo> CategoriesAdmin { get; set; } = new();
+        public string Email { get; set; } = string.Empty;
+        public string? EmployeeName { get; set; }
+        public List<int> EmployeeIds { get; set; } = new();
+        public List<User> Customers { get; set; } = new();
+        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Users { get; set; } = Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Staffs { get; set; } = Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+        public string CustomerName { get; set; } = string.Empty;
+        public string StatusName { get; set; } = string.Empty;
         public int DurationMinutes { get; set; }
-        public List<AppointmentServiceInfo> AppointmentServices { get; set; } = new();
         public DateTime EndTime { get; set; }
+        public List<AppointmentPetViewModel> SelectedPets { get; set; } = new();
+        public List<AppointmentServiceInfo> SelectedServices { get; set; } = new();
+        public List<CategoryInfo> CategoriesAdmin { get; set; } = new();
         public int? SuggestedStaffId { get; set; }
+        public List<User> EmployeeList { get; set; } = new();
+        public int StatusId { get; set; }
+        public List<StatusAppointment> Statuses { get; set; } = new();
+        public int CustomerId { get; set; }
+        public int StaffId { get; set; } // Only one staff per appointment
+        public List<PetInfo> AllPets { get; set; } = new();
+        public List<Service> AllServices { get; set; } = new();
         public class CategoryInfo
         {
             public int CategoryId { get; set; }
@@ -196,6 +196,15 @@ public class AppointmentServiceInfo
         public string? PromotionName { get; set; }
         public decimal? PromotionValue { get; set; }
         public string? StatusColor { get; set; }
+
+        // Các property phục vụ chỉnh sửa
+        public List<StatusAppointment> StatusList { get; set; } = new();
+        public List<int> SelectedPetIds { get; set; } = new();
+        public List<PetInfo> AllPets { get; set; } = new();
+        public List<int> SelectedServiceIds { get; set; } = new();
+        public List<ServiceInfo> AllServices { get; set; } = new();
+        public List<int> EmployeeIds { get; set; } = new();
+        public List<User> EmployeeList { get; set; } = new();
     }
 
     public class PetInfo
