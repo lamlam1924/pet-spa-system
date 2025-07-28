@@ -234,34 +234,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             html += `
             <div class="appointment-card ${position} status-${appointment.statusId} ${animateClass}" data-status="${appointment.statusId}">
-                <div class="appointment-content">
-                    <span class="appointment-status ${getStatusClass(appointment.statusId)}">${appointment.statusName}</span>
-                    ${cancelBadge}
-                    <div class="appointment-date">
-                        <span class="appointment-date-badge">
-                            <i class="far fa-calendar-alt"></i> ${formatDate(appointment.appointmentDate)}
-                        </span>
-                    </div>
-                    <div class="appointment-services">
-                        <h5>Dịch vụ</h5>
-                        ${appointment.services.map(service => 
-                            `<span class="service-tag">${service.name}</span>`
-                        ).join('')}
-                    </div>
-                    <div class="appointment-pets">
-                        <h5>Thú cưng</h5>
-                        ${appointment.petNames.map(pet => `<span class="pet-tag">${pet}</span>`).join('')}
-                    </div>
-                    ${appointment.notes ? `<div class="appointment-notes">${appointment.notes}</div>` : ''}
-                    <div class="appointment-actions">
-                        ${appointment.statusId === 4 ? 
-                            `<button class="btn-review" data-id="${appointment.appointmentId}">
-                                <i class="fas fa-star"></i> Đánh giá
-                            </button>` : ''}
-                        ${allowCancel ? `<button class="btn btn-outline-danger btn-cancel-request" data-id="${appointment.appointmentId}"><i class="fas fa-times-circle"></i> Yêu cầu hủy lịch</button>` : ''}
-                    </div>
-                </div>
-            </div>
+    <div class="appointment-content">
+        <span class="appointment-status ${getStatusClass(appointment.statusId)}">${appointment.statusName}</span>
+        ${cancelBadge}
+        <div class="appointment-date">
+            <span class="appointment-date-badge">
+                <i class="far fa-calendar-alt"></i> ${formatDate(appointment.appointmentDate)}
+            </span>
+        </div>
+        <div class="appointment-services">
+            <h5>Dịch vụ</h5>
+            ${appointment.services.map(service =>
+                `<span class="service-tag">${service.name}</span>`
+            ).join('')}
+        </div>
+        <div class="appointment-pets">
+            <h5>Thú cưng</h5>
+            ${appointment.petNames.map(pet => `<span class="pet-tag">${pet}</span>`).join('')}
+        </div>
+        ${appointment.notes ? `<div class="appointment-notes">${appointment.notes}</div>` : ''}
+        <div class="appointment-actions">
+            <!-- ✅ Nút xem chi tiết -->
+            <button class="btn btn-info btn-view-detail" data-id="${appointment.appointmentId}">
+                <i class="fas fa-eye"></i> Xem chi tiết
+            </button>
+
+            ${appointment.statusId === 4 ?
+                    `<button class="btn-review" data-id="${appointment.appointmentId}">
+                    <i class="fas fa-star"></i> Đánh giá
+                </button>` : ''}
+                
+            ${allowCancel ?
+                    `<button class="btn btn-outline-danger btn-cancel-request" data-id="${appointment.appointmentId}">
+                    <i class="fas fa-times-circle"></i> Yêu cầu hủy lịch
+                </button>` : ''}
+        </div>
+    </div>
+</div>
+
             `;
         });
 

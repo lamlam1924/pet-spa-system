@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Html
-﻿@model pet_spa_system1.ViewModel.OrderViewModel
+@model pet_spa_system1.ViewModel.OrderViewModel
 @{
     ViewData["Title"] = "Trạng Thái Đơn Hàng";
     Layout = @Url.Content("~/Views/Shared/_Layout.cshtml");
@@ -37,8 +37,13 @@
 <head>
     <meta charset="UTF-8">
     <title>@ViewBag.Title</title>
-   
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="@Url.Content("~/cssOrder/Ordercss.css")" rel="stylesheet">
+
+
 </head>
 <body>
     <div class="container-fluid">
@@ -56,7 +61,7 @@
                             <i class="fas fa-user"></i>
                             Thông tin khách hàng
                         </h6>
-                </div>
+                    </div>
                     <div class="section-body">
                         <div class="customer-info">
                             <div class="info-item">
@@ -104,28 +109,28 @@
                         <div class="products-table">
                             <table class="table mb-0">
                                 <thead>
-                        <tr>
+                                    <tr>
                                         <th><i class="fas fa-tag"></i> Tên sản phẩm</th>
                                         <th><i class="fas fa-sort-numeric-up"></i> Số lượng</th>
                                         <th><i class="fas fa-dollar-sign"></i> Giá</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.Items != null)
-                        {
-                            foreach (var item in Model.Items)
-                            {
-                                <tr>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Items != null)
+                                    {
+                                        foreach (var item in Model.Items)
+                                        {
+                                            <tr>
                                                 <td><strong>@item.ProductName</strong></td>
                                                 <td>
                                                     <span class="badge bg-primary rounded-pill">@item.Quantity</span>
                                                 </td>
                                                 <td><strong>@item.UnitPrice?.ToString("N0") đ</strong></td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -138,6 +143,7 @@
                             Tiến trình đơn hàng
                         </h6>
                     </div>
+
                     <div class="section-body">
                         <div class="order-status-wrapper">
                             <div class="order-status">
@@ -146,11 +152,10 @@
                                     <div class="@GetStepClass(i, Model.Status)">
                                         <div class="circle">@GetStepContent(i, Model.Status)</div>
                                         <div class="label">@StatusList[i]</div>
-                    </div>
-                    <div class="step @(Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
-                        <div class="circle">3</div>
-                        <div class="label">Đang giao</div>
-                    </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -161,29 +166,29 @@
                             <i class="fas fa-calculator text-primary"></i> Tổng thanh toán:
                         </h6>
                         <h4 class="total-amount mb-0">@Model.TotalAmount.ToString("N0") đ</h4>
-                </div>
+                    </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     @if (Model.StatusId <= 3)
-                            {
-                                <form asp-action="CancelOrder" asp-controller="Order" method="post" style="display:inline;">
-                                    <input type="hidden" name="orderId" value="@Model.OrderID" />
+                    {
+                        <form asp-action="CancelOrder" asp-controller="Order" method="post" class="cancel-form">
+                            <input type="hidden" name="orderId" value="@Model.OrderID" />
                             <button type="button" class="btn-modern btn-danger-modern btn-cancel-order" data-orderid="@Model.OrderID">
                                 <i class="fas fa-times"></i> Hủy đơn hàng
                             </button>
-                                </form>
-                            }
+                        </form>
+                    }
                     else if (Model.StatusId >= 4)
-                {
-                    <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
-                        <input type="hidden" name="orderId" value="@Model.OrderID" />
+                    {
+                        <form asp-action="BuyAgain" asp-controller="Order" method="post" class="buyagain-form">
+                            <input type="hidden" name="orderId" value="@Model.OrderID" />
                             <button type="button" class="btn-modern btn-success-modern btn-buy-again" data-orderid="@Model.OrderID">
                                 <i class="fas fa-redo"></i> Mua lại
                             </button>
-                    </form>
-                }
+                        </form>
+                    }
                     <a href="javascript:history.back()" class="btn-modern btn-back">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
@@ -201,10 +206,10 @@
                         <i class="fas fa-question-circle"></i> Xác nhận hành động
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
-            </div>
+                </div>
                 <div class="modal-body" id="confirmModalBody">
                     <!-- Nội dung sẽ được thay đổi bằng JS -->
-        </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times"></i> Hủy
@@ -213,12 +218,11 @@
                         <i class="fas fa-check"></i> Đồng ý
                     </button>
                 </div>
-    </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
     <script>
         let formToSubmit = null;
 
@@ -258,5 +262,6 @@
             }
         });
     </script>
+
 </body>
 </html>

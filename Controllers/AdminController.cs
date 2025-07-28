@@ -861,7 +861,7 @@ namespace pet_spa_system1.Controllers
 
         // Add New Product
 
-        public async Task<IActionResult> Add_New_Product()
+        public async Task<IActionResult> Add_New_Product() // hàm hiển thị form thêm sản phẩm
         {
             Console.WriteLine("[AdminController] Accessing Index...");
             // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
@@ -937,6 +937,7 @@ namespace pet_spa_system1.Controllers
                 if (string.IsNullOrEmpty(imageUrl))
                 {
                     TempData["ErrorMessage"] = "Không thể upload ảnh lên Cloudinary.";
+                    Console.WriteLine("[Cloudinary] Upload failed or returned empty URL.");
                     viewModel.Categories = await _productService.GetAllProductCategoriesAsync();
                     return View(viewModel);
                 }
@@ -1662,6 +1663,7 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
                     return Json(new { success = false, message = "Lỗi khi tải chi tiết đơn hàng: " + ex.Message });
                 }
             }
+
 
         // Helper: Map status name to id
         private int MapStatusNameToId(string statusName)

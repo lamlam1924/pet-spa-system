@@ -2,7 +2,7 @@
 
 @model UserViewModel
 @{
-    // Layout = null;
+    Layout = @Url.Content("~/Views/Shared/_Layout.cshtml"); 
     // Lấy vai trò từ session
     var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
 }
@@ -16,8 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css?v=123">
     <!-- Font Awesome CDN (v6 free) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+ 
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
@@ -274,7 +273,7 @@
             <div class="sidebar">
                 <div class="account-info">
                     <div class="d-flex align-items-center justify-content-center">
-                        <img src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+                        <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" : Model.ProfilePictureUrl)"
                              alt="Avatar">
                         <div>
                             <div class="username">@Model.UserName</div>
@@ -334,7 +333,7 @@
                 }, 2000);
             }
         });
-    </script>
+      
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -131,6 +131,50 @@ await _checkoutService.AddOrderItemsAsync(orderItems);
             var paymentUrl = pay.CreateRequestUrl(config["BaseUrl"], config["HashSecret"]);
             return Redirect(paymentUrl);
         }
+        if(PaymentMethodId == 3)
+        {
+            // Thanh toán khi nhận hàng (COD)
+            order.StatusId = 1; // Chờ thanh toán
+            await _checkoutService.UpdateOrderAsync(order);
+            // Lấy thông tin user
+            var user1 = order.User;
+            // Lấy danh sách sản phẩm vừa đặt
+            var items = order.OrderItems.Select(oi => new OrderItemDetail
+            {
+                ProductName = oi.Product.Name,
+                Quantity = oi.Quantity,
+                UnitPrice = oi.UnitPrice,
+                ImageUrl = oi.Product.ImageUrl
+            }).ToList();
+            // Tạo ViewModel xác nhận đơn hàng
+            var orderVm = new OrderConfirmationViewModel
+            {
+                OrderId = order.OrderId,
+                CustomerName = user.FullName ?? user.Username,
+                Email = user.Email,
+                ShippingAddress = order.ShippingAddress,
+                TotalAmount = order.TotalAmount,
+                Items = items
+            };
+            // Gửi email xác nhận
+            _emailService.SendOrderConfirmation(orderVm);
+            // Lưu thông tin payment
+            var payment = new Payment 
+            {
+                OrderId = order.OrderId,
+                UserId = order.UserId, // <-- Bổ sung dòng này
+                Amount = order.TotalAmount,
+                PaymentMethodId = 3, // COD
+                TransactionId = null, // Không có transaction ID cho COD
+                PaymentDate = DateTime.Now
+            };
+            _paymentService.AddPayment(payment);
+            // XÓA GIỎ HÀNG SAU KHI THANH TOÁN THÀNH CÔNG
+            await _cartService.ClearCartAsync(order.UserId);
+            // Truyền ViewModel sang View
+            return View("PaymentSuccess", orderVm);
+        }
+
         TempData["Message"] = "Phương thức thanh toán chưa được hỗ trợ.";
         return RedirectToAction("Checkout");
     }
@@ -145,7 +189,7 @@ public async Task<IActionResult> PaymentCallbackVnpay()
     var order = await _checkoutService.GetOrderByIdAsync(orderId);
     if (response["Success"] == "true")
     {
-        order.StatusId = 1; // Completed
+        order.StatusId = 2; // Completed
         await _checkoutService.UpdateOrderAsync(order);
 
         // Lấy thông tin user
@@ -185,7 +229,7 @@ public async Task<IActionResult> PaymentCallbackVnpay()
     OrderId = order.OrderId,
     UserId = order.UserId, // <-- Bổ sung dòng này
     Amount = order.TotalAmount,
-    PaymentMethodId = 2,
+    PaymentMethodId = 1,
     TransactionId = transactionNo,
     PaymentDate = DateTime.Now
 };

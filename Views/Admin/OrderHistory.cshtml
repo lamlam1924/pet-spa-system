@@ -330,44 +330,45 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewOrderModalLabel">Order Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h5 class="modal-title" id="viewOrderModalLabel" style="color: dodgerblue; margin-left :37%">Chi tiết đơn hàng</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="font-weight-bold">Order Information</h6>
-                            <p><strong>Order ID:</strong> <span id="view-order-id"></span></p>
-                            <p><strong>Customer:</strong> <span id="view-customer"></span></p>
-                            <p><strong>Total Amount:</strong> <span id="view-amount"></span></p>
-                            <p><strong>Total Items:</strong> <span id="view-total-items"></span></p>
+                            <h6 class="font-weight-bold" style="color: orangered">Thông tin đơn hàng</h6>
+                            <p><strong>Mã đơn hàng:</strong> <span id="view-order-id"></span></p>
+                            <p><strong>Khách hàng:</strong> <span id="view-customer"></span></p>
+                            <p><strong>Tổng tiền:</strong> <span id="view-amount"></span></p>
+                            <p><strong>Tổng số lượng:</strong> <span id="view-total-items"></span></p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="font-weight-bold">Order Status & Dates</h6>
-                            <p><strong>Status:</strong> <span id="view-status-badge"></span></p>
-                            <p><strong>Order Date:</strong> <span id="view-date"></span></p>
-                            <p><strong>Shipping Address:</strong><br><span id="view-address"></span></p>
+                            <h6 class="font-weight-bold" style="color: orangered">Trạng thái & thời gian</h6>
+                            <p><strong>Trạng thái:</strong> <span id="view-status-badge"></span></p>
+                            <p><strong>Ngày đặt hàng:</strong> <span id="view-date"></span></p>
+                            <p><strong>Địa chỉ giao hàng:</strong><br><span id="view-address"></span></p>
                         </div>
                     </div>
                     <hr>
                     <div class="row">
                         <div class="col-12">
-                            <h6 class="font-weight-bold">Products</h6>
+                            <h6 class="font-weight-bold">Danh sách sản phẩm</h6>
                             <div id="view-products-list">
-                                <!-- Products will be populated here -->
+                                <!-- Sản phẩm sẽ được hiển thị ở đây -->
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="editFromView">Edit Order</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="editFromView">Chỉnh sửa đơn hàng</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Edit Order Status Modal -->
     <div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
@@ -618,105 +619,7 @@
             }
         });
 
-        function testModal() {
-            const testOrder = {
-                OrderID: "TEST-001",
-                CustomerName: "Test Customer",
-                OrderDate: "2023-10-27T10:00:00",
-                Status: "Đang chờ xử lý",
-                TotalAmount: 123456.78,
-                CustomerAddress: "123 Test St, Test City, TS",
-                Items: [
-                    { ProductName: "Test Product 1", Quantity: 2, UnitPrice: 10000.00 },
-                    { ProductName: "Test Product 2", Quantity: 1, UnitPrice: 20000.00 }
-                ]
-            };
-            document.getElementById('view-order-id').textContent = testOrder.OrderID;
-            document.getElementById('view-customer').textContent = testOrder.CustomerName;
-            document.getElementById('view-amount').textContent = testOrder.TotalAmount.toLocaleString('vi-VN') + ' đ';
-            document.getElementById('view-total-items').textContent = testOrder.Items ? testOrder.Items.length : 0;
-            document.getElementById('view-date').textContent = testOrder.OrderDate ? new Date(testOrder.OrderDate).toLocaleString('vi-VN') : '';
-            document.getElementById('view-address').textContent = testOrder.CustomerAddress;
-            document.getElementById('editFromView').dataset.orderId = testOrder.OrderID;
-            
-            // Set status badge
-            const statusBadge = document.getElementById('view-status-badge');
-            let badgeClass = '';
-            switch (testOrder.Status) {
-                case 'Đang chờ xử lý':
-                    badgeClass = 'badge-pending';
-                    break;
-                case 'Đang chuẩn bị':
-                    badgeClass = 'badge-preparing';
-                    break;
-                case 'Đã giao vận chuyển':
-                    badgeClass = 'badge-shipped';
-                    break;
-                case 'Đã giao':
-                    badgeClass = 'badge-delivered';
-                    break;
-                case 'Đã hủy':
-                    badgeClass = 'badge-cancelled';
-                    break;
-            }
-            statusBadge.innerHTML = `<span class="badge ${badgeClass}">${testOrder.Status}</span>`;
-
-            // Populate products list với giao diện mới
-            const productsList = document.getElementById('view-products-list');
-            if (testOrder.Items && testOrder.Items.length > 0) {
-                let productsHtml = '';
-                let totalOrderValue = 0;
-                
-                testOrder.Items.forEach((item, index) => {
-                    const totalPrice = (item.Quantity || 0) * (item.UnitPrice || 0);
-                    totalOrderValue += totalPrice;
-                    
-                    productsHtml += `
-                        <div class="product-item mb-3 p-3 border rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-md-1">
-                                    <span class="badge badge-primary">${index + 1}</span>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="product-name font-weight-bold text-primary">${item.ProductName || 'N/A'}</div>
-                                    <div class="product-details text-muted small">
-                                        <i class="fas fa-tag"></i> Unit Price: ${item.UnitPrice ? item.UnitPrice.toLocaleString('vi-VN') + ' đ' : 'N/A'}
-                                    </div>
-                                </div>
-                                <div class="col-md-2 text-center">
-                                    <span class="badge badge-info">Qty: ${item.Quantity || 0}</span>
-                                </div>
-                                <div class="col-md-3 text-right">
-                                    <div class="font-weight-bold text-success">
-                                        ${totalPrice.toLocaleString('vi-VN')} đ
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                // Thêm tổng tiền
-                productsHtml += `
-                    <div class="mt-3 p-3 border-top">
-                        <div class="row">
-                            <div class="col-md-8 text-right">
-                                <strong>Total Order Value:</strong>
-                            </div>
-                            <div class="col-md-4 text-right">
-                                <span class="h5 text-success font-weight-bold">
-                                    ${totalOrderValue.toLocaleString('vi-VN')} đ
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                productsList.innerHTML = productsHtml;
-                  } else {
-                productsList.innerHTML = '<p class="text-muted text-center py-3">No products found in this order.</p>';
-            }
-            
+   
     </script>
 
  <script>

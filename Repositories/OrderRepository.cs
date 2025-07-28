@@ -2,6 +2,7 @@
 using System.Linq;
 using pet_spa_system1.Models;
 using Microsoft.EntityFrameworkCore;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Repositories
 {
@@ -25,6 +26,49 @@ namespace pet_spa_system1.Repositories
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
         }
+        public List<OrderViewModel> GetOrdersByUserIdPaged(int? userId, int page, int pageSize,
+    out int totalOrders, int? statusId = null, int? orderId = null)
+        {
+            var query = _context.Orders
+                .Include(o => o.Status)
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                .Where(o => o.UserId == userId);
+
+            if (statusId.HasValue)
+            {
+                query = query.Where(o => o.StatusId == statusId.Value);
+            }
+
+            if (orderId.HasValue)
+            {
+                query = query.Where(o => o.OrderId == orderId.Value);
+            }
+
+            totalOrders = query.Count();
+
+            var orders = query
+                .OrderByDescending(o => o.OrderDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new OrderViewModel
+                {
+                    OrderID = o.OrderId.ToString(),
+                    OrderDate = o.OrderDate,
+                    Status = o.Status.StatusName,
+                    StatusId = o.StatusId,
+                    TotalAmount = o.TotalAmount,
+                    Items = o.OrderItems.Select(oi => new OrderItemViewModel
+                    {
+                        ProductName = oi.Product.Name,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice
+                    }).ToList()
+                })
+                .ToList();
+
+            return orders;
+        }
+
 
         public Order GetOrderById(int orderId)
         {

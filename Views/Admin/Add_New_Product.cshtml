@@ -52,41 +52,53 @@
                                 </div>
 
                                 <div class="card-body">
-                                    <form id="createProductForm" asp-action="Add_New_Product" asp-controller="Admin" enctype="multipart/form-data" method="post">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+                                    <form id="createProductForm" asp-action="Add_New_Product" asp-controller="Admin" enctype="multipart/form-data" method="post">
                                         <div class="form-group">
                                             <label asp-for="Product.CategoryId">Loại sản phẩm</label>
-                                            <select asp-for="Product.CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))" required></select>
+                                            <select asp-for="Product.CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))"></select>
+                                            <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                                         </div>
 
                                         <div class="form-group">
                                             <label asp-for="Product.Name">Tên sản phẩm</label>
-                                            <input asp-for="Product.Name" class="form-control" required />
+                                            <input asp-for="Product.Name" class="form-control" />
+                                            <span asp-validation-for="Product.Name" class="text-danger"></span>
                                         </div>
 
                                         <div class="form-group">
                                             <label asp-for="Product.Description">Mô tả sản phẩm</label>
                                             <textarea asp-for="Product.Description" class="form-control" rows="3"></textarea>
+                                            <span asp-validation-for="Product.Description" class="text-danger"></span>
                                         </div>
 
                                         <div class="row">
                                             <div class="col-md-6 form-group">
                                                 <label asp-for="Product.Price">Giá tiền (VNĐ)</label>
-                                                <input asp-for="Product.Price" class="form-control" min="0" step="1000" required />
+                                                <input asp-for="Product.Price" class="form-control" min="0" step="1000" />
+                                                <span asp-validation-for="Product.Price" class="text-danger"></span>
                                             </div>
                                             <div class="col-md-6 form-group">
                                                 <label asp-for="Product.Stock">Số lượng</label>
-                                                <input asp-for="Product.Stock" class="form-control" min="0" required />
+                                                <input asp-for="Product.Stock" class="form-control" min="0" />
+                                                <span asp-validation-for="Product.Stock" class="text-danger"></span>
                                             </div>
                                         </div>
-                                        <label asp-for="Product.IsActive">Trạng thái</label>
-                                        <select asp-for="Product.IsActive" class="form-control">
-                                            <option value="true">Active</option>
-                                            <option value="false">Inactive</option>
-                                        </select>
+
+                                        <div class="form-group">
+                                            <label asp-for="Product.IsActive">Trạng thái</label>
+                                            <select asp-for="Product.IsActive" class="form-control">
+                                                <option value="true">Active</option>
+                                                <option value="false">Inactive</option>
+                                            </select>
+                                            <span asp-validation-for="Product.IsActive" class="text-danger"></span>
+                                        </div>
+
                                         <div class="form-group">
                                             <label for="Image">Hình ảnh sản phẩm</label>
-                                            <input type="file" name="Image" id="Image" class="form-control-file" required />
+                                            <input type="file" name="Image" id="Image" class="form-control-file" />
+                                            <!-- Không cần validation-for cho ảnh nếu không gắn vào model -->
                                         </div>
 
                                         <div class="mt-3">

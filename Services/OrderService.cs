@@ -80,7 +80,11 @@ namespace pet_spa_system1.Services
 
             return result;
         }
-
+        public List<OrderViewModel> GetOrdersByUserIdPaged(int? userId, int page, int pageSize,
+     out int totalOrders, int? statusId = null, int? orderId = null)
+        {
+            return _orderRepository.GetOrdersByUserIdPaged(userId, page, pageSize, out totalOrders, statusId, orderId);
+        }
         public List<Order> GetOrdersByUserId(int userId)
           => _orderRepository.GetOrdersByUserId(userId);
 
@@ -113,30 +117,30 @@ namespace pet_spa_system1.Services
             return true;
         }
 
-        public List<OrderViewModel> GetOrdersByUserIdPaged(int? userId, int page, int pageSize, out int totalOrders)
-        {
-            totalOrders = 0;
-            if (userId == null) return new List<OrderViewModel>();
-            var orders = _orderRepository.GetOrdersByUserIdPaged(userId.Value, page, pageSize, out totalOrders);
-            return orders.Select(o => new OrderViewModel
-            {
-                OrderID = o.OrderId.ToString(),
-                TotalAmount = o.TotalAmount,
-                Status = o.Status != null ? o.Status.StatusName : (o.StatusId == 1 ? "Đang xử lý" : "Không xác định"),
-                OrderDate = o.OrderDate,
-                Items = o.OrderItems?.Select(oi => new OrderItemViewModel
-                {
-                    ProductId = oi.ProductId,
-                    ProductName = oi.Product?.Name ?? "Không xác định",
-                    Quantity = oi.Quantity,
-                    UnitPrice = oi.UnitPrice
-                }).ToList() ?? new List<OrderItemViewModel>(),
-                CustomerName = o.User?.FullName ?? "Không xác định",
-                CustomerAddress = o.ShippingAddress ?? "Không xác định",
-                CustomerPhone = o.User?.Phone ?? "Không xác định",
-                StatusId = o.StatusId
-            }).ToList();
-        }
+        //public List<OrderViewModel> GetOrdersByUserIdPaged(int? userId, int page, int pageSize, out int totalOrders)
+        //{
+        //    totalOrders = 0;
+        //    if (userId == null) return new List<OrderViewModel>();
+        //    var orders = _orderRepository.GetOrdersByUserIdPaged(userId.Value, page, pageSize, out totalOrders);
+        //    return orders.Select(o => new OrderViewModel
+        //    {
+        //        OrderID = o.OrderId.ToString(),
+        //        TotalAmount = o.TotalAmount,
+        //        Status = o.Status != null ? o.Status.StatusName : (o.StatusId == 1 ? "Đang xử lý" : "Không xác định"),
+        //        OrderDate = o.OrderDate,
+        //        Items = o.OrderItems?.Select(oi => new OrderItemViewModel
+        //        {
+        //            ProductId = oi.ProductId,
+        //            ProductName = oi.Product?.Name ?? "Không xác định",
+        //            Quantity = oi.Quantity,
+        //            UnitPrice = oi.UnitPrice
+        //        }).ToList() ?? new List<OrderItemViewModel>(),
+        //        CustomerName = o.User?.FullName ?? "Không xác định",
+        //        CustomerAddress = o.ShippingAddress ?? "Không xác định",
+        //        CustomerPhone = o.User?.Phone ?? "Không xác định",
+        //        StatusId = o.StatusId
+        //    }).ToList();
+        //}
 
         public List<OrderViewModel> GetAllOrders()
         {

@@ -177,10 +177,17 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
             }
         }
+
+        public IActionResult AppointmentDetail()
+        {
+            return View();
+        }
+
     }
 
     public class RequestCancelDto
     {
         public int appointmentId { get; set; }
     }
+    
 }
