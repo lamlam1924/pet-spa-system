@@ -618,7 +618,7 @@ namespace pet_spa_system1.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+
             if (roleId != 1)
             {
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");

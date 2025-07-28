@@ -431,7 +431,7 @@ PRINT 'Please restart your application to apply the changes.';
 ALTER TABLE Services
 ADD ImageUrl NVARCHAR(255);
 
-sp_help 'Blogs';
+
 
 SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUsers';
 SELECT * FROM AspNetRoles;

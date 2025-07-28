@@ -681,6 +681,20 @@ namespace pet_spa_system1.Services
             _context.AppointmentServiceStatus.Add(status);
             _context.SaveChanges();
         }
+        public List<EmployeeScheduleViewModel> GetUpcomingScheduleByEmployee(int employeeId)
+        {
+            var appointments = _appointmentRepository.GetUpcomingAppointmentsByEmployeeId(employeeId);
+
+            return appointments.Select(a => new EmployeeScheduleViewModel
+            {
+                AppointmentId = a.AppointmentId,
+                AppointmentDate = a.AppointmentDate,
+                CustomerName = a.User?.FullName ?? "",
+                StatusName = a.Status?.StatusName ?? "",
+                PetNames = string.Join(", ", a.AppointmentPets.Select(p => p.Pet.Name)),
+                ServiceNames = string.Join(", ", a.AppointmentServices.Select(s => s.Service.Name))
+            }).ToList();
+        }
 
         public void DeleteServiceStatus(int statusId)
         {
@@ -691,5 +705,6 @@ namespace pet_spa_system1.Services
                 _context.SaveChanges();
             }
         }
+
     }
 }

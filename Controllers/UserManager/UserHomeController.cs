@@ -21,6 +21,7 @@ namespace pet_spa_system1.Controllers
         private readonly IProductService _productService;
         private readonly IOrderStatusService _orderStatusService;
         private readonly INotificationService _notificationService;
+        public readonly IAppointmentService _appointmentService;
 
         public UserHomeController(
             IUserService userService,
@@ -30,7 +31,8 @@ namespace pet_spa_system1.Controllers
             IOrderItemService orderItemService,
             IProductService productService,
             IOrderStatusService orderStatusService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IAppointmentService appointmentService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _petService = petService ?? throw new ArgumentNullException(nameof(petService));
@@ -41,6 +43,7 @@ namespace pet_spa_system1.Controllers
             _orderStatusService = orderStatusService ?? throw new ArgumentNullException(nameof(orderStatusService));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
             Console.WriteLine("[UserHomeController] Services injected successfully.");
+            _appointmentService = appointmentService;
         }
 
         public async Task<IActionResult> Index()
@@ -439,7 +442,7 @@ namespace pet_spa_system1.Controllers
                               $"Breed={model.Pet?.Breed}, Age={model.Pet?.Age}, Gender={model.Pet?.Gender}, " +
                               $"SpecialNotes={model.Pet?.SpecialNotes}, ImageFile={ImageFile?.FileName}");
 
-            // Loại bỏ validation cho ImageFile
+   
             ModelState.Remove("ImageFile");
 
             if (!ModelState.IsValid)
@@ -469,7 +472,7 @@ namespace pet_spa_system1.Controllers
             var pet = model.Pet;
             pet.UserId = userId.Value;
             pet.CreatedAt = DateTime.Now;
-            pet.IsActive = true; // Đảm bảo pet mới được active
+            pet.IsActive = true;
 
             var images = ImageFile != null ? new List<IFormFile> { ImageFile } : new List<IFormFile>();
             try
@@ -498,5 +501,17 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = $"Lỗi khi thêm thú cưng: {ex.Message}" });
             }
         }
+        public IActionResult EmployeeSchedulePartial()
+        {
+            int? employeeId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (employeeId == null) return PartialView("_ErrorPartial", "Vui lòng đăng nhập.");
+
+            var appointments = _appointmentService.GetUpcomingScheduleByEmployee(employeeId.Value);
+            return PartialView("_ScheduleEmployeePartial", appointments);
+        }
+
+
+
+
     }
 }
