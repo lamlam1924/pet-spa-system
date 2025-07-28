@@ -46,4 +46,14 @@ public interface IBlogService
     bool CanUserEditBlog(int blogId, int userId, string userRole);
     bool CanUserDeleteBlog(int blogId, int userId, string userRole);
     string GetBlogStatusForUser(string userRole);
+    Task<Blog?> GetBlogByIdAsync(int blogId);
+    Task<BlogComment?> GetCommentByIdAsync(int commentId);
+
+
+    Task HandleFeaturedImageAsync(Blog blog, IFormFile featuredImage);
+
+    Task HandleAdditionalImagesAsync(int blogId, List<IFormFile> additionalImages);
+
+
+
 }
