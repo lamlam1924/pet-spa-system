@@ -10,11 +10,12 @@ namespace pet_spa_system1.Services
     {
         Pending = 1,
         Confirmed = 2,
-        Completed = 3,
-        Cancelled = 4,
-        Absent = 5,
+        InProgress = 3,
+        Completed = 4,
+        Cancelled = 5,
         PendingCancel = 6
     }
+
     public class AppointmentService : IAppointmentService
     {
         /// <summary>
@@ -24,6 +25,7 @@ namespace pet_spa_system1.Services
         /// <param name="type">Kiểu thông báo: approved, rejected</param>
         /// <param name="staffId">Id nhân viên được gán (nếu có)</param>
         private readonly IAppointmentRepository _appointmentRepository;
+
         private readonly IEmailService _emailService;
         private readonly IPetRepository _petRepository;
         private readonly IUserRepository _userRepository;
@@ -32,75 +34,32 @@ namespace pet_spa_system1.Services
 
         public void SendAppointmentNotificationMail(int appointmentId, string type, int? staffId)
         {
-            var appointment = GetAppointmentById(appointmentId);
-            if (appointment == null) return;
-            var customer = appointment.User;
-            if (customer == null || string.IsNullOrEmpty(customer.Email)) return;
+            var appointment = _appointmentRepository.GetById(appointmentId);
+            if (appointment == null || appointment.User == null || string.IsNullOrEmpty(appointment.User.Email))
+                return;
 
-            string subject = "[Pet Spa] Thông báo lịch hẹn của bạn";
-            string spaAddress = "123 Đường Spa, Quận 1, TP.HCM";
-            string spaHotline = "0123 456 789";
-            string petNames = appointment.AppointmentPets != null && appointment.AppointmentPets.Count > 0
-                ? string.Join(", ", appointment.AppointmentPets.Select(p => p.Pet.Name)) : "Không có";
-            string serviceNames = appointment.AppointmentServices != null && appointment.AppointmentServices.Count > 0
-                ? string.Join(", ", appointment.AppointmentServices.Select(s => s.Service.Name)) : "Không có";
-            string staffInfo = "";
-            if (staffId.HasValue)
-            {
-                var staff = GetEmployees().FirstOrDefault(e => e.UserId == staffId.Value);
-                if (staff != null)
-                    staffInfo = $"<tr><td>Nhân viên phục vụ:</td><td>{staff.FullName}</td></tr>";
-            }
-            string timeInfo = $"<tr><td>Thời gian:</td><td>{appointment.AppointmentDate:dd/MM/yyyy HH:mm}</td></tr>";
-            string tableInfo = $@"
-                <table style='border-collapse:collapse;'>
-                    <tr><td>Khách hàng:</td><td>{customer.FullName}</td></tr>
-                    {staffInfo}
-                    {timeInfo}
-                    <tr><td>Thú cưng:</td><td>{petNames}</td></tr>
-                    <tr><td>Dịch vụ:</td><td>{serviceNames}</td></tr>
-                </table>";
-            string body = "";
             if (type == "approved")
             {
-                body = $@"
-                    <h3>Chào {customer.FullName},</h3>
-                    <p>Lịch hẹn của bạn tại Pet Spa đã được <b>duyệt thành công</b>.</p>
-                    {tableInfo}
-                    <p>Địa chỉ Spa: {spaAddress}<br/>Hotline: {spaHotline}</p>
-                    <p>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
-                ";
+                var model = BuildAppointmentEmailModel<AppointmentConfirmationEmailModel>(appointment);
+                _emailService.SendAppointmentConfirmation(model);
+            }
+            else if (type == "cancelled")
+            {
+                var model = BuildAppointmentEmailModel<AppointmentCancelledEmailModel>(appointment);
+                _emailService.SendAppointmentCancelled(model);
+            }
+            else if (type == "reminder")
+            {
+                var model = BuildAppointmentEmailModel<AppointmentReminderEmailModel>(appointment);
+                _emailService.SendAppointmentReminder(model);
             }
             else if (type == "rejected")
             {
-                body = $@"
-                    <h3>Chào {customer.FullName},</h3>
-                    <p>Rất tiếc, lịch hẹn của bạn tại Pet Spa đã bị <b>từ chối hoặc hủy</b>.</p>
-                    {tableInfo}
-                    <p>Địa chỉ Spa: {spaAddress}<br/>Hotline: {spaHotline}</p>
-                    <p>Vui lòng liên hệ lại với chúng tôi để được hỗ trợ đặt lịch mới.<br/>Xin cảm ơn!</p>
-                ";
-            }
-            else
-            {
-                body = $@"
-                    <h3>Chào {customer.FullName},</h3>
-                    <p>Thông báo về lịch hẹn của bạn tại Pet Spa.</p>
-                    {tableInfo}
-                    <p>Địa chỉ Spa: {spaAddress}<br/>Hotline: {spaHotline}</p>
-                ";
-            }
-
-            try
-            {
-                this._emailService.SendEmail(customer.Email, subject, body);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Mail] Lỗi gửi mail: {ex.Message}");
+                var model = BuildAppointmentEmailModel<AppointmentRejectedEmailModel>(appointment);
+                _emailService.SendAppointmentRejected(model);
             }
         }
-        
+
         public int CalculateDurationMinutes(int appointmentId)
         {
             var appointment = _appointmentRepository.GetById(appointmentId);
@@ -108,35 +67,37 @@ namespace pet_spa_system1.Services
                 return 0;
             return appointment.AppointmentServices.Sum(s => s.Service?.DurationMinutes ?? 0);
         }
-    public ApproveAssignResult AdminApproveAndAssignStaff(ApproveAssignRequest request)
-    {
-        var appointment = _appointmentRepository.GetById(request.AppointmentId);
-        if (appointment == null)
-            return new ApproveAssignResult { Success = false, Message = "Không tìm thấy lịch hẹn", Updated = new AppointmentViewModel() };
 
-        // Gán nhân viên
-        appointment.EmployeeId = request.StaffId;
-        appointment.StatusId = (int)AppointmentStatus.Confirmed; // Đã xác nhận
-        _appointmentRepository.Update(appointment);
-        _appointmentRepository.Save();
-
-        // Log lịch sử duyệt/gán
-
-
-        // Gửi email xác nhận
-        if (!string.IsNullOrEmpty(appointment.User?.Email))
+        public ApproveAssignResult AdminApproveAndAssignStaff(ApproveAssignRequest request)
         {
-            var emailModel = BuildAppointmentConfirmationEmailModel(appointment);
-            _emailService.SendAppointmentConfirmation(emailModel);
+            var appointment = _appointmentRepository.GetById(request.AppointmentId);
+            if (appointment == null)
+                return new ApproveAssignResult
+                    { Success = false, Message = "Không tìm thấy lịch hẹn", Updated = new AppointmentViewModel() };
+
+            // Gán nhân viên
+            appointment.EmployeeId = request.StaffId;
+            appointment.StatusId = (int)AppointmentStatus.Confirmed; // Đã xác nhận
+            _appointmentRepository.Update(appointment);
+            _appointmentRepository.Save();
+
+            // Log lịch sử duyệt/gán
+
+
+            // Gửi email xác nhận
+            if (!string.IsNullOrEmpty(appointment.User?.Email))
+            {
+                var emailModel = BuildAppointmentEmailModel<AppointmentConfirmationEmailModel>(appointment);
+                _emailService.SendAppointmentConfirmation(emailModel);
+            }
+
+            return new ApproveAssignResult
+            {
+                Success = true,
+                Message = "Đã duyệt và gán nhân viên thành công, đã gửi email xác nhận.",
+                Updated = BuildAppointmentViewModel(appointment)
+            };
         }
-
-        return new ApproveAssignResult
-        {
-            Success = true,
-            Message = "Đã duyệt và gán nhân viên thành công, đã gửi email xác nhận.",
-            Updated = BuildAppointmentViewModel(appointment)
-        };
-    }
 
 
         public AppointmentService(
@@ -153,7 +114,6 @@ namespace pet_spa_system1.Services
             // _serviceRepository = serviceRepository; // Không dùng, xóa nếu không cần
             _userRepository = userRepository;
             _context = context;
-
         }
 
         public bool SaveAppointment(AppointmentViewModel model, int userId)
@@ -294,24 +254,14 @@ namespace pet_spa_system1.Services
             return viewModel;
         }
 
-        public List<Appointment> GetAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0,
-            int page = 1,
-            int pageSize = 10)
+        public List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter)
         {
-            return _appointmentRepository.GetAppointments(searchTerm, statusId, date, employeeId, page, pageSize);
+            return _appointmentRepository.GetAppointments(filter);
         }
 
-        public int CountAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0)
+        public int CountAppointments(ViewModel.AppointmentFilter filter)
         {
-            return _appointmentRepository.CountAppointments(searchTerm, statusId, date, employeeId);
+            return _appointmentRepository.CountAppointments(filter);
         }
 
         public List<StatusAppointment> GetAllStatuses()
@@ -331,10 +281,14 @@ namespace pet_spa_system1.Services
             return appointments.Select(a => new
             {
                 id = a.AppointmentId,
-                title = $"{a.User?.FullName ?? "Unknown"}\nThú cưng: {string.Join(", ", a.AppointmentPets?.Select(ap => ap.Pet?.Name) ?? new List<string>())}\nDịch vụ: {string.Join(", ", a.AppointmentServices?.Select(asr => asr.Service?.Name) ?? new List<string>())}",
+                title =
+                    $"{a.User?.FullName ?? "Unknown"}\nThú cưng: {string.Join(", ", a.AppointmentPets?.Select(ap => ap.Pet?.Name) ?? new List<string>())}\nDịch vụ: {string.Join(", ", a.AppointmentServices?.Select(asr => asr.Service?.Name) ?? new List<string>())}",
                 start = a.AppointmentDate.ToString("yyyy-MM-dd HH:mm:ss"),
                 end = a.AppointmentDate.AddHours(1).ToString("yyyy-MM-dd HH:mm:ss"),
-                className = a.StatusId switch { 1 => "bg-warning", 2 => "bg-info", 3 => "bg-success", 4 => "bg-danger", _ => "bg-secondary" },
+                className = a.StatusId switch
+                {
+                    1 => "bg-warning", 2 => "bg-info", 3 => "bg-success", 4 => "bg-danger", _ => "bg-secondary"
+                },
                 description = a.Notes ?? string.Empty
             }).Cast<object>().ToList();
         }
@@ -409,7 +363,6 @@ namespace pet_spa_system1.Services
                 Console.WriteLine($"Error creating appointment: {ex.Message}");
                 return false;
             }
-
         }
 
         public bool UpdateAppointment(AppointmentViewModel model)
@@ -463,16 +416,28 @@ namespace pet_spa_system1.Services
                 _appointmentRepository.Update(appointment);
                 _appointmentRepository.Save();
 
-                // Gửi mail khi admin từ chối/hủy lịch (statusId = 4)
-                if ((AppointmentStatus)statusId == AppointmentStatus.Cancelled && !string.IsNullOrEmpty(appointment.User?.Email))
+                // Gửi mail khi admin duyệt hủy lịch (statusId = 5)
+                if ((AppointmentStatus)statusId == AppointmentStatus.Cancelled &&
+                    !string.IsNullOrEmpty(appointment.User?.Email))
                 {
-                    var model = new AppointmentCancelledEmailModel
-                    {
-                        ToEmail = appointment.User.Email,
-                        CustomerName = appointment.User.FullName,
-                        AppointmentDateTime = appointment.AppointmentDate
-                    };
+                    var model = BuildAppointmentEmailModel<AppointmentCancelledEmailModel>(appointment);
                     _emailService.SendAppointmentCancelled(model);
+                }
+
+                // Gửi mail khi admin xác nhận lịch (statusId = 2)
+                if ((AppointmentStatus)statusId == AppointmentStatus.Confirmed &&
+                    !string.IsNullOrEmpty(appointment.User?.Email))
+                {
+                    var model = BuildAppointmentEmailModel<AppointmentConfirmationEmailModel>(appointment);
+                    _emailService.SendAppointmentConfirmation(model);
+                }
+
+                // Gửi mail khi admin từ chối lịch (statusId = 4 hoặc trạng thái rejected)
+                if ((AppointmentStatus)statusId == AppointmentStatus.Completed &&
+                    !string.IsNullOrEmpty(appointment.User?.Email))
+                {
+                    var model = BuildAppointmentEmailModel<AppointmentRejectedEmailModel>(appointment);
+                    _emailService.SendAppointmentRejected(model);
                 }
 
                 return true;
@@ -483,6 +448,7 @@ namespace pet_spa_system1.Services
                 return false;
             }
         }
+
         /// <summary>
         /// Gửi mail nhắc lịch cho các lịch hẹn sắp tới (trước 1 ngày)
         /// </summary>
@@ -491,7 +457,8 @@ namespace pet_spa_system1.Services
             var now = DateTime.Now;
             var from = now.AddDays(1);
             var to = now.AddDays(2);
-            var appointments = _appointmentRepository.GetAppointments()
+            var filter = new ViewModel.AppointmentFilter();
+            var appointments = _appointmentRepository.GetAppointments(filter)
                 .Where(a => a.StatusId == 2 && a.AppointmentDate > from && a.AppointmentDate <= to)
                 .ToList();
             foreach (var appointment in appointments)
@@ -560,14 +527,15 @@ namespace pet_spa_system1.Services
 
                 Console.WriteLine($"[RequestCancelAppointment] appointment.StatusId={appointment.StatusId}");
                 // Chỉ cho phép hủy nếu trạng thái là pending/confirmed/inprogress
-                if (appointment.StatusId == 4 || appointment.StatusId == 5 || appointment.StatusId == 6)
+                if (appointment.StatusId == (int)AppointmentStatus.Cancelled ||
+                    appointment.StatusId == (int)AppointmentStatus.PendingCancel)
                 {
                     Console.WriteLine($"[RequestCancelAppointment] StatusId={appointment.StatusId} không cho phép hủy");
                     return false;
                 }
 
                 // 6: PendingCancel (chờ duyệt hủy) - cần đồng bộ với DB
-                appointment.StatusId = 6;
+                appointment.StatusId = (int)AppointmentStatus.PendingCancel;
                 _appointmentRepository.Update(appointment);
                 _appointmentRepository.Save();
 
@@ -729,7 +697,6 @@ namespace pet_spa_system1.Services
         }
 
 
-
         public bool TryUpdateAppointmentStaff(int appointmentId, int newStaffId)
         {
             var appointment = _appointmentRepository.GetById(appointmentId);
@@ -748,6 +715,7 @@ namespace pet_spa_system1.Services
                 var aEnd = aStart.AddMinutes(a.AppointmentServices?.Sum(s => s.Service?.DurationMinutes ?? 0) ?? 0);
                 return newStart < aEnd && newEnd > aStart;
             }
+
             if (_appointmentRepository.GetAppointmentsByStaffAndDate(newStaffId, newStart.Date).Any(IsConflict))
                 return false;
 
@@ -795,24 +763,29 @@ namespace pet_spa_system1.Services
 
             if (!string.IsNullOrEmpty(appointment.User?.Email))
             {
-                var emailModel = BuildAppointmentConfirmationEmailModel(appointment);
+                var emailModel = BuildAppointmentEmailModel<AppointmentConfirmationEmailModel>(appointment);
                 _emailService.SendAppointmentConfirmation(emailModel);
             }
 
             return true;
         }
 
-        public ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "")
+        public ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "",
+            string service = "", string status = "")
         {
             var appointments = _appointmentRepository.GetPendingAppointments();
 
             // Lọc theo các trường
             if (!string.IsNullOrWhiteSpace(customer))
-                appointments = appointments.Where(a => (a.User?.FullName ?? "").ToLower().Contains(customer.ToLower())).ToList();
+                appointments = appointments.Where(a => (a.User?.FullName ?? "").ToLower().Contains(customer.ToLower()))
+                    .ToList();
             if (!string.IsNullOrWhiteSpace(pet))
-                appointments = appointments.Where(a => a.AppointmentPets.Any(p => (p.Pet?.Name ?? "").ToLower().Contains(pet.ToLower()))).ToList();
+                appointments = appointments.Where(a =>
+                    a.AppointmentPets.Any(p => (p.Pet?.Name ?? "").ToLower().Contains(pet.ToLower()))).ToList();
             if (!string.IsNullOrWhiteSpace(service))
-                appointments = appointments.Where(a => a.AppointmentServices.Any(s => (s.Service?.Name ?? "").ToLower().Contains(service.ToLower()))).ToList();
+                appointments = appointments.Where(a =>
+                        a.AppointmentServices.Any(s => (s.Service?.Name ?? "").ToLower().Contains(service.ToLower())))
+                    .ToList();
             if (!string.IsNullOrWhiteSpace(status) && int.TryParse(status, out int statusId))
             {
                 appointments = appointments.Where(a => a.StatusId == statusId).ToList();
@@ -878,7 +851,8 @@ namespace pet_spa_system1.Services
                 Notes = appointment.Notes,
                 StatusId = appointment.StatusId,
                 SelectedPetIds = appointment.AppointmentPets?.Select(p => p.PetId).ToList() ?? new List<int>(),
-                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ?? new List<int>(),
+                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ??
+                                     new List<int>(),
                 // Thêm các trường khác nếu cần
             };
             return vm;
@@ -890,7 +864,8 @@ namespace pet_spa_system1.Services
             var staffList = _userRepository.GetStaffList();
             int duration = appointment.AppointmentServices?.Sum(s => s.Service?.DurationMinutes ?? 0) ?? 0;
 
-            var availableStaff = staffList.FirstOrDefault(staff => !IsTimeConflict(appointment.AppointmentDate, staff.UserId, duration));
+            var availableStaff = staffList.FirstOrDefault(staff =>
+                !IsTimeConflict(appointment.AppointmentDate, staff.UserId, duration));
             if (availableStaff == null) return null;
             appointment.EmployeeId = availableStaff.UserId;
             appointment.StatusId = (int)AppointmentStatus.Confirmed;
@@ -898,22 +873,52 @@ namespace pet_spa_system1.Services
             _appointmentRepository.Save();
             if (!string.IsNullOrEmpty(appointment.User?.Email))
             {
-                var emailModel = BuildAppointmentConfirmationEmailModel(appointment);
+                var emailModel = BuildAppointmentEmailModel<AppointmentConfirmationEmailModel>(appointment);
                 _emailService.SendAppointmentConfirmation(emailModel);
             }
+
             return availableStaff.UserId;
         }
 
 
-        public AppointmentConfirmationEmailModel BuildAppointmentConfirmationEmailModel(Appointment appointment)
+        // ...existing code...
+
+        public T BuildAppointmentEmailModel<T>(Appointment appointment) where T : new()
         {
-            return new AppointmentConfirmationEmailModel
+            var model = new T();
+            var props = typeof(T).GetProperties();
+
+            void Set<TValue>(string name, TValue value)
             {
-                ToEmail = appointment.User?.Email ?? string.Empty,
-                CustomerName = appointment.User?.FullName ?? "Khách hàng",
-                AppointmentDateTime = appointment.AppointmentDate
-            };
+                var prop = props.FirstOrDefault(p => p.Name == name);
+                if (prop != null && prop.CanWrite)
+                    prop.SetValue(model, value);
+            }
+
+            Set("ToEmail", appointment.User?.Email ?? string.Empty);
+            Set("CustomerName", appointment.User?.FullName ?? "Khách hàng");
+            Set("AppointmentDateTime", appointment.AppointmentDate);
+            Set("EndTime", appointment.AppointmentDate.AddMinutes(
+                appointment.AppointmentServices?.Sum(s => s.Service?.DurationMinutes ?? 0) ?? 0));
+            Set("StatusName", appointment.Status?.StatusName ?? string.Empty);
+            Set("Notes", appointment.Notes ?? string.Empty);
+            Set("SelectedPets", appointment.AppointmentPets?
+                .Where(ap => ap.Pet != null)
+                .Select(ap => ap.Pet)
+                .ToList() ?? new List<Pet>());
+            Set("SelectedServices", appointment.AppointmentServices?
+                .Where(asv => asv.Service != null)
+                .Select(asv => asv.Service)
+                .ToList() ?? new List<Service>());
+
+            // Nếu là AppointmentRejectedEmailModel thì có ProposedDateTime
+            if (typeof(T).GetProperty("ProposedDateTime") != null)
+                Set("ProposedDateTime", appointment.AppointmentDate);
+
+            return model;
         }
+
+// ...existing code...
 
         public AppointmentViewModel BuildAppointmentViewModel(Appointment appointment)
         {
@@ -931,14 +936,16 @@ namespace pet_spa_system1.Services
                 StatusName = appointment.Status?.StatusName ?? string.Empty,
                 Notes = appointment.Notes,
                 SelectedPets = appointment.AppointmentPets != null
-                    ? appointment.AppointmentPets.Select(ap => new AppointmentPetViewModel {
+                    ? appointment.AppointmentPets.Select(ap => new AppointmentPetViewModel
+                    {
                         PetId = ap.PetId,
                         Name = ap.Pet?.Name ?? string.Empty,
                         Breed = ap.Pet?.Breed ?? string.Empty
                     }).ToList()
                     : new List<AppointmentPetViewModel>(),
                 SelectedServices = appointment.AppointmentServices != null
-                    ? appointment.AppointmentServices.Select(asv => new AppointmentServiceInfo {
+                    ? appointment.AppointmentServices.Select(asv => new AppointmentServiceInfo
+                    {
                         ServiceId = asv.ServiceId,
                         Name = asv.Service?.Name ?? string.Empty,
                         CategoryName = asv.Service?.Category?.Name ?? string.Empty,

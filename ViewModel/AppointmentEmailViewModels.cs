@@ -7,6 +7,8 @@ namespace pet_spa_system1.ViewModel
         public string ToEmail { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
         public DateTime AppointmentDateTime { get; set; }
+        public List<Pet> SelectedPets { get; set; } = new List<Pet>();
+        public List<Service> SelectedServices { get; set; } = new List<Service>();
     }
 
     public class AppointmentReminderEmailModel
@@ -14,6 +16,8 @@ namespace pet_spa_system1.ViewModel
         public string ToEmail { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
         public DateTime AppointmentDateTime { get; set; }
+        public List<Pet> SelectedPets { get; set; } = new List<Pet>();
+        public List<Service> SelectedServices { get; set; } = new List<Service>();
     }
 
     public class AppointmentConfirmationEmailModel
@@ -33,6 +37,8 @@ namespace pet_spa_system1.ViewModel
         public string ToEmail { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
         public DateTime ProposedDateTime { get; set; }
+        public List<Pet> SelectedPets { get; set; } = new List<Pet>();
+        public List<Service> SelectedServices { get; set; } = new List<Service>();
     }
     
 

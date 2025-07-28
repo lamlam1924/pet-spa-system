@@ -34,7 +34,7 @@ public class AdminAppointmentController : Controller
             return View("~/Views/Admin/ManageAppointment/AppointmentDashboard.cshtml", viewModel);
         }
 
-        public IActionResult List(string searchTerm = "", int statusId = 0,
+        public IActionResult List(string customer = "", string pet = "", string service = "", int statusId = 0,
             DateTime? date = null, int employeeId = 0, int page = 1)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
@@ -45,11 +45,19 @@ public class AdminAppointmentController : Controller
 
             const int pageSize = 10;
 
-            var appointments = _appointmentService.GetAppointments(
-                searchTerm, statusId, date, employeeId, page, pageSize);
-
-            var totalItems = _appointmentService.CountAppointments(
-                searchTerm, statusId, date, employeeId);
+            var filter = new pet_spa_system1.ViewModel.AppointmentFilter
+            {
+                Customer = customer,
+                Pet = pet,
+                Service = service,
+                StatusId = statusId,
+                Date = date,
+                EmployeeId = employeeId,
+                Page = page,
+                PageSize = pageSize
+            };
+            var appointments = _appointmentService.GetAppointments(filter);
+            var totalItems = _appointmentService.CountAppointments(filter);
 
             var allEmployees = _appointmentService.GetEmployees();
             var employees = allEmployees?.Where(u => u.RoleId == 3).ToList() ?? new List<User>();
@@ -73,7 +81,8 @@ public class AdminAppointmentController : Controller
         public IActionResult Calendar()
         {
             // Lấy toàn bộ lịch hẹn hoặc theo range phù hợp cho calendar
-            var appointments = _appointmentService.GetAppointments();
+            var filter = new pet_spa_system1.ViewModel.AppointmentFilter();
+            var appointments = _appointmentService.GetAppointments(filter);
             return View("~/Views/Admin/ManageAppointment/AppointmentCalendar.cshtml", appointments);
         }
 
@@ -313,8 +322,8 @@ public class AdminAppointmentController : Controller
         [ValidateAntiForgeryToken]
         public IActionResult RejectAppointment(int id)
         {
-            // Chuyển trạng thái sang Đã hủy (4)
-            _appointmentService.UpdateAppointmentStatus(id, 4);
+            // Chuyển trạng thái sang Đã hủy
+            _appointmentService.UpdateAppointmentStatus(id, (int)pet_spa_system1.Services.AppointmentStatus.Cancelled);
             // Gửi mail thông báo cho khách hàng
             try
             {

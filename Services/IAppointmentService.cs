@@ -33,19 +33,8 @@ namespace pet_spa_system1.Services
         List<AdminAppointmentDetailViewModel> GetPendingAppointments();
         List<AdminAppointmentDetailViewModel> GetPendingCancelAppointments();
 
-        List<Appointment> GetAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0,
-            int page = 1,
-            int pageSize = 10);
-
-        int CountAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0);
+        List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter);
+        int CountAppointments(ViewModel.AppointmentFilter filter);
 
         List<StatusAppointment> GetAllStatuses();
         List<User> GetEmployees();

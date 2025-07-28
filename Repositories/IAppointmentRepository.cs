@@ -37,19 +37,8 @@ namespace pet_spa_system1.Repositories
         int CountPendingApprovalAppointments();
         int CountPendingCancelAppointments();
 
-        List<Appointment> GetAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0,
-            int page = 1,
-            int pageSize = 10);
-
-        int CountAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0);
+        List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter);
+        int CountAppointments(ViewModel.AppointmentFilter filter);
 
         List<Appointment> GetAppointmentsByDateRange(DateTime start, DateTime end);
 

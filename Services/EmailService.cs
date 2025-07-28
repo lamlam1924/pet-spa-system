@@ -1,4 +1,3 @@
-
 using System.Net;
 using System.Net.Mail;
 using pet_spa_system1.ViewModel;
@@ -31,10 +30,12 @@ namespace pet_spa_system1.Services
             string body = $"<h3>Đây là email test gửi từ hệ thống Pet Spa.</h3><p>Thời gian: {DateTime.Now}</p>";
             SendEmail(to, subject, body);
         }
+
         public void SendOrderConfirmation(OrderConfirmationViewModel viewModel)
         {
             string subject = $"[Pet Spa] Xác nhận đơn hàng #{viewModel.OrderId}";
-            string body = $"<h3>Xin chào {viewModel.CustomerName},</h3><p>Đơn hàng của bạn đã được xác nhận.</p><p>Mã đơn: {viewModel.OrderId}</p>";
+            string body =
+                $"<h3>Xin chào {viewModel.CustomerName},</h3><p>Đơn hàng của bạn đã được xác nhận.</p><p>Mã đơn: {viewModel.OrderId}</p>";
             SendEmail(viewModel.Email, subject, body);
         }
 
@@ -48,28 +49,148 @@ namespace pet_spa_system1.Services
         public void SendAppointmentConfirmation(AppointmentConfirmationEmailModel model)
         {
             string subject = "[Pet Spa] Xác nhận lịch hẹn";
-            string body = $"<h3>Xin chào {model.CustomerName},</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: {model.AppointmentDateTime:dd/MM/yyyy HH:mm}</p>";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#f7b731;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Xác nhận lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Lịch hẹn của bạn tại <b>Pet Spa</b> đã được <span style='color:#27ae60;font-weight:bold;'>xác nhận</span>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thời gian:</td>
+                <td style='padding:8px 0;'><b>{model.AppointmentDateTime:dd/MM/yyyy HH:mm}</b></td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p>Địa chỉ Spa: <b>123 Đường ABC, Quận 1, TP.HCM</b><br/>
+        Hotline: <b>0123 456 789</b></p>
+        <p style='color:#888;font-size:13px;'>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+    </div>
+    <div style='background:#f7b731;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
             SendEmail(model.ToEmail, subject, body);
         }
 
         public void SendAppointmentRejected(AppointmentRejectedEmailModel model)
         {
             string subject = "[Pet Spa] Lịch hẹn bị từ chối";
-            string body = $"<h3>Xin chào {model.CustomerName},</h3><p>Rất tiếc, lịch hẹn của bạn đã bị từ chối.</p><p>Thời gian: {model.ProposedDateTime:dd/MM/yyyy HH:mm}</p>";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#f39c12;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Từ chối lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Rất tiếc, lịch hẹn của bạn tại <b>Pet Spa</b> đã bị <span style='color:#e67e22;font-weight:bold;'>từ chối</span>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thời gian:</td>
+                <td style='padding:8px 0;'><b>{model.ProposedDateTime:dd/MM/yyyy HH:mm}</b></td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p style='color:#888;font-size:13px;'>Nếu cần hỗ trợ, vui lòng liên hệ hotline <b>0123 456 789</b>.</p>
+    </div>
+    <div style='background:#f39c12;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
             SendEmail(model.ToEmail, subject, body);
         }
 
         public void SendAppointmentCancelled(AppointmentCancelledEmailModel model)
         {
-            string subject = "[Pet Spa] Lịch hẹn bị hủy";
-            string body = $"<h3>Xin chào {model.CustomerName},</h3><p>Lịch hẹn của bạn đã bị hủy.</p><p>Thời gian: {model.AppointmentDateTime:dd/MM/yyyy HH:mm}</p>";
+            string subject = "[Pet Spa] Lịch hẹn đã được hủy";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#e74c3c;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Hủy lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Chúng tôi xin thông báo lịch hẹn của bạn tại <b>Pet Spa</b> đã được <span style='color:#e74c3c;font-weight:bold;'>hủy</span>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thời gian:</td>
+                <td style='padding:8px 0;'><b>{model.AppointmentDateTime:dd/MM/yyyy HH:mm}</b></td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p style='color:#888;font-size:13px;'>Nếu có thắc mắc, vui lòng liên hệ hotline <b>0123 456 789</b>.<br/>Cảm ơn bạn đã quan tâm Pet Spa!</p>
+    </div>
+    <div style='background:#e74c3c;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
             SendEmail(model.ToEmail, subject, body);
         }
 
         public void SendAppointmentReminder(AppointmentReminderEmailModel model)
         {
             string subject = "[Pet Spa] Nhắc lịch hẹn";
-            string body = $"<h3>Xin chào {model.CustomerName},</h3><p>Đây là email nhắc lịch hẹn của bạn.</p><p>Thời gian: {model.AppointmentDateTime:dd/MM/yyyy HH:mm}</p>";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#2980b9;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Nhắc lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Bạn có một lịch hẹn tại <b>Pet Spa</b> vào ngày <b>{model.AppointmentDateTime:dd/MM/yyyy HH:mm}</b>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p>Địa chỉ Spa: <b>123 Đường ABC, Quận 1, TP.HCM</b><br/>
+        Hotline: <b>0123 456 789</b></p>
+        <p style='color:#888;font-size:13px;'>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+    </div>
+    <div style='background:#2980b9;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
             SendEmail(model.ToEmail, subject, body);
         }
 
@@ -98,7 +219,8 @@ namespace pet_spa_system1.Services
             }
             catch (Exception ex)
             {
-                File.AppendAllText(logPath, $"[ERROR] {DateTime.Now}: To={to}, Subject={subject}, Error={ex.Message}\nStackTrace={ex.StackTrace}\n\n");
+                File.AppendAllText(logPath,
+                    $"[ERROR] {DateTime.Now}: To={to}, Subject={subject}, Error={ex.Message}\nStackTrace={ex.StackTrace}\n\n");
                 throw;
             }
         }
