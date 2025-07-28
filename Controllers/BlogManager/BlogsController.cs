@@ -1,22 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using pet_spa_system1.Services;
-using pet_spa_system1.ViewModel;
-using pet_spa_system1.Utils;
-using pet_spa_system1.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using pet_spa_system1.Models;
+using pet_spa_system1.Services;
+using pet_spa_system1.Utils;
+using pet_spa_system1.ViewModel;
+using System.Text;
+using System.Text.Json;
 namespace pet_spa_system1.Controllers
 {
     public class BlogsController : Controller
     {
         private readonly IBlogService _blogService;
         private readonly PetDataShopContext _context;
-
-        public BlogsController(IBlogService blogService, PetDataShopContext context)
+        private readonly IConfiguration _config;
+        public BlogsController(IBlogService blogService, PetDataShopContext context, IConfiguration config)
         {
             _blogService = blogService;
             _context = context;
+            _config = config;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? category = null, string? search = null, string sortBy = "newest")
@@ -489,5 +492,123 @@ namespace pet_spa_system1.Controllers
                 _ => "Customer"
             };
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> GenerateBlogContent([FromBody] string keyword)
+        {
+            try
+            {
+                Console.WriteLine($"[GenerateBlogContent] Action called. Keyword: '{keyword}'");
+                
+                // Lấy API key từ appsettings
+                string apiKey = _config["Gemini:ApiKey"];
+                Console.WriteLine($"[GenerateBlogContent] API Key: {(string.IsNullOrWhiteSpace(apiKey) ? "(empty)" : "(exists)")}");
+
+                // Kiểm tra
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    Console.WriteLine("[GenerateBlogContent] API Key missing.");
+                    return Json(new { success = false, message = "API Key chưa được cấu hình." });
+                }
+
+                if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    Console.WriteLine("[GenerateBlogContent] Keyword invalid.");
+                    return Json(new { success = false, message = "Từ khóa không hợp lệ" });
+                }
+
+                string prompt = $"Viết một bài blog khoảng 500 từ về chủ đề thú cưng với phong cách chuyên nghiệp, thân thiện. " +
+                     $"Từ khóa chính: \"{keyword}\". Bài viết cần có mở bài, thân bài và kết luận. " +
+                     $"Trả lời bằng tiếng Việt, và xuất ra nội dung dưới dạng HTML có thẻ <h2>, <h3>, <p>, <strong> nếu cần.";
+
+                var requestBody = new
+                {
+                    contents = new[]
+                    {
+                        new {
+                            role = "user",
+                            parts = new[] {
+                                new { text = prompt }
+                            }
+                        }
+                    }
+                };
+
+                var json = JsonSerializer.Serialize(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                Console.WriteLine("[GenerateBlogContent] Sending request to Gemini API...");
+                
+                using var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(30); // Set timeout
+                
+                var response = await httpClient.PostAsync(
+                    $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}",
+                    content);
+
+                Console.WriteLine($"[GenerateBlogContent] Gemini API response status: {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[GenerateBlogContent] Gemini API call failed. Error: {errorContent}");
+                    return Json(new { success = false, message = "Lỗi khi gọi Gemini API. Vui lòng thử lại sau." });
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[GenerateBlogContent] Gemini API response body: {responseString.Substring(0, Math.Min(200, responseString.Length))}");
+                
+                using var doc = JsonDocument.Parse(responseString);
+                
+                // Kiểm tra cấu trúc response
+                if (!doc.RootElement.TryGetProperty("candidates", out var candidates) || 
+                    candidates.GetArrayLength() == 0)
+                {
+                    Console.WriteLine("[GenerateBlogContent] Invalid response structure from Gemini API");
+                    return Json(new { success = false, message = "Phản hồi từ API không hợp lệ" });
+                }
+
+                var firstCandidate = candidates[0];
+                if (!firstCandidate.TryGetProperty("content", out var contentElement) ||
+                    !contentElement.TryGetProperty("parts", out var parts) ||
+                    parts.GetArrayLength() == 0)
+                {
+                    Console.WriteLine("[GenerateBlogContent] Invalid content structure in response");
+                    return Json(new { success = false, message = "Cấu trúc nội dung không hợp lệ" });
+                }
+
+                var text = parts[0].GetProperty("text").GetString();
+                
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    Console.WriteLine("[GenerateBlogContent] Empty content received");
+                    return Json(new { success = false, message = "Không nhận được nội dung từ API" });
+                }
+
+                Console.WriteLine("[GenerateBlogContent] Blog content generated successfully.");
+                return Json(new { success = true, content = text });
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"[GenerateBlogContent] JSON parsing error: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi xử lý dữ liệu từ API" });
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[GenerateBlogContent] HTTP request error: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi kết nối đến API. Vui lòng kiểm tra kết nối mạng." });
+            }
+            catch (TaskCanceledException ex)
+            {
+                Console.WriteLine($"[GenerateBlogContent] Request timeout: {ex.Message}");
+                return Json(new { success = false, message = "Yêu cầu bị timeout. Vui lòng thử lại." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GenerateBlogContent] Unexpected error: {ex.Message}");
+                return Json(new { success = false, message = "Có lỗi không mong muốn xảy ra. Vui lòng thử lại sau." });
+            }
+        }
+
     }
 }
