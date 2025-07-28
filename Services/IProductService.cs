@@ -25,10 +25,14 @@ namespace pet_spa_system1.Services
         Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize);
         Task<Product?> GetProductWithReviewsByIdAsync(int productId);
         Task<List<ProductWithRatingViewModel>> GetActiveProductsWithRatingAsync(int page, int pageSize, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null);
-Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
+        Task<int> CountActiveProductsAsync(int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null);
         Task AddProductReviewAsync(int userId, int productId, int rating, string comment, bool isAnonymous);
         Task<List<Review>> GetRepliesForReviewAsync(int parentReviewId);
         Task AddReplyToReviewAsync(int parentReviewId, int userId, string content);
+        Task AddSystemReplyToReviewAsync(int parentReviewId, int userId, string content);
         Task<Review> GetLastReplyOfUserForParentAsync(int parentReviewId, int userId);
+        Task<Review> GetReviewByIdAsync(int reviewId);
+        Task<Review> GetAutoReplyForReviewAsync(int parentReviewId);
+        Task DeleteReplyAsync(int reviewId);
     }
 }
