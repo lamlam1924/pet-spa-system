@@ -69,6 +69,7 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.AppointmentServices).ThenInclude(s => s.Service)
                 .Include(a => a.AppointmentPets).ThenInclude(p => p.Pet)
                 .Include(a => a.Status)
+                .Include(a => a.User)
                 .SingleOrDefault(a => a.AppointmentId == id);
         }
 

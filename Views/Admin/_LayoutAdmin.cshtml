@@ -1,19 +1,38 @@
 ﻿
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin</title>
     <link rel="icon" href="@Url.Content("~/imgAdmin/logo/pet-logo.png")" />
 
-    <!-- CSS chung -->
-    <link href="~/vendorAdmin/fontawesome-free/css/all.min.css" rel="stylesheet" />
-    <link href="~/vendorAdmin/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/cssAdmin/ruang-admin.min.css" rel="stylesheet" />
+    <!-- jQuery CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap 4 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css" />
+    <!-- Toastr CSS CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <!-- FontAwesome CDN -->
+    <link href="~/vendorAdmin/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link href="~/cssAdmin/ruang-admin.min.css" rel="stylesheet" />
     @RenderSection("Styles", required: false)
+
+    <!-- Bootstrap 4 JS CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr JS CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- scrollIt CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/scrollIt/1.0.3/scrollIt.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body id="page-top">
     <div id="wrapper">

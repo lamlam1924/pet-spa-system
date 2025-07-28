@@ -1,0 +1,132 @@
+[SEND] 28/07/2025 12:55:02 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SEND] 28/07/2025 12:55:04 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SEND] 28/07/2025 12:55:05 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SEND] 28/07/2025 12:55:19 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 11:00</p>
+
+[ERROR] 28/07/2025 12:55:24 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn, Error=Failure sending mail.
+StackTrace=   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at pet_spa_system1.Services.EmailService.SendEmail(String to, String subject, String body) in D:\Code\Rider\C#\project\pet-spa-system\Services\EmailService.cs:line 77
+
+[ERROR] 28/07/2025 12:55:25 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn, Error=Failure sending mail.
+StackTrace=   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at pet_spa_system1.Services.EmailService.SendEmail(String to, String subject, String body) in D:\Code\Rider\C#\project\pet-spa-system\Services\EmailService.cs:line 77
+
+[ERROR] 28/07/2025 12:55:26 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn, Error=Failure sending mail.
+StackTrace=   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at pet_spa_system1.Services.EmailService.SendEmail(String to, String subject, String body) in D:\Code\Rider\C#\project\pet-spa-system\Services\EmailService.cs:line 77
+
+[ERROR] 28/07/2025 12:55:40 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn, Error=Failure sending mail.
+StackTrace=   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at pet_spa_system1.Services.EmailService.SendEmail(String to, String subject, String body) in D:\Code\Rider\C#\project\pet-spa-system\Services\EmailService.cs:line 77
+
+[SEND] 28/07/2025 12:59:23 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SEND] 28/07/2025 12:59:25 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 12:59:26 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 12:59:26 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Thông báo lịch hẹn của bạn
+Body=
+                    <h3>Chào Lê Thị Khách,</h3>
+                    <p>Lịch hẹn của bạn tại Pet Spa đã được <b>duyệt thành công</b>.</p>
+                    
+                <table style='border-collapse:collapse;'>
+                    <tr><td>Khách hàng:</td><td>Lê Thị Khách</td></tr>
+                    
+                    <tr><td>Thời gian:</td><td>29/07/2025 09:00</td></tr>
+                    <tr><td>Thú cưng:</td><td>Milu</td></tr>
+                    <tr><td>Dịch vụ:</td><td>Tắm cơ bản</td></tr>
+                </table>
+                    <p>Địa chỉ Spa: 123 Đường Spa, Quận 1, TP.HCM<br/>Hotline: 0123 456 789</p>
+                    <p>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+                
+
+[SUCCESS] 28/07/2025 12:59:28 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 12:59:28 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Thông báo lịch hẹn của bạn
+Body=
+                    <h3>Chào Lê Thị Khách,</h3>
+                    <p>Lịch hẹn của bạn tại Pet Spa đã được <b>duyệt thành công</b>.</p>
+                    
+                <table style='border-collapse:collapse;'>
+                    <tr><td>Khách hàng:</td><td>Lê Thị Khách</td></tr>
+                    
+                    <tr><td>Thời gian:</td><td>29/07/2025 09:00</td></tr>
+                    <tr><td>Thú cưng:</td><td>Milu</td></tr>
+                    <tr><td>Dịch vụ:</td><td>Tắm cơ bản</td></tr>
+                </table>
+                    <p>Địa chỉ Spa: 123 Đường Spa, Quận 1, TP.HCM<br/>Hotline: 0123 456 789</p>
+                    <p>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+                
+
+[SUCCESS] 28/07/2025 12:59:29 PM: Sent to lamltde180684@fpt.edu.vn
+[SUCCESS] 28/07/2025 12:59:31 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 12:59:52 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 30/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 12:59:55 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 12:59:55 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Thông báo lịch hẹn của bạn
+Body=
+                    <h3>Chào Lê Thị Khách,</h3>
+                    <p>Lịch hẹn của bạn tại Pet Spa đã được <b>duyệt thành công</b>.</p>
+                    
+                <table style='border-collapse:collapse;'>
+                    <tr><td>Khách hàng:</td><td>Lê Thị Khách</td></tr>
+                    
+                    <tr><td>Thời gian:</td><td>30/07/2025 09:00</td></tr>
+                    <tr><td>Thú cưng:</td><td>Mèo Mun</td></tr>
+                    <tr><td>Dịch vụ:</td><td>Cắt tỉa cơ bản</td></tr>
+                </table>
+                    <p>Địa chỉ Spa: 123 Đường Spa, Quận 1, TP.HCM<br/>Hotline: 0123 456 789</p>
+                    <p>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+                
+
+[SUCCESS] 28/07/2025 12:59:58 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:02:15 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 1:02:18 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:02:18 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Thông báo lịch hẹn của bạn
+Body=
+                    <h3>Chào Lê Thị Khách,</h3>
+                    <p>Lịch hẹn của bạn tại Pet Spa đã được <b>duyệt thành công</b>.</p>
+                    
+                <table style='border-collapse:collapse;'>
+                    <tr><td>Khách hàng:</td><td>Lê Thị Khách</td></tr>
+                    
+                    <tr><td>Thời gian:</td><td>29/07/2025 09:00</td></tr>
+                    <tr><td>Thú cưng:</td><td>Milu</td></tr>
+                    <tr><td>Dịch vụ:</td><td>Tắm thảo dược</td></tr>
+                </table>
+                    <p>Địa chỉ Spa: 123 Đường Spa, Quận 1, TP.HCM<br/>Hotline: 0123 456 789</p>
+                    <p>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+                
+
+[SUCCESS] 28/07/2025 1:02:21 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:05:05 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 30/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 1:05:08 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:09:16 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 30/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 1:09:19 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:10:01 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 1:10:04 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:14:33 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 1:14:37 PM: Sent to lamltde180684@fpt.edu.vn
+[SEND] 28/07/2025 1:45:47 PM: To=lamltde180684@fpt.edu.vn, Subject=[Pet Spa] Xác nhận lịch hẹn
+Body=<h3>Xin chào Lê Thị Khách,</h3><p>Lịch hẹn của bạn đã được xác nhận.</p><p>Thời gian: 29/07/2025 09:00</p>
+
+[SUCCESS] 28/07/2025 1:45:54 PM: Sent to lamltde180684@fpt.edu.vn

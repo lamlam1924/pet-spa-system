@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.MemoryStorage;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -26,6 +28,9 @@ var smtpPass = builder.Configuration["Smtp:Pass"];
 
 // ======= SERVICES =======
 builder.Services.AddControllersWithViews();
+// Hangfire cấu hình lưu job trong RAM (demo/dev)
+builder.Services.AddHangfire(x => x.UseMemoryStorage());
+builder.Services.AddHangfireServer();
 // Đăng ký IHttpContextAccessor cho DI container
 builder.Services.AddHttpContextAccessor();
 
@@ -48,8 +53,6 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
 builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
 
-// Đăng ký log service cho lịch sử duyệt/gán
-builder.Services.AddScoped<pet_spa_system1.Services.IAppointmentLogService, pet_spa_system1.Services.AppointmentLogService>();
 
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
@@ -123,6 +126,16 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+// Hangfire dashboard
+app.UseHangfireDashboard();
+
+// Đăng ký job gửi mail nhắc lịch mỗi ngày lúc 8h sáng
+RecurringJob.AddOrUpdate<IAppointmentService>(
+    "send-appointment-reminders",
+    service => service.SendUpcomingAppointmentReminders(),
+    "0 8 * * *" // cron: 8h sáng mỗi ngày
+);
 
 // ======= MIDDLEWARE =======
 

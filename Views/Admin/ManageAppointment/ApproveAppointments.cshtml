@@ -1,8 +1,6 @@
 <link rel="stylesheet" href="~/css/approve-appointments.css" />
 
-<!-- jQuery & Bootstrap đã được import ở _LayoutAdmin.cshtml, không import lại để tránh xung đột -->
 
-// ...existing code...
 @model pet_spa_system1.ViewModel.ApproveAppointmentsViewModel
 @{
     ViewData["Title"] = "Duyệt lịch hẹn";
@@ -11,9 +9,6 @@
         .GroupBy(a => a.AppointmentDate.Date)
         .OrderBy(g => g.Key)
         .ToList();
-    int pageSize = 12;
-    int page = Model.Page ?? 1;
-    var pagedGroups = grouped.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 }
 
 <div class="container-fluid mt-3">
@@ -51,14 +46,14 @@
         </div>
     </form>
     <div id="appointments-list">
-        @if (pagedGroups.Count == 0)
+        @if (grouped.Count == 0)
         {
             <div class="alert alert-info">Không có lịch hẹn chờ duyệt.</div>
         }
         else
         {
             int groupIndex = 0;
-            foreach (var group in pagedGroups)
+            foreach (var group in grouped)
             {
                 var collapseId = $"collapse-{group.Key:yyyyMMdd}";
                 <div class="card mb-3">
@@ -72,7 +67,7 @@
                             <div class="row">
                                 @foreach (var appointment in group)
                                 {
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-3" id="row-appointment-@appointment.AppointmentId">
                                         <div class="card shadow">
                                             <div class="card-body">
                                                 <h6 class="card-title">Khách: @appointment.CustomerName</h6>
@@ -122,13 +117,14 @@
     <script src="~/js/jquery.counterup.min.js"></script>
     <script src="~/js/waypoints.min.js"></script>
     <script src="~/js/main.js"></script>
+    <!-- Đã loại bỏ scrollIt.min.js để tránh lỗi 404 và lỗi $.scrollIt is not a function -->
     <script>
     $(document).ready(function() {
         let loading = false;
         function loadPage(page, filters = {}) {
             if (loading) return;
             loading = true;
-            let url = '/Admin/ManageAppointment/ApproveAppointments?page=' + page;
+            let url = '/AdminAppointment/ApproveAppointments?page=' + page;
             if (filters) {
                 url += '&customer=' + encodeURIComponent(filters.customer || '');
                 url += '&pet=' + encodeURIComponent(filters.pet || '');
@@ -142,8 +138,10 @@
         }
         $(window).on('scroll', function () {
             if ($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
-                let nextPage = $('.pagination .active').next().find('button').text();
-                if (nextPage) loadPage(nextPage, getFilters());
+                let currentPage = parseInt($('.pagination .active').text()) || 1;
+                let nextPage = currentPage + 1;
+                // Nếu có phân trang thì kiểm tra tồn tại, nếu không thì chỉ tăng số trang
+                if (!isNaN(nextPage)) loadPage(nextPage, getFilters());
             }
         });
         function getFilters() {
@@ -170,26 +168,67 @@
             });
         });
         $(document.body).on('click', '.btn-approve', function(e) {
-            console.log('Duyệt & Gán click');
             e.preventDefault();
-            let id = $(this).data('appointment-id');
-            let staffId = $(this).closest('.card-body').find('.staff-dropdown').val();
-            if (!staffId) { alert('Vui lòng chọn nhân viên!'); return; }
-            $.ajax({
-                url: '/AdminAppointment/ApproveAndAssignStaff',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ AppointmentId: id, StaffId: staffId }),
-                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
-                success: function(res) {
-                    if (res.success) {
-                        alert('Đã duyệt và gán nhân viên thành công!');
-                        loadPage($('.pagination .active').text(), getFilters());
-                    } else {
-                        alert(res.message);
-                    }
+            let $btn = $(this);
+            let id = $btn.data('appointment-id');
+            let staffId = $btn.closest('.card-body').find('.staff-dropdown').val();
+            if (!staffId) { toastr.warning('Vui lòng chọn nhân viên!'); return; }
+            let token = $("input[name='__RequestVerificationToken']").val() || $('meta[name="csrf-token"]').attr('content') || '';
+            // Lưu lại options mặc định
+            let defaultToastrOptions = $.extend({}, toastr.options);
+            toastr.options = {
+                closeButton: true,
+                timeOut: 0,
+                extendedTimeOut: 0,
+                tapToDismiss: false,
+                positionClass: "toast-top-center",
+                onclick: null,
+                onShown: function() {
+                    let $toast = $("#toast-container .toast:last");
+                    // Xóa các block toast-action cũ nếu có
+                    $toast.find('.toast-action').remove();
+                    $toast.append('<div class="toast-action mt-2 text-center"><button class="btn btn-sm btn-success mr-2 btn-toast-yes">Xác nhận duyệt</button><button class="btn btn-sm btn-secondary btn-toast-no">Huỷ</button></div>');
+                    $toast.find('.btn-toast-yes').off('click').on('click', function() {
+                        $btn.prop('disabled', true);
+                        toastr.clear();
+                        $.ajax({
+                            url: '/AdminAppointment/ApproveAndAssignStaff',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ AppointmentId: id, StaffId: staffId }),
+                            headers: { 'RequestVerificationToken': token },
+                            success: function(res) {
+                                toastr.options = defaultToastrOptions;
+                                if (res.success) {
+                                    let $row = $('#row-appointment-' + id);
+                                    if ($row.length) {
+                                        $row.fadeOut(300, function() { $(this).remove(); });
+                                        toastr.success(res.message || 'Đã duyệt và gán nhân viên thành công!');
+                                    } else {
+                                        toastr.success(res.message || 'Đã duyệt và gán nhân viên thành công!');
+                                        setTimeout(function(){ location.reload(); }, 1000);
+                                    }
+                                } else {
+                                    toastr.error(res.message || 'Có lỗi xảy ra khi gán nhân viên!');
+                                    $btn.prop('disabled', false);
+                                }
+                            },
+                            error: function(xhr) {
+                                toastr.options = defaultToastrOptions;
+                                let msg = 'Lỗi hệ thống, vui lòng thử lại!';
+                                if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                                toastr.error(msg);
+                                $btn.prop('disabled', false);
+                            }
+                        });
+                    });
+                    $toast.find('.btn-toast-no').off('click').on('click', function() {
+                        toastr.clear();
+                        toastr.options = defaultToastrOptions;
+                    });
                 }
-            });
+            };
+            toastr.info('Bạn có chắc chắn muốn duyệt và gán nhân viên cho lịch hẹn này?');
         });
         $(document.body).on('click', '.btn-auto-assign', function() {
             console.log('Tự động gán click');

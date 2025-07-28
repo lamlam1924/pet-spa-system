@@ -212,53 +212,55 @@ public class AdminAppointmentController : Controller
         // }
 
         [HttpGet]
-        [Route("/AdminServiceManager/AdminAppointment/ApproveAppointments")]
-        public IActionResult ApproveAppointments(string customer = "", string pet = "", string service = "", string status = "", int page = 1)
+        [Route("ApproveAppointments")]
+        public IActionResult ApproveAppointments(string customer = "", string pet = "", string service = "", string status = "")
         {
             // Trả về View kèm ViewModel, truyền tham số lọc cho service
-            var model = _appointmentService.GetPendingAppointmentsViewModel(customer, pet, service, status, page);
+            var model = _appointmentService.GetPendingAppointmentsViewModel(customer, pet, service, status);
             return View("~/Views/Admin/ManageAppointment/ApproveAppointments.cshtml", model);
         }
 
         [HttpPost("ApproveAndAssignStaff")]
-        [ValidateAntiForgeryToken]
         public IActionResult ApproveAndAssignStaff([FromBody] ApproveAssignRequest request)
         {
             if (request == null || request.AppointmentId <= 0 || request.StaffId <= 0)
                 return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
 
-            var result = _appointmentService.AdminApproveAndAssignStaff(request);
-
-            if (result.Success)
+            string mailWarning = null;
+            ApproveAssignResult result = null;
+            try
             {
-                // Gửi mail thông báo cho khách hàng
-                try
-                {
-                    _appointmentService.SendAppointmentNotificationMail(request.AppointmentId, "approved", request.StaffId);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[Mail] Lỗi gửi mail thông báo duyệt/gán: {ex.Message}");
-                }
+                result = _appointmentService.AdminApproveAndAssignStaff(request);
+            }
+            catch (Exception ex)
+            {
+                // Nếu lỗi chỉ do gửi mail, vẫn trả về thành công, kèm cảnh báo
+                mailWarning = "Lưu thành công nhưng gửi email thất bại: " + ex.Message;
+                Console.WriteLine($"[ApproveAndAssignStaff] Gửi mail lỗi: {ex.Message}\n{ex.StackTrace}");
+                // Nếu lỗi khác, vẫn trả về kết quả lưu DB
+            }
+
+            if (result != null && result.Success)
+            {
                 return Ok(new {
                     success = true,
                     message = result.Message,
-                    updated = result.Updated
+                    updated = result.Updated,
+                    mailWarning
                 });
             }
             else
             {
                 return Ok(new {
                     success = false,
-                    message = result.Message
+                    message = result?.Message ?? "Có lỗi xảy ra khi lưu lịch hẹn!",
+                    mailWarning
                 });
             }
         }
 
         [HttpPost("AutoAssignStaff")]
-        [ValidateAntiForgeryToken]
         public IActionResult AutoAssignStaff([FromBody] AutoAssignRequest request)
-
         {
             if (request == null || request.AppointmentId <= 0)
                 return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
@@ -272,11 +274,29 @@ public class AdminAppointmentController : Controller
             if (assignedStaffId == null)
                 return Ok(new { success = false, message = "Không tìm được nhân viên phù hợp" });
 
+
+            // Cập nhật lại EmployeeId cho appointment và lưu vào DB
+            appointment.EmployeeId = assignedStaffId;
+            _appointmentService.UpdateAppointment(new pet_spa_system1.ViewModel.AppointmentViewModel {
+                AppointmentId = appointment.AppointmentId,
+                AppointmentDate = appointment.AppointmentDate,
+                StatusId = appointment.StatusId,
+                EmployeeIds = new List<int> { assignedStaffId.Value },
+                CustomerId = appointment.UserId,
+                Notes = appointment.Notes,
+                SelectedPetIds = appointment.AppointmentPets?.Select(p => p.PetId).ToList() ?? new List<int>(),
+                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ?? new List<int>()
+            });
+
+            // Reload lại appointment từ DB để đảm bảo thông tin nhân viên đã cập nhật
+            var updatedAppointment = _appointmentService.GetAppointmentById(request.AppointmentId);
+
+
+
             return Ok(new { success = true });
         }
 
         [HttpPost("CheckConflict")]
-        [ValidateAntiForgeryToken]
         public IActionResult CheckConflict([FromBody] CheckConflictRequest request)
         {
             if (request == null || request.StaffId <= 0 || request.DurationMinutes <= 0)

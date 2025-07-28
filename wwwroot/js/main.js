@@ -1,15 +1,15 @@
-(function ($) {
-"use strict";
-// TOP Menu Sticky
-$(window).on('scroll', function () {
-	var scroll = $(window).scrollTop();
-	if (scroll < 400) {
-    $("#sticky-header").removeClass("sticky");
+// $(function () {
+//     // ...existing code...
+//     // $.scrollIt({
+//     //     topOffset: -50
+//     // });
+//     // ...existing code...
+// });
     $('#back-top').fadeIn(500);
-	} else {
+  } else {
     $("#sticky-header").addClass("sticky");
     $('#back-top').fadeIn(500);
-	}
+  }
 });
 
 
@@ -18,11 +18,11 @@ $(document).ready(function(){
 // mobile_menu
 var menu = $('ul#navigation');
 if(menu.length){
-	menu.slicknav({
-		prependTo: ".mobile_menu",
-		closedSymbol: '+',
-		openedSymbol:'-'
-	});
+  menu.slicknav({
+    prependTo: ".mobile_menu",
+    closedSymbol: '+',
+    openedSymbol:'-'
+  });
 };
 // blog-menu
   // $('ul#blog-menu').slicknav({
@@ -161,7 +161,7 @@ autoplaySpeed: 800,
     $(this).siblings('.active').removeClass('active');
     $(this).addClass('active');
     event.preventDefault();
-	});
+  });
   
   // wow js
   new WOW().init();
@@ -174,23 +174,23 @@ autoplaySpeed: 800,
 
 /* magnificPopup img view */
 $('.popup-image').magnificPopup({
-	type: 'image',
-	gallery: {
-	  enabled: true
-	}
+  type: 'image',
+  gallery: {
+    enabled: true
+  }
 });
 
 /* magnificPopup img view */
 $('.img-pop-up').magnificPopup({
-	type: 'image',
-	gallery: {
-	  enabled: true
-	}
+  type: 'image',
+  gallery: {
+    enabled: true
+  }
 });
 
 /* magnificPopup video view */
 $('.popup-video').magnificPopup({
-	type: 'iframe'
+  type: 'iframe'
 });
 
 
@@ -320,23 +320,23 @@ dots:false,
 
 // resitration_Form
 $(document).ready(function() {
-	$('.popup-with-form').magnificPopup({
-		type: 'inline',
-		preloader: false,
-		focus: '#name',
+  $('.popup-with-form').magnificPopup({
+    type: 'inline',
+    preloader: false,
+    focus: '#name',
 
-		// When elemened is focused, some mobile browsers in some cases zoom in
-		// It looks not nice, so we disable it:
-		callbacks: {
-			beforeOpen: function() {
-				if($(window).width() < 700) {
-					this.st.focus = false;
-				} else {
-					this.st.focus = '#name';
-				}
-			}
-		}
-	});
+    // When elemened is focused, some mobile browsers in some cases zoom in
+    // It looks not nice, so we disable it:
+    callbacks: {
+      beforeOpen: function() {
+        if($(window).width() < 700) {
+          this.st.focus = false;
+        } else {
+          this.st.focus = '#name';
+        }
+      }
+    }
+  });
 });
 
 

@@ -11,6 +11,10 @@ namespace pet_spa_system1.Services
     public interface IAppointmentService
     {
         /// <summary>
+        /// Gửi mail nhắc lịch cho các lịch hẹn sắp tới (trước 1 ngày)
+        /// </summary>
+        void SendUpcomingAppointmentReminders();
+        /// <summary>
         /// Gửi mail thông báo cho khách hàng khi lịch hẹn được duyệt/gán hoặc bị từ chối/hủy
         /// </summary>
         /// <param name="appointmentId">Id lịch hẹn</param>
@@ -74,7 +78,7 @@ namespace pet_spa_system1.Services
         /// <summary>
         /// Lấy danh sách lịch hẹn cần duyệt (status 6 hoặc 7)
         /// </summary>
-        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "", int page = 1);
+        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "");
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
         // bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
 
