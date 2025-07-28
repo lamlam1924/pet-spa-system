@@ -10,18 +10,21 @@ namespace pet_spa_system1.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly IPetService _petService;
         private readonly IServiceService _serviceService;
-
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
+
         public AppointmentController(
             IAppointmentService appointmentService,
             IPetService petService,
             IServiceService serviceService,
-            IUserService userService)
+            IUserService userService,
+            INotificationService notificationService)
         {
             _appointmentService = appointmentService;
             _petService = petService;
             _serviceService = serviceService;
             _userService = userService;
+            _notificationService = notificationService;
         }
 
         // GET: /Appointment
@@ -51,7 +54,7 @@ namespace pet_spa_system1.Controllers
         // POST: /Appointment
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Appointment(AppointmentViewModel model)
+        public async Task<IActionResult> AppointmentAsync(AppointmentViewModel model)
         {
 
             if (!ModelState.IsValid)
@@ -96,6 +99,18 @@ namespace pet_spa_system1.Controllers
 
                 if (_appointmentService.SaveAppointment(model, userId.Value))
                 {
+                    // Tạo thông báo khi đặt lịch thành công
+                    var notification = new Notification
+                    {
+                        UserId = userId.Value,
+                        Title = "Đặt lịch thành công",
+                        Message = $"Lịch hẹn của bạn đã được đặt thành công. Chúng tôi sẽ xác nhận sớm nhất.",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false
+                    };
+                    
+                    await _notificationService.AddAsync(notification);
+                    
                     TempData["SuccessMessage"] = "Đặt lịch thành công!";
                     // Return JSON for AJAX requests
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -155,7 +170,7 @@ namespace pet_spa_system1.Controllers
 
         // POST: /Appointment/RequestCancel
         [HttpPost]
-        public IActionResult RequestCancel([FromBody] RequestCancelDto dto)
+        public async Task<IActionResult> RequestCancelAsync([FromBody] RequestCancelDto dto)
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
             if (userId == null)
@@ -170,6 +185,18 @@ namespace pet_spa_system1.Controllers
 
             if (result)
             {
+                // Tạo thông báo khi gửi yêu cầu hủy lịch thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Yêu cầu hủy lịch",
+                    Message = $"Yêu cầu hủy lịch hẹn đã được gửi. Chúng tôi sẽ xử lý trong thời gian sớm nhất.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Yêu cầu hủy lịch đã được gửi, chờ admin duyệt." });
             }
             else
@@ -178,16 +205,26 @@ namespace pet_spa_system1.Controllers
             }
         }
 
-        public IActionResult AppointmentDetail()
+        // GET: /Appointment/Detail/{id}
+        [HttpGet]
+        public IActionResult Detail(int id)
         {
-            return View();
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để xem chi tiết lịch hẹn." });
+            }
+            var detail = _appointmentService.GetAppointmentDetailWithPetImages(id, userId.Value);
+            if (detail == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy lịch hẹn." });
+            }
+            return Json(new { success = true, data = detail });
         }
-
     }
 
     public class RequestCancelDto
     {
         public int appointmentId { get; set; }
     }
-    
 }

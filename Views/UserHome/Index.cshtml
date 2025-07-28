@@ -238,8 +238,7 @@
             pointer-events: none;
         }
     </style>
-</head>
-<body>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert-box success-alert" id="successAlert">
@@ -295,16 +294,20 @@
                     <a href="#" class="nav-link" hx-get="@Url.Action("NotificationsPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
                         <i class="bi bi-bell"></i> Thông Báo
                     </a>
-                    @if (roleId == 2) // Chỉ hiển thị cho Customer (RoleID = 2)
+                    @if (roleId == 2) 
                     {
                         <a href="#" class="nav-link" hx-get="@Url.Action("ListPetPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
                             <i class="fa-solid fa-paw" style="margin-right: 15px;"></i> Danh sách thú cưng
                         </a>
+
                     }
-                    @* <a href="#" class="nav-link" hx-get="@Url.Action("ListOrderPartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
-                        <i class="fa-solid fa-shopping-cart" style="margin-right: 15px;"></i>
-                        Danh sách đơn hàng
-                    </a> *@
+                    @if (roleId == 3)
+                    {
+                        <a href="#" class="nav-link" hx-get="@Url.Action("EmployeeSchedulePartial", "UserHome")" hx-target="#content-main" hx-swap="innerHTML">
+                            <i class="fa-solid fa-calendar-check" style="margin-right: 15px;"></i> Lịch hẹn sắp tới
+                        </a>
+
+                    }
                     <a href="@Url.Action("Index", "Home")" class="nav-link" style="color:#fd7e14;font-weight:500;">
                         <i class="fa fa-arrow-left me-2"></i>Quay lại
                     </a>
@@ -335,8 +338,7 @@
         });
       
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+    @section Scripts {
+        <!-- HTMX -->
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    }

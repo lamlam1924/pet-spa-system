@@ -454,18 +454,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', function(e) {
             const card = e.target.closest('.appointment-card');
             if (card && !e.target.classList.contains('btn-review') && !e.target.classList.contains('btn-cancel-request')) {
-                const monthGroup = card.closest('.time-group-content');
-                const month = monthGroup ? monthGroup.getAttribute('data-month') : null;
-                // Tìm index của card trong nhóm tháng
-                const cards = Array.from(monthGroup.querySelectorAll('.appointment-card'));
-                const idx = cards.indexOf(card);
-                // Lấy dữ liệu appointment tương ứng
-                const grouped = groupAppointmentsByMonth(appointmentData);
-                const appointments = grouped[month] || [];
-                const appointment = appointments[idx];
-                if (appointment) {
-                    showAppointmentDetailModal(appointment);
-                }
+                const appointmentId = card.getAttribute('data-appointment-id') || card.querySelector('[data-id]')?.getAttribute('data-id');
+                if (!appointmentId) return;
+                // Gọi API lấy chi tiết lịch hẹn
+                fetch(`/Appointment/Detail/${appointmentId}`)
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success && result.data) {
+                            showAppointmentDetailModal(result.data);
+                        } else {
+                            showToast(result.message || 'Không lấy được chi tiết lịch hẹn', 'error');
+                        }
+                    })
+                    .catch(() => showToast('Có lỗi khi lấy chi tiết lịch hẹn', 'error'));
             }
         });
     }
@@ -473,49 +474,63 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('appointmentDetailModal');
         const content = document.getElementById('appointmentDetailContent');
         if (!modal || !content) return;
-        // Render thông tin chi tiết
-        let html = `<div class='row'>
-            <div class='col-md-6'>
-                <h6>Khách hàng</h6>
-                <div><b>Họ tên:</b> ${appointment.customerName || ''}</div>
-                <div><b>SĐT:</b> ${appointment.phone || ''}</div>
-                <div><b>Email:</b> ${appointment.email || ''}</div>
-            </div>
-            <div class='col-md-6'>
-                <h6>Lịch hẹn</h6>
-                <div><b>Ngày:</b> ${formatDate(appointment.appointmentDate)}</div>
-                <div><b>Giờ:</b> ${appointment.appointmentTime || ''}</div>
-                <div><b>Ghi chú:</b> ${appointment.notes || ''}</div>
-                <div><b>Trạng thái:</b> <span class='${getStatusClass(appointment.statusId)}'>${appointment.statusName}</span></div>
-            </div>
-        </div><hr/>
-        <h6>Dịch vụ đã chọn</h6>
-        <div class='row'>`;
+        // Hiển thị trạng thái tổng thể của lịch hẹn
+        let html = '';
+        // if (appointment.statusName) {
+        //     html += `<div class='mb-2'><span class='badge ${getStatusClass(appointment.statusId)}' style='font-size:1.05em;padding:8px 18px;'>${appointment.statusName}</span></div>`;
+        // }
+        // Hiển thị tên nhân viên phụ trách lịch hẹn (nếu có)
+        // if (appointment.staffName) {
+        //     html += `<div class='mb-3 staff-name'><i class="fas fa-user-tie me-1"></i> Nhân viên phụ trách: <b>${appointment.staffName}</b></div>`;
+        // }
+        html += `<div class='service-timeline'>`;
         if (appointment.services && appointment.services.length > 0) {
-            appointment.services.forEach(service => {
-                html += `<div class='col-md-6 mb-3'>
-                    <div class='card'>
-                        <div class='card-body'>
-                            <div class='d-flex justify-content-between align-items-center'>
-                                <div>
-                                    <b>${service.name}</b><br/>
-                                    <span class='badge ${getStatusClass(service.statusId)}'>${service.statusName || ''}</span>
-                                </div>
-                                <div class='text-end'>
-                                    <span class='text-muted'>${service.price ? service.price.toLocaleString() + ' đ' : ''}</span>
+            appointment.services.forEach((service, idx) => {
+                // Chọn icon cho dot theo trạng thái
+                let dotIcon = '';
+                if (service.statusId == 3) { // Hoàn thành
+                    dotIcon = '<i class="fas fa-check"></i>';
+                } else if (service.statusId == 2) { // Đang thực hiện
+                    dotIcon = '<i class="fas fa-clock"></i>';
+                } else if (service.statusId == 4) { // Đã hủy
+                    dotIcon = '<i class="fas fa-times"></i>';
+                } // Chờ xác nhận, mặc định không icon
+                html += `
+                <div class='service-timeline-item'>
+                    <div class='service-timeline-dot ${getStatusClass(service.statusId)}'>${dotIcon}</div>
+                    <div class='service-timeline-content'>
+                        <div class='d-flex justify-content-between align-items-center'>
+                            <div>
+                                <b>${service.name}</b>
+                            </div>
+                        </div>
+                        <div class='mt-1 mb-2'>
+                            <span class='me-2 fw-semibold'>Trạng thái dịch vụ:</span>
+                            <span class='badge ${getStatusClass(service.statusId)}'>${service.statusName || ''}</span>
+                        </div>
+                        <div class='mt-2'>${service.description || ''}</div>
+                        <div class='row mt-2'>
+                            <div class='col-6'>
+                                <div class='pet-image-title mb-1'>Trước dịch vụ:</div>
+                                <div class='pet-image-list'>
+                                    ${service.petImagesBefore && service.petImagesBefore.length > 0 ? service.petImagesBefore.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('') : '<span class="text-muted">Chưa có</span>'}
                                 </div>
                             </div>
-                            <div class='mt-2'>${service.description || ''}</div>
-                            <div class='mt-2'>
-                                <b>Hình ảnh thú cưng sau dịch vụ:</b><br/>
-                                ${service.petImages && service.petImages.length > 0 ? service.petImages.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:80px;max-height:80px;'/>`).join('') : '<span class="text-muted">Chưa có hình ảnh</span>'}
+                            <div class='col-6'>
+                                <div class='pet-image-title mb-1'>Sau dịch vụ:</div>
+                                <div class='pet-image-list'>
+                                    ${service.petImagesAfter && service.petImagesAfter.length > 0 ? service.petImagesAfter.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('') : '<span class="text-muted">Chưa có</span>'}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>`;
+                if (idx < appointment.services.length - 1) {
+                    html += `<div class='service-timeline-connector'></div>`;
+                }
             });
         } else {
-            html += `<div class='col-12'><span class='text-muted'>Không có dịch vụ nào.</span></div>`;
+            html += `<div class='text-muted'>Không có dịch vụ nào.</div>`;
         }
         html += `</div>`;
         content.innerHTML = html;

@@ -31,7 +31,7 @@ namespace pet_spa_system1.Repositories
         List<Appointment> GetPendingAppointments();
         List<Appointment> GetPendingCancelAppointments();
 
-
+        List<Appointment> GetUpcomingAppointmentsByEmployeeId(int employeeId);
         List<Appointment> GetPendingApprovalAppointments();
 
         int CountPendingApprovalAppointments();

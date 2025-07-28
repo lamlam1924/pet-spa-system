@@ -73,5 +73,51 @@ namespace pet_spa_system1.Repositories
                 _ => "Không xác định"
             };
         }
+
+        // AppointmentServiceImage
+        public IEnumerable<AppointmentServiceImage> GetImagesByAppointmentServiceId(int appointmentServiceId)
+            => _context.AppointmentServiceImages.Where(i => i.AppointmentServiceId == appointmentServiceId).ToList();
+
+        public AppointmentServiceImage? GetImageById(int imageId)
+            => _context.AppointmentServiceImages.Find(imageId);
+
+        public void AddImage(AppointmentServiceImage image)
+        {
+            _context.AppointmentServiceImages.Add(image);
+            _context.SaveChanges();
+        }
+
+        public void DeleteImage(int imageId)
+        {
+            var img = _context.AppointmentServiceImages.Find(imageId);
+            if (img != null)
+            {
+                _context.AppointmentServiceImages.Remove(img);
+                _context.SaveChanges();
+            }
+        }
+
+        // AppointmentServiceStatus
+        public IEnumerable<AppointmentServiceStatus> GetAllStatuses()
+            => _context.AppointmentServiceStatus.ToList();
+
+        public AppointmentServiceStatus? GetStatusById(int statusId)
+            => _context.AppointmentServiceStatus.Find(statusId);
+
+        public void AddStatus(AppointmentServiceStatus status)
+        {
+            _context.AppointmentServiceStatus.Add(status);
+            _context.SaveChanges();
+        }
+
+        public void DeleteStatus(int statusId)
+        {
+            var status = _context.AppointmentServiceStatus.Find(statusId);
+            if (status != null)
+            {
+                _context.AppointmentServiceStatus.Remove(status);
+                _context.SaveChanges();
+            }
+        }
     }
 }

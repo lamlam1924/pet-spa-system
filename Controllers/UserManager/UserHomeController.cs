@@ -21,6 +21,7 @@ namespace pet_spa_system1.Controllers
         private readonly IProductService _productService;
         private readonly IOrderStatusService _orderStatusService;
         private readonly INotificationService _notificationService;
+        public readonly IAppointmentService _appointmentService;
 
         public UserHomeController(
             IUserService userService,
@@ -30,7 +31,8 @@ namespace pet_spa_system1.Controllers
             IOrderItemService orderItemService,
             IProductService productService,
             IOrderStatusService orderStatusService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IAppointmentService appointmentService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _petService = petService ?? throw new ArgumentNullException(nameof(petService));
@@ -41,6 +43,7 @@ namespace pet_spa_system1.Controllers
             _orderStatusService = orderStatusService ?? throw new ArgumentNullException(nameof(orderStatusService));
             _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
             Console.WriteLine("[UserHomeController] Services injected successfully.");
+            _appointmentService = appointmentService;
         }
 
         public async Task<IActionResult> Index()
@@ -94,6 +97,8 @@ namespace pet_spa_system1.Controllers
             return PartialView("_ChangePasswordPartial", model);
         }
 
+
+
         public async Task<IActionResult> NotificationsPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -130,7 +135,6 @@ namespace pet_spa_system1.Controllers
 
             return await NotificationsPartial();
         }
-
 
         public IActionResult ListPetPartial()
         {
@@ -193,6 +197,19 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[UserHomeController] Attempting to delete pet... PetId: " + id + ", UserId: " + userId);
                 await _petService.DeletePetAsync(id);
                 Console.WriteLine("[UserHomeController] Pet deleted successfully, PetId: " + id);
+                
+                // Tạo thông báo khi xóa thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Xóa thú cưng thành công",
+                    Message = $"Thú cưng '{pet.Name}' đã được xóa khỏi hồ sơ của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Xóa thú cưng thành công!" });
             }
             catch (Exception ex)
@@ -319,6 +336,19 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[UserHomeController] Attempting to update pet... IsActive before: " + existingPet.IsActive);
                 await _petService.UpdatePetAsync(existingPet, images);
                 Console.WriteLine("[UserHomeController] Pet updated successfully, PetId: " + existingPet.PetId + ", IsActive after: " + existingPet.IsActive);
+                
+                // Tạo thông báo khi cập nhật thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Cập nhật thú cưng thành công",
+                    Message = $"Thông tin thú cưng '{existingPet.Name}' đã được cập nhật.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Cập nhật thú cưng thành công!" });
             }
             catch (Exception ex)
@@ -372,6 +402,18 @@ namespace pet_spa_system1.Controllers
                 return await Hoso(errorMessage: result.Message ?? "Cập nhật thất bại.");
             }
 
+            // Tạo thông báo khi cập nhật hồ sơ thành công
+            var notification = new Notification
+            {
+                UserId = userId.Value,
+                Title = "Cập nhật hồ sơ thành công",
+                Message = $"Thông tin hồ sơ của bạn đã được cập nhật thành công.",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            };
+            
+            await _notificationService.AddAsync(notification);
+
             HttpContext.Session.SetString("CurrentUserName", user.Username);
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
             {
@@ -400,7 +442,7 @@ namespace pet_spa_system1.Controllers
                               $"Breed={model.Pet?.Breed}, Age={model.Pet?.Age}, Gender={model.Pet?.Gender}, " +
                               $"SpecialNotes={model.Pet?.SpecialNotes}, ImageFile={ImageFile?.FileName}");
 
-            // Loại bỏ validation cho ImageFile
+   
             ModelState.Remove("ImageFile");
 
             if (!ModelState.IsValid)
@@ -430,7 +472,7 @@ namespace pet_spa_system1.Controllers
             var pet = model.Pet;
             pet.UserId = userId.Value;
             pet.CreatedAt = DateTime.Now;
-            pet.IsActive = true; // Đảm bảo pet mới được active
+            pet.IsActive = true;
 
             var images = ImageFile != null ? new List<IFormFile> { ImageFile } : new List<IFormFile>();
             try
@@ -438,6 +480,19 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[UserHomeController] Attempting to add pet... Name: " + pet.Name);
                 await _petService.CreatePetAsync(pet, images);
                 Console.WriteLine("[UserHomeController] Pet added successfully, PetId: " + pet.PetId);
+                
+                // Tạo thông báo khi thêm thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Thêm thú cưng thành công",
+                    Message = $"Thú cưng '{pet.Name}' đã được thêm vào hồ sơ của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Thêm thú cưng thành công!" });
             }
             catch (Exception ex)
@@ -446,5 +501,17 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = $"Lỗi khi thêm thú cưng: {ex.Message}" });
             }
         }
+        public IActionResult EmployeeSchedulePartial()
+        {
+            int? employeeId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (employeeId == null) return PartialView("_ErrorPartial", "Vui lòng đăng nhập.");
+
+            var appointments = _appointmentService.GetUpcomingScheduleByEmployee(employeeId.Value);
+            return PartialView("_ScheduleEmployeePartial", appointments);
+        }
+
+
+
+
     }
 }

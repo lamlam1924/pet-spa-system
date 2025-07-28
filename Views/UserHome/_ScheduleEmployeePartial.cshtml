@@ -1,0 +1,53 @@
+﻿@model List<pet_spa_system1.ViewModel.EmployeeScheduleViewModel>
+
+<div class="card shadow p-4" id="content-main">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">
+            <i class="fa-solid fa-calendar-day me-2"></i> Lịch làm việc sắp tới
+        </h4>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">Bạn chưa có lịch làm việc nào sắp tới.</div>
+    }
+    else
+    {
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Ngày giờ</th>
+                    <th>Khách hàng</th>
+                    <th>Thú cưng</th>
+                    <th>Dịch vụ</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var item = Model[i];
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@item.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.CustomerName</td>
+                        <td>@item.PetNames</td>
+                        <td>@item.ServiceNames</td>
+                        <td>@item.StatusName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <!-- Chỉ báo loading -->
+    <div id="loading-indicator" class="htmx-indicator" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Khu vực hiển thị thông báo -->
+    <div id="response-message"></div>
+</div>

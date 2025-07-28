@@ -95,7 +95,9 @@ namespace pet_spa_system1.Services
                         Name = asv.Service?.Name ?? "Unknown",
                         Category = asv.Service?.Category?.Name ?? "Unknown",
                         Price = asv.Service?.Price ?? 0,
-                        Duration = asv.Service?.DurationMinutes ?? 0
+                        Duration = asv.Service?.DurationMinutes ?? 0,
+                        StatusId = asv.Status ?? 0,
+                        StatusName = asv.StatusNavigation?.StatusName ?? "Chờ xác nhận"
                     }).ToList() ?? new List<ServiceHistoryInfo>(),
                     PetNames = a.AppointmentPets?.Select(ap => ap.Pet?.Name ?? "").ToList() ?? new List<string>()
                 }).OrderByDescending(x => x.AppointmentDate).ToList()
@@ -584,6 +586,123 @@ namespace pet_spa_system1.Services
             {
                 Console.WriteLine($"Error updating appointment status/send mail: {ex.Message}");
                 return false;
+            }
+        }
+
+        // Sửa lại kiểu trả về và khởi tạo cho đúng với ViewModel thực tế
+        public AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId)
+        {
+            // Lấy lịch hẹn theo id và user
+    var appointment = _context.Appointments
+        .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
+    if (appointment == null) return null;
+
+    // Lấy thú cưng trong lịch hẹn
+    var pets = _context.AppointmentPets
+        .Where(ap => ap.AppointmentId == appointmentId)
+        .Select(ap => ap.Pet)
+        .ToList();
+    var petNames = pets.Select(p => p.Name).ToList();
+
+    // Lấy danh sách AppointmentService kèm service và status
+    var appointmentServices = _context.AppointmentServices
+        .Where(asv => asv.AppointmentId == appointmentId)
+        .Select(asv => new
+        {
+            asv.Service,
+            asv.Status,
+            StatusName = asv.StatusNavigation.StatusName,
+            AppointmentServiceId = asv.AppointmentServiceId,
+            Images = asv.AppointmentServiceImages.Select(img => new
+            {
+                img.ImgUrl,
+                img.PhotoType
+            }).ToList()
+        })
+        .ToList();
+
+    var serviceHistory = appointmentServices.Select(s => new ServiceHistoryInfo
+    {
+        ServiceId = s.Service.ServiceId,
+        Name = s.Service.Name,
+        Category = s.Service.Category?.Name ?? "",
+        Price = s.Service.Price,
+        Duration = s.Service.DurationMinutes ?? 0,
+        StatusId = s.Status ?? 0,
+        StatusName = s.StatusName ?? "",
+        PetImagesBefore = s.Images.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
+        PetImagesAfter = s.Images.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
+    }).ToList();
+
+    return new AppointmentHistoryItemViewModel
+    {
+        AppointmentId = appointment.AppointmentId,
+        AppointmentDate = appointment.AppointmentDate,
+        StatusId = appointment.StatusId,
+        StatusName = appointment.Status?.StatusName ?? string.Empty,
+        PetNames = petNames,
+        Notes = appointment.Notes,
+        Services = serviceHistory
+    };
+        }
+
+        // AppointmentServiceImage
+        public IEnumerable<AppointmentServiceImage> GetImagesByAppointmentServiceId(int appointmentServiceId)
+            => _context.AppointmentServiceImages.Where(i => i.AppointmentServiceId == appointmentServiceId).ToList();
+
+        public AppointmentServiceImage? GetImageById(int imageId)
+            => _context.AppointmentServiceImages.Find(imageId);
+
+        public void AddImage(AppointmentServiceImage image)
+        {
+            _context.AppointmentServiceImages.Add(image);
+                _context.SaveChanges();
+            }
+
+        public void DeleteImage(int imageId)
+        {
+            var img = _context.AppointmentServiceImages.Find(imageId);
+            if (img != null)
+            {
+                _context.AppointmentServiceImages.Remove(img);
+                _context.SaveChanges();
+            }
+        }
+
+        // AppointmentServiceStatus
+        public IEnumerable<AppointmentServiceStatus> GetAllServiceStatuses()
+            => _context.AppointmentServiceStatus.ToList();
+
+        public AppointmentServiceStatus? GetServiceStatusById(int statusId)
+            => _context.AppointmentServiceStatus.Find(statusId);
+
+        public void AddServiceStatus(AppointmentServiceStatus status)
+        {
+            _context.AppointmentServiceStatus.Add(status);
+            _context.SaveChanges();
+        }
+        public List<EmployeeScheduleViewModel> GetUpcomingScheduleByEmployee(int employeeId)
+        {
+            var appointments = _appointmentRepository.GetUpcomingAppointmentsByEmployeeId(employeeId);
+
+            return appointments.Select(a => new EmployeeScheduleViewModel
+            {
+                AppointmentId = a.AppointmentId,
+                AppointmentDate = a.AppointmentDate,
+                CustomerName = a.User?.FullName ?? "",
+                StatusName = a.Status?.StatusName ?? "",
+                PetNames = string.Join(", ", a.AppointmentPets.Select(p => p.Pet.Name)),
+                ServiceNames = string.Join(", ", a.AppointmentServices.Select(s => s.Service.Name))
+            }).ToList();
+        }
+
+        public void DeleteServiceStatus(int statusId)
+        {
+            var status = _context.AppointmentServiceStatus.Find(statusId);
+            if (status != null)
+            {
+                _context.AppointmentServiceStatus.Remove(status);
+                _context.SaveChanges();
             }
         }
 
