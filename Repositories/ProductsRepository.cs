@@ -136,8 +136,9 @@ namespace pet_spa_system1.Repositories
         public async Task<Product?> GetProductWithReviewsByIdAsync(int productId)
         {
             return await _context.Products
+                .Include(p => p.Category)
                 .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
-                .ThenInclude(r => r.User)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
 
         }
@@ -299,15 +300,72 @@ public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal?
                 throw new Exception("Không thể trả lời bình luận này vì không xác định được loại sản phẩm/dịch vụ.");
             }
             _context.Reviews.Add(reply);
-            try
+            await _context.SaveChangesAsync();
+            
+            // Xóa phản hồi tự động nếu có
+            var autoReply = await GetAutoReplyForReviewAsync(parentReviewId);
+            if (autoReply != null)
             {
-                await _context.SaveChangesAsync();
+                await DeleteReplyAsync(autoReply.ReviewId);
             }
-            catch (DbUpdateException ex)
+        }
+        
+        public async Task AddSystemReplyToReviewAsync(int parentReviewId, int userId, string content)
+        {
+            // Truy ngược lên review cha gốc
+            var parentReview = await _context.Reviews.FindAsync(parentReviewId);
+            if (parentReview == null)
+                throw new Exception("Parent review not found!");
+                
+            var rootReview = parentReview;
+            while (rootReview.ParentReviewId != null)
             {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("IX_Reviews_User_Parent_Comment"))
-                    return;
-                throw;
+                rootReview = await _context.Reviews.FindAsync(rootReview.ParentReviewId);
+                if (rootReview == null)
+                    throw new Exception("Root review not found!");
+            }
+
+            var now = DateTime.Now;
+            var systemReply = new Review
+            {
+                ParentReviewId = parentReviewId,
+                UserId = userId,
+                Comment = "[SYSTEM_REPLY] " + content, // Đánh dấu là phản hồi hệ thống bằng prefix đặc biệt
+                CreatedAt = now,
+                Status = "Approved",
+                Rating = 5 // Giá trị hợp lệ cho CHECK constraint
+            };
+            if (rootReview.ProductId != null)
+            {
+                systemReply.ProductId = rootReview.ProductId;
+                systemReply.ServiceId = null;
+            }
+            else if (rootReview.ServiceId != null)
+            {
+                systemReply.ServiceId = rootReview.ServiceId;
+                systemReply.ProductId = null;
+            }
+            else
+            {
+                throw new Exception("Không thể trả lời bình luận này vì không xác định được loại sản phẩm/dịch vụ.");
+            }
+            _context.Reviews.Add(systemReply);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Review> GetAutoReplyForReviewAsync(int parentReviewId)
+        {
+            return await _context.Reviews
+                .FirstOrDefaultAsync(r => r.ParentReviewId == parentReviewId && r.Comment.StartsWith("[SYSTEM_REPLY]"));
+        }
+
+        public async Task DeleteReplyAsync(int reviewId)
+        {
+            var reply = await _context.Reviews.FindAsync(reviewId);
+            if (reply != null)
+            {
+                _context.Reviews.Remove(reply);
+                await _context.SaveChangesAsync();
             }
         }
 
@@ -320,5 +378,11 @@ public async Task<int> CountActiveProductsAsync(int? categoryId = null, decimal?
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Review> GetReviewByIdAsync(int reviewId)
+        {
+            return await _context.Reviews
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+        }
     }
 }

@@ -11,11 +11,13 @@ namespace pet_spa_system1.Controllers.ProductManager
 
         private readonly IProductService _productService;
         private readonly ICartService _cartService;
+        private readonly IUserService _userService;
 
-        public ProductsController(IProductService productService, ICartService cartService)
+        public ProductsController(IProductService productService, ICartService cartService, IUserService userService)
         {
             _productService = productService;
             _cartService = cartService;
+            _userService = userService;
         }
 
         public async Task<IActionResult> Shop(int page = 1, int? categoryId = null, decimal? minPrice = null, decimal? maxPrice = null, string sort = null)
@@ -211,7 +213,37 @@ namespace pet_spa_system1.Controllers.ProductManager
                 }
                 return Unauthorized();
             }
+            
+            // Thêm đánh giá như bình thường
             await _productService.AddProductReviewAsync(userId, productId, rating, comment, false);
+            
+            // Nếu đánh giá là 1 sao, tự động thêm phản hồi
+            if (rating == 1)
+            {
+                // Tìm một admin để thêm phản hồi tự động
+                var staffUsers = await _userService.GetActiveUsersAsync(null, null, 1, 10);
+                var adminUser = staffUsers.FirstOrDefault(u => u.RoleId == 1); // Giả sử roleId 1 là Admin
+                
+                if (adminUser != null)
+                {
+                    string autoReply = "Chúng tôi rất tiếc về trải nghiệm không tốt của bạn. Vui lòng liên hệ với chúng tôi qua số điện thoại hoặc email để được hỗ trợ tốt hơn.";
+                    
+                    // Lấy đánh giá vừa thêm để lấy ID
+                    var productWithReviews = await _productService.GetProductWithReviewsByIdAsync(productId);
+                    var latestReview = productWithReviews.Reviews
+                        .Where(r => r.UserId == userId && r.Rating == rating)
+                        .OrderByDescending(r => r.CreatedAt)
+                        .FirstOrDefault();
+                    
+                    if (latestReview != null)
+                    {
+                        // Thêm phản hồi tự động với cờ đánh dấu là phản hồi từ hệ thống
+                        await _productService.AddSystemReplyToReviewAsync(latestReview.ReviewId, adminUser.UserId, autoReply);
+                    }
+                }
+            }
+            
+            // Phần còn lại của code hiện tại...
             var product = await _productService.GetProductWithReviewsByIdAsync(productId);
             var allReviews = product.Reviews?.Select(r => new ReviewViewModel
             {
@@ -246,7 +278,7 @@ namespace pet_spa_system1.Controllers.ProductManager
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddReply(int parentReviewId, string content)
+        public async Task<IActionResult> AddReply(int parentReviewId, string content, string returnUrl = null)
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
@@ -264,30 +296,60 @@ namespace pet_spa_system1.Controllers.ProductManager
                 {
                     return Json(new { success = false, message = ex.Message });
                 }
+
+                // Nếu có returnUrl, chuyển hướng về trang đó với thông báo lỗi
+                if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    TempData["ErrorMessage"] = ex.Message;
+                    return Redirect(returnUrl);
+                }
+                
                 return BadRequest(ex.Message);
             }
-            // Lấy lại reply vừa tạo (chỉ lấy 1 reply mới nhất của user cho parentReviewId, không lọc theo content để tránh lặp)
-            var reply = await _productService.GetLastReplyOfUserForParentAsync(parentReviewId, userId);
-            if (reply == null)
+
+            // Nếu là AJAX request, trả về partial view như trước
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return StatusCode(500, "Không tìm thấy phản hồi vừa tạo.");
+                // Lấy lại reply vừa tạo
+                var reply = await _productService.GetLastReplyOfUserForParentAsync(parentReviewId, userId);
+                if (reply == null)
+                {
+                    return StatusCode(500, "Không tìm thấy phản hồi vừa tạo.");
+                }
+                var replyVM = new pet_spa_system1.ViewModel.ReviewViewModel
+                {
+                    ReviewerName = reply.User != null
+                        ? (!string.IsNullOrEmpty(reply.User.FullName) ? reply.User.FullName : reply.User.Username)
+                        : "Không xác định",
+                    UserAvatar = reply.User != null && !string.IsNullOrEmpty(reply.User.ProfilePictureUrl)
+                        ? reply.User.ProfilePictureUrl
+                        : Url.Content("~/img/avatar.jfif"),
+                    Rating = reply.Rating,
+                    Comment = reply.Comment ?? string.Empty,
+                    CreatedAt = reply.CreatedAt ?? DateTime.MinValue,
+                    Id = reply.ReviewId,
+                    ParentReviewId = reply.ParentReviewId,
+                    UserId = reply.UserId
+                };
+                return PartialView("_ReviewRepliesPartial", replyVM);
             }
-            var replyVM = new pet_spa_system1.ViewModel.ReviewViewModel
+
+            // Nếu có returnUrl (ví dụ: từ trang admin), chuyển hướng về trang đó với thông báo thành công
+            if (!string.IsNullOrEmpty(returnUrl))
             {
-                ReviewerName = reply.User != null
-                    ? (!string.IsNullOrEmpty(reply.User.FullName) ? reply.User.FullName : reply.User.Username)
-                    : "Không xác định",
-                UserAvatar = reply.User != null && !string.IsNullOrEmpty(reply.User.ProfilePictureUrl)
-                    ? reply.User.ProfilePictureUrl
-                    : Url.Content("~/img/avatar.jfif"),
-                Rating = reply.Rating,
-                Comment = reply.Comment ?? string.Empty,
-                CreatedAt = reply.CreatedAt ?? DateTime.MinValue,
-                Id = reply.ReviewId,
-                ParentReviewId = reply.ParentReviewId,
-                UserId = reply.UserId
-            };
-            return PartialView("_ReviewRepliesPartial", replyVM);
+                TempData["SuccessMessage"] = "Phản hồi đã được gửi thành công.";
+                return Redirect(returnUrl);
+            }
+
+            // Lấy sản phẩm từ đánh giá để redirect về trang chi tiết sản phẩm
+            var review = await _productService.GetReviewByIdAsync(parentReviewId);
+            if (review?.ProductId != null)
+            {
+                return RedirectToAction("Detail", new { productID = review.ProductId });
+            }
+            
+            // Nếu không xác định được sản phẩm, trả về trang chủ
+            return RedirectToAction("Index", "Home");
         }
     }
 

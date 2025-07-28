@@ -12,38 +12,24 @@ public class BlogService : IBlogService
 {
     private readonly IBlogRepository _blogRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ICloudinaryService _cloudinaryService;
 
-    public BlogService(IBlogRepository blogRepository, IHttpContextAccessor httpContextAccessor)
+    public BlogService(IBlogRepository blogRepository, IHttpContextAccessor httpContextAccessor, ICloudinaryService cloudinaryService)
     {
         _blogRepository = blogRepository;
         _httpContextAccessor = httpContextAccessor;
+        _cloudinaryService = cloudinaryService;
     }
+
 
     public async Task<BlogListViewModel> GetBlogListAsync(int page = 1, int pageSize = 10, string? category = null, string? search = null, string sortBy = "newest")
     {
         var blogs = await _blogRepository.GetPublishedBlogsAsync(page, pageSize, category, search, sortBy);
         var totalBlogs = await _blogRepository.CountPublishedBlogsAsync(category, search);
         var categories = await _blogRepository.GetBlogCategoriesAsync();
-
         var userId = _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentUserId");
-        var blogViewModels = blogs.Select(b => new BlogViewModel
-        {
-            BlogId = b.BlogId,
-            Title = b.Title,
-            Content = b.Content,
-            ShortContent = GetShortContent(b.Content),
-            Category = b.Category,
-            Status = b.Status,
-            PublishedAt = b.PublishedAt,
-            CreatedAt = b.CreatedAt,
-            UserId = b.UserId,
-            AuthorName = b.User.FullName ?? b.User.Username,
-            AuthorRole = GetUserRoleName(b.User.RoleId),
-            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
-            CommentCount = b.Status == "Published" ? b.BlogComments.Count(c => c.Status == "Approved") : 0, // Chỉ đếm nếu Published
-            LikeCount = b.Status == "Published" ? b.BlogLikes.Count : 0, // Chỉ đếm nếu Published
-            IsLikedByCurrentUser = userId.HasValue && b.Status == "Published" && b.BlogLikes.Any(l => l.UserId == userId.Value)
-        }).ToList();
+
+        var blogViewModels = blogs.Select(b => MapToBlogViewModel(b, userId)).ToList();
 
         return new BlogListViewModel
         {
@@ -65,29 +51,12 @@ public class BlogService : IBlogService
         if (blog == null) return null;
 
         var userId = currentUserId ?? _httpContextAccessor.HttpContext?.Session.GetInt32("CurrentUserId");
-        var userRole = userId.HasValue ? await GetUserRole(userId.Value) : null;
 
-        var blogViewModel = new BlogViewModel
-        {
-            BlogId = blog.BlogId,
-            Title = blog.Title,
-            Content = blog.Content,
-            Category = blog.Category,
-            Status = blog.Status,
-            PublishedAt = blog.PublishedAt,
-            CreatedAt = blog.CreatedAt,
-            UserId = blog.UserId,
-            AuthorName = blog.User.FullName ?? blog.User.Username,
-            AuthorRole = GetUserRoleName(blog.User.RoleId),
-            FeaturedImageUrl = blog.BlogImages.FirstOrDefault()?.ImageUrl,
-            CommentCount = blog.BlogComments.Count(c => c.Status == "Approved"), // Tất cả đều Approved
-            LikeCount = blog.Status == "Published" ? blog.BlogLikes.Count : 0,
-            IsLikedByCurrentUser = userId.HasValue && blog.Status == "Published" && blog.BlogLikes.Any(l => l.UserId == userId.Value)
-        };
+        var blogViewModel = MapToBlogViewModel(blog, userId);
 
         var comments = blog.BlogComments
-            .Where(c => c.ParentCommentId == null && c.Status == "Approved") // Chỉ lấy Approved
-            .Select(c => MapToCommentViewModel(c))
+            .Where(c => c.ParentCommentId == null && c.Status == "Approved")
+            .Select(MapToCommentViewModel)
             .ToList();
 
         var relatedBlogs = await GetRelatedBlogsAsync(blogId);
@@ -115,7 +84,7 @@ public class BlogService : IBlogService
         {
             UserId = userId,
             Title = model.Title,
-            Content = model.Content,
+            Content = await ProcessContentImagesAsync(model.Content),
             Category = model.Category,
             CreatedAt = DateTime.Now
         };
@@ -123,47 +92,36 @@ public class BlogService : IBlogService
         var userRole = await GetUserRole(userId);
         blog.Status = userRole == "Customer" ? "PendingApproval" : "Published";
         if (blog.Status == "Published")
-        {
             blog.PublishedAt = DateTime.Now;
-        }
 
         var blogId = await _blogRepository.AddBlogAsync(blog);
+        blog.BlogId = blogId; // Gán ID để dùng trong các hàm xử lý ảnh
 
-        if (model.FeaturedImage != null)
-        {
-            var imageUrl = await UploadImageAsync(model.FeaturedImage);
-            if (!string.IsNullOrEmpty(imageUrl))
-            {
-                await _blogRepository.AddBlogImageAsync(new BlogImage
-                {
-                    BlogId = blogId,
-                    ImageUrl = imageUrl,
-                    DisplayOrder = 0,
-                    CreatedAt = DateTime.Now
-                });
-            }
-        }
-
-        if (model.AdditionalImages != null && model.AdditionalImages.Any())
-        {
-            int displayOrder = 1;
-            foreach (var image in model.AdditionalImages)
-            {
-                var imageUrl = await UploadImageAsync(image);
-                if (!string.IsNullOrEmpty(imageUrl))
-                {
-                    await _blogRepository.AddBlogImageAsync(new BlogImage
-                    {
-                        BlogId = blogId,
-                        ImageUrl = imageUrl,
-                        DisplayOrder = displayOrder++,
-                        CreatedAt = DateTime.Now
-                    });
-                }
-            }
-        }
+        await HandleFeaturedImageAsync(blog, model.FeaturedImage);
+        await HandleAdditionalImagesAsync(blogId, model.AdditionalImages ?? new List<IFormFile>());
 
         return blogId;
+    }
+    private BlogViewModel MapToBlogViewModel(Blog b, int? userId)
+    {
+        return new BlogViewModel
+        {
+            BlogId = b.BlogId,
+            Title = b.Title,
+            Content = b.Content,
+            ShortContent = GetShortContent(b.Content),
+            Category = b.Category,
+            Status = b.Status,
+            PublishedAt = b.PublishedAt,
+            CreatedAt = b.CreatedAt,
+            UserId = b.UserId,
+            AuthorName = b.User.FullName ?? b.User.Username,
+            AuthorRole = GetUserRoleName(b.User.RoleId),
+            FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl,
+            CommentCount = b.Status == "Published" ? b.BlogComments.Count(c => c.Status == "Approved") : 0,
+            LikeCount = b.Status == "Published" ? b.BlogLikes.Count : 0,
+            IsLikedByCurrentUser = userId.HasValue && b.Status == "Published" && b.BlogLikes.Any(l => l.UserId == userId.Value)
+        };
     }
 
     public async Task<bool> UpdateBlogAsync(int blogId, BlogCreateViewModel model, int userId)
@@ -173,7 +131,7 @@ public class BlogService : IBlogService
             return false;
 
         blog.Title = model.Title;
-        blog.Content = model.Content;
+        blog.Content = await ProcessContentImagesAsync(model.Content);
         blog.Category = model.Category;
 
         if (model.Status == "Published" && blog.Status != "Published")
@@ -186,92 +144,14 @@ public class BlogService : IBlogService
             blog.Status = model.Status;
         }
 
-        // Xử lý ảnh cũ và mới
-        if (model.FeaturedImage != null && model.FeaturedImage.Length > 0)
-        {
-            // Xóa tất cả ảnh cũ
-            if (blog.BlogImages != null && blog.BlogImages.Any())
-            {
-                foreach (var image in blog.BlogImages.ToList())
-                {
-                    if (!string.IsNullOrEmpty(image.ImageUrl))
-                    {
-                        Console.WriteLine("[BlogService] Attempting to delete old image: " + image.ImageUrl);
-                        bool deleted = await DeleteImageAsync(image.ImageUrl);
-                        if (deleted)
-                        {
-                            Console.WriteLine("[BlogService] Old image deleted successfully from Cloudinary.");
-                            _blogRepository.DeleteBlogImageAsync(image.ImageId); // Xóa khỏi database
-                        }
-                        else
-                        {
-                            Console.WriteLine("[BlogService] Failed to delete old image.");
-                        }
-                    }
-                }
-            }
-            // Thêm ảnh mới làm FeaturedImage
-            var featuredImageUrl = await UploadImageAsync(model.FeaturedImage);
-            if (!string.IsNullOrEmpty(featuredImageUrl))
-            {
-                await _blogRepository.AddBlogImageAsync(new BlogImage
-                {
-                    BlogId = blogId,
-                    ImageUrl = featuredImageUrl,
-                    DisplayOrder = 0, // FeaturedImage thường là 0
-                    CreatedAt = DateTime.Now
-                });
-            }
-        }
-
-        // Xử lý AdditionalImages
-        if (model.AdditionalImages != null && model.AdditionalImages.Any())
-        {
-            // Xóa ảnh bổ sung cũ nếu có (nếu không muốn giữ ảnh cũ)
-            if (blog.BlogImages != null && blog.BlogImages.Any(i => i.DisplayOrder > 0))
-            {
-                foreach (var image in blog.BlogImages.Where(i => i.DisplayOrder > 0).ToList())
-                {
-                    if (!string.IsNullOrEmpty(image.ImageUrl))
-                    {
-                        Console.WriteLine("[BlogService] Attempting to delete old additional image: " + image.ImageUrl);
-                        bool deleted = await DeleteImageAsync(image.ImageUrl);
-                        if (deleted)
-                        {
-                            Console.WriteLine("[BlogService] Old additional image deleted successfully.");
-                            _blogRepository.DeleteBlogImageAsync(image.ImageId);
-                        }
-                        else
-                        {
-                            Console.WriteLine("[BlogService] Failed to delete old additional image.");
-                        }
-                    }
-                }
-            }
-            // Thêm ảnh bổ sung mới
-            int displayOrder = 1; // Bắt đầu từ 1 cho AdditionalImages
-            foreach (var image in model.AdditionalImages)
-            {
-                if (image.Length > 0)
-                {
-                    var imageUrl = await UploadImageAsync(image);
-                    if (!string.IsNullOrEmpty(imageUrl))
-                    {
-                        await _blogRepository.AddBlogImageAsync(new BlogImage
-                        {
-                            BlogId = blogId,
-                            ImageUrl = imageUrl,
-                            DisplayOrder = displayOrder++,
-                            CreatedAt = DateTime.Now
-                        });
-                    }
-                }
-            }
-        }
+        // Sử dụng 2 hàm đã tách riêng để xử lý ảnh
+        await HandleFeaturedImageAsync(blog, model.FeaturedImage);
+        await HandleAdditionalImagesAsync(blogId, model.AdditionalImages ?? new List<IFormFile>());
 
         await _blogRepository.UpdateBlogAsync(blog);
         return true;
     }
+
 
     public async Task<bool> DeleteBlogAsync(int blogId, int userId)
     {
@@ -296,25 +176,15 @@ public class BlogService : IBlogService
 
     public async Task<bool> AddCommentAsync(int blogId, string content, int userId, int? parentCommentId = null)
     {
-        System.Diagnostics.Debug.WriteLine($"AddCommentAsync called: blogId={blogId}, content={content}, userId={userId}, parentCommentId={parentCommentId}");
-
-        // Kiểm tra trạng thái bài viết
         var blog = await _blogRepository.GetBlogByIdAsync(blogId);
         if (blog == null || blog.Status != "Published")
-        {
-            System.Diagnostics.Debug.WriteLine($"Blog {blogId} not found or not published, status: {blog?.Status}");
             return false;
-        }
 
-        // Kiểm tra parentCommentId nếu có
         if (parentCommentId.HasValue)
         {
             var parentComment = await _blogRepository.GetCommentByIdAsync(parentCommentId.Value);
             if (parentComment == null || parentComment.BlogId != blogId)
-            {
-                System.Diagnostics.Debug.WriteLine($"Invalid parentCommentId: {parentCommentId.Value} not found or not in blog {blogId}");
                 return false;
-            }
         }
 
         var comment = new BlogComment
@@ -328,7 +198,6 @@ public class BlogService : IBlogService
             UpdatedAt = DateTime.Now
         };
 
-        System.Diagnostics.Debug.WriteLine($"Saving comment: ParentCommentId={comment.ParentCommentId}, Status={comment.Status}");
         await _blogRepository.AddCommentAsync(comment);
         return true;
     }
@@ -347,12 +216,15 @@ public class BlogService : IBlogService
     public async Task<bool> DeleteCommentAsync(int commentId, int userId)
     {
         var comment = await _blogRepository.GetCommentByIdAsync(commentId);
-        if (comment == null || (comment.UserId != userId && (await GetUserRole(userId)) != "Admin"))
+        var isAdmin = await GetUserRole(userId) == "Admin";
+
+        if (comment == null || (comment.UserId != userId && !isAdmin))
             return false;
 
         await _blogRepository.DeleteCommentAsync(commentId);
         return true;
     }
+
 
     public async Task<bool> ApproveCommentAsync(int commentId, int adminId)
     {
@@ -368,27 +240,19 @@ public class BlogService : IBlogService
 
     public async Task<bool> ToggleLikeAsync(int blogId, int userId)
     {
-        // Kiểm tra trạng thái bài viết
         var blog = await _blogRepository.GetBlogByIdAsync(blogId);
-        if (blog == null || blog.Status != "Published")
-        {
-            System.Diagnostics.Debug.WriteLine($"Blog {blogId} not found or not published, status: {blog?.Status}");
-            return false;
-        }
+        if (blog?.Status != "Published") return false;
 
         var isLiked = await _blogRepository.IsLikedByUserAsync(blogId, userId);
 
         if (isLiked)
-        {
             await _blogRepository.RemoveLikeAsync(blogId, userId);
-        }
         else
-        {
             await _blogRepository.AddLikeAsync(blogId, userId);
-        }
 
         return !isLiked;
     }
+
 
     public async Task<bool> IsLikedByUserAsync(int blogId, int userId)
     {
@@ -754,4 +618,123 @@ public class BlogService : IBlogService
             FeaturedImageUrl = b.BlogImages.FirstOrDefault()?.ImageUrl
         }).ToList();
     }
+
+    public async Task HandleFeaturedImageAsync(Blog blog, IFormFile featuredImage)
+    {
+        if (featuredImage == null || featuredImage.Length == 0)
+            return;
+
+        // Xóa ảnh cũ nếu có
+        if (blog.BlogImages != null && blog.BlogImages.Any(i => i.DisplayOrder == 0))
+        {
+            foreach (var image in blog.BlogImages.Where(i => i.DisplayOrder == 0).ToList())
+            {
+                if (!string.IsNullOrEmpty(image.ImageUrl))
+                {
+                    await _cloudinaryService.DeleteImageAsync(image.ImageUrl);
+                    await _blogRepository.DeleteBlogImageAsync(image.ImageId);
+                }
+            }
+        }
+
+        // Upload ảnh mới
+        var imageUrl = await _cloudinaryService.UploadImageAsync(featuredImage, "blog_images");
+        if (!string.IsNullOrEmpty(imageUrl))
+        {
+            await _blogRepository.AddBlogImageAsync(new BlogImage
+            {
+                BlogId = blog.BlogId,
+                ImageUrl = imageUrl,
+                DisplayOrder = 0,
+                CreatedAt = DateTime.Now
+            });
+        }
+    }
+
+
+    public async Task HandleAdditionalImagesAsync(int blogId, List<IFormFile> additionalImages)
+    {
+        if (additionalImages == null || !additionalImages.Any())
+            return;
+
+        // Xóa ảnh bổ sung cũ (DisplayOrder > 0)
+        var existingImages = await _blogRepository.GetBlogImagesAsync(blogId);
+        foreach (var image in existingImages.Where(i => i.DisplayOrder > 0))
+        {
+            if (!string.IsNullOrEmpty(image.ImageUrl))
+            {
+                await _cloudinaryService.DeleteImageAsync(image.ImageUrl);
+                await _blogRepository.DeleteBlogImageAsync(image.ImageId);
+            }
+        }
+
+        // Upload ảnh mới
+        int displayOrder = 1;
+        foreach (var image in additionalImages)
+        {
+            if (image.Length > 0)
+            {
+                var imageUrl = await _cloudinaryService.UploadImageAsync(image, "blog_images");
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    await _blogRepository.AddBlogImageAsync(new BlogImage
+                    {
+                        BlogId = blogId,
+                        ImageUrl = imageUrl,
+                        DisplayOrder = displayOrder++,
+                        CreatedAt = DateTime.Now
+                    });
+                }
+            }
+        }
+    }
+
+    public async Task<string> ProcessContentImagesAsync(string content)
+    {
+        var imgRegex = new Regex("<img[^>]*src=[\"']([^\"']+)[\"'][^>]*>", RegexOptions.IgnoreCase);
+        var matches = imgRegex.Matches(content);
+
+        foreach (Match match in matches)
+        {
+            string oldTag = match.Value;
+            string oldSrc = match.Groups[1].Value;
+
+            // Kiểm tra nếu là base64
+            if (oldSrc.StartsWith("data:image"))
+            {
+                // Convert base64 -> IFormFile giả
+                var imageFile = ConvertBase64ToFormFile(oldSrc);
+
+                // Upload lên Cloudinary
+                var imageUrl = await _cloudinaryService.UploadImageAsync(imageFile);
+
+                // Thay thế đường dẫn ảnh trong content
+                var newTag = oldTag.Replace(oldSrc, imageUrl);
+                content = content.Replace(oldTag, newTag);
+            }
+        }
+
+        return content;
+    }
+    private IFormFile ConvertBase64ToFormFile(string base64)
+    {
+        var parts = base64.Split(",");
+        var data = Convert.FromBase64String(parts[1]);
+        var stream = new MemoryStream(data);
+
+        return new FormFile(stream, 0, data.Length, "image", "uploaded_image.jpg");
+    }
+    public async Task<Blog?> GetBlogByIdAsync(int blogId)
+    {
+        return await _blogRepository.GetBlogByIdAsync(blogId);
+    }
+
+    public async Task<BlogComment?> GetCommentByIdAsync(int commentId)
+    {
+        return await _blogRepository.GetCommentByIdAsync(commentId);
+    }
+
+
+
+
 }
