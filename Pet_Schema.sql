@@ -351,12 +351,12 @@ GO
 
 
 
-ALTER TABLE Users
-ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
-GO
+	ALTER TABLE Users
+	ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
+	GO
 
-ALTER TABLE Reviews
-ADD ParentReviewId INT NULL;
+	ALTER TABLE Reviews
+	ADD ParentReviewId INT NULL;
 
 ALTER TABLE Reviews
 ADD CONSTRAINT FK_Reviews_ParentReview
@@ -433,22 +433,6 @@ ADD ImageUrl NVARCHAR(255);
 
 
 
-SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUsers';
-SELECT * FROM AspNetRoles;
-SELECT * FROM AspNetRoles WHERE Name = 'Admin';
-SELECT * FROM AspNetUserRoles ;
-SELECT Id, Email FROM AspNetUsers;
-
-SELECT Id, Name FROM AspNetRoles;
-
-INSERT INTO AspNetUserRoles (UserId, RoleId)
-VALUES ('d3e36069-461b-453b-a73d-8adbff5e54e1', '4f570f43-2518-4de8-96cd-9c400b32cfdf');
-
-SELECT u.Email, r.Name
-FROM AspNetUsers u
-JOIN AspNetUserRoles ur ON u.Id = ur.UserId
-JOIN AspNetRoles r ON ur.RoleId = r.Id
-WHERE u.Email = '82vodanh@gmail.com'
 
 
 CREATE TABLE AppointmentServiceImages (
@@ -480,3 +464,12 @@ ADD Status INT;
 ALTER TABLE AppointmentServices
 ADD CONSTRAINT FK_AppointmentServices_Status
 FOREIGN KEY (Status) REFERENCES AppointmentServiceStatus(StatusID);
+
+-- Thêm cột PhotoType với ràng buộc CHECK
+ALTER TABLE AppointmentServiceImages
+ADD PhotoType NVARCHAR(20) CHECK (PhotoType IN ('Before', 'After'));
+
+-- (Tùy chọn) Thiết lập giá trị mặc định nếu cần
+ALTER TABLE AppointmentServiceImages
+ADD CONSTRAINT DF_AppointmentServiceImages_PhotoType
+DEFAULT 'Before' FOR PhotoType;

@@ -254,10 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         ${appointment.notes ? `<div class="appointment-notes">${appointment.notes}</div>` : ''}
         <div class="appointment-actions">
-            <!-- ✅ Nút xem chi tiết -->
-            <button class="btn btn-info btn-view-detail" data-id="${appointment.appointmentId}">
-                <i class="fas fa-eye"></i> Xem chi tiết
-            </button>
+           
 
             ${appointment.statusId === 4 ?
                     `<button class="btn-review" data-id="${appointment.appointmentId}">
