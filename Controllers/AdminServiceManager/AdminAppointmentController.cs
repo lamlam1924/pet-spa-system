@@ -10,6 +10,7 @@ namespace pet_spa_system1.Controllers
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
 
         [HttpGet]
         public IActionResult GetAppointmentDetail(int id)
@@ -25,10 +26,11 @@ namespace pet_spa_system1.Controllers
             return PartialView("~/Views/Admin/ManageAppointment/AppointmentDetailPartial.cshtml", vm);
         }
 
-        public AdminAppointmentController(IAppointmentService appointmentService, IUserService userService)
+        public AdminAppointmentController(IAppointmentService appointmentService, IUserService userService, INotificationService notificationService)
         {
             _appointmentService = appointmentService;
             _userService = userService;
+            _notificationService = notificationService;
         }
 
         public IActionResult Dashboard()
@@ -290,14 +292,31 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ApproveCancel(int id)
+        public async Task<IActionResult> ApproveCancel(int id)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
-
+            
+            // Lấy thông tin appointment để biết userId
+            var appointment = _appointmentService.GetAppointmentById(id);
+            if (appointment != null)
+            {
+                // Tạo thông báo cho user khi yêu cầu hủy được duyệt
+                var notification = new Notification
+                {
+                    UserId = appointment.UserId,
+                    Title = "Yêu cầu hủy lịch đã được duyệt",
+                    Message = $"Yêu cầu hủy lịch hẹn của bạn đã được duyệt.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+            }
+            
             // Chuyển trạng thái sang Đã hủy (5) và gửi mail
             _appointmentService.UpdateAppointmentStatusAndSendMail(id, 5);
             TempData["SuccessMessage"] = "Đã duyệt hủy lịch hẹn.";
@@ -321,13 +340,31 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ApproveAppointment(int id)
+        public async Task<IActionResult> ApproveAppointment(int id)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+            
+            // Lấy thông tin appointment để biết userId
+            var appointment = _appointmentService.GetAppointmentById(id);
+            if (appointment != null)
+            {
+                // Tạo thông báo cho user khi lịch hẹn được duyệt
+                var notification = new Notification
+                {
+                    UserId = appointment.UserId,
+                    Title = "Lịch hẹn đã được xác nhận",
+                    Message = $"Lịch hẹn của bạn đã được xác nhận. Vui lòng đến đúng giờ hẹn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+            }
+            
             // Chuyển trạng thái sang Đã xác nhận (2) và gửi mail
             _appointmentService.UpdateAppointmentStatusAndSendMail(id, 2);
             TempData["SuccessMessage"] = "Đã duyệt lịch hẹn.";

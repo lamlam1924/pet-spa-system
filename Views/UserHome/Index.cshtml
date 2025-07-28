@@ -2,24 +2,10 @@
 
 @model UserViewModel
 @{
-    // Layout = null;
+    ViewData["Title"] = "Hồ sơ cá nhân";
     // Lấy vai trò từ session
     var roleId = Context.Session.GetInt32("CurrentUserRoleId") ?? -1;
 }
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ cá nhân </title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css?v=123">
-    <!-- Font Awesome CDN (v6 free) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -239,8 +225,7 @@
             pointer-events: none;
         }
     </style>
-</head>
-<body>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert-box success-alert" id="successAlert">
@@ -336,8 +321,7 @@
         });
     </script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+    @section Scripts {
+        <!-- HTMX -->
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    }

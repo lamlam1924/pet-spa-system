@@ -94,14 +94,12 @@
         .header-top_area .search_bar .search_button:hover {
             
         }
+        #notificationDropdown {
+            padding: 0;
+        }
         .header-top_area .dropdown .btn {
-            border-radius: 20px;
-            padding: 6px 18px;
-            background: #f8f9fa;
-            border: 1px solid #ced4da;
             color: #333;
             font-size: 16px;
-            margin-left: 73%;
         }
         .header-top_area .dropdown .btn:hover {
             background: #e9ecef;
@@ -115,6 +113,121 @@
 
         #navigation a {
             text-decoration: none;
+        }
+        
+        /* Fix dropdown positioning */
+        .dropdown-menu {
+            position: absolute !important;
+            transform: none !important;
+            z-index: 1050 !important;
+        }
+        
+        .dropdown-menu-end {
+            right: 0 !important;
+            left: auto !important;
+        }
+        
+        /* Ensure proper dropdown alignment */
+        .header-top_area .dropdown {
+            position: relative;
+        }
+        
+        .header-top_area .dropdown .dropdown-menu {
+            margin-top: 0.125rem;
+            min-width: 200px;
+            top: 100% !important;
+        }
+        
+        /* Ensure notification dropdown doesn't overlap */
+        #notificationDropdown {
+            z-index: 1051 !important;
+        }
+        
+        /* Ensure user dropdown button is visible */
+        #dropdownUser {
+            z-index: 1052 !important;
+            position: relative;
+        }
+        
+        /* Notification dropdown styling */
+        #notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        #notification-list li {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 8px 0;
+        }
+        
+        #notification-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-badge {
+            transition: all 0.3s ease;
+        }
+        
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 16px 20px;
+            min-width: 300px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+        
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        
+        .toast-notification.success {
+            border-left-color: #28a745;
+        }
+        
+        .toast-notification.error {
+            border-left-color: #dc3545;
+        }
+        
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .toast-notification.success .toast-content i {
+            color: #28a745;
+            font-size: 18px;
+        }
+        
+        .toast-notification.error .toast-content i {
+            color: #dc3545;
+            font-size: 18px;
+        }
+        
+        .toast-content span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Fix dropdown to show below button without covering it */
+        .dropdown-menu {
+            margin-top: 5px !important;
+            border: 1px solid rgba(0,0,0,.15);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
+        }
+        
+        /* Ensure dropdown appears below the button */
+        .header-top_area .dropdown .dropdown-menu {
+            top: calc(100% + 5px) !important;
+            transform: translateY(0) !important;
         }
     </style>
 </head>
@@ -159,44 +272,71 @@
                             }
                             @if (userId != null)
                             {
-                                <div class="dropdown">
-                                    <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
-                                       id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" style="background:transparent; border:none; box-shadow:none; padding:0 8px;">
-                                        @if (!string.IsNullOrEmpty(userAvatar))
-                                        {
-                                            <img src="@userAvatar" alt="avatar" style="width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:0; border:none; box-shadow:none;">
-                                        }
-                                        else
-                                        {
-                                            <i class="fa fa-user" style="font-size: 28px; margin-right:0;"></i>
-                                        }
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownUser">
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("Index", "UserHome")">Trang cá nhân</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
-                                        </li>
-                                        @if (isAdmin == 1)
-                                        {
+                                <div class="d-flex align-items-center">
+                                    <!-- Dropdown chuông thông báo -->
+                                    <div class="dropdown me-3">
+                                        <a class="btn position-relative" href="#" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Thông báo">
+                                            <i class="fa fa-bell" style="font-size: 26px; color: #fd7e14;"></i>
+                                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 12px; display: none;">
+                                                0
+                                            </span>
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end p-2 shadow" aria-labelledby="notificationDropdown"
+                                            style="min-width: 340px; max-height: 450px; overflow-y: auto; margin-top: 5px;">
+                                            <li class="fw-semibold text-dark mb-1">Thông báo</li>
+                                            <div id="notification-list">
+                                                <li class="text-center text-muted">
+                                                    <small>Đang tải thông báo...</small>
+                                                </li>
+                                            </div>
+                                            <div class="text-center mt-2">
+                                                <button class="btn btn-sm btn-outline-primary me-2" onclick="markAllAsRead()">Đánh dấu đã đọc</button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteAllNotifications()">Xóa tất cả</button>
+                                            </div>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Dropdown user như cũ -->
+                                    <div class="dropdown" style="position: relative;">
+                                        <a class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" href="#" role="button"
+                                           id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" style="background:transparent; border:none; box-shadow:none; padding:0 8px; position: relative; z-index: 1052;">
+                                            @if (!string.IsNullOrEmpty(userAvatar))
+                                            {
+                                                <img src="@userAvatar" alt="avatar" style="width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:0; border:none; box-shadow:none;">
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-user" style="font-size: 28px; margin-right:0;"></i>
+                                            }
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser" style="z-index: 1053; position: absolute; right: 0; min-width: 200px;">
                                             <li>
-                                                <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
+                                                <a class="dropdown-item" href="@Url.Action("Index", "UserHome")">Trang cá nhân</a>
+
                                             </li>
-                                        }
-                                        <li>
-                                            <a class="dropdown-item" href="@Url.Action("AllOrder", "Order")">Đơn hàng của bạn</a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li>
-                                            <form method="post" action="@Url.Action("Logout", "Login")" style="display:inline;">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="dropdown-item">Đăng Xuất</button>
-                                            </form>
-                                        </li>
-                                    </ul>
+                                            <li>
+                                                <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
+                                            </li>
+                                            @if (isAdmin == 1)
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Admin</a>
+                                                </li>
+                                            }
+                                            <li>
+                                                <a class="dropdown-item" href="@Url.Action("AllOrder", "Order")">Đơn hàng của bạn</a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <form method="post" action="@Url.Action("Logout", "Login")" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="dropdown-item">Đăng Xuất</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             }
                             else
@@ -271,6 +411,7 @@
 
     <div>
         <main role="main">
+            @Html.AntiForgeryToken()
             @RenderBody()
             @*Chat bot*@
             <iframe id="chatbot-iframe"
@@ -544,5 +685,209 @@
 
     @await RenderSectionAsync("Scripts", required: false)
     @RenderSection("ValidationScripts", required: false) <!-- Thêm dòng này để fix lỗi -->
+    <script>
+        // Load notification count on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadNotificationCount();
+            
+            var bell = document.getElementById('notificationDropdown');
+            if (bell) {
+                bell.addEventListener('show.bs.dropdown', function () {
+                    loadNotifications();
+                });
+            }
+        });
+
+        // Function to load notification count
+        function loadNotificationCount() {
+            fetch('@Url.Action("GetUnreadNotificationCount", "Home")')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notification-badge');
+                    if (data.unreadCount > 0) {
+                        badge.textContent = data.unreadCount;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notification count:', error);
+                });
+        }
+
+        // Function to load notifications
+        function loadNotifications() {
+            fetch('@Url.Action("GetNotifications", "Home")')
+                .then(response => response.json())
+                .then(data => {
+                    const notificationList = document.getElementById('notification-list');
+                    
+                    if (!data.notifications || data.notifications.length === 0) {
+                        notificationList.innerHTML = '<li class="text-center text-muted"><small>Bạn chưa có thông báo nào.</small></li>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.notifications.slice(0, 5).forEach(noti => {
+                        const timeAgo = getTimeAgo(noti.createdAt);
+                        const isReadClass = noti.isRead ? '' : 'fw-bold';
+                        
+                        html += `
+                            <li>
+                                <div class="d-flex mb-3 align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fa fa-info-circle text-primary mt-1 me-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1 small">
+                                        <div class="${isReadClass}">${noti.title}</div>
+                                        <div class="text-muted">${noti.message}</div>
+                                        <span class="text-muted small">${timeAgo}</span>
+                                    </div>
+                                </div>
+                            </li>
+                        `;
+                    });
+                    
+                    if (data.notifications.length > 5) {
+                        html += `<li class="text-center"><a href="#" class="text-decoration-none small">Xem tất cả thông báo (${data.notifications.length})</a></li>`;
+                    }
+                    
+                    notificationList.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    document.getElementById('notification-list').innerHTML = 
+                        '<li class="text-center text-muted"><small>Có lỗi khi tải thông báo</small></li>';
+                });
+        }
+        
+        // Function to format time ago
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return 'Vài giây trước';
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                return `${minutes} phút trước`;
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                return `${hours} giờ trước`;
+            } else {
+                return date.toLocaleDateString('vi-VN', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // Function to mark all as read
+        function markAllAsRead() {
+            fetch('@Url.Action("MarkAllAsRead", "Home")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hiển thị thông báo thành công
+                    showSuccessMessage(data.message);
+                    loadNotifications(); // Reload notifications
+                    loadNotificationCount(); // Reload count
+                } else {
+                    showErrorMessage(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                console.error('Error marking as read:', error);
+                showErrorMessage('Có lỗi xảy ra khi đánh dấu đã đọc');
+            });
+        }
+
+        // Function to delete all notifications
+        function deleteAllNotifications() {
+            if (confirm('Bạn có chắc muốn xóa tất cả thông báo?')) {
+                fetch('@Url.Action("DeleteAllNotifications", "Home")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Hiển thị thông báo thành công
+                        showSuccessMessage(data.message);
+                        loadNotifications(); // Reload notifications
+                        loadNotificationCount(); // Reload count
+                    } else {
+                        showErrorMessage(data.message || 'Có lỗi xảy ra');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting notifications:', error);
+                    showErrorMessage('Có lỗi xảy ra khi xóa thông báo');
+                });
+            }
+        }
+
+        // Function to show success message
+        function showSuccessMessage(message) {
+            // Tạo toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification success';
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fa fa-check-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Hiển thị toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Function to show error message
+        function showErrorMessage(message) {
+            // Tạo toast notification
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification error';
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Hiển thị toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

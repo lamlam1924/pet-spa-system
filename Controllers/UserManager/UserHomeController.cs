@@ -94,6 +94,8 @@ namespace pet_spa_system1.Controllers
             return PartialView("_ChangePasswordPartial", model);
         }
 
+
+
         public async Task<IActionResult> NotificationsPartial()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
@@ -130,7 +132,6 @@ namespace pet_spa_system1.Controllers
 
             return await NotificationsPartial();
         }
-
 
         public IActionResult ListPetPartial()
         {
@@ -193,6 +194,19 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[UserHomeController] Attempting to delete pet... PetId: " + id + ", UserId: " + userId);
                 await _petService.DeletePetAsync(id);
                 Console.WriteLine("[UserHomeController] Pet deleted successfully, PetId: " + id);
+                
+                // Tạo thông báo khi xóa thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Xóa thú cưng thành công",
+                    Message = $"Thú cưng '{pet.Name}' đã được xóa khỏi hồ sơ của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Xóa thú cưng thành công!" });
             }
             catch (Exception ex)
@@ -319,6 +333,19 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[UserHomeController] Attempting to update pet... IsActive before: " + existingPet.IsActive);
                 await _petService.UpdatePetAsync(existingPet, images);
                 Console.WriteLine("[UserHomeController] Pet updated successfully, PetId: " + existingPet.PetId + ", IsActive after: " + existingPet.IsActive);
+                
+                // Tạo thông báo khi cập nhật thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Cập nhật thú cưng thành công",
+                    Message = $"Thông tin thú cưng '{existingPet.Name}' đã được cập nhật.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Cập nhật thú cưng thành công!" });
             }
             catch (Exception ex)
@@ -371,6 +398,18 @@ namespace pet_spa_system1.Controllers
             {
                 return await Hoso(errorMessage: result.Message ?? "Cập nhật thất bại.");
             }
+
+            // Tạo thông báo khi cập nhật hồ sơ thành công
+            var notification = new Notification
+            {
+                UserId = userId.Value,
+                Title = "Cập nhật hồ sơ thành công",
+                Message = $"Thông tin hồ sơ của bạn đã được cập nhật thành công.",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            };
+            
+            await _notificationService.AddAsync(notification);
 
             HttpContext.Session.SetString("CurrentUserName", user.Username);
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
@@ -438,6 +477,19 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[UserHomeController] Attempting to add pet... Name: " + pet.Name);
                 await _petService.CreatePetAsync(pet, images);
                 Console.WriteLine("[UserHomeController] Pet added successfully, PetId: " + pet.PetId);
+                
+                // Tạo thông báo khi thêm thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Thêm thú cưng thành công",
+                    Message = $"Thú cưng '{pet.Name}' đã được thêm vào hồ sơ của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                
+                await _notificationService.AddAsync(notification);
+                
                 return Json(new { success = true, message = "Thêm thú cưng thành công!" });
             }
             catch (Exception ex)
