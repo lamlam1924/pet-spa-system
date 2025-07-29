@@ -31,25 +31,14 @@ namespace pet_spa_system1.Repositories
         List<Appointment> GetPendingAppointments();
         List<Appointment> GetPendingCancelAppointments();
 
-        List<Appointment> GetUpcomingAppointmentsByEmployeeId(int employeeId);
+
         List<Appointment> GetPendingApprovalAppointments();
 
         int CountPendingApprovalAppointments();
         int CountPendingCancelAppointments();
 
-        List<Appointment> GetAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0,
-            int page = 1,
-            int pageSize = 10);
-
-        int CountAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0);
+        List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter);
+        int CountAppointments(ViewModel.AppointmentFilter filter);
 
         List<Appointment> GetAppointmentsByDateRange(DateTime start, DateTime end);
 
@@ -64,6 +53,9 @@ namespace pet_spa_system1.Repositories
 
         List<MonthlyAppointmentStats> GetMonthlyStats(int year);
 
+        List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+
+        List<Appointment> GetAppointmentsByStatus(int statusId);
     }
 
     public class MonthlyAppointmentStats

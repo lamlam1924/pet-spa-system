@@ -1,15 +1,25 @@
 ﻿using pet_spa_system1.Models;
-using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModel;
-using System;
-using System.Collections.Generic;
-using pet_spa_system1.ViewModels;
+
 
 namespace pet_spa_system1.Services
 {
-
     public interface IAppointmentService
     {
+        /// <summary>
+        /// Gửi mail nhắc lịch cho các lịch hẹn sắp tới (trước 1 ngày)
+        /// </summary>
+        void SendUpcomingAppointmentReminders();
+
+        /// <summary>
+        /// Gửi mail thông báo cho khách hàng khi lịch hẹn được duyệt/gán hoặc bị từ chối/hủy
+        /// </summary>
+        /// <param name="appointmentId">Id lịch hẹn</param>
+        /// <param name="type">Kiểu thông báo: approved, rejected</param>
+        /// <param name="staffId">Id nhân viên được gán (nếu có)</param>
+        void SendAppointmentNotificationMail(int appointmentId, string type, int? staffId);
+
+        int CalculateDurationMinutes(int appointmentId);
         bool SaveAppointment(AppointmentViewModel vm, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
         Appointment GetAppointmentById(int appointmentId);
@@ -21,29 +31,16 @@ namespace pet_spa_system1.Services
         List<AdminAppointmentDetailViewModel> GetPendingAppointments();
         List<AdminAppointmentDetailViewModel> GetPendingCancelAppointments();
 
-        List<Appointment> GetAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0,
-            int page = 1,
-            int pageSize = 10);
-
-        int CountAppointments(
-            string searchTerm = "",
-            int statusId = 0,
-            DateTime? date = null,
-            int employeeId = 0);
+        List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter);
+        int CountAppointments(ViewModel.AppointmentFilter filter);
 
         List<StatusAppointment> GetAllStatuses();
         List<User> GetEmployees();
-
-        List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
-
-        Appointment GetAppointmentDetails(int id);
+        List<User> GetCustomers();
+        List<User> GetAllCustomersAndStaffs();
 
         AppointmentViewModel PrepareCreateViewModel();
-        bool CreateAppointment(AppointmentViewModel model);
+        bool CreateAppointment(AppointmentViewModel model, out int newAppointmentId);
 
         AppointmentViewModel PrepareEditViewModel(int id);
         bool UpdateAppointment(AppointmentViewModel model);
@@ -56,8 +53,8 @@ namespace pet_spa_system1.Services
         /// <summary>
         /// User gửi yêu cầu hủy lịch hẹn (chuyển trạng thái sang PendingCancel)
         /// </summary>
-        /// <param name = "appointmentId" ></ param >
-        /// < param name="userId"></param>
+        /// <param name="appointmentId"></param>
+        /// <param name="userId"></param>
         /// <returns>true nếu thành công, false nếu thất bại</returns>
         bool RequestCancelAppointment(int appointmentId, int userId);
 
@@ -66,25 +63,26 @@ namespace pet_spa_system1.Services
         /// <summary>
         /// Lấy danh sách lịch hẹn cần duyệt (status 6 hoặc 7)
         /// </summary>
-        List<Appointment> GetPendingApprovalAppointments();
+        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "",
+            string service = "", string status = "");
         // Gửi mail khi duyệt lịch hoặc duyệt hủy
-        bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
-
+        // bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
         // Thêm API lấy chi tiết lịch hẹn cho modal
         AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
+        List<AppointmentViewModel> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+        RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
+        bool TryUpdateAppointmentStaff(int appointmentId, int newStaffId);
 
-        // AppointmentServiceImage
-        IEnumerable<AppointmentServiceImage> GetImagesByAppointmentServiceId(int appointmentServiceId);
-        AppointmentServiceImage? GetImageById(int imageId);
-        void AddImage(AppointmentServiceImage image);
-        void DeleteImage(int imageId);
+        bool ApproveAndAssignStaff(int appointmentId, int staffId);
+        ApproveAssignResult AdminApproveAndAssignStaff(ApproveAssignRequest request);
 
-        // AppointmentServiceStatus
-        IEnumerable<AppointmentServiceStatus> GetAllServiceStatuses();
-        AppointmentServiceStatus? GetServiceStatusById(int statusId);
-        void AddServiceStatus(AppointmentServiceStatus status);
-        void DeleteServiceStatus(int statusId);
+        int? AutoAssignStaffForAppointment(Appointment appointment);
 
-        public List<EmployeeScheduleViewModel> GetUpcomingScheduleByEmployee(int employeeId);
+        bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
+        AdminAppointmentDetailViewModel PrepareAdminEditViewModel(int id);
+        void UpdateAppointmentFromAdminDetail(AdminAppointmentDetailViewModel vm);
+        List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
+        List<Pet> GetAllPets();
+        List<Service> GetAllServices();
     }
 }

@@ -32,7 +32,7 @@
         <!-- Container Fluid-->
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Pet Shop Dashboard</h1>
+            <h1 class="h3 mb-0 text-gray-800">Trang Chủ Quản Lí Pet Shop</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="@Url.Content("~/Admin/Index")">Home</a></li>
               <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
@@ -46,21 +46,21 @@
                 <div class="card-body">
                   <div class="row align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">Monthly Revenue</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">$45,000</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
+                      <div class="text-xs font-weight-bold text-uppercase mb-1">Doanh thu Tháng này</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalRevenue.ToString("N0") đ</div>
+                      @* <div class="mt-2 mb-0 text-muted text-xs">
                         <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 4.2%</span>
                         <span>Since last month</span>
-                      </div>
+                      </div> *@
                     </div>
                     <div class="col-auto">
-                      <i class="fas fa-dollar-sign fa-2x text-primary"></i>
+                      <i class="fas fa-money-bill fa-2x text-success"></i>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <!-- Pet Adoptions Card -->
+            @* <!-- Pet Adoptions Card -->
             <div class="col-xl-3 col-md-6 mb-4">
               <div class="card h-100">
                 <div class="card-body">
@@ -79,19 +79,19 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> *@
             <!-- New Customers Card -->
             <div class="col-xl-3 col-md-6 mb-4">
               <div class="card h-100">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">New Customers</div>
-                      <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">450</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
+                      <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng Người Dùng</div>
+                       <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">@ViewBag.UserCount</div>
+                      @* <div class="mt-2 mb-0 text-muted text-xs">
                         <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 18.5%</span>
                         <span>Since last month</span>
-                      </div>
+                      </div> *@
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-users fa-2x text-info"></i>
@@ -106,12 +106,12 @@
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-uppercase mb-1">Pending Orders</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">25</div>
-                      <div class="mt-2 mb-0 text-muted text-xs">
+                      <div class="text-xs font-weight-bold text-uppercase mb-1">Đơn hàng Chờ xử lý</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.PendingOrders</div>
+                      @* <div class="mt-2 mb-0 text-muted text-xs">
                         <span class="text-danger mr-2"><i class="fas fa-arrow-down"></i> 2.5%</span>
                         <span>Since yesterday</span>
-                      </div>
+                      </div> *@
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-shopping-cart fa-2x text-warning"></i>

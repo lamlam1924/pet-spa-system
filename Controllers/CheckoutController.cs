@@ -14,15 +14,18 @@ public class CheckoutController : Controller
     private readonly ICartService _cartService; // Thêm ICartService để truy cập giỏ hàng
 private readonly IEmailService _emailService;
 private readonly IPaymentService _paymentService;
+    private readonly IProductService _productService;
 
-public CheckoutController(ICheckoutService checkoutService, IConfiguration configuration, ICartService cartService, IEmailService emailService, IPaymentService paymentService)
-{
-    _checkoutService = checkoutService;
-    _configuration = configuration;
-    _cartService = cartService;
-    _emailService = emailService;
-    _paymentService = paymentService;
-}
+public CheckoutController(ICheckoutService checkoutService, IConfiguration configuration, ICartService cartService, IEmailService emailService, IPaymentService paymentService, IProductService productService)
+    {
+        _checkoutService = checkoutService;
+        _configuration = configuration;
+        _cartService = cartService;
+        _emailService = emailService;
+        _paymentService = paymentService;
+        _productService = productService;
+       
+    }
 
     [HttpGet]
     public async Task<IActionResult> Checkout()
@@ -235,11 +238,22 @@ public async Task<IActionResult> PaymentCallbackVnpay()
 };
         _paymentService.AddPayment(payment);
 
-        // XÓA GIỎ HÀNG SAU KHI THANH TOÁN THÀNH CÔNG
-        await _cartService.ClearCartAsync(order.UserId);
+            // XÓA GIỎ HÀNG SAU KHI THANH TOÁN THÀNH CÔNG
+            foreach (var item in order.OrderItems)
+            {
+                // Lấy sản phẩm từ item
+                var product = item.Product;
 
-        // Truyền ViewModel sang View
-        return View("PaymentSuccess", orderVm);
+                // Trừ số lượng đặt mua vào tồn kho
+                product.Stock -= item.Quantity;
+
+                // Cập nhật lại sản phẩm
+                await _productService.UpdateProductAsync(product);
+            }
+
+
+            // Truyền ViewModel sang View
+            return View("PaymentSuccess", orderVm);
     }
     else
     {

@@ -1,252 +1,228 @@
-using System;
-using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Mail;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Configuration;
-using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
-using pet_spa_system1.ViewModels;
-using RouteData = Microsoft.AspNetCore.Routing.RouteData;
+
 namespace pet_spa_system1.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
-        private readonly IRazorViewEngine _viewEngine;
-        private readonly ITempDataProvider _tempDataProvider;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _smtpServer;
+        private readonly int _smtpPort;
+        private readonly string _smtpUser;
+        private readonly string _smtpPass;
+        private readonly string _fromEmail;
+        private readonly string _fromName;
 
-        public EmailService(
-            IConfiguration config,
-            IRazorViewEngine viewEngine,
-            ITempDataProvider tempDataProvider,
-            IServiceProvider serviceProvider,
-            IHttpContextAccessor httpContextAccessor)
+        public EmailService(IConfiguration configuration)
         {
-            _config = config;
-            _viewEngine = viewEngine;
-            _tempDataProvider = tempDataProvider;
-            _serviceProvider = serviceProvider;
-            _httpContextAccessor = httpContextAccessor;
+            var emailSection = configuration.GetSection("EmailSettings");
+            _smtpServer = emailSection["SmtpServer"] ?? "";
+            _smtpPort = int.TryParse(emailSection["SmtpPort"], out var port) ? port : 587;
+            _smtpUser = emailSection["SmtpUser"] ?? "";
+            _smtpPass = emailSection["SmtpPass"] ?? "";
+            _fromName = emailSection["FromName"] ?? "Pet Spa";
+            _fromEmail = _smtpUser;
         }
 
-        public void SendBookingConfirmation(AppointmentViewModel viewModel)
+        public void SendTestEmail(string to)
         {
-            // Lấy cấu hình email
-            var smtpServer = _config["EmailSettings:SmtpServer"];
-            var smtpPortStr = _config["EmailSettings:SmtpPort"];
-            int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
-            var smtpUser = _config["EmailSettings:SmtpUser"];
-            var smtpPass = _config["EmailSettings:SmtpPass"];
-            var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
-
-            if (string.IsNullOrWhiteSpace(smtpUser))
-            {
-                throw new InvalidOperationException("EmailSettings:SmtpUser chưa được cấu hình hoặc bị null.");
-            }
-
-            try
-            {
-                // Render Razor view thành HTML string
-                string viewPath = "/Views/Email/SuccessEmail.cshtml";
-                string emailBody = RenderViewToString(viewPath, viewModel);
-
-                var client = new SmtpClient(smtpServer, smtpPort)
-                {
-                    EnableSsl = true,
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(smtpUser, smtpPass)
-                };
-                var fromAddress = new MailAddress(smtpUser, fromName);
-                var toAddress = new MailAddress(viewModel.Email, viewModel.CustomerName);
-                var message = new MailMessage(fromAddress, toAddress)
-                {
-                    Subject = "Xác nhận đặt lịch dịch vụ thành công - SPA Thú Cưng",
-                    IsBodyHtml = true,
-                    Body = emailBody
-                };
-                try
-                {
-                    client.Send(message);
-                    Debug.WriteLine("[Email] Đã gửi email xác nhận thành công");
-                }
-                finally
-                {
-                    message.Dispose();
-                    client.Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Email Error] Lỗi gửi email: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Debug.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
-                }
-                throw;
-            }
+            string subject = "[Pet Spa] Test Email";
+            string body = $"<h3>Đây là email test gửi từ hệ thống Pet Spa.</h3><p>Thời gian: {DateTime.Now}</p>";
+            SendEmail(to, subject, body);
         }
 
         public void SendOrderConfirmation(OrderConfirmationViewModel viewModel)
         {
-            var smtpServer = _config["EmailSettings:SmtpServer"];
-            var smtpPortStr = _config["EmailSettings:SmtpPort"];
-            int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
-            var smtpUser = _config["EmailSettings:SmtpUser"];
-            var smtpPass = _config["EmailSettings:SmtpPass"];
-            var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
-
-            Console.WriteLine($"SMTP: {smtpServer}, PORT: {smtpPort}, USER: {smtpUser}");
-            Debug.WriteLine($"SMTP: {smtpServer}, PORT: {smtpPort}, USER: {smtpUser}");
-
-            if (string.IsNullOrWhiteSpace(smtpUser))
-                throw new InvalidOperationException("EmailSettings:SmtpUser chưa được cấu hình hoặc bị null.");
-
-            try
-            {
-                string viewPath = "/Views/Email/OrderSuccessEmail.cshtml";
-                string emailBody = RenderViewToString(viewPath, viewModel);
-
-                var client = new SmtpClient(smtpServer, smtpPort)
-                {
-                    EnableSsl = true,
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(smtpUser, smtpPass)
-                };
-                var fromAddress = new MailAddress(smtpUser, fromName);
-                var toAddress = new MailAddress(viewModel.Email, viewModel.CustomerName);
-                var message = new MailMessage(fromAddress, toAddress)
-                {
-                    Subject = "Xác nhận đặt hàng thành công - SPA Thú Cưng",
-                    IsBodyHtml = true,
-                    Body = emailBody
-                };
-                try
-                {
-                   
-
-                    client.Send(message);
-                    Debug.WriteLine("[Email] Đã gửi email xác nhận đơn hàng thành công");
-                }
-                finally
-                {
-                    message.Dispose();
-                    client.Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Email Error] Lỗi gửi email: {ex.Message}");
-                if (ex.InnerException != null)
-                    Debug.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
-                throw;
-            }
+            string subject = $"[Pet Spa] Xác nhận đơn hàng #{viewModel.OrderId}";
+            string body =
+                $"<h3>Xin chào {viewModel.CustomerName},</h3><p>Đơn hàng của bạn đã được xác nhận.</p><p>Mã đơn: {viewModel.OrderId}</p>";
+            SendEmail(viewModel.Email, subject, body);
         }
 
-        // Render Razor view ra string (tích hợp logic từ RazorViewToStringRenderer)
-        private string RenderViewToString(string viewPath, object model)
-        {
-            var actionContext = new ActionContext(
-                _httpContextAccessor.HttpContext ?? new DefaultHttpContext { RequestServices = _serviceProvider },
-                new RouteData(),
-                new ActionDescriptor()
-            );
-
-            var viewResult = _viewEngine.GetView(executingFilePath: null, viewPath: viewPath, isMainPage: true);
-            if (!viewResult.Success)
-            {
-                throw new FileNotFoundException($"View {viewPath} not found.");
-            }
-
-            var viewDictionary = new ViewDataDictionary(
-                new EmptyModelMetadataProvider(),
-                new ModelStateDictionary())
-            {
-                Model = model
-            };
-
-            using (var sw = new StringWriter())
-            {
-                var viewContext = new ViewContext(
-                    actionContext,
-                    viewResult.View,
-                    viewDictionary,
-                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
-                    sw,
-                    new HtmlHelperOptions()
-                );
-
-                var renderTask = viewResult.View.RenderAsync(viewContext);
-                renderTask.GetAwaiter().GetResult();
-                return sw.ToString();
-            }
-
-        }
         public void SendEmailWithMessage(string title, string description, string email)
         {
-            // Lấy thông tin cấu hình email
-            var smtpServer = _config["EmailSettings:SmtpServer"];
-            var smtpPortStr = _config["EmailSettings:SmtpPort"];
-            int smtpPort = int.TryParse(smtpPortStr, out int port) ? port : 587;
-            var smtpUser = _config["EmailSettings:SmtpUser"];
-            var smtpPass = _config["EmailSettings:SmtpPass"];
-            var fromName = _config["EmailSettings:FromName"] ?? "SPA Thú Cưng";
+            string subject = title;
+            string body = $"<p>{description}</p>";
+            SendEmail(email, subject, body);
+        }
 
-            if (string.IsNullOrWhiteSpace(smtpUser))
-            {
-                throw new InvalidOperationException("EmailSettings:SmtpUser chưa được cấu hình hoặc bị null.");
-            }
+        public void SendAppointmentConfirmation(AppointmentConfirmationEmailModel model)
+        {
+            string subject = "[Pet Spa] Xác nhận lịch hẹn";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#f7b731;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Xác nhận lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Lịch hẹn của bạn tại <b>Pet Spa</b> đã được <span style='color:#27ae60;font-weight:bold;'>xác nhận</span>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thời gian:</td>
+                <td style='padding:8px 0;'><b>{model.AppointmentDateTime:dd/MM/yyyy HH:mm}</b></td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p>Địa chỉ Spa: <b>123 Đường ABC, Quận 1, TP.HCM</b><br/>
+        Hotline: <b>0123 456 789</b></p>
+        <p style='color:#888;font-size:13px;'>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+    </div>
+    <div style='background:#f7b731;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
+            SendEmail(model.ToEmail, subject, body);
+        }
 
+        public void SendAppointmentRejected(AppointmentRejectedEmailModel model)
+        {
+            string subject = "[Pet Spa] Lịch hẹn bị từ chối";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#f39c12;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Từ chối lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Rất tiếc, lịch hẹn của bạn tại <b>Pet Spa</b> đã bị <span style='color:#e67e22;font-weight:bold;'>từ chối</span>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thời gian:</td>
+                <td style='padding:8px 0;'><b>{model.ProposedDateTime:dd/MM/yyyy HH:mm}</b></td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p style='color:#888;font-size:13px;'>Nếu cần hỗ trợ, vui lòng liên hệ hotline <b>0123 456 789</b>.</p>
+    </div>
+    <div style='background:#f39c12;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
+            SendEmail(model.ToEmail, subject, body);
+        }
+
+        public void SendAppointmentCancelled(AppointmentCancelledEmailModel model)
+        {
+            string subject = "[Pet Spa] Lịch hẹn đã được hủy";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#e74c3c;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Hủy lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Chúng tôi xin thông báo lịch hẹn của bạn tại <b>Pet Spa</b> đã được <span style='color:#e74c3c;font-weight:bold;'>hủy</span>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thời gian:</td>
+                <td style='padding:8px 0;'><b>{model.AppointmentDateTime:dd/MM/yyyy HH:mm}</b></td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p style='color:#888;font-size:13px;'>Nếu có thắc mắc, vui lòng liên hệ hotline <b>0123 456 789</b>.<br/>Cảm ơn bạn đã quan tâm Pet Spa!</p>
+    </div>
+    <div style='background:#e74c3c;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
+            SendEmail(model.ToEmail, subject, body);
+        }
+
+        public void SendAppointmentReminder(AppointmentReminderEmailModel model)
+        {
+            string subject = "[Pet Spa] Nhắc lịch hẹn";
+            var serviceNames = string.Join(", ", model.SelectedServices.Select(s => s.Name));
+            var petNames = string.Join(", ", model.SelectedPets.Select(p => p.Name));
+            string body = $@"
+<div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;'>
+    <div style='background:#2980b9;padding:24px 32px;'>
+        <h2 style='color:#fff;margin:0;'>Pet Spa - Nhắc lịch hẹn</h2>
+    </div>
+    <div style='padding:24px 32px;background:#fff;'>
+        <p>Xin chào <b>{model.CustomerName}</b>,</p>
+        <p>Bạn có một lịch hẹn tại <b>Pet Spa</b> vào ngày <b>{model.AppointmentDateTime:dd/MM/yyyy HH:mm}</b>.</p>
+        <table style='width:100%;border-collapse:collapse;margin:16px 0;'>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Dịch vụ:</td>
+                <td style='padding:8px 0;'>{serviceNames}</td>
+            </tr>
+            <tr>
+                <td style='padding:8px 0;color:#888;'>Thú cưng:</td>
+                <td style='padding:8px 0;'>{petNames}</td>
+            </tr>
+        </table>
+        <p>Địa chỉ Spa: <b>123 Đường ABC, Quận 1, TP.HCM</b><br/>
+        Hotline: <b>0123 456 789</b></p>
+        <p style='color:#888;font-size:13px;'>Vui lòng đến đúng giờ để được phục vụ tốt nhất.<br/>Cảm ơn bạn đã tin tưởng Pet Spa!</p>
+    </div>
+    <div style='background:#2980b9;padding:12px 32px;text-align:center;color:#fff;font-size:13px;'>
+        &copy; {DateTime.Now.Year} Pet Spa. All rights reserved.
+    </div>
+</div>
+";
+            SendEmail(model.ToEmail, subject, body);
+        }
+
+        public void SendEmail(string to, string subject, string body)
+        {
+            string logPath = "email_debug.log";
             try
             {
-                var client = new SmtpClient(smtpServer, smtpPort)
+                var smtp = new SmtpClient(_smtpServer)
                 {
-                    EnableSsl = true,
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(smtpUser, smtpPass)
+                    Port = _smtpPort,
+                    Credentials = new NetworkCredential(_smtpUser, _smtpPass),
+                    EnableSsl = true
                 };
-
-                var fromAddress = new MailAddress(smtpUser, fromName);
-                var toAddress = new MailAddress(email);
-
-                var message = new MailMessage(fromAddress, toAddress)
+                var mail = new MailMessage()
                 {
-                    Subject = title,
-                    Body = description,
-                    IsBodyHtml = true // Cho phép dùng HTML nếu cần xuống dòng hoặc định dạng
+                    From = new MailAddress(_fromEmail, _fromName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
                 };
-
-                try
-                {
-                    client.Send(message);
-                    Debug.WriteLine($"[Email] Đã gửi email tới {email} với tiêu đề: {title}");
-                }
-                finally
-                {
-                    message.Dispose();
-                    client.Dispose();
-                }
+                mail.To.Add(to);
+                File.AppendAllText(logPath, $"[SEND] {DateTime.Now}: To={to}, Subject={subject}\nBody={body}\n\n");
+                smtp.Send(mail);
+                File.AppendAllText(logPath, $"[SUCCESS] {DateTime.Now}: Sent to {to}\n");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Email Error] Gửi email thất bại: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Debug.WriteLine($"[Email Error] Inner Exception: {ex.InnerException.Message}");
-                }
+                File.AppendAllText(logPath,
+                    $"[ERROR] {DateTime.Now}: To={to}, Subject={subject}, Error={ex.Message}\nStackTrace={ex.StackTrace}\n\n");
                 throw;
             }
         }
-
     }
 }

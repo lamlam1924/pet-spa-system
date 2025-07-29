@@ -69,7 +69,22 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
-           
+
+            DateTime now = DateTime.Now;
+            var totalRevenueThisMonth = _context.Payments
+                .Where(o => o.PaymentStatusId == 2
+                    && o.PaymentDate.Value.Month == now.Month
+                    && o.PaymentDate.Value.Year == now.Year)
+                .Sum(o => o.Amount);
+            ViewBag.TotalRevenue = totalRevenueThisMonth;
+
+            int userCount = _context.Users.Count();
+            ViewBag.UserCount = userCount;
+
+            int pendingOrders = _context.Orders.Count(o => o.StatusId==1);
+            ViewBag.PendingOrders = pendingOrders;
+
+
             ViewBag.Title = "Admin Dashboard";
             return View();
         }

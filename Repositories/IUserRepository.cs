@@ -26,4 +26,5 @@ public interface IUserRepository
     Task<List<StaffDocument>> GetDocumentsByStaffIdAsync(int staffId);
     Task AddStaffDocumentAsync(StaffDocument doc);
     Task<string> ResetStaffPasswordAsync(int staffId);
+    List<pet_spa_system1.ViewModel.StaffViewModel> GetStaffList();
 }

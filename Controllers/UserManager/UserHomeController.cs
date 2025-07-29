@@ -579,14 +579,14 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = $"Lỗi khi thêm thú cưng: {ex.Message}" });
             }
         }
-        public IActionResult EmployeeSchedulePartial()
-        {
-            int? employeeId = HttpContext.Session.GetInt32("CurrentUserId");
-            if (employeeId == null) return PartialView("_ErrorPartial", "Vui lòng đăng nhập.");
+        //public IActionResult EmployeeSchedulePartial()
+        //{
+        //    int? employeeId = HttpContext.Session.GetInt32("CurrentUserId");
+        //    if (employeeId == null) return PartialView("_ErrorPartial", "Vui lòng đăng nhập.");
 
-            var appointments = _appointmentService.GetUpcomingScheduleByEmployee(employeeId.Value);
-            return PartialView("_ScheduleEmployeePartial", appointments);
-        }
+        //    var appointments = _appointmentService.GetUpcomingScheduleByEmployee(employeeId.Value);
+        //    return PartialView("_ScheduleEmployeePartial", appointments);
+        //}
 
 
 

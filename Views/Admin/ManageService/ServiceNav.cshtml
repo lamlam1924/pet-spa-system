@@ -18,12 +18,12 @@
                     <i class="fas fa-list me-2"></i> Danh sách dịch vụ
                 </a>
             </li>
-            <li class="nav-item">
+            @* <li class="nav-item">
                 <a class="nav-link @(action == "ServiceCategory" ? "active" : "")" 
                    href="@Url.Action("ServiceCategory", "AdminService")">
                     <i class="fas fa-folder me-2"></i> Quản lý danh mục
                 </a>
-            </li>
+            </li> *@
             <li class="nav-item">
                 <a class="nav-link @(action == "AddService" ? "active" : "")" 
                    href="@Url.Action("AddService", "AdminService")">

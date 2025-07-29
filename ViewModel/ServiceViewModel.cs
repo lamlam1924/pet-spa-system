@@ -231,6 +231,9 @@ namespace pet_spa_system1.ViewModel
         public int TotalServices => Summary?.TotalServices ?? 0;
         public int ActiveServices => Summary?.ActiveServices ?? 0;
         public int InactiveServices => Summary?.InactiveServices ?? 0;
+        public string Name { get; set; } = string.Empty;
+        public int Duration { get; set; } // in minutes
+        public decimal Price { get; set; }
     }
 
     // (Đã dọn, chỉ giữ lại 1 class ServiceInputViewModel ở trên)
@@ -240,4 +243,3 @@ namespace pet_spa_system1.ViewModel
         public Dictionary<int, int> ServiceCountsByCategory { get; set; } = new Dictionary<int, int>();
     }
 }
-
