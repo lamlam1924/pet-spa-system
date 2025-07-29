@@ -31,7 +31,7 @@
 
 <body>
     <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+            <p class="browserupgrade">Bạn đang sử dụng trình duyệt <strong>cũ</strong>. Vui lòng <a href="https://browsehappy.com/">nâng cấp trình duyệt</a> để cải thiện trải nghiệm và bảo mật.</p>
         <![endif]-->
     <!-- header_start  -->
     
@@ -482,11 +482,11 @@
             const service = event.target.service.value;
 
             if (!name || !phone || !service) {
-            alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+            showToast('Vui lòng điền đầy đủ thông tin bắt buộc!', 'warning');
             return;
             }
 
-            alert(`Cảm ơn ${name}, bạn đã đặt lịch dịch vụ "${service}" thành công!`);
+            showToast(`Cảm ơn ${name}, bạn đã đặt lịch dịch vụ "${service}" thành công!`, 'success');
             event.target.reset();
             popup.style.display = 'none';
         }

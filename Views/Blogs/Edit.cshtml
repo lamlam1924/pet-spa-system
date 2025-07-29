@@ -144,7 +144,7 @@
 
         function uploadImageToEditor(file) {
             if (!file.type.match('image.*')) {
-                alert('Chỉ cho phép hình ảnh');
+                showToast('Chỉ cho phép hình ảnh', 'warning');
                 return;
             }
 

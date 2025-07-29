@@ -226,6 +226,89 @@ namespace pet_spa_system1.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> AddPetPartial()
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để thêm thú cưng.");
+            }
+
+            var species = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+            var model = new PetDetailViewModel
+            {
+                SpeciesList = species
+            };
+            return PartialView("AddPetPartial", model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPet(PetDetailViewModel model, IFormFile ImageFile)
+        {
+            Console.WriteLine("[UserHomeController] AddPet POST called");
+            Console.WriteLine($"Received data: Name={model.Pet?.Name}, SpeciesId={model.Pet?.SpeciesId}, " +
+                              $"Breed={model.Pet?.Breed}, Age={model.Pet?.Age}, Gender={model.Pet?.Gender}, " +
+                              $"SpecialNotes={model.Pet?.SpecialNotes}, ImageFile={ImageFile?.FileName}");
+
+
+            ModelState.Remove("ImageFile");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
+                model.SpeciesList = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+                return PartialView("AddPetPartial", model);
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                Console.WriteLine("[UserHomeController] UserId is null, returning ErrorPartial");
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để thêm thú cưng.");
+            }
+
+            var pet = model.Pet;
+            pet.UserId = userId.Value;
+            pet.CreatedAt = DateTime.Now;
+            pet.IsActive = true;
+
+            var images = ImageFile != null ? new List<IFormFile> { ImageFile } : new List<IFormFile>();
+            try
+            {
+                Console.WriteLine("[UserHomeController] Attempting to add pet... Name: " + pet.Name);
+                await _petService.CreatePetAsync(pet, images);
+                Console.WriteLine("[UserHomeController] Pet added successfully, PetId: " + pet.PetId);
+
+                // Tạo thông báo khi thêm thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Thêm thú cưng thành công",
+                    Message = $"Thú cưng '{pet.Name}' đã được thêm vào hồ sơ của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+
+                await _notificationService.AddAsync(notification);
+
+                return Json(new { success = true, message = "Thêm thú cưng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[UserHomeController] Error adding pet: " + ex.Message + " - StackTrace: " + ex.StackTrace);
+                return Json(new { success = false, message = $"Lỗi khi thêm thú cưng: {ex.Message}" });
+            }
+        }
 
     }
 
@@ -233,5 +316,6 @@ namespace pet_spa_system1.Controllers
     {
         public int appointmentId { get; set; }
     }
+
     
 }

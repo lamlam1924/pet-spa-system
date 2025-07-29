@@ -375,7 +375,7 @@
               // Reload the page to show the new payment in the table
               window.location.reload();
             },
-            error: function() { alert('Add payment failed!'); }
+            error: function() { showToast('Add payment failed!', 'error'); }
           });
         });
 

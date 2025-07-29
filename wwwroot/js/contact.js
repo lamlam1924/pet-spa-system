@@ -6,7 +6,7 @@ $(document).ready(function(){
     
     jQuery.validator.addMethod('answercheck', function (value, element) {
         return this.optional(element) || /^\bcat\b$/.test(value)
-    }, "type the correct answer -_-");
+    }, "nhập câu trả lời đúng");
 
     // validate contactForm form
     $(function() {
@@ -35,23 +35,23 @@ $(document).ready(function(){
             },
             messages: {
                 name: {
-                    required: "come on, you have a name, don't you?",
-                    minlength: "your name must consist of at least 2 characters"
+                    required: "Vui lòng nhập tên của bạn",
+                    minlength: "Tên phải có ít nhất 2 ký tự"
                 },
                 subject: {
-                    required: "come on, you have a subject, don't you?",
-                    minlength: "your subject must consist of at least 4 characters"
+                    required: "Vui lòng nhập chủ đề",
+                    minlength: "Chủ đề phải có ít nhất 4 ký tự"
                 },
                 number: {
-                    required: "come on, you have a number, don't you?",
-                    minlength: "your Number must consist of at least 5 characters"
+                    required: "Vui lòng nhập số điện thoại",
+                    minlength: "Số điện thoại phải có ít nhất 5 ký tự"
                 },
                 email: {
-                    required: "no email, no message"
+                    required: "Vui lòng nhập email"
                 },
                 message: {
-                    required: "um...yea, you have to write something to send this form.",
-                    minlength: "thats all? really?"
+                    required: "Vui lòng nhập nội dung tin nhắn",
+                    minlength: "Nội dung phải có ít nhất 20 ký tự"
                 }
             },
             submitHandler: function(form) {

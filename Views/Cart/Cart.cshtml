@@ -261,7 +261,7 @@ function updateQuantity(productId, action) {
             }
         },
         error: function () {
-            alert("Có lỗi xảy ra!");
+            showToast("Có lỗi xảy ra!", "error");
         }
     });
 }
