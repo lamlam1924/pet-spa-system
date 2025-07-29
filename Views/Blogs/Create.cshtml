@@ -465,7 +465,7 @@
                 
                 // Add fallback for generate content
                 $('#generateContentBtn').click(function() {
-                    alert('Trình soạn thảo không khả dụng. Vui lòng nhập nội dung thủ công.');
+                    showToast('Trình soạn thảo không khả dụng. Vui lòng nhập nội dung thủ công.', 'warning');
                 });
             }
 
@@ -476,7 +476,7 @@
                 const category = $('#Category').val();
 
                 if (!title || !content) {
-                    alert('Vui lòng nhập tiêu đề và nội dung trước khi xem trước.');
+                    showToast('Vui lòng nhập tiêu đề và nội dung trước khi xem trước.', 'warning');
                     return;
                 }
 
@@ -497,14 +497,14 @@
                     // Prevent submission if generating content
                     if (isGeneratingContent) {
                         e.preventDefault();
-                        alert('Vui lòng chờ quá trình tạo nội dung hoàn tất.');
+                        showToast('Vui lòng chờ quá trình tạo nội dung hoàn tất.', 'warning');
                         return false;
                     }
 
                     const content = $('#contentEditor').summernote('code') || $('#Content').val();
                     if (!content || content.trim() === '<p><br></p>' || content.trim() === '') {
                         e.preventDefault();
-                        alert('Vui lòng nhập nội dung bài viết.');
+                        showToast('Vui lòng nhập nội dung bài viết.', 'warning');
                         return false;
                     }
                     $('#Content').val(content); // Đảm bảo giá trị được gửi đi
@@ -513,7 +513,7 @@
                 } catch (error) {
                     console.error('Error in form submission:', error);
                     e.preventDefault();
-                    alert('Có lỗi xảy ra khi gửi form: ' + error.message);
+                    showToast('Có lỗi xảy ra khi gửi form: ' + error.message, 'error');
                     return false;
                 }
             });
@@ -521,11 +521,11 @@
             // Define uploadImageToEditor function inside document ready
             function uploadImageToEditor(file) {
                 if (!file.type.match('image.*')) {
-                    alert('Vui lòng chọn file hình ảnh!');
+                    showToast('Vui lòng chọn file hình ảnh!', 'warning');
                     return;
                 }
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+                    showToast('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.', 'warning');
                     return;
                 }
 
@@ -543,7 +543,7 @@
                     
                     const keyword = $('#keywordInput').val().trim();
                     if (!keyword) {
-                        alert("Vui lòng nhập từ khóa.");
+                        showToast("Vui lòng nhập từ khóa.", "warning");
                         return;
                     }
 
@@ -641,7 +641,7 @@
                     });
                 } catch (error) {
                     console.error('Unexpected error in generate content:', error);
-                    alert('Có lỗi không mong muốn xảy ra: ' + error.message);
+                    showToast('Có lỗi không mong muốn xảy ra: ' + error.message, 'error');
                     isGeneratingContent = false;
                 }
             });

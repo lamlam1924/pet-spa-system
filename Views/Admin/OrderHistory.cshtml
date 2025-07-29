@@ -479,7 +479,7 @@
         console.log("OrderId click:", orderId);
 
         if (isNaN(orderId)) {
-            alert("Order ID không hợp lệ!");
+            showToast("Order ID không hợp lệ!", "warning");
             return;
         }
 
@@ -489,7 +489,7 @@
             console.log("API result:", result);
 
             if (!result.success) {
-                alert(result.message || "Không thể tải chi tiết đơn hàng.");
+                showToast(result.message || "Không thể tải chi tiết đơn hàng.", "error");
               return;
             }
 
@@ -573,7 +573,7 @@
 
             $('#viewOrderModal').modal('show');
         } catch (error) {
-            alert("Lỗi khi tải dữ liệu đơn hàng: " + error.message);
+            showToast("Lỗi khi tải dữ liệu đơn hàng: " + error.message, "error");
         }
           }
         });

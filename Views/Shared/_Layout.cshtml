@@ -14,11 +14,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- CSS here - Bootstrap PHẢI được load TRƯỚC các CSS khác -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
 
     <link rel="stylesheet" href="@Url.Content("~/css/owl.carousel.min.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/magnific-popup.css")">
@@ -29,6 +27,7 @@
     <link rel="stylesheet" href="@Url.Content("~/css/animate.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/slicknav.css")">
     <link rel="stylesheet" href="@Url.Content("~/css/style.css")">
+    <link rel="stylesheet" href="@Url.Content("~/css/toast-notifications.css")">
 
     @RenderSection("Styles", required: false)
     @* Fallback CSS nếu không có section *@
@@ -151,74 +150,6 @@
             position: relative;
         }
         
-        /* Notification dropdown styling */
-        #notification-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        #notification-list li {
-            border-bottom: 1px solid #f0f0f0;
-            padding: 8px 0;
-        }
-        
-        #notification-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .notification-badge {
-            transition: all 0.3s ease;
-        }
-        
-        /* Toast Notification Styles */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 16px 20px;
-            min-width: 300px;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            border-left: 4px solid;
-        }
-        
-        .toast-notification.show {
-            transform: translateX(0);
-        }
-        
-        .toast-notification.success {
-            border-left-color: #28a745;
-        }
-        
-        .toast-notification.error {
-            border-left-color: #dc3545;
-        }
-        
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .toast-notification.success .toast-content i {
-            color: #28a745;
-            font-size: 18px;
-        }
-        
-        .toast-notification.error .toast-content i {
-            color: #dc3545;
-            font-size: 18px;
-        }
-        
-        .toast-content span {
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
         /* Fix dropdown to show below button without covering it */
         .dropdown-menu {
             margin-top: 5px !important;
@@ -233,7 +164,7 @@
         }
     </style>
 </head>
-<body>
+<body style="max-width:100%; margin:0; padding:0; ">
     <header>
         <div class="header-area ">
             <div class="header-top_area">
@@ -314,7 +245,6 @@
                                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser" style="z-index: 1053; position: absolute; right: 0; min-width: 200px;">
                                             <li>
                                                 <a class="dropdown-item" href="@Url.Action("Index", "UserHome")">Trang cá nhân</a>
-
                                             </li>
                                             <li>
                                                 <a class="dropdown-item" href="@Url.Action("History", "Appointment")">Xem dịch vụ</a>
@@ -510,8 +440,7 @@
 
 <!-- Bootstrap 5 JS (bundle đã bao gồm Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- 3. Modernizr -->
     <script src="@Url.Content("~/js/vendor/modernizr-3.5.0.min.js")"></script>
 
@@ -561,7 +490,7 @@
 
                 $.post('/Cart/AddToCartAjax', { id: productId }, function (response) {
                     if (!response.success) {
-                        alert(response.message);
+                        showToast(response.message, 'error');
                         return;
                     }
 
@@ -618,6 +547,7 @@
     </script>
     <!-- 5. Main JS cuối cùng -->
     <script src="@Url.Content("~/js/main.js")"></script>
+    <script src="@Url.Content("~/js/toast-utils.js")"></script>
 
     <!-- 6. Script riêng cho datepicker và timepicker -->
     <script>
@@ -846,50 +776,58 @@
 
         // Function to show success message
         function showSuccessMessage(message) {
-            // Tạo toast notification
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification success';
-            toast.innerHTML = `
-                <div class="toast-content">
-                    <i class="fa fa-check-circle"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Hiển thị toast
-            setTimeout(() => toast.classList.add('show'), 100);
-            
-            // Tự động ẩn sau 3 giây
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            if (typeof ToastUtils !== 'undefined') {
+                ToastUtils.success(message);
+            } else {
+                // Fallback to old method
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification success';
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="fa fa-check-circle"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Hiển thị toast
+                setTimeout(() => toast.classList.add('show'), 100);
+                
+                // Tự động ẩn sau 3 giây
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
         }
 
         // Function to show error message
         function showErrorMessage(message) {
-            // Tạo toast notification
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification error';
-            toast.innerHTML = `
-                <div class="toast-content">
-                    <i class="fa fa-exclamation-circle"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Hiển thị toast
-            setTimeout(() => toast.classList.add('show'), 100);
-            
-            // Tự động ẩn sau 3 giây
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            if (typeof ToastUtils !== 'undefined') {
+                ToastUtils.error(message);
+            } else {
+                // Fallback to old method
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification error';
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="fa fa-exclamation-circle"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Hiển thị toast
+                setTimeout(() => toast.classList.add('show'), 100);
+                
+                // Tự động ẩn sau 3 giây
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
         }
     </script>
 </body>

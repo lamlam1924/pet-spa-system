@@ -14,11 +14,11 @@ $(document).ready(function() {
                 if (response.success) {
                     location.reload();
                 } else {
-                    alert(response.message || 'Có lỗi xảy ra khi cập nhật trạng thái.');
+                    showToast(response.message || 'Có lỗi xảy ra khi cập nhật trạng thái.', 'error');
                 }
             },
             error: function() {
-                alert('Đã xảy ra lỗi khi kết nối với máy chủ.');
+                showToast('Đã xảy ra lỗi khi kết nối với máy chủ.', 'error');
             }
         });
     });

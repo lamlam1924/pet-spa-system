@@ -260,9 +260,9 @@
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 if (this.textContent.includes('Gọi nhân viên')) {
-                    alert('Đang kết nối với nhân viên Trần Thị B...');
+                    showToast('Đang kết nối với nhân viên Trần Thị B...', 'info');
                 } else if (this.textContent.includes('Xem ảnh')) {
-                    alert('Chức năng xem ảnh theo thời gian thực sẽ được cập nhật sớm!');
+                    showToast('Chức năng xem ảnh theo thời gian thực sẽ được cập nhật sớm!', 'info');
                 }
             });
         });

@@ -737,7 +737,7 @@
                                 })
                                 .catch(error => {
                                     console.error('Error fetching users:', error);
-                                    alert('Error loading users: ' + error.message);
+                                    showToast('Error loading users: ' + error.message, 'error');
                                 });
                         }
 
@@ -969,7 +969,7 @@
                                 })
                                 .catch(error => {
                                     console.error('Error fetching deleted users:', error);
-                                    alert('Error loading deleted users: ' + error.message);
+                                    showToast('Error loading deleted users: ' + error.message, 'error');
                                 });
                         }
 
@@ -1047,7 +1047,7 @@
                                     const roleField = document.getElementById("edit-role");
 
                                     if (!usernameField || !emailField || !fullNameField || !roleField) {
-                                        alert('Please fill all required fields');
+                                        showToast('Please fill all required fields', 'warning');
                                         return;
                                     }
 
@@ -1066,12 +1066,12 @@
 
                                     // Validation
                                     if (!data.username.trim() || !data.email.trim() || !data.fullName.trim()) {
-                                        alert('Username, email and full name are required');
+                                        showToast('Username, email and full name are required', 'warning');
                                         return;
                                     }
 
                                     if (!data.roleId) {
-                                        alert('Please select a role');
+                                        showToast('Please select a role', 'warning');
                                         return;
                                     }
 
@@ -1102,11 +1102,11 @@
 
                                         // Reload user list
                                         fetchUsers();
-                                        alert(isNew ? 'User created successfully' : 'User updated successfully');
+                                        showToast(isNew ? 'User created successfully' : 'User updated successfully', 'success');
                                     })
                                     .catch(err => {
                                         console.error('Save error:', err);
-                                        alert("Save error: " + err.message);
+                                        showToast("Save error: " + err.message, 'error');
                                     });
                                 });
                             }
