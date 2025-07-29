@@ -23,7 +23,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -31,6 +30,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+    @{ TempData.Remove("SuccessMessage"); TempData.Remove("ErrorMessage"); }
 
     <div class="card shadow border-0">
         <div class="card-header bg-white py-3">

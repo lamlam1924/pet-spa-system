@@ -42,6 +42,7 @@
                             </button>
                         </div>
                     }
+                    @{ TempData.Remove("SuccessMessage"); TempData.Remove("ErrorMessage"); }
 
                     <form id="addPetForm" asp-action="Add_New_Pet" asp-controller="Admin" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                         @Html.AntiForgeryToken()

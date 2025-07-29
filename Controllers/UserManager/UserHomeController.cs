@@ -501,10 +501,11 @@ namespace pet_spa_system1.Controllers
             {
                 HttpContext.Session.Remove("CurrentUserAvatar");
             }
-            TempData["SuccessMessage"] = result.Message;
-            //return RedirectToAction("Index");
             //Console.WriteLine("✅ [Session] Cập nhật CurrentUserName trong session.");
 
+            // Clear any existing TempData to prevent persistence
+            TempData.Remove("SuccessMessage");
+            TempData.Remove("ErrorMessage");
 
             return await Hoso(successMessage: result.Message ?? "Cập nhật thành công.");
         }
@@ -586,6 +587,15 @@ namespace pet_spa_system1.Controllers
 
             var appointments = _appointmentService.GetUpcomingScheduleByEmployee(employeeId.Value);
             return PartialView("_ScheduleEmployeePartial", appointments);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ClearTempData()
+        {
+            TempData.Remove("SuccessMessage");
+            TempData.Remove("ErrorMessage");
+            return Json(new { success = true });
         }
 
 
