@@ -217,35 +217,67 @@ namespace pet_spa_system1.Controllers.ProductManager
             // Thêm đánh giá như bình thường
             await _productService.AddProductReviewAsync(userId, productId, rating, comment, false);
             
-            // Nếu đánh giá là 1 sao, tự động thêm phản hồi
-            if (rating == 1)
-            {
-                // Tìm một admin để thêm phản hồi tự động
-                var staffUsers = await _userService.GetActiveUsersAsync(null, null, 1, 10);
-                var adminUser = staffUsers.FirstOrDefault(u => u.RoleId == 1); // Giả sử roleId 1 là Admin
+            // Lấy tất cả đánh giá gốc của người dùng cho sản phẩm này
+            var productWithReviews = await _productService.GetProductWithReviewsByIdAsync(productId);
+            var userReviews = productWithReviews.Reviews
+                .Where(r => r.UserId == userId && r.ParentReviewId == null)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToList();
                 
-                if (adminUser != null)
+            // Lấy đánh giá vừa thêm
+            var latestReview = userReviews.FirstOrDefault();
+            
+            if (latestReview != null)
+            {
+                // Nếu đánh giá là 1 sao, tự động thêm phản hồi
+                if (rating == 1)
                 {
-                    string autoReply = "Chúng tôi rất tiếc về trải nghiệm không tốt của bạn. Vui lòng liên hệ với chúng tôi qua số điện thoại hoặc email để được hỗ trợ tốt hơn.";
+                    // Tìm một admin để thêm phản hồi tự động
+                    var staffUsers = await _userService.GetActiveUsersAsync(null, null, 1, 10);
+                    var adminUser = staffUsers.FirstOrDefault(u => u.RoleId == 1); // Giả sử roleId 1 là Admin
                     
-                    // Lấy đánh giá vừa thêm để lấy ID
-                    var productWithReviews = await _productService.GetProductWithReviewsByIdAsync(productId);
-                    var latestReview = productWithReviews.Reviews
-                        .Where(r => r.UserId == userId && r.Rating == rating)
-                        .OrderByDescending(r => r.CreatedAt)
-                        .FirstOrDefault();
-                    
-                    if (latestReview != null)
+                    if (adminUser != null)
                     {
-                        // Thêm phản hồi tự động với cờ đánh dấu là phản hồi từ hệ thống
-                        await _productService.AddSystemReplyToReviewAsync(latestReview.ReviewId, adminUser.UserId, autoReply);
+                        // Kiểm tra xem người dùng đã có phản hồi tự động nào cho sản phẩm này chưa
+                        bool hasExistingAutoReply = false;
+                        
+                        // Duyệt qua tất cả các đánh giá của người dùng cho sản phẩm này
+                        foreach (var userReview in userReviews)
+                        {
+                            var autoReply = await _productService.GetAutoReplyForReviewAsync(userReview.ReviewId);
+                            if (autoReply != null)
+                            {
+                                hasExistingAutoReply = true;
+                                break;
+                            }
+                        }
+                        
+                        // Nếu người dùng chưa có phản hồi tự động nào cho sản phẩm này, thêm mới
+                        if (!hasExistingAutoReply)
+                        {
+                            string autoReply = "Chúng tôi rất tiếc về trải nghiệm không tốt của bạn. Vui lòng liên hệ với chúng tôi qua số điện thoại 0906.888.888 hoặc email petspa@gmail.com để được hỗ trợ tốt hơn.";
+                            
+                            // Thêm phản hồi tự động với cờ đánh dấu là phản hồi từ hệ thống
+                            await _productService.AddSystemReplyToReviewAsync(latestReview.ReviewId, adminUser.UserId, autoReply);
+                        }
+                    }
+                }
+                // Nếu đánh giá từ 2 sao trở lên, xóa tin nhắn tự động nếu có
+                else if (rating >= 2)
+                {
+                    // Kiểm tra xem đánh giá này có phản hồi tự động không
+                    var existingAutoReply = await _productService.GetAutoReplyForReviewAsync(latestReview.ReviewId);
+                    
+                    // Nếu có phản hồi tự động, xóa đi
+                    if (existingAutoReply != null)
+                    {
+                        await _productService.DeleteReplyAsync(existingAutoReply.ReviewId);
                     }
                 }
             }
             
             // Phần còn lại của code hiện tại...
-            var product = await _productService.GetProductWithReviewsByIdAsync(productId);
-            var allReviews = product.Reviews?.Select(r => new ReviewViewModel
+            var allReviews = productWithReviews.Reviews?.Select(r => new ReviewViewModel
             {
                 ReviewerName = r.User != null
                     ? (!string.IsNullOrEmpty(r.User.FullName) ? r.User.FullName : r.User.Username)
