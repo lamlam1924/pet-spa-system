@@ -7,6 +7,59 @@
 @section Styles {
     <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/css/appointment-common.css")" />
     <link rel="stylesheet" href="@Url.Content("~/cssjsAppointment/css/toast-custom.css")" />
+    <style>
+        .add-pet-btn {
+            transition: all 0.3s ease;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-weight: 500;
+            font-size: 14px;
+            margin-left: 15px;
+        }
+        
+        .add-pet-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
+        }
+        
+        .add-pet-btn i {
+            margin-right: 6px;
+        }
+        
+        /* Ensure tabs and button are properly aligned */
+        .d-flex.justify-content-between.align-items-center {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        
+        .nav-tabs {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        /* Modal styling for add pet */
+        #addPetModal .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        #addPetModal .modal-header {
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            color: white;
+            border-radius: 15px 15px 0 0;
+            width: 100%;
+            margin: auto;
+        }
+        
+        #addPetModal .modal-title {
+            font-weight: 600;
+        }
+        
+        #addPetModal .btn-close {
+            filter: invert(1);
+        }
+    </style>
 }
 
 <div class="booking-container">
@@ -56,15 +109,25 @@
                     <!-- Chọn thú cưng -->
                     <div class="form-section mb-4">
                         <h4 class="section-title">Chọn thú cưng</h4>
-                        <!-- Tabs for Dog/Cat -->
-                        <ul class="nav nav-tabs mb-3" id="petTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="dog-tab" data-bs-toggle="tab" data-bs-target="#dog" type="button" role="tab" aria-controls="dog" aria-selected="true">Chó</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="cat-tab" data-bs-toggle="tab" data-bs-target="#cat" type="button" role="tab" aria-controls="cat" aria-selected="false">Mèo</button>
-                            </li>
-                        </ul>
+                        <!-- Tabs for Dog/Cat with Add Pet button -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <ul class="nav nav-tabs" id="petTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="dog-tab" data-bs-toggle="tab" data-bs-target="#dog" type="button" role="tab" aria-controls="dog" aria-selected="true">Chó</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="cat-tab" data-bs-toggle="tab" data-bs-target="#cat" type="button" role="tab" aria-controls="cat" aria-selected="false">Mèo</button>
+                                </li>
+                            </ul>
+                            <a href="#"
+                               class="btn btn-success"
+                               hx-get="@Url.Action("AddPetPartial", "Appointment")"
+                               hx-target="#modal-container"
+                               hx-trigger="click"
+                               hx-swap="innerHTML">
+                                <i class="bi bi-plus-circle"></i> Thêm thú cưng
+                            </a>
+                        </div>
                         <div class="tab-content" id="petTabContent">
                             <div class="tab-pane fade show active" id="dog" role="tabpanel" aria-labelledby="dog-tab">
                                 <div class="pet-grid">
@@ -303,8 +366,9 @@
         </div>
     </form>
 </div>
-
+<div id="modal-container"></div>
 @section Scripts {
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="@Url.Content("~/cssjsAppointment/js/appointment-common.js")"></script>
     <script>
@@ -317,6 +381,123 @@
             var dd = String(today.getDate()).padStart(2, '0');
             var minDate = yyyy + '-' + mm + '-' + dd;
             dateInput.setAttribute('min', minDate);
+            
+            // Add Pet button functionality
+            document.getElementById('addPetBtn').addEventListener('click', function() {
+                // Get the currently active tab to determine species
+                var activeTab = document.querySelector('#petTab .nav-link.active');
+                var species = '';
+                
+                if (activeTab.id === 'dog-tab') {
+                    species = 'dog';
+                } else if (activeTab.id === 'cat-tab') {
+                    species = 'cat';
+                }
+                
+                // Open modal for adding pet directly without confirmation
+                openAddPetModal(species);
+            });
+            
+            // Function to open add pet modal
+            function openAddPetModal(species) {
+                // Create modal HTML
+                var modalHtml = `
+                    <div class="modal fade" id="addPetModal" tabindex="-1" aria-labelledby="addPetModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header" style="width:100%; margin:auto;">
+                                    <h5 class="modal-title" id="addPetModalLabel">Thêm thú cưng mới</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-center">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Đang tải...</span>
+                                        </div>
+                                        <p class="mt-2">Đang tải form thêm thú cưng...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Remove existing modal if any
+                var existingModal = document.getElementById('addPetModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                
+                // Add modal to body
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Show modal
+                var modal = new bootstrap.Modal(document.getElementById('addPetModal'));
+                modal.show();
+                
+                // Load add pet form
+                fetch('@Url.Action("AddPetPartial", "UserHome")')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.querySelector('#addPetModal .modal-body').innerHTML = html;
+                        
+                        // Set the species dropdown to the selected species if available
+                        var speciesDropdown = document.querySelector('#addPetModal select[name="Pet.SpeciesId"]');
+                        if (speciesDropdown && species) {
+                            // Find the option that matches the species
+                            var options = speciesDropdown.querySelectorAll('option');
+                            for (var i = 0; i < options.length; i++) {
+                                var optionText = options[i].text.toLowerCase();
+                                if ((species === 'dog' && optionText.includes('chó')) || 
+                                    (species === 'cat' && optionText.includes('mèo'))) {
+                                    speciesDropdown.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading add pet form:', error);
+                        document.querySelector('#addPetModal .modal-body').innerHTML = 
+                            '<div class="alert alert-danger">Có lỗi xảy ra khi tải form thêm thú cưng.</div>';
+                    });
+                
+                // Handle form submission in modal
+                document.addEventListener('submit', function(e) {
+                    if (e.target.closest('#addPetModal')) {
+                        e.preventDefault();
+                        
+                        var form = e.target;
+                        var formData = new FormData(form);
+                        
+                        fetch('@Url.Action("AddPet", "UserHome")', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success message
+                                alert(data.message || 'Thêm thú cưng thành công!');
+                                
+                                // Close modal
+                                var modal = bootstrap.Modal.getInstance(document.getElementById('addPetModal'));
+                                modal.hide();
+                                
+                                // Reload the page to refresh pet list
+                                window.location.reload();
+                            } else {
+                                // Show error message
+                                alert(data.message || 'Có lỗi xảy ra khi thêm thú cưng.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error submitting form:', error);
+                            alert('Có lỗi xảy ra khi thêm thú cưng.');
+                        });
+                    }
+                });
+            }
         });
     </script>
 }
