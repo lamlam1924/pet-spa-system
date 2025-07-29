@@ -381,7 +381,7 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.User)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.EmployeeId == employeeId && a.AppointmentDate > today && a.StatusId == 1) 
+                .Where(a => a.EmployeeId == employeeId && a.AppointmentDate > today && a.StatusId == 2) 
                 .OrderBy(a => a.AppointmentDate)
                 .ToList();
         }
