@@ -84,9 +84,13 @@ public partial class PetDataShopContext : DbContext
             .AddJsonFile("appsettings.json")
             .Build();
 
+
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         optionsBuilder.UseSqlServer(connectionString);
     }
+
+     
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

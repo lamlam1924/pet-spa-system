@@ -121,11 +121,30 @@ namespace pet_spa_system1.Services
             await _repository.AddReplyToReviewAsync(parentReviewId, userId, content);
         }
 
+        public async Task AddSystemReplyToReviewAsync(int parentReviewId, int userId, string content)
+        {
+            await _repository.AddSystemReplyToReviewAsync(parentReviewId, userId, content);
+        }
+
         public async Task<Review> GetLastReplyOfUserForParentAsync(int parentReviewId, int userId)
         {
             return await _repository.GetLastReplyOfUserForParentAsync(parentReviewId, userId);
         }
 
+        public async Task<Review> GetReviewByIdAsync(int reviewId)
+        {
+            return await _repository.GetReviewByIdAsync(reviewId);
+        }
+        
+        public async Task<Review> GetAutoReplyForReviewAsync(int parentReviewId)
+        {
+            return await _repository.GetAutoReplyForReviewAsync(parentReviewId);
+        }
+        
+        public async Task DeleteReplyAsync(int reviewId)
+        {
+            await _repository.DeleteReplyAsync(reviewId);
+        }
     }
 }
 

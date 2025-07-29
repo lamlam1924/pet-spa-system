@@ -1,10 +1,18 @@
 @model pet_spa_system1.ViewModel.ReviewViewModel
 
 <div class="media mb-4 border-bottom pb-3 review-item" data-review-id="@Model.Id">
-    <img src="@Model.UserAvatar" alt="Image" class="img-fluid mr-3 mt-1 rounded-circle" style="width: 45px;">
+    <img src="@(Model.Comment != null && Model.Comment.StartsWith("[SYSTEM_REPLY]") ? "/imgAdmin/boy.png" : Model.UserAvatar)" 
+         alt="Image" class="img-fluid mr-3 mt-1 rounded-circle" style="width: 45px;">
     <div class="media-body">
         <h6 class="mb-1">
-            @Model.ReviewerName
+            @if(Model.Comment != null && Model.Comment.StartsWith("[SYSTEM_REPLY]"))
+            {
+                <span>Chăm sóc khách hàng <i class="fas fa-headset text-primary"></i></span>
+            }
+            else
+            {
+                @Model.ReviewerName
+            }
             <small class="text-muted"> - <i>@Model.CreatedAt.ToString("dd/MM/yyyy")</i></small>
         </h6>
         @if (Model.Rating > 0)
@@ -24,7 +32,16 @@
                 }
             </div>
         }
-        <p>@Model.Comment</p>
+        <p>
+            @if(Model.Comment != null && Model.Comment.StartsWith("[SYSTEM_REPLY]"))
+            {
+                @Model.Comment.Substring("[SYSTEM_REPLY] ".Length)
+            }
+            else
+            {
+                @Model.Comment
+            }
+        </p>
         <button class="btn btn-link btn-sm p-0 reply-btn" data-review-id="@Model.Id">Trả lời</button>
         <div class="reply-form-container mt-2" id="reply-form-@Model.Id" style="display:none;">
             <form class="reply-form" data-parent-id="@Model.Id">
@@ -40,7 +57,7 @@
             <div class="review-replies ml-4 border-left pl-3">
                 @foreach (var reply in Model.Replies)
                 {
-                    @await Html.PartialAsync("_ReviewItemPartial", reply)
+                    @await Html.PartialAsync("_ReviewRepliesPartial", reply)
                 }
             </div>
         }
