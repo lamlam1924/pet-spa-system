@@ -97,7 +97,85 @@ namespace pet_spa_system1.Controllers
             return PartialView("_ChangePasswordPartial", model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Vui lòng đăng nhập để thay đổi mật khẩu." });
+            }
 
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return Json(new { success = false, message = string.Join(", ", errors) });
+            }
+
+            try
+            {
+                // Get current user to verify current password
+                var currentUser = await _userService.GetUserByIdAsync(userId.Value);
+                if (currentUser == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy thông tin người dùng." });
+                }
+
+                // Verify current password (allow empty if user has no password set)
+                if (!string.IsNullOrEmpty(model.CurrentPassword))
+                {
+                    var isCurrentPasswordValid = await _userService.AuthenticateAsync(currentUser.Email, model.CurrentPassword);
+                    if (isCurrentPasswordValid == null)
+                    {
+                        return Json(new { success = false, message = "Mật khẩu hiện tại không đúng." });
+                    }
+                }
+                else
+                {
+                    // Check if user actually has a password set
+                    if (!string.IsNullOrEmpty(currentUser.PasswordHash))
+                    {
+                        return Json(new { success = false, message = "Vui lòng nhập mật khẩu hiện tại." });
+                    }
+                    // If user has no password set, allow empty current password
+                }
+
+                // Check if new password is different from current password
+                if (model.CurrentPassword == model.NewPassword)
+                {
+                    return Json(new { success = false, message = "Mật khẩu mới phải khác mật khẩu hiện tại." });
+                }
+
+                // Update password
+                var result = await _userService.UpdatePasswordWithUserIdAsync(userId.Value, model.NewPassword);
+                if (result.Success)
+                {
+                    // Create notification for successful password change
+                    var notification = new Notification
+                    {
+                        UserId = userId.Value,
+                        Title = "Đổi mật khẩu thành công",
+                        Message = "Mật khẩu của bạn đã được thay đổi thành công.",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false
+                    };
+                    
+                    await _notificationService.AddAsync(notification);
+                    
+                    return Json(new { success = true, message = "Đổi mật khẩu thành công!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = result.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[UserHomeController] Error changing password: " + ex.Message);
+                return Json(new { success = false, message = "Có lỗi xảy ra khi thay đổi mật khẩu: " + ex.Message });
+            }
+        }
 
         public async Task<IActionResult> NotificationsPartial()
         {

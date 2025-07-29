@@ -166,18 +166,18 @@
                     icon: 'error',
                     title: 'Lỗi',
                     text: data.message || 'Có lỗi xảy ra khi thêm thú cưng',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'Đồng ý'
                 });
             }
         })
         .catch(error => {
-            console.error('Error submitting form:', error);
+            console.error('Lỗi khi gửi form:', error);
             // Hiển thị lỗi bằng SweetAlert
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi',
                 text: 'Không nhận được phản hồi hợp lệ từ server',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'Đồng ý'
             });
         });
     });

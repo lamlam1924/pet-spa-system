@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using pet_spa_system1.Services;
 using pet_spa_system1.ViewModels;
-using System.Diagnostics;
+using pet_spa_system1.Models;
+using pet_spa_system1.Services;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
 {
@@ -14,7 +16,7 @@ namespace pet_spa_system1.Controllers
         public HomeController(ILogger<HomeController> logger, INotificationService notificationService)
         {
             _logger = logger;
-            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _notificationService = notificationService;
         }
 
         public IActionResult Index()
@@ -33,6 +35,7 @@ namespace pet_spa_system1.Controllers
 
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        
         [HttpGet]
         public async Task<IActionResult> GetUnreadNotificationCount()
         {
@@ -58,7 +61,7 @@ namespace pet_spa_system1.Controllers
             }
 
             var notifications = await _notificationService.GetByUserIdAsync(userId.Value);
-
+            
             var notificationData = notifications.Select(n => new
             {
                 title = n.Title,
@@ -78,12 +81,12 @@ namespace pet_spa_system1.Controllers
                 int? userId = HttpContext.Session.GetInt32("CurrentUserId");
                 if (!userId.HasValue)
                 {
-                    return Json(new { success = false, message = "User not logged in" });
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
                 }
 
                 await _notificationService.MarkAllAsReadAsync(userId.Value);
 
-                return Json(new { success = true, message = "Marked all as read" });
+                return Json(new { success = true, message = "Đã đánh dấu tất cả là đã đọc" });
             }
             catch (Exception ex)
             {
@@ -99,12 +102,12 @@ namespace pet_spa_system1.Controllers
                 int? userId = HttpContext.Session.GetInt32("CurrentUserId");
                 if (!userId.HasValue)
                 {
-                    return Json(new { success = false, message = "User not logged in" });
+                    return Json(new { success = false, message = "Người dùng chưa đăng nhập" });
                 }
 
                 await _notificationService.DeleteAllAsync(userId.Value);
 
-                return Json(new { success = true, message = "Deleted all notifications" });
+                return Json(new { success = true, message = "Đã xóa tất cả thông báo" });
             }
             catch (Exception ex)
             {
