@@ -34,7 +34,14 @@
             window.newAppointmentId = '@TempData["NewAppointmentId"]';
         </script>
     }
-</div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @{ TempData.Remove("SuccessMessage"); TempData.Remove("ErrorMessage"); }
 
 <!-- Modal xác nhận sau khi tạo lịch hẹn thành công -->
 <div class="modal fade" id="afterCreateModal" tabindex="-1" aria-labelledby="afterCreateModalLabel" aria-hidden="true">

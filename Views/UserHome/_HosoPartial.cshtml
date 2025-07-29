@@ -28,12 +28,24 @@
     <div class="alert-box success-alert" id="successAlert">
         @ViewBag.SuccessMessage
     </div>
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById("successAlert");
+            if (alert) alert.classList.add("alert-hide");
+        }, 2000);
+    </script>
 }
 @if (ViewBag.ErrorMessage != null)
 {
     <div class="alert-box error-alert" id="errorAlert">
         @ViewBag.ErrorMessage
     </div>
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById("errorAlert");
+            if (alert) alert.classList.add("alert-hide");
+        }, 2000);
+    </script>
 }
 
 <form asp-action="UpdateUserProfile"
