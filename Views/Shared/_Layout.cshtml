@@ -214,17 +214,19 @@
                                                 0
                                             </span>
                                         </a>
-                                        <ul class="dropdown-menu dropdown-menu-end p-2 shadow" aria-labelledby="notificationDropdown"
-                                            style="min-width: 340px; max-height: 450px; overflow-y: auto; margin-top: 5px;">
-                                            <li class="fw-semibold text-dark mb-1">Thông báo</li>
+                                        <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown"
+                                            style="min-width: 340px; max-height: 450px; overflow-y: auto; margin-top: 5px; border: 1px solid #dee2e6;">
+                                            <li class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-semibold text-dark">Thông báo</span>
+                                                <div>
+                                                    <button class="btn btn-sm btn-link text-decoration-none p-0 me-2" onclick="markAllAsRead()" style="font-size: 12px;">Đánh dấu đã đọc</button>
+                                                    <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="deleteAllNotifications()" style="font-size: 12px; color: #dc3545;">Xóa tất cả</button>
+                                                </div>
+                                            </li>
                                             <div id="notification-list">
                                                 <li class="text-center text-muted">
                                                     <small>Đang tải thông báo...</small>
                                                 </li>
-                                            </div>
-                                            <div class="text-center mt-2">
-                                                <button class="btn btn-sm btn-outline-primary me-2" onclick="markAllAsRead()">Đánh dấu đã đọc</button>
-                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteAllNotifications()">Xóa tất cả</button>
                                             </div>
                                         </ul>
                                     </div>
@@ -555,9 +557,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Kiểm tra xem bootstrap có tồn tại không
             if (typeof bootstrap !== 'undefined') {
-                console.log('Bootstrap loaded successfully');
+                console.log('Bootstrap đã tải thành công');
             } else {
-                console.error('Bootstrap not loaded');
+                console.error('Bootstrap chưa được tải');
             }
 
             // Datepicker initialization
@@ -594,8 +596,8 @@
                     console.warn('Bootstrap Modal.getInstance not available');
                     return null;
                 }
-            } catch (error) {
-                console.error('Error getting modal instance:', error);
+                    } catch (error) {
+            console.error('Lỗi khi lấy instance modal:', error);
                 return null;
             }
         }
@@ -609,8 +611,8 @@
                     console.warn('Bootstrap Modal not available');
                     return null;
                 }
-            } catch (error) {
-                console.error('Error creating modal:', error);
+                    } catch (error) {
+            console.error('Lỗi khi tạo modal:', error);
                 return null;
             }
         }
@@ -645,7 +647,7 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading notification count:', error);
+                    console.error('Lỗi khi tải số lượng thông báo:', error);
                 });
         }
 
@@ -662,34 +664,35 @@
                     }
                     
                     let html = '';
-                    data.notifications.slice(0, 5).forEach(noti => {
+                    data.notifications.slice(0, 10).forEach(noti => {
                         const timeAgo = getTimeAgo(noti.createdAt);
                         const isReadClass = noti.isRead ? '' : 'fw-bold';
+                        const borderClass = noti.isRead ? '' : 'border-start border-3 border-primary';
                         
                         html += `
-                            <li>
-                                <div class="d-flex mb-3 align-items-start">
+                            <li class="mb-2 ${borderClass}">
+                                <div class="d-flex align-items-start p-2">
                                     <div class="flex-shrink-0">
-                                        <i class="fa fa-info-circle text-primary mt-1 me-2"></i>
+                                        <i class="fa fa-info-circle text-primary mt-1 me-2" style="font-size: 14px;"></i>
                                     </div>
                                     <div class="flex-grow-1 small">
-                                        <div class="${isReadClass}">${noti.title}</div>
-                                        <div class="text-muted">${noti.message}</div>
-                                        <span class="text-muted small">${timeAgo}</span>
+                                        <div class="${isReadClass} mb-1">${noti.title}</div>
+                                        <div class="text-muted mb-1">${noti.message}</div>
+                                        <span class="text-muted" style="font-size: 11px;">${timeAgo}</span>
                                     </div>
                                 </div>
                             </li>
                         `;
                     });
                     
-                    if (data.notifications.length > 5) {
-                        html += `<li class="text-center"><a href="#" class="text-decoration-none small">Xem tất cả thông báo (${data.notifications.length})</a></li>`;
+                    if (data.notifications.length > 10) {
+                        html += `<li class="text-center pt-2 border-top"><a href="#" class="text-decoration-none small">Xem tất cả thông báo (${data.notifications.length})</a></li>`;
                     }
                     
                     notificationList.innerHTML = html;
                 })
                 .catch(error => {
-                    console.error('Error loading notifications:', error);
+                    console.error('Lỗi khi tải thông báo:', error);
                     document.getElementById('notification-list').innerHTML = 
                         '<li class="text-center text-muted"><small>Có lỗi khi tải thông báo</small></li>';
                 });
@@ -741,7 +744,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error marking as read:', error);
+                console.error('Lỗi khi đánh dấu đã đọc:', error);
                 showErrorMessage('Có lỗi xảy ra khi đánh dấu đã đọc');
             });
         }
@@ -767,9 +770,9 @@
                         showErrorMessage(data.message || 'Có lỗi xảy ra');
                     }
                 })
-                .catch(error => {
-                    console.error('Error deleting notifications:', error);
-                    showErrorMessage('Có lỗi xảy ra khi xóa thông báo');
+                            .catch(error => {
+                console.error('Lỗi khi xóa thông báo:', error);
+                showErrorMessage('Có lỗi xảy ra khi xóa thông báo');
                 });
             }
         }

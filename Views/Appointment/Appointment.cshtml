@@ -457,7 +457,7 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error loading add pet form:', error);
+                        console.error('Lỗi khi tải form thêm thú cưng:', error);
                         document.querySelector('#addPetModal .modal-body').innerHTML = 
                             '<div class="alert alert-danger">Có lỗi xảy ra khi tải form thêm thú cưng.</div>';
                     });
@@ -492,7 +492,7 @@
                             }
                         })
                         .catch(error => {
-                            console.error('Error submitting form:', error);
+                            console.error('Lỗi khi gửi form:', error);
                             alert('Có lỗi xảy ra khi thêm thú cưng.');
                         });
                     }
