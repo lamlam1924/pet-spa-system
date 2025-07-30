@@ -1,7 +1,18 @@
-﻿using pet_spa_system1.Models;
+﻿
+using pet_spa_system1.Models;
 
 namespace pet_spa_system1.ViewModel
 {
+    
+
+    public class PetStaffAssignViewModel
+    {
+        public int PetId { get; set; }
+        public string PetName { get; set; } = string.Empty;
+        public int? StaffId { get; set; }
+        public string? StaffName { get; set; }
+    }
+
     public class ServiceHistoryInfo
     {
         public int ServiceId { get; set; }
@@ -55,6 +66,8 @@ namespace pet_spa_system1.ViewModel
         public int StaffId { get; set; } // Only one staff per appointment
         public List<PetInfo> AllPets { get; set; } = new();
         public List<Service> AllServices { get; set; } = new();
+        // Bổ sung property cho 1 pet 1 staff
+        public List<PetStaffAssignViewModel> PetStaffAssignments { get; set; } = new();
         public class CategoryInfo
         {
             public int CategoryId { get; set; }

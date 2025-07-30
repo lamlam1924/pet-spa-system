@@ -1,3 +1,4 @@
+       
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
@@ -1093,6 +1094,57 @@ namespace pet_spa_system1.Services
             var customers = _appointmentRepository.GetCustomers();
             var staffs = _appointmentRepository.GetEmployeeUsers();
             return customers.Concat(staffs).ToList();
+        }
+
+        public Pet GetPetById(int petId)
+        {
+            return _petRepository.GetById(petId);
+        }
+
+        public AppointmentPet GetAppointmentPet(int appointmentId, int petId)
+        {
+            return _context.AppointmentPets.FirstOrDefault(ap => ap.AppointmentId == appointmentId && ap.PetId == petId);
+        }
+
+        public void UpdateAppointmentWithPetStaff(AppointmentViewModel vm)
+        {
+            // Cập nhật các trường chung nếu cần
+            var appointment = _appointmentRepository.GetById(vm.AppointmentId);
+            if (appointment == null) return;
+            appointment.AppointmentDate = vm.AppointmentDate;
+            appointment.StatusId = vm.StatusId;
+            appointment.Notes = vm.Notes;
+            _appointmentRepository.Update(appointment);
+
+            // Cập nhật staff cho từng pet
+            if (vm.PetStaffAssignments != null)
+            {
+                foreach (var assign in vm.PetStaffAssignments)
+                {
+                    var ap = _context.AppointmentPets.FirstOrDefault(x => x.AppointmentId == vm.AppointmentId && x.PetId == assign.PetId);
+                    if (ap != null)
+                    {
+                        ap.StaffId = assign.StaffId;
+                    }
+                }
+            }
+            _context.SaveChanges();
+        }
+        public bool RestoreAppointment(int id)
+        {
+            try
+            {
+                _appointmentRepository.RestoreAppointment(id);
+                _appointmentRepository.RestoreAppointmentPets(id);
+                _appointmentRepository.RestoreAppointmentServices(id);
+                _appointmentRepository.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error restoring appointment: {ex.Message}");
+                return false;
+            }
         }
     }
 }

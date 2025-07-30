@@ -186,26 +186,34 @@ namespace pet_spa_system1.Repositories
             {
                 query = query.Where(a => a.User != null && a.User.FullName.Contains(filter.Customer));
             }
+
             if (!string.IsNullOrEmpty(filter.Pet))
             {
-                query = query.Where(a => a.AppointmentPets.Any(ap => ap.Pet != null && ap.Pet.Name.Contains(filter.Pet)));
+                query =
+                    query.Where(a => a.AppointmentPets.Any(ap => ap.Pet != null && ap.Pet.Name.Contains(filter.Pet)));
             }
+
             if (!string.IsNullOrEmpty(filter.Service))
             {
-                query = query.Where(a => a.AppointmentServices.Any(asv => asv.Service != null && asv.Service.Name.Contains(filter.Service)));
+                query = query.Where(a =>
+                    a.AppointmentServices.Any(asv => asv.Service != null && asv.Service.Name.Contains(filter.Service)));
             }
+
             if (filter.StatusIds != null && filter.StatusIds.Count > 0)
             {
                 query = query.Where(a => filter.StatusIds.Contains(a.StatusId));
             }
+
             if (filter.Date.HasValue)
             {
                 query = query.Where(a => a.AppointmentDate.Date == filter.Date.Value.Date);
             }
+
             if (filter.EmployeeId > 0)
             {
                 query = query.Where(a => a.EmployeeId == filter.EmployeeId);
             }
+
             return query;
         }
 
@@ -245,7 +253,9 @@ namespace pet_spa_system1.Repositories
             var appointment = _context.Appointments.Find(id);
             if (appointment != null)
             {
-                _context.Appointments.Remove(appointment);
+                // Xóa mềm: chuyển trạng thái sang inactive
+                appointment.IsActive = false;
+                _context.Entry(appointment).State = EntityState.Modified;
             }
         }
 
@@ -253,14 +263,22 @@ namespace pet_spa_system1.Repositories
         {
             var appointmentPets = _context.AppointmentPets
                 .Where(ap => ap.AppointmentId == appointmentId);
-            _context.AppointmentPets.RemoveRange(appointmentPets);
+            foreach (var ap in appointmentPets)
+            {
+                ap.IsActive = false;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
         }
 
         public void DeleteAppointmentServices(int appointmentId)
         {
             var appointmentServices = _context.AppointmentServices
                 .Where(ap => ap.AppointmentId == appointmentId);
-            _context.AppointmentServices.RemoveRange(appointmentServices);
+            foreach (var ap in appointmentServices)
+            {
+                ap.IsActive = false;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
         }
 
         public List<MonthlyAppointmentStats> GetMonthlyStats(int year)
@@ -316,7 +334,8 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel || a.StatusId == 7)
+                .Where(a => a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel ||
+                            a.StatusId == 7)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -329,7 +348,8 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == 1 || a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel)
+                .Where(a => a.StatusId == 1 ||
+                            a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -354,7 +374,8 @@ namespace pet_spa_system1.Repositories
 
         public int CountPendingCancelAppointments()
         {
-            return _context.Appointments.Count(a => a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel);
+            return _context.Appointments.Count(a =>
+                a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel);
         }
 
         // Repository trả entity hoặc entity list, không có EndTime
@@ -373,13 +394,12 @@ namespace pet_spa_system1.Repositories
                 .Where(a => a.EmployeeId == staffId)
                 .Where(a => excludeAppointmentId == null || a.AppointmentId != excludeAppointmentId)
                 .Any(a =>
-                    newStart < a.AppointmentDate.AddMinutes(a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
+                    newStart < a.AppointmentDate.AddMinutes(a.AppointmentServices.Sum(s =>
+                        s.Service.DurationMinutes ?? 0))
                     && newEnd > a.AppointmentDate
                 );
-
-
         }
-        
+
         public List<Appointment> GetAppointmentsByStatus(int statusId)
         {
             return _context.Appointments
@@ -393,5 +413,36 @@ namespace pet_spa_system1.Repositories
                 .ToList();
         }
 
+        public void RestoreAppointment(int id)
+        {
+            var appointment = _context.Appointments.Find(id);
+            if (appointment != null)
+            {
+                appointment.IsActive = true;
+                _context.Entry(appointment).State = EntityState.Modified;
+            }
+        }
+
+        public void RestoreAppointmentPets(int appointmentId)
+        {
+            var appointmentPets = _context.AppointmentPets
+                .Where(ap => ap.AppointmentId == appointmentId);
+            foreach (var ap in appointmentPets)
+            {
+                ap.IsActive = true;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
+        }
+
+        public void RestoreAppointmentServices(int appointmentId)
+        {
+            var appointmentServices = _context.AppointmentServices
+                .Where(ap => ap.AppointmentId == appointmentId);
+            foreach (var ap in appointmentServices)
+            {
+                ap.IsActive = true;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
+        }
     }
 }

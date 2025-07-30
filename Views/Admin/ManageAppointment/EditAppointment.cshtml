@@ -137,21 +137,10 @@
                 </div>
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white">
-                        <h5 class="m-0 fw-bold">Nhân viên phụ trách</h5>
+                        <h5 class="m-0 fw-bold">Phân công nhân viên cho từng thú cưng</h5>
                     </div>
                     <div class="card-body">
-                        <label for="StaffId" class="form-label">Chọn nhân viên</label>
-                        <select asp-for="StaffId" class="form-select select2-staff w-100" style="width:100%">
-                            @if (Model.StaffId > 0 && !string.IsNullOrEmpty(Model.EmployeeName))
-                            {
-                                <option value="@Model.StaffId" selected>@Model.EmployeeName</option>
-                            }
-                            <option value="">-- Chọn nhân viên --</option>
-                        </select>
-                        <span asp-validation-for="StaffId" class="text-danger"></span>
-                        <div id="staff-preview" class="mt-3"></div>
-                        <span asp-validation-for="StaffId" class="text-danger"></span>
-                        <div id="staff-preview" class="mt-3"></div>
+                        <div id="pet-staff-assign-table"></div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-2">Lưu thay đổi</button>
@@ -185,6 +174,13 @@
 
 @section Scripts {
     <script src="~/cssjsAppointment/js/appointment-detail.js"></script>
+    <script src="~/cssjsAppointment/js/pet-staff-assign.js"></script>
+    <script>
+        // Truyền dữ liệu staff, pet, assignment từ Razor xuống JS
+        window.PET_STAFF_ASSIGN_STAFFS = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Staffs));
+        window.PET_STAFF_ASSIGN_PETS = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SelectedPets));
+        window.PET_STAFF_ASSIGN_ASSIGNMENTS = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.PetStaffAssignments));
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         function loadPetsForCustomer(customerId, selectedPetIds) {

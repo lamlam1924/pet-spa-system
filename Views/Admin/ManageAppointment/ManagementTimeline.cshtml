@@ -3,230 +3,200 @@
     ViewData["Title"] = "Quản lý lịch làm việc";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
-<style>
-    .appointment-card {
-        background-color: #f1f1f1;
-        border-radius: 5px;
-        cursor: move;
-        font-size: 0.9em;
-        padding: 4px 8px;
-        margin: 2px;
-    }
 
-</style>
+
+
 
 <div class="container-fluid py-4">
-    <h2 class="text-success mb-4">Quản lý lịch làm việc hôm nay</h2>
-
-    <!-- Tabs -->
-    <ul class="nav nav-tabs" id="timelineTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="table-tab" data-toggle="tab" href="#tableView" role="tab">Xem theo bảng</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="drag-tab" data-toggle="tab" href="#dragDropView" role="tab">Sắp xếp nhân viên</a>
-        </li>
-    </ul>
-
-    <div class="tab-content mt-3">
-        <!-- Table view -->
-        <div class="tab-pane fade show active" id="tableView" role="tabpanel">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <table class="table table-bordered text-center">
-                        <thead>
-                        <tr>
-                            <th>Nhân viên</th>
-                            @foreach (var hour in Model.Hours)
-                            {
-                                <th>@hour:00</th>
-                            }
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var staff in Model.StaffShifts)
-                        {
-                            <tr>
-                                <td>
-                                    <img src="@staff.AvatarUrl" width="40" height="40" class="rounded-circle me-2" />
-                                    @staff.StaffName
-                                </td>
-                                @foreach (var hour in Model.Hours)
-                                {
-                                    var shift = staff.HourStatus.ContainsKey(hour) ? staff.HourStatus[hour] : null;
-                                    if (shift != null)
-                                    {
-                                        <td class="dropzone"
-                                            data-hour="@hour"
-                                            data-staff-id="@staff.UserId"
-                                            style="min-height: 50px;">
-                                            @if (shift != null)
-                                            {
-                                                <div class="appointment-card p-1 border"
-                                                     draggable="true"
-                                                     data-appointment-id="@shift.AppointmentId">
-                                                    @shift.StatusText
-                                                </div>
-                                            }
-                                        </td>
-
-                                    }
-                                    else
-                                    {
-                                        <td>-</td>
-                                    }
-                                }
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Drag & Drop view -->
-        <div class="tab-pane fade" id="dragDropView" role="tabpanel">
-            <div class="row">
-                @foreach (var staff in Model.StaffShifts)
-                {
-                    <div class="col-md-3 mb-4">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <img src="@staff.AvatarUrl" width="30" height="30" class="rounded-circle mr-2" />
-                                @staff.StaffName
-                            </div>
-                            <div class="card-body dropzone" data-staff-id="@staff.UserId" style="min-height:150px;">
-                                @if (staff.Appointments != null)
-                                {
-                                    foreach (var appointment in staff.Appointments)
-                                    {
-                                        <div class="appointment-card mb-2 p-2 border"
-                                             draggable="true"
-                                             data-appointment-id="@appointment.AppointmentId">
-                                            Lịch: @appointment.AppointmentDate:HH\\:mm - @appointment.EndTime:HH\\:mm
-                                        </div>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
+    <h2 class="text-success mb-4">Lịch làm việc nhân viên</h2>
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <button class="btn btn-outline-primary btn-sm" id="btnPrevWeek">&lt; Tuần trước</button>
+        <button class="btn btn-outline-secondary btn-sm" id="btnToday">Hôm nay</button>
+        <button class="btn btn-outline-primary btn-sm" id="btnNextWeek">Tuần sau &gt;</button>
+        <input type="date" id="startDateInput" class="form-control form-control-sm ms-3" style="width: 180px;" />
+    </div>
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <div id="dp"></div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="eventDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-sm">
+      <div class="modal-header bg-light border-0 pb-2">
+        <h5 class="modal-title text-primary fw-bold" id="eventDetailTitle">
+          <i class="far fa-calendar-alt me-2"></i>Chi tiết lịch hẹn
+        </h5>
+        <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" id="eventDetailContent">
+        <!-- Nội dung sẽ được render động -->
+      </div>
+      <div class="modal-footer bg-light border-0 pt-2">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 @section Styles {
+    <link href="~/lib/demo/themes/scheduler_blue.css" rel="stylesheet" />
     <style>
-    .timeline-table th, .timeline-table td {
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .timeline-table td {
-        min-width: 70px;
-        position: relative;
-        height: 50px;
-    }
-
-    .timeline-table .position-absolute {
-        font-size: 0.9rem;
-        z-index: 2;
-    }
-
-    .bg-inprogress {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .bg-upcoming {
-        background-color: #ffc107;
-        color: black;
-    }
-
-    .bg-completed {
-        background-color: #6c757d;
-        color: white;
-    }
-
-    .bg-absent {
-        background-color: #dc3545;
-        color: white;
-    }
-</style>
+        #dp { width: 100%; min-height: 600px; }
+    </style>
 }
+@section Scripts {
+    <script src="~/lib/scripts/daypilot-all.src.js"></script>
+    <script>
+        var dp;
+        var currentStartDate = new Date();
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('.nav-tabs a').click(function (e) {
-            e.preventDefault();
-            $(this).tab('show');
-        });
+        function loadScheduler(startDate) {
+            fetch('/AdminAppointment/GetCalendarData')
+                .then(res => res.json())
+                .then(data => {
+                    var resources = data.resources.map(r => ({
+                        id: r.id,
+                        name: r.title
+                    }));
+                    var events = data.events.map(e => ({
+                        id: e.id,
+                        resource: e.resourceId,
+                        start: e.start,
+                        end: e.end,
+                        text: e.title
+                    }));
 
-        document.querySelectorAll('.dropzone').forEach(zone => {
-            new Sortable(zone, {
-                group: 'appointments',
-                animation: 150,
-                onAdd: function (evt) {
-                    const appointmentId = evt.item.dataset.appointmentId;
-                    const newStaffId = evt.to.dataset.staffId;
+                    if (!startDate) startDate = new Date();
+                    currentStartDate = new Date(startDate);
 
-                    fetch('/AdminAppointment/UpdateStaffForAppointment', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                        },
-                        body: JSON.stringify({
-                            appointmentId: appointmentId,
-                            newStaffId: newStaffId
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            alert("Cập nhật thất bại!");
-                        }
-                    });
-                }
-            });
-        });
-    });
-</script>
-<script>
-    document.querySelectorAll('#tableView .dropzone').forEach(zone => {
-        new Sortable(zone, {
-            group: 'appointments',
-            animation: 150,
-            onAdd: function (evt) {
-                const appointmentId = evt.item.dataset.appointmentId;
-                const newStaffId = evt.to.dataset.staffId;
-                const newHour = evt.to.dataset.hour;
+                    if (dp) {
+                        dp.update({
+                            resources: resources,
+                            events: events,
+                            startDate: new DayPilot.Date(currentStartDate.toISOString().slice(0,10))
+                        });
+                    } else {
+                        dp = new DayPilot.Scheduler("dp", {
+                            resources: resources,
+                            events: events,
+                            startDate: new DayPilot.Date(currentStartDate.toISOString().slice(0,10)),
+                            days: 1,
+                            timeHeaders: [
+                                { groupBy: "Day", format: "d/M" },
+                                { groupBy: "Hour" }
+                            ],
+                            scale: "Hour",
+                            cellWidth: 60,
+                            onEventMoved: function(args) {
+                            },
+                            onEventMoving: function(args) {
+                                // Prevent overlap: check if the new time/resource overlaps with any other event
+                                var movingId = args.e.data.id;
+                                var newResource = args.newResource;
+                                var newStart = args.newStart;
+                                var newEnd = args.newEnd;
+                                var overlap = dp.events.list.some(function(ev) {
+                                    if (ev.id === movingId) return false;
+                                    if (ev.resource !== newResource) return false;
+                                    var evStart = new DayPilot.Date(ev.start);
+                                    var evEnd = new DayPilot.Date(ev.end);
+                                    // Check for overlap
+                                    return !(newEnd <= evStart || newStart >= evEnd);
+                                });
+                                if (overlap) {
+                                    args.preventDefault();
+                                    dp.message('Không thể xếp chồng nhiều lịch cho cùng một nhân viên trong cùng thời gian!');
+                                }
+                            },
+                            onEventResizing: function(args) {
+                                // Prevent overlap on resize
+                                var resizingId = args.e.data.id;
+                                var resource = args.e.data.resource;
+                                var newStart = args.newStart;
+                                var newEnd = args.newEnd;
+                                var overlap = dp.events.list.some(function(ev) {
+                                    if (ev.id === resizingId) return false;
+                                    if (ev.resource !== resource) return false;
+                                    var evStart = new DayPilot.Date(ev.start);
+                                    var evEnd = new DayPilot.Date(ev.end);
+                                    return !(newEnd <= evStart || newStart >= evEnd);
+                                });
+                                if (overlap) {
+                                    args.preventDefault();
+                                    dp.message('Không thể xếp chồng nhiều lịch cho cùng một nhân viên trong cùng thời gian!');
+                                }
+                                const oldResource = args.e.data.resource;
+                                const oldStart = args.e.data.start;
+                                const oldEnd = args.e.data.end;
+                                fetch('@Url.Action("UpdateAppointmentCalendar", "AdminAppointment")', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                                    },
+                                    body: JSON.stringify({
+                                        AppointmentId: args.e.data.id,
+                                        NewEmployeeId: args.newResource,
+                                        NewStart: args.newStart.toString("yyyy-MM-ddTHH:mm:ss")
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (!data.success) {
+                                        // revert event to old position
+                                        args.e.data.resource = oldResource;
+                                        args.e.data.start = oldStart;
+                                        args.e.data.end = oldEnd;
+                                        dp.events.update(args.e);
+                                        dp.update();
+                                        dp.message('Cập nhật lịch hẹn thất bại!');
+                                    }
+                                })
+                                .catch(() => {
+                                    // revert event to old position
+                                    args.e.data.resource = oldResource;
+                                    args.e.data.start = oldStart;
+                                    args.e.data.end = oldEnd;
+                                    dp.events.update(args.e);
+                                    dp.update();
+                                    dp.message('Có lỗi khi cập nhật lịch hẹn!');
+                                });
+                            }
+                        });
+                        dp.init();
+                    }
+                    document.getElementById('startDateInput').value = currentStartDate.toISOString().slice(0,10);
+                });
+        }
 
-                fetch('/AdminAppointment/UpdateStaffAndTime', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify({
-                        appointmentId: appointmentId,
-                        newStaffId: newStaffId,
-                        newHour: parseInt(newHour)
-                    })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            alert("Cập nhật thất bại!");
-                            location.reload(); // Nếu thất bại thì reload lại UI
-                        }
-                    });
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.DayPilot) {
+                loadScheduler();
+                document.getElementById('btnToday').onclick = function() {
+                    loadScheduler(new Date());
+                };
+                document.getElementById('btnPrevWeek').onclick = function() {
+                    var prev = new Date(currentStartDate);
+                    prev.setDate(prev.getDate() - 7);
+                    loadScheduler(prev);
+                };
+                document.getElementById('btnNextWeek').onclick = function() {
+                    var next = new Date(currentStartDate);
+                    next.setDate(next.getDate() + 7);
+                    loadScheduler(next);
+                };
+                document.getElementById('startDateInput').onchange = function(e) {
+                    var val = e.target.value;
+                    if (val) loadScheduler(new Date(val));
+                };
+            } else {
+                console.error('DayPilot chưa load!');
             }
         });
-    });
-
-</script>
+    </script>
+}

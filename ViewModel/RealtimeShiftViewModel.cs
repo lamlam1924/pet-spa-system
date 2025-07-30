@@ -1,3 +1,5 @@
+
+
 namespace pet_spa_system1.ViewModel
 {
     public class RealtimeShiftViewModel
@@ -13,7 +15,7 @@ namespace pet_spa_system1.ViewModel
         public string StaffName { get; set; } = string.Empty;
         public string AvatarUrl { get; set; } = string.Empty;
         public Dictionary<int, ShiftStatus> HourStatus { get; set; } = new();
-        public List<AppointmentViewModel> Appointments { get; set; }
+        public List<AppointmentViewModel> Appointments { get; set; } = new();
 
     }
 
@@ -23,9 +25,11 @@ namespace pet_spa_system1.ViewModel
         public string ColorClass { get; set; } = string.Empty;
         public string TimeRange { get; set; } = string.Empty;
         public int AppointmentId { get; set; }
-        
-        
+
+
     }
+
+
 
     public class AppointmentDragViewModel
     {
@@ -45,5 +49,11 @@ namespace pet_spa_system1.ViewModel
         public int NewStaffId { get; set; }
         public int NewHour { get; set; }
     }
+    public class UpdateAppointmentCalendarRequest
+{
+    public int AppointmentId { get; set; }
+    public int NewEmployeeId { get; set; }
+    public DateTime NewStart { get; set; }
+}
 
 }

@@ -8,7 +8,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="796ab06d-d8cf-4312-ad0f-7533f921350a" name="Changes" comment="" />
+    <list default="true" id="796ab06d-d8cf-4312-ad0f-7533f921350a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.pet-spa-system1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.pet-spa-system1/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/AdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AdminController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/AppointmentPet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/AppointmentPet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Blog.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Blog.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/BlogComment.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/BlogComment.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/BlogImage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/BlogImage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/BlogLike.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/BlogLike.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Pet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Pet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/PetDataShopContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/PetDataShopContext.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/PetImage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/PetImage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/User.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/User.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Repositories/AppointmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/AppointmentRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Repositories/BlogRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/BlogRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Repositories/IAppointmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/IAppointmentRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Repositories/IPetRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/IPetRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Repositories/PetRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/PetRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AppointmentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AppointmentService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/BlogService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/BlogService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/IAppointmentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/IAppointmentService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModel/AppointmentViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModel/AppointmentViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModel/ApproveAppointmentsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModel/ApproveAppointmentsViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModel/RealtimeShiftViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModel/RealtimeShiftViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AppointmentList.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AppointmentList.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/EditAppointment.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/EditAppointment.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/ManagementTimeline.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/ManagementTimeline.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wwwroot/cssjsAppointment/css/appointment-list.css" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/cssjsAppointment/css/appointment-list.css" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,24 +61,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.pet-spa-system1: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.pet-spa-system1: https.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Code/Rider/C#/project/pet-spa-system&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.ChangelistConflict&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.pet-spa-system1: http.executor": "Run",
+    ".NET Launch Settings Profile.pet-spa-system1: https.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "mvc__service/appointment",
+    "last_opened_file_path": "D:/Code/Rider/C#/project/pet-spa-system",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "project.propVCSSupport.ChangelistConflict",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\JetBrains Rider 2025.1.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.pet-spa-system1: https">
     <configuration name="pet-spa-system1: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/pet-spa-system1.csproj" />
@@ -97,7 +127,11 @@
       <workItem from="1753426456151" duration="12087000" />
       <workItem from="1753458010298" duration="20000" />
       <workItem from="1753674604279" duration="21399000" />
-      <workItem from="1753699596478" duration="19830000" />
+      <workItem from="1753699596478" duration="20213000" />
+      <workItem from="1753767245968" duration="5390000" />
+      <workItem from="1753790868707" duration="12697000" />
+      <workItem from="1753885206336" duration="474000" />
+      <workItem from="1753885937751" duration="12806000" />
     </task>
     <servers />
   </component>

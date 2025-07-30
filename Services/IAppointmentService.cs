@@ -1,4 +1,5 @@
-﻿using pet_spa_system1.Models;
+﻿        
+using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
 
 
@@ -83,5 +84,10 @@ namespace pet_spa_system1.Services
         List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
         List<Pet> GetAllPets();
         List<Service> GetAllServices();
+        // Bổ sung cho 1 pet 1 staff
+        Pet GetPetById(int petId);
+        AppointmentPet GetAppointmentPet(int appointmentId, int petId);
+        void UpdateAppointmentWithPetStaff(AppointmentViewModel vm);
+        bool RestoreAppointment(int id);
     }
 }

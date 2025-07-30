@@ -1,3 +1,4 @@
+       
 
 using pet_spa_system1.Models;
 using System;
@@ -56,6 +57,9 @@ namespace pet_spa_system1.Repositories
         List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
 
         List<Appointment> GetAppointmentsByStatus(int statusId);
+        void RestoreAppointment(int id);
+        void RestoreAppointmentPets(int appointmentId);
+        void RestoreAppointmentServices(int appointmentId);
     }
 
     public class MonthlyAppointmentStats

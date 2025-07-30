@@ -13,7 +13,11 @@ public partial class AppointmentPet
 
     public bool? IsActive { get; set; }
 
+    public int? StaffId { get; set; }
+
     public virtual Appointment Appointment { get; set; } = null!;
 
     public virtual Pet Pet { get; set; } = null!;
+
+    public virtual User? Staff { get; set; }
 }

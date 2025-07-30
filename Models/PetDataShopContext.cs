@@ -81,7 +81,7 @@ public partial class PetDataShopContext : DbContext
     {
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__8ECDFCA23670C808");
+            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__8ECDFCA2876D4698");
 
             entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -114,7 +114,7 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<AppointmentPet>(entity =>
         {
-            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64CA6DA51B6");
+            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64CFAF72409");
 
             entity.HasIndex(e => new { e.AppointmentId, e.PetId }, "UQ_AppointmentPet").IsUnique();
 
@@ -132,11 +132,15 @@ public partial class PetDataShopContext : DbContext
                 .HasForeignKey(d => d.PetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Appointme__PetID__0B91BA14");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.AppointmentPets)
+                .HasForeignKey(d => d.StaffId)
+                .HasConstraintName("FK_AppointmentPet_Staff");
         });
 
         modelBuilder.Entity<AppointmentService>(entity =>
         {
-            entity.HasKey(e => e.AppointmentServiceId).HasName("PK__Appointm__3B38F2769A969488");
+            entity.HasKey(e => e.AppointmentServiceId).HasName("PK__Appointm__3B38F2760B6166EE");
 
             entity.HasIndex(e => new { e.AppointmentId, e.ServiceId }, "UQ_AppointmentService").IsUnique();
 
@@ -156,34 +160,34 @@ public partial class PetDataShopContext : DbContext
                 .HasConstraintName("FK__Appointme__Servi__114A936A");
         });
 
-modelBuilder.Entity<Blog>(entity =>
-{
-    entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E5030BDEFFE");
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.HasKey(e => e.BlogId).HasName("PK__Blogs__54379E50749420FE");
 
-    entity.Property(e => e.BlogId).HasColumnName("BlogID");
-    entity.Property(e => e.Category).HasMaxLength(50);
-    entity.Property(e => e.ContentFormat)
-        .HasMaxLength(20)
-        .HasDefaultValue("Markdown");
-    entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
-    entity.Property(e => e.Status)
-        .HasMaxLength(20)
-        .HasDefaultValue("Draft");
-    entity.Property(e => e.Title).HasMaxLength(255);
-    entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.BlogId).HasColumnName("BlogID");
+            entity.Property(e => e.Category).HasMaxLength(50);
+            entity.Property(e => e.ContentFormat)
+                .HasMaxLength(20)
+                .HasDefaultValue("Markdown");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Draft");
+            entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
-    entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.BlogApprovedByNavigations)
-        .HasForeignKey(d => d.ApprovedBy)
-        .HasConstraintName("FK__Blogs__ApprovedB__4A8310C6");
+            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.BlogApprovedByNavigations)
+                .HasForeignKey(d => d.ApprovedBy)
+                .HasConstraintName("FK__Blogs__ApprovedB__55BFB948");
 
-    entity.HasOne(d => d.User).WithMany(p => p.BlogUsers)
-        .HasForeignKey(d => d.UserId)
-        .HasConstraintName("FK__Blogs__UserID__498EEC8D");
-});
+            entity.HasOne(d => d.User).WithMany(p => p.BlogUsers)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__Blogs__UserID__54CB950F");
+        });
 
         modelBuilder.Entity<BlogComment>(entity =>
         {
-            entity.HasKey(e => e.CommentId).HasName("PK__Blog_Com__C3B4DFAAF93B126C");
+            entity.HasKey(e => e.CommentId).HasName("PK__Blog_Com__C3B4DFAA932B666D");
 
             entity.ToTable("Blog_Comments");
 
@@ -199,21 +203,21 @@ modelBuilder.Entity<Blog>(entity =>
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogComments)
                 .HasForeignKey(d => d.BlogId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blog_Comm__BlogI__7D0E9093");
+                .HasConstraintName("FK__Blog_Comm__BlogI__6501FCD8");
 
-            entity.HasOne(d => d.ParentComment).WithMany(p => p.Replies)
+            entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
                 .HasForeignKey(d => d.ParentCommentId)
-                .HasConstraintName("FK__Blog_Comm__Paren__7EF6D905");
+                .HasConstraintName("FK__Blog_Comm__Paren__66EA454A");
 
             entity.HasOne(d => d.User).WithMany(p => p.BlogComments)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blog_Comm__UserI__7E02B4CC");
+                .HasConstraintName("FK__Blog_Comm__UserI__65F62111");
         });
 
         modelBuilder.Entity<BlogImage>(entity =>
         {
-            entity.HasKey(e => e.ImageId).HasName("PK__Blog_Ima__7516F4EC38AEEF0C");
+            entity.HasKey(e => e.ImageId).HasName("PK__Blog_Ima__7516F4ECCFA22F95");
 
             entity.ToTable("Blog_Images");
 
@@ -225,16 +229,16 @@ modelBuilder.Entity<Blog>(entity =>
 
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogImages)
                 .HasForeignKey(d => d.BlogId)
-                .HasConstraintName("FK__Blog_Imag__BlogI__503BEA1C");
+                .HasConstraintName("FK__Blog_Imag__BlogI__5F492382");
         });
 
         modelBuilder.Entity<BlogLike>(entity =>
         {
-            entity.HasKey(e => e.LikeId).HasName("PK__Blog_Lik__A2922CF4AA0D3D5E");
+            entity.HasKey(e => e.LikeId).HasName("PK__Blog_Lik__A2922CF4FE000993");
 
             entity.ToTable("Blog_Likes");
 
-            entity.HasIndex(e => new { e.BlogId, e.UserId }, "UQ__Blog_Lik__854F129BBE713DCD").IsUnique();
+            entity.HasIndex(e => new { e.BlogId, e.UserId }, "UQ__Blog_Lik__854F129B699023EA").IsUnique();
 
             entity.Property(e => e.LikeId).HasColumnName("LikeID");
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
@@ -244,17 +248,17 @@ modelBuilder.Entity<Blog>(entity =>
             entity.HasOne(d => d.Blog).WithMany(p => p.BlogLikes)
                 .HasForeignKey(d => d.BlogId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blog_Like__BlogI__03BB8E22");
+                .HasConstraintName("FK__Blog_Like__BlogI__6BAEFA67");
 
             entity.HasOne(d => d.User).WithMany(p => p.BlogLikes)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Blog_Like__UserI__04AFB25B");
+                .HasConstraintName("FK__Blog_Like__UserI__6CA31EA0");
         });
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD797425594A1");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7973B81DA89");
 
             entity.ToTable("Cart");
 
@@ -276,7 +280,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E126C763C96");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__20CF2E123AF6CDE9");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -286,12 +290,12 @@ modelBuilder.Entity<Blog>(entity =>
             entity.HasOne(d => d.User).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Notificat__UserI__7755B73D");
+                .HasConstraintName("FK__Notificat__UserI__7167D3BD");
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAF14803C64");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFE07F64C7");
 
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -314,7 +318,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A145762658");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED06A1410CF407");
 
             entity.Property(e => e.OrderItemId).HasColumnName("OrderItemID");
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
@@ -333,7 +337,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A5894476BCB");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A5846E0455B");
 
             entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
             entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
@@ -371,9 +375,9 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.PaymentMethodId).HasName("PK__PaymentM__DC31C1F3373BC567");
+            entity.HasKey(e => e.PaymentMethodId).HasName("PK__PaymentM__DC31C1F36F0C2734");
 
-            entity.HasIndex(e => e.MethodName, "UQ__PaymentM__218CFB177B59A092").IsUnique();
+            entity.HasIndex(e => e.MethodName, "UQ__PaymentM__218CFB17D5BBB0A3").IsUnique();
 
             entity.Property(e => e.PaymentMethodId).HasColumnName("PaymentMethodID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -382,9 +386,9 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<PaymentStatus>(entity =>
         {
-            entity.HasKey(e => e.PaymentStatusId).HasName("PK__PaymentS__34F8AC1FC01635D2");
+            entity.HasKey(e => e.PaymentStatusId).HasName("PK__PaymentS__34F8AC1F1A8BBAB7");
 
-            entity.HasIndex(e => e.StatusName, "UQ__PaymentS__05E7698A2D1F0BC1").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__PaymentS__05E7698AAB508E6D").IsUnique();
 
             entity.Property(e => e.PaymentStatusId).HasColumnName("PaymentStatusID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -393,7 +397,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Pet>(entity =>
         {
-            entity.HasKey(e => e.PetId).HasName("PK__Pets__48E5380210259056");
+            entity.HasKey(e => e.PetId).HasName("PK__Pets__48E5380242D74943");
 
             entity.Property(e => e.PetId).HasColumnName("PetID");
             entity.Property(e => e.Breed).HasMaxLength(50);
@@ -416,7 +420,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<PetImage>(entity =>
         {
-            entity.HasKey(e => e.PetImageId).HasName("PK__PetImage__7938993353A29DA7");
+            entity.HasKey(e => e.PetImageId).HasName("PK__PetImage__79389933CB2C24BF");
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
@@ -424,12 +428,12 @@ modelBuilder.Entity<Blog>(entity =>
             entity.HasOne(d => d.Pet).WithMany(p => p.PetImages)
                 .HasForeignKey(d => d.PetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PetImages__PetId__09746778");
+                .HasConstraintName("FK__PetImages__PetId__5A846E65");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED2D221A24");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED7D630B09");
 
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
@@ -449,7 +453,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<ProductCategory>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__ProductC__19093A2B018DDA6A");
+            entity.HasKey(e => e.CategoryId).HasName("PK__ProductC__19093A2B6AC43CAF");
 
             entity.HasIndex(e => new { e.Name, e.CateParent }, "UQ_ProductCategories_Name_CateParent").IsUnique();
 
@@ -466,9 +470,9 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Promotion>(entity =>
         {
-            entity.HasKey(e => e.PromotionId).HasName("PK__Promotio__52C42F2FD01CEAE3");
+            entity.HasKey(e => e.PromotionId).HasName("PK__Promotio__52C42F2FCD778EC9");
 
-            entity.HasIndex(e => e.Code, "UQ__Promotio__A25C5AA7756B87FD").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Promotio__A25C5AA78C3BE73F").IsUnique();
 
             entity.Property(e => e.PromotionId).HasColumnName("PromotionID");
             entity.Property(e => e.ApplicableTo).HasMaxLength(20);
@@ -482,7 +486,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<PromotionProduct>(entity =>
         {
-            entity.HasKey(e => e.PromotionProductId).HasName("PK__Promotio__C7B85D3CFC1CCADF");
+            entity.HasKey(e => e.PromotionProductId).HasName("PK__Promotio__C7B85D3C78BA0F3A");
 
             entity.ToTable("Promotion_Products");
 
@@ -506,7 +510,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<PromotionService>(entity =>
         {
-            entity.HasKey(e => e.PromotionServiceId).HasName("PK__Promotio__1F3D2989A0791F9F");
+            entity.HasKey(e => e.PromotionServiceId).HasName("PK__Promotio__1F3D298906F5FA5D");
 
             entity.ToTable("Promotion_Services");
 
@@ -530,7 +534,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__74BC79AEE8B54A5E");
+            entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__74BC79AEAD3A37C1");
 
             entity.Property(e => e.ReviewId).HasColumnName("ReviewID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -562,9 +566,9 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A2AE6D04A");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3AE4A1C1D4");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B6160EF2B897A").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B61609BDFF5BA").IsUnique();
 
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -574,11 +578,11 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<SerCate>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Ser_cate__19093A2B212F7B9B");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Ser_cate__19093A2B0EC0A9A1");
 
             entity.ToTable("Ser_cate");
 
-            entity.HasIndex(e => e.Name, "UQ__Ser_cate__737584F65059F3BE").IsUnique();
+            entity.HasIndex(e => e.Name, "UQ__Ser_cate__737584F69A43B685").IsUnique();
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CateParent).HasColumnName("Cate_parent");
@@ -593,7 +597,7 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Service>(entity =>
         {
-            entity.HasKey(e => e.ServiceId).HasName("PK__Services__C51BB0EA1306BBD1");
+            entity.HasKey(e => e.ServiceId).HasName("PK__Services__C51BB0EA93BFB7D0");
 
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
@@ -611,9 +615,9 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<Species>(entity =>
         {
-            entity.HasKey(e => e.SpeciesId).HasName("PK__Species__A938047F36AD4C1D");
+            entity.HasKey(e => e.SpeciesId).HasName("PK__Species__A938047FE23D0C46");
 
-            entity.HasIndex(e => e.SpeciesName, "UQ__Species__304D4C0DF7953DBE").IsUnique();
+            entity.HasIndex(e => e.SpeciesName, "UQ__Species__304D4C0DC87AFF30").IsUnique();
 
             entity.Property(e => e.SpeciesId).HasColumnName("SpeciesID");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -622,11 +626,11 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<StatusAppointment>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__Status_A__C8EE2043C40C9C90");
+            entity.HasKey(e => e.StatusId).HasName("PK__Status_A__C8EE2043F5EC7EFA");
 
             entity.ToTable("Status_Appointment");
 
-            entity.HasIndex(e => e.StatusName, "UQ__Status_A__05E7698A6AA1FB28").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__Status_A__05E7698AD1AA59F7").IsUnique();
 
             entity.Property(e => e.StatusId).HasColumnName("StatusID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -635,11 +639,11 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<StatusOrder>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__StatusOr__C8EE20439110246B");
+            entity.HasKey(e => e.StatusId).HasName("PK__StatusOr__C8EE20435677C935");
 
             entity.ToTable("StatusOrder");
 
-            entity.HasIndex(e => e.StatusName, "UQ__StatusOr__05E7698A3F10F5B1").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__StatusOr__05E7698A00532D03").IsUnique();
 
             entity.Property(e => e.StatusId).HasColumnName("StatusID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
@@ -648,11 +652,11 @@ modelBuilder.Entity<Blog>(entity =>
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACDAB49FBF");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACD659248B");
 
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E4D5AF8C38").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__536C85E484E61D78").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534A392ED30").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534065E5C2A").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
