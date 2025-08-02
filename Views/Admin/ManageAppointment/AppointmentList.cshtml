@@ -93,42 +93,48 @@
                             </td>
                             <td>
                                 <ul class="list-unstyled mb-0">
-                                    @foreach (var pet in item.AppointmentPets)
+                                    @if (item.AppointmentPets != null)
                                     {
-                                        <li>
-                                            @if (pet.Pet.Species != null)
-                                            {
-                                                <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
-                                                    @pet.Pet.Name
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge rounded-pill badge-pet bg-light text-dark">
-                                                    @pet.Pet.Name
-                                                </span>
-                                            }
-                                        </li>
+                                        foreach (var pet in item.AppointmentPets)
+                                        {
+                                            <li>
+                                                @if (pet.Pet.Species != null)
+                                                {
+                                                    <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
+                                                        @pet.Pet.Name
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill badge-pet bg-light text-dark">
+                                                        @pet.Pet.Name
+                                                    </span>
+                                                }
+                                            </li>
+                                        }
                                     }
                                 </ul>
                             </td>
                             <td>
                                 <ul class="list-unstyled mb-0">
-                                    @foreach (var service in item.AppointmentServices)
+                                    @if (item.AppointmentServices != null)
                                     {
-                                        <li><span class="badge rounded-pill badge-service bg-light text-dark" data-bs-toggle="tooltip" title="@service.Service.Description">@service.Service.Name</span></li>
+                                        foreach (var service in item.AppointmentServices)
+                                        {
+                                            <li><span class="badge rounded-pill badge-service bg-light text-dark" data-bs-toggle="tooltip" title="@service.Service.Description">@service.Service.Name</span></li>
+                                        }
                                     }
                                 </ul>
                             </td>
                             <td class="time-col">
                                 <div class="d-flex flex-column">
-                                    <span>@item.AppointmentDate.ToString("dd/MM/yyyy")</span>
-                                    <span class="text-muted small">@item.AppointmentDate.ToString("HH:mm")</span>
+                                    <span>@item.AppointmentDateTime.ToString("dd/MM/yyyy")</span>
+                                    <span class="text-muted small">@item.AppointmentDateTime.ToString("HH:mm")</span>
                                 </div>
                             </td>
                             <td class="status-col">
                                 <span class="badge badge-status status-@item.StatusId" data-statusid="@item.StatusId" style="font-size:1em;min-width:120px;">
-                                    <span class="status-icon"></span> @item.Status.StatusName
+                                    <span class="status-icon"></span> @(item.Status != null ? item.Status.StatusName : "")
                                 </span>
                             </td>
                             <td>
@@ -260,13 +266,13 @@
 
         // Hiển thị toast từ TempData
         document.addEventListener('DOMContentLoaded', function () {
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <text>showToast(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["SuccessMessage"].ToString())), 'success');</text>
+            var successMsg = @((TempData["SuccessMessage"] != null) ? Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["SuccessMessage"].ToString())) : "null");
+            var errorMsg = @((TempData["ErrorMessage"] != null) ? Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["ErrorMessage"].ToString())) : "null");
+            if (successMsg !== null) {
+                showToast(successMsg, 'success');
             }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <text>showToast(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["ErrorMessage"].ToString())), 'error');</text>
+            if (errorMsg !== null) {
+                showToast(errorMsg, 'error');
             }
         });
 

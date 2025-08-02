@@ -11,67 +11,35 @@
     <list default="true" id="796ab06d-d8cf-4312-ad0f-7533f921350a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.pet-spa-system1/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.pet-spa-system1/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentTestController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentTestController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/AdminStaffManager/AdminStaffScheduleController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ServiceManager/AppointmentController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ServiceManager/AppointmentController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/AdminServiceManager/AdminAppointmentTestController.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/UserManager/UserController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/UserManager/UserController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/Appointment.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Appointment.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Repositories/.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Repositories/AppointmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/AppointmentRepository.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Repositories/IAppointmentRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/IAppointmentRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Repositories/IUserRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/IUserRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Repositories/UserRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Repositories/UserRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AdminStaffScheduleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AdminStaffScheduleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AdminStaffScheduleService.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/AppointmentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AppointmentService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/IAdminStaffScheduleService.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/IAppointmentService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/IAppointmentService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ServiceService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ServiceService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/UserService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/UserService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utils/AppointmentExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/AppointmentExtensions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModel/AppointmentFilter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModel/AppointmentFilter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ViewModel/AppointmentServiceViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModel/AppointmentServiceViewModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewModel/AppointmentViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ViewModel/AppointmentViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Create.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Create.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Delete.cshtml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Deleted.cshtml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Details.cshtml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Edit.cshtml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Index.cshtml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AddAppointment.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AddAppointment.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AppointmentCalendar.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AppointmentCalendar.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/ApproveAppointments.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/ApproveAppointments.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/EditAppointment.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/EditAppointment.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Appointment/Appointment.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Appointment/Appointment.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Email/SuccessEmail.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Email/SuccessEmail.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ViewModel/__TO_DELETE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Admin/AdminStaffSchedule/Create.cshtml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AppointmentList.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/ManageAppointment/AppointmentList.cshtml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.exe" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.staticwebassets.endpoints.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.staticwebassets.endpoints.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.staticwebassets.runtime.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net9.0/pet-spa-system1.staticwebassets.runtime.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/apphost.exe" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/apphost.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/compressed/yid40kdks5-qze4bj9x6p.gz" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.AssemblyInfo.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.AssemblyInfoInputs.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.csproj.CoreCompileInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.csproj.FileListAbsolute.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.sourcelink.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/pet-spa-system1.sourcelink.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rbcswa.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rbcswa.dswa.cache.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/ref/pet-spa-system1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/ref/pet-spa-system1.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/refint/pet-spa-system1.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/refint/pet-spa-system1.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rjimswa.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rjimswa.dswa.cache.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmrazor.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rjsmrazor.dswa.cache.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/rpswa.dswa.cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/rpswa.dswa.cache.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.endpoints.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.endpoints.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.build.json.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.development.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net9.0/staticwebassets.development.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/rider.project.model.nuget.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.model.nuget.info" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wwwroot/cssjsAppointment/js/appointment-common.js" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/cssjsAppointment/js/appointment-common.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -174,6 +142,7 @@
       <workItem from="1754104307975" duration="4659000" />
       <workItem from="1754117076716" duration="286000" />
       <workItem from="1754138349984" duration="72000" />
+      <workItem from="1754139362575" duration="3990000" />
     </task>
     <servers />
   </component>

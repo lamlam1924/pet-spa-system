@@ -1,7 +1,0 @@
-Các file ViewModel sau sẽ bị xoá vì đã gộp vào AppointmentViewModel.cs:
-- AppointmentFilter.cs
-- AppointmentServiceViewModel.cs
-- ApproveAppointmentsViewModel.cs
-- ApproveAssignResult.cs
-- RealtimeShiftViewModel.cs
-- UpdateAppointmentCalendarRequest.cs

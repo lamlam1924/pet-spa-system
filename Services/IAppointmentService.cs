@@ -18,6 +18,8 @@ namespace pet_spa_system1.Services
         List<AdminAppointmentDetailViewModel> GetPendingAppointments();
         List<AdminAppointmentDetailViewModel> GetPendingCancelAppointments();
         List<AppointmentViewModel> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+        List<AppointmentViewModel> GetAppointments(AppointmentFilter filter);
+        int CountAppointments(AppointmentFilter filter);
         RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
         bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
         ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "");
@@ -34,6 +36,9 @@ namespace pet_spa_system1.Services
         bool RestoreAppointment(int id);
         bool SaveAppointment(AppointmentViewModel model, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
-        
+        AppointmentDashboardViewModel GetDashboardViewModel();
+        List<StatusAppointment> GetAllStatuses();
+        void DeleteAppointment(int id);
+
     }
-    }
+}

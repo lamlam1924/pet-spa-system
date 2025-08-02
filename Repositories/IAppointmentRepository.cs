@@ -7,6 +7,7 @@ using System.Collections.Generic;
 namespace pet_spa_system1.Repositories
 {
     public interface IAppointmentRepository
+
     {
         List<object> GetCalendarEvents();
         List<Service> GetAllServices();
@@ -33,11 +34,17 @@ namespace pet_spa_system1.Repositories
         List<Appointment> GetPendingCancelAppointments();
         List<Appointment> GetAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter);
         int CountAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter);
+
+        // Dashboard helpers
         List<Appointment> GetAppointmentsByDateRange(DateTime start, DateTime end);
-    void RestoreAppointment(int id);
-    void RestoreAppointmentPets(int appointmentId);
-    void RestoreAppointmentServices(int appointmentId);
-    List<MonthlyAppointmentStats> GetMonthlyStats(int year);
+        List<Appointment> GetAppointmentsByStatus(int statusId);
+        void RestoreAppointment(int id);
+        void RestoreAppointmentPets(int appointmentId);
+        void RestoreAppointmentServices(int appointmentId);
+        List<MonthlyAppointmentStats> GetMonthlyStats(int year);
+        void Delete(int id);
+        void DeleteAppointmentPets(int appointmentId);
+        void DeleteAppointmentServices(int appointmentId);
 }
 
 

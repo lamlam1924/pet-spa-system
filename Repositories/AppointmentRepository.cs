@@ -4,17 +4,20 @@ using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Repositories
 {
-public class AppointmentRepository : IAppointmentRepository
-{
-    private readonly PetDataShopContext _context;
-    public AppointmentRepository(PetDataShopContext context)
+    public class AppointmentRepository : IAppointmentRepository
     {
-        _context = context;
-    }
-    public List<object> GetCalendarEvents()
+        private readonly PetDataShopContext _context;
+
+        public AppointmentRepository(PetDataShopContext context)
+        {
+            _context = context;
+        }
+
+        public List<object> GetCalendarEvents()
         {
             return GetAppointments(new AppointmentFilter { })
-                .Where(a => {
+                .Where(a =>
+                {
                     var cancelledStatus = _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "Cancelled");
                     return cancelledStatus != null && a.StatusId != cancelledStatus.StatusId;
                 })
@@ -36,7 +39,8 @@ public class AppointmentRepository : IAppointmentRepository
                     id = a.id,
                     title = a.userFullName + " - " + string.Join(", ", a.serviceNames ?? new List<string>()),
                     start = a.appointmentDate.ToDateTime(a.startTime).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = a.appointmentDate.ToDateTime(a.startTime).AddMinutes(a.duration).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = a.appointmentDate.ToDateTime(a.startTime).AddMinutes(a.duration)
+                        .ToString("yyyy-MM-ddTHH:mm:ss"),
                     resourceIds = a.staffIds,
                     customer = a.userFullName,
                     phone = a.phone,
@@ -46,7 +50,6 @@ public class AppointmentRepository : IAppointmentRepository
                 .Cast<object>().ToList();
         }
 
-        
 
         /// <summary>
         /// Cập nhật thông tin lịch hẹn (bao gồm trạng thái)
@@ -123,11 +126,13 @@ public class AppointmentRepository : IAppointmentRepository
             return query.Count();
         }
 
-        private IQueryable<Appointment> ApplyFilters(IQueryable<Appointment> query, pet_spa_system1.ViewModel.AppointmentFilter filter)
+        private IQueryable<Appointment> ApplyFilters(IQueryable<Appointment> query,
+            pet_spa_system1.ViewModel.AppointmentFilter filter)
         {
             if (!string.IsNullOrEmpty(filter.Customer))
             {
-                query = query.Where(a => a.User != null && a.User.FullName != null && a.User.FullName.Contains(filter.Customer));
+                query = query.Where(a =>
+                    a.User != null && a.User.FullName != null && a.User.FullName.Contains(filter.Customer));
             }
 
             if (!string.IsNullOrEmpty(filter.Pet))
@@ -166,7 +171,8 @@ public class AppointmentRepository : IAppointmentRepository
                 .ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices)
                 .ThenInclude(as_ => as_.Service)
-                .Where(a => a.AppointmentDate >= DateOnly.FromDateTime(start) && a.AppointmentDate <= DateOnly.FromDateTime(end))
+                .Where(a => a.AppointmentDate >= DateOnly.FromDateTime(start) &&
+                            a.AppointmentDate <= DateOnly.FromDateTime(end))
                 .ToList();
         }
 
@@ -273,7 +279,8 @@ public class AppointmentRepository : IAppointmentRepository
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId ||
+                .Where(a => a.StatusId == _context.StatusAppointments
+                                .FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId ||
                             a.StatusId == 7)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
@@ -288,7 +295,8 @@ public class AppointmentRepository : IAppointmentRepository
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
                 .Where(a => a.StatusId == 1 ||
-                            a.StatusId == _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId)
+                            a.StatusId == _context.StatusAppointments
+                                .FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -301,7 +309,8 @@ public class AppointmentRepository : IAppointmentRepository
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId)
+                .Where(a => a.StatusId == _context.StatusAppointments
+                    .FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -314,7 +323,8 @@ public class AppointmentRepository : IAppointmentRepository
         public int CountPendingCancelAppointments()
         {
             return _context.Appointments.Count(a =>
-                a.StatusId == _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId);
+                a.StatusId == _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "PendingCancel")
+                    .StatusId);
         }
 
         // Repository trả entity hoặc entity list, không có EndTime
@@ -325,20 +335,24 @@ public class AppointmentRepository : IAppointmentRepository
                 .Include(a => a.AppointmentServices).ThenInclude(s => s.Service)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Staff) // Nếu có navigation Staff
-                .Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId) && a.AppointmentDate == DateOnly.FromDateTime(date))
+                .Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId) &&
+                            a.AppointmentDate == DateOnly.FromDateTime(date))
                 .ToList();
         }
+
         public bool HasTimeConflict(int staffId, DateTime newStart, DateTime newEnd, int? excludeAppointmentId = null)
         {
             // Kiểm tra trùng lịch cho từng pet-staff
             return _context.AppointmentPets
-                .Where(ap => ap.StaffId == staffId && (excludeAppointmentId == null || ap.AppointmentId != excludeAppointmentId))
+                .Where(ap =>
+                    ap.StaffId == staffId && (excludeAppointmentId == null || ap.AppointmentId != excludeAppointmentId))
                 .Join(_context.Appointments,
-                      ap => ap.AppointmentId,
-                      a => a.AppointmentId,
-                      (ap, a) => new { ap, a })
+                    ap => ap.AppointmentId,
+                    a => a.AppointmentId,
+                    (ap, a) => new { ap, a })
                 .Any(joined =>
-                    newStart < joined.a.AppointmentDate.ToDateTime(joined.a.StartTime).AddMinutes(joined.a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
+                    newStart < joined.a.AppointmentDate.ToDateTime(joined.a.StartTime)
+                        .AddMinutes(joined.a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
                     && newEnd > joined.a.AppointmentDate.ToDateTime(joined.a.StartTime)
                 );
         }
@@ -387,9 +401,11 @@ public class AppointmentRepository : IAppointmentRepository
                 _context.Entry(ap).State = EntityState.Modified;
             }
         }
+
         public List<int> GetAppointmentIdsByStaff(int staffId)
         {
-            return _context.AppointmentPets.Where(ap => ap.StaffId == staffId).Select(ap => ap.AppointmentId).Distinct().ToList();
+            return _context.AppointmentPets.Where(ap => ap.StaffId == staffId).Select(ap => ap.AppointmentId).Distinct()
+                .ToList();
         }
 
         public List<Appointment> GetAppointmentsByIds(List<int> appointmentIds)
@@ -399,7 +415,8 @@ public class AppointmentRepository : IAppointmentRepository
 
         public AppointmentPet GetAppointmentPet(int appointmentId, int petId)
         {
-            return _context.AppointmentPets.FirstOrDefault(ap => ap.AppointmentId == appointmentId && ap.PetId == petId) ?? new AppointmentPet();
+            return _context.AppointmentPets.FirstOrDefault(ap =>
+                ap.AppointmentId == appointmentId && ap.PetId == petId) ?? new AppointmentPet();
         }
 
         public void UpdateAppointmentPetStaff(int appointmentId, int petId, int staffId)
@@ -415,7 +432,7 @@ public class AppointmentRepository : IAppointmentRepository
         {
             _context.SaveChanges();
         }
-        
+
         public List<string> GetPetNamesByIds(List<int> petIds)
         {
             if (petIds == null || petIds.Count == 0) return new List<string>();
@@ -468,6 +485,7 @@ public class AppointmentRepository : IAppointmentRepository
                 Console.WriteLine($"WARNING: Không tìm thấy dịch vụ ID {serviceId}");
                 return;
             }
+
             _context.AppointmentServices.Add(new AppointmentService
             {
                 AppointmentId = appointmentId,

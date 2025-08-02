@@ -1,4 +1,3 @@
-        
 using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
@@ -8,6 +7,7 @@ namespace pet_spa_system1.Controllers
 {
     [Route("AdminAppointment")]
     public class AdminAppointmentController : Controller
+
 
     {
         private readonly IAppointmentService _appointmentService;
@@ -31,10 +31,6 @@ namespace pet_spa_system1.Controllers
         }
 
 
-
-
-
-
         // Hàm tiện ích gom lỗi ModelState
         // Removed unused GetModelErrors method
         [HttpGet]
@@ -49,7 +45,6 @@ namespace pet_spa_system1.Controllers
         }
 
 
-
         [HttpGet]
         [Route("Edit")]
         public IActionResult Edit(int id)
@@ -60,16 +55,19 @@ namespace pet_spa_system1.Controllers
             // Bổ sung: load PetStaffAssignments từ các AppointmentPet
             if (vm.PetStaffAssignments == null || vm.PetStaffAssignments.Count == 0)
             {
-                vm.PetStaffAssignments = vm.SelectedPetIds?.Select(pid => {
+                vm.PetStaffAssignments = vm.SelectedPetIds?.Select(pid =>
+                {
                     // var pet = _appointmentService.GetPetById(pid);
                     var ap = _appointmentService.GetAppointmentPet(id, pid);
-                    return new PetStaffAssignViewModel {
+                    return new PetStaffAssignViewModel
+                    {
                         PetId = pid,
                         StaffId = ap?.StaffId,
                         StaffName = ap?.Staff?.FullName
                     };
                 }).ToList() ?? new List<PetStaffAssignViewModel>();
             }
+
             return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", vm);
         }
 
@@ -129,7 +127,6 @@ namespace pet_spa_system1.Controllers
         // Removed stray code block after GetPetsByCustomer
 
 
-
         // [HttpPost]
         // [ValidateAntiForgeryToken]
         // public IActionResult ApproveCancel(int id)
@@ -151,25 +148,24 @@ namespace pet_spa_system1.Controllers
         }
 
 
-
-
-
         [HttpPost("CheckConflict")]
         public IActionResult CheckConflict([FromBody] AppointmentViewModel vm)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (vm == null || vm.PetStaffAssignments == null || vm.PetStaffAssignments.Count == 0 || vm.DurationMinutes <= 0)
+            if (vm == null || vm.PetStaffAssignments == null || vm.PetStaffAssignments.Count == 0 ||
+                vm.DurationMinutes <= 0)
                 return BadRequest(new { conflict = false, message = "Dữ liệu không hợp lệ" });
 
             // Kiểm tra conflict cho từng pet-staff assignment
-            var conflicts = vm.PetStaffAssignments.Select(assign => new {
+            var conflicts = vm.PetStaffAssignments.Select(assign => new
+            {
                 PetId = assign.PetId,
                 StaffId = assign.StaffId,
-                Conflict = _appointmentService.IsTimeConflict(vm.AppointmentDate.ToDateTime(vm.StartTime), assign.StaffId ?? 0, vm.DurationMinutes)
+                Conflict = _appointmentService.IsTimeConflict(vm.AppointmentDate.ToDateTime(vm.StartTime),
+                    assign.StaffId ?? 0, vm.DurationMinutes)
             }).ToList();
             return Ok(new { conflicts });
         }
-
 
 
         [HttpGet]
@@ -197,10 +193,12 @@ namespace pet_spa_system1.Controllers
                 return NotFound(new { success = false });
 
             // Gán staff mới cho từng pet nếu có thông tin (ví dụ: vm.PetStaffAssignments)
-            var petStaffAssignments = vm.PetStaffAssignments ?? (appointment.AppointmentPets?.Select(ap => new PetStaffAssignViewModel {
-                PetId = ap.PetId,
-                StaffId = vm.NewStaffId ?? 0
-            }).ToList() ?? new List<PetStaffAssignViewModel>());
+            var petStaffAssignments = vm.PetStaffAssignments ?? (appointment.AppointmentPets?.Select(ap =>
+                new PetStaffAssignViewModel
+                {
+                    PetId = ap.PetId,
+                    StaffId = vm.NewStaffId ?? 0
+                }).ToList() ?? new List<PetStaffAssignViewModel>());
 
             // Cập nhật giờ bắt đầu
             var date = appointment.AppointmentDate;
@@ -216,7 +214,8 @@ namespace pet_spa_system1.Controllers
                 StatusId = appointment.StatusId,
                 Notes = appointment.Notes,
                 SelectedPetIds = appointment.AppointmentPets?.Select(p => p.PetId).ToList() ?? new List<int>(),
-                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ?? new List<int>(),
+                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ??
+                                     new List<int>(),
                 PetStaffAssignments = petStaffAssignments
             });
 
@@ -340,7 +339,8 @@ namespace pet_spa_system1.Controllers
             var hasConflict = _context.Appointments
                 .Where(a => a.EmployeeId == vm.NewEmployeeId && a.AppointmentId != vm.AppointmentId)
                 .Any(a =>
-                    newStart < a.AppointmentDate.ToDateTime(a.StartTime).AddMinutes(a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
+                    newStart < a.AppointmentDate.ToDateTime(a.StartTime)
+                        .AddMinutes(a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
                     && newEnd > a.AppointmentDate.ToDateTime(a.StartTime)
                 );
             if (hasConflict)
@@ -349,10 +349,12 @@ namespace pet_spa_system1.Controllers
             }
 
             // Gán staff mới cho từng pet nếu có thông tin (ví dụ: vm.PetStaffAssignments)
-            var petStaffAssignments = vm.PetStaffAssignments ?? (appointment.AppointmentPets?.Select(ap => new PetStaffAssignViewModel {
-                PetId = ap.PetId,
-                StaffId = vm.NewEmployeeId
-            }).ToList() ?? new List<PetStaffAssignViewModel>());
+            var petStaffAssignments = vm.PetStaffAssignments ?? (appointment.AppointmentPets?.Select(ap =>
+                new PetStaffAssignViewModel
+                {
+                    PetId = ap.PetId,
+                    StaffId = vm.NewEmployeeId
+                }).ToList() ?? new List<PetStaffAssignViewModel>());
 
             _appointmentService.UpdateAppointmentWithPetStaff(new pet_spa_system1.ViewModel.AppointmentViewModel
             {
@@ -362,7 +364,8 @@ namespace pet_spa_system1.Controllers
                 Notes = appointment.Notes,
                 CustomerId = appointment.UserId,
                 SelectedPetIds = appointment.AppointmentPets?.Select(p => p.PetId).ToList() ?? new List<int>(),
-                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ?? new List<int>(),
+                SelectedServiceIds = appointment.AppointmentServices?.Select(s => s.ServiceId).ToList() ??
+                                     new List<int>(),
                 PetStaffAssignments = petStaffAssignments
             });
 
@@ -384,5 +387,70 @@ namespace pet_spa_system1.Controllers
                 return BadRequest(new { success = false, message = "Có lỗi xảy ra khi khôi phục lịch hẹn!" });
             }
         }
+
+        [HttpGet]
+        [Route("Dashboard")]
+        public IActionResult Dashboard()
+        {
+            var model = _appointmentService.GetDashboardViewModel();
+            return View("~/Views/Admin/ManageAppointment/AppointmentDashboard.cshtml", model);
+        }
+
+        [HttpGet]
+        [Route("List")]
+        public IActionResult List(int page = 1, string search = "", int? status = null, DateTime? date = null,
+            int? employee = null)
+        {
+            // Sử dụng các hàm service/repo đã có để lấy danh sách lịch hẹn, lọc, phân trang
+            int pageSize = 20;
+            var filter = new AppointmentFilter
+            {
+                Customer = search,
+                Pet = search,
+                Service = search,
+                StaffId = employee,
+                Date = date,
+                StatusId = status,
+                Page = page,
+                PageSize = pageSize
+            };
+            var appointments = _appointmentService.GetAppointments(filter);
+            var total = _appointmentService.CountAppointments(filter);
+            var statusList = _appointmentService.GetAllStatuses();
+            var employeeList = _appointmentService.GetEmployees();
+
+            var model = new AppointmentListViewModel
+            {
+                Appointments = appointments,
+                StatusList = statusList,
+                EmployeeList = employeeList,
+                Total = total,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)total / pageSize)
+            };
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = model.TotalPages;
+            return View("~/Views/Admin/ManageAppointment/AppointmentList.cshtml", model);
+        }
+        
+        [HttpPost]
+        [Route("DeleteAppointment")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteAppointment(int id)
+        {
+            if (!ModelState.IsValid) return Json(new { success = false, message = "Dữ liệu không hợp lệ" });
+            try
+            {
+                // Xóa mềm lịch hẹn và các liên kết
+                _appointmentService.DeleteAppointment(id);
+                return Json(new { success = true, message = "Đã ẩn lịch hẹn thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi ẩn lịch hẹn!" });
+            }
+        }
+
     }
 }
