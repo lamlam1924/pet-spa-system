@@ -1,15 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    public User FindById(int userId)
-    {
-        // Giả sử dùng Entity Framework
-        return _context.Users.FirstOrDefault(u => u.UserId == userId);
-    }
+    
     private readonly PetDataShopContext _context;
 
     public UserRepository(PetDataShopContext context)
@@ -151,7 +148,7 @@ public class UserRepository : IUserRepository
         return "newpassword123";
     }
     
-    public List<pet_spa_system1.ViewModel.StaffViewModel> GetStaffList()
+    public List<StaffViewModel> GetStaffList()
     {
         var staffList = _context.Users.Where(u => u.RoleId == 3).ToList();
         var now = DateTime.Now;
@@ -159,8 +156,8 @@ public class UserRepository : IUserRepository
         foreach (var staff in staffList)
         {
             // Kiểm tra nhân viên có lịch hẹn trùng giờ hiện tại không
-            var isBusy = _context.Appointments.Any(a => a.EmployeeId == staff.UserId && a.AppointmentDate.Date == now.Date && a.AppointmentDate.Hour == now.Hour && a.StatusId != 4);
-            staffViewModels.Add(new pet_spa_system1.ViewModel.StaffViewModel
+            var isBusy = _context.Appointments.Any(a => a.EmployeeId == staff.UserId && a.AppointmentDate == DateOnly.FromDateTime(now) && a.StartTime.Hour == now.Hour && a.StatusId != 4);
+            staffViewModels.Add(new StaffViewModel
             {
                 UserId = staff.UserId,
                 FullName = staff.FullName ?? staff.Username ?? $"NV{staff.UserId}",
@@ -171,5 +168,17 @@ public class UserRepository : IUserRepository
         return staffViewModels;
     }
     
-    
+    public List<object> GetStaffResources()
+    {
+        return GetStaffList()?.Select(u => new {
+            id = u.UserId,
+            title = u.FullName,
+            avatarUrl = u.ProfilePictureUrl
+        }).Cast<object>().ToList() ?? new List<object>();
+    }
+    public User FindById(int userId)
+    {
+        // Giả sử dùng Entity Framework
+        return _context.Users.FirstOrDefault(u => u.UserId == userId);
+    }
 }

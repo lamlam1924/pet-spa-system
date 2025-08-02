@@ -31,7 +31,7 @@ using pet_spa_system1.Utils;
             if (model.Appointment != null)
             {
                 AppointmentId = model.Appointment.AppointmentId;
-                AppointmentDate = model.Appointment.AppointmentDate;
+                AppointmentDate = model.Appointment.AppointmentDate.ToDateTime(model.Appointment.StartTime);
                 UserId = model.Appointment.UserId;
                 CustomerName = ModelUtils.GetUserFullName(model.Appointment.User);
                 StatusId = model.Appointment.StatusId;

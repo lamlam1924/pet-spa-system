@@ -96,7 +96,9 @@
                         ? string.Join(", ", (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? ""))
                         : "Lịch hẹn"),
                     start = a.AppointmentDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = (a.AppointmentDate.AddHours(1)).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = a.AppointmentDate.ToDateTime(a.StartTime).AddMinutes(
+                        a.AppointmentServices.Sum(s => s.Service?.DurationMinutes ?? 0)
+                    ).ToString("yyyy-MM-ddTHH:mm:ss"),
                     status = a.Status?.StatusName ?? "",
                     customer = a.User?.FullName ?? "",
                     phone = a.User?.Phone ?? "",

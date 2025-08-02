@@ -7,68 +7,48 @@ using System.Collections.Generic;
 namespace pet_spa_system1.Repositories
 {
     public interface IAppointmentRepository
-
     {
-        // Lấy tất cả dịch vụ (bao gồm cả không active)
+        List<object> GetCalendarEvents();
         List<Service> GetAllServices();
-        // Thêm các hàm cần thiết cho service và controller
         List<Service> GetActiveServices();
         List<User> GetCustomers();
         List<User> GetEmployeeUsers();
         List<Pet> GetAllPets();
         int AddAppointment(Appointment appointment);
-        void AddAppointmentPet(int appointmentId, int petId);
+        void AddAppointmentPet(int appointmentId, int petId, int? staffId = null);
         void AddAppointmentService(int appointmentId, int serviceId);
         Appointment? GetById(int id);
-        void Save();
-        List<Appointment> GetByUserIdWithDetail(int userId);
+        List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+        List<int> GetAppointmentIdsByStaff(int staffId);
+        List<Appointment> GetAppointmentsByIds(List<int> appointmentIds);
+        AppointmentPet GetAppointmentPet(int appointmentId, int petId);
+        void UpdateAppointmentPetStaff(int appointmentId, int petId, int staffId);
+        void SaveChanges();
         List<StatusAppointment> GetAllStatuses();
         List<string> GetPetNamesByIds(List<int> petIds);
         List<string> GetServiceNamesByIds(List<int> serviceIds);
-
-        int CountAppointmentsByDate(DateTime date);
-        int CountUpcomingAppointments(DateTime fromDate);
-        int CountAppointmentsByStatus(int statusId);
+        Appointment GetAppointmentWithDetails(int id);
+        List<Appointment> GetPendingApprovalAppointments();
         List<Appointment> GetPendingAppointments();
         List<Appointment> GetPendingCancelAppointments();
-
-
-        List<Appointment> GetPendingApprovalAppointments();
-
-        int CountPendingApprovalAppointments();
-        int CountPendingCancelAppointments();
-
-        List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter);
-        int CountAppointments(ViewModel.AppointmentFilter filter);
-
+        List<Appointment> GetAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter);
+        int CountAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter);
         List<Appointment> GetAppointmentsByDateRange(DateTime start, DateTime end);
-
-        Appointment GetAppointmentWithDetails(int id);
-
-        void Add(Appointment appointment);
-        void Update(Appointment appointment);
-        void Delete(int id);
-
-        void DeleteAppointmentPets(int appointmentId);
-        void DeleteAppointmentServices(int appointmentId);
-
-        List<MonthlyAppointmentStats> GetMonthlyStats(int year);
-        
-        List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
-
-        List<Appointment> GetAppointmentsByStatus(int statusId);
-        void RestoreAppointment(int id);
-        void RestoreAppointmentPets(int appointmentId);
-        void RestoreAppointmentServices(int appointmentId);
-    }
-
-    public class MonthlyAppointmentStats
-    {
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int TotalAppointments { get; set; }
-        public int CompletedAppointments { get; set; }
-        public int CancelledAppointments { get; set; }
-
-    }
+    void RestoreAppointment(int id);
+    void RestoreAppointmentPets(int appointmentId);
+    void RestoreAppointmentServices(int appointmentId);
+    List<MonthlyAppointmentStats> GetMonthlyStats(int year);
 }
+
+
+public class MonthlyAppointmentStats
+{
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public int TotalAppointments { get; set; }
+    public int CompletedAppointments { get; set; }
+    public int CancelledAppointments { get; set; }
+}
+        
+    }
+

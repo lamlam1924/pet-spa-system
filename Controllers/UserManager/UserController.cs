@@ -215,7 +215,7 @@ namespace pet_spa_system1.Controllers
             if (staff == null) return NotFound();
             var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
             var now = DateTime.Now;
-            var todayCount = appointments.Count(a => a.AppointmentDate.Date == now.Date);
+            var todayCount = appointments.Count(a => a.AppointmentDate == DateOnly.FromDateTime(now));
             var monthCount = appointments.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
             var allAppointments = await _userService.GetAppointmentsByStaffIdAsync(id);
             // Tính hiệu suất làm việc

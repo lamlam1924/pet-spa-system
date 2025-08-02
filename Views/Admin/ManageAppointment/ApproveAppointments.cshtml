@@ -6,7 +6,7 @@
     ViewData["Title"] = "Duyệt lịch hẹn";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
     var grouped = Model.PendingAppointments.OrderBy(a => a.AppointmentDate)
-        .GroupBy(a => a.AppointmentDate.Date)
+        .GroupBy(a => a.AppointmentDate)
         .OrderBy(g => g.Key)
         .ToList();
 }
@@ -72,7 +72,7 @@
                 <option value="">Tất cả</option>
                 @if (Model.Statuses != null)
                 {
-                    foreach (var status in Model.Statuses.Where(s => s.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.Pending || s.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel))
+                    foreach (var status in Model.Statuses.Where(s => s.StatusId == 1 || s.StatusId == 6))
                     {
                         <option value="@status.StatusId">@status.StatusName</option>
                     }
@@ -111,7 +111,7 @@
                                 {
                                     <div class="col-md-4 mb-3" id="row-appointment-@appointment.AppointmentId">
                                         <div
-                                            class="card shadow @(appointment.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel ? "border-warning" : "")">
+                                            class="card shadow @(appointment.StatusId == 6 ? "border-warning" : "")">
                                             <div class="card-body">
                                                 <h6 class="card-title">Khách: @appointment.CustomerName</h6>
                                                 <p class="card-text">Thú
@@ -120,7 +120,7 @@
                                                     vụ: @string.Join(", ", appointment.SelectedServices.Select(s => s.Name))</p>
                                                 <p class="card-text">Thời
                                                     gian: @appointment.AppointmentDate.ToString("HH:mm")</p>
-                                                @if (appointment.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel)
+                                                @if (appointment.StatusId == 6)
                                                 {
                                                     <div class="mb-2 text-warning font-weight-bold">Yêu cầu hủy lịch
                                                         (chờ duyệt)

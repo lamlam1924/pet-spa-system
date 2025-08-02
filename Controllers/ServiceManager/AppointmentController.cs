@@ -6,6 +6,7 @@ using pet_spa_system1.Services;
 namespace pet_spa_system1.Controllers
 {
     public class AppointmentController : Controller
+        
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IPetService _petService;
@@ -40,12 +41,20 @@ namespace pet_spa_system1.Controllers
                 Pets = _petService.GetPetsByUserId(userId.Value),
                 Services = _serviceService.GetActiveServices().ToList(),
                 Categories = _serviceService.GetAllCategories().ToList(),
-                AppointmentDate = DateTime.Today.AddDays(1),
-                AppointmentTime = new TimeSpan(9, 0, 0), // Default to 9:00 AM
+                AppointmentDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                StartTime = new TimeOnly(9, 0, 0), // Default to 9:00 AM
                 User = userEntity
             };
 
             return View("Appointment", viewModel);
+        }
+
+        private void FillViewModel(AppointmentViewModel model, int? userId)
+        {
+            model.Pets = userId.HasValue ? _petService.GetPetsByUserId(userId.Value) : new List<Pet>();
+            model.Services = _serviceService.GetActiveServices().ToList();
+            model.Categories = _serviceService.GetAllCategories().ToList();
+            model.User = userId.HasValue ? _userService.GetUserInfo(userId.Value) : null;
         }
 
         // POST: /Appointment
@@ -53,27 +62,24 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Appointment(AppointmentViewModel model)
         {
-
-            if (!ModelState.IsValid)
+            // Parse StartTime từ StartTimeString nếu có
+            if (!string.IsNullOrEmpty(model.StartTimeString))
             {
-                int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-                if (userId != null)
+                if (TimeOnly.TryParse(model.StartTimeString, out var parsedTime))
                 {
-                    model.Pets = _petService.GetPetsByUserId(userId.Value);
+                    model.StartTime = parsedTime;
                 }
                 else
                 {
-                    model.Pets = new List<Pet>();
+                    ModelState.AddModelError("StartTimeString", "Giờ hẹn không hợp lệ. Định dạng phải là HH:mm.");
                 }
-                model.Services = _serviceService.GetActiveServices().ToList();
-                model.Categories = _serviceService.GetAllCategories().ToList();
-                // Lấy lại user cho viewmodel nếu cần
-                int? userIdForUser = HttpContext.Session.GetInt32("CurrentUserId");
-                if (userIdForUser != null)
-                {
-                    model.User = _userService.GetUserInfo(userIdForUser.Value);
-                }
-                // Return JSON for AJAX requests
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+
+            if (!ModelState.IsValid)
+            {
+                FillViewModel(model, userId);
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
                     var errors = ModelState.Values
@@ -87,17 +93,14 @@ namespace pet_spa_system1.Controllers
 
             try
             {
-                int? userId = HttpContext.Session.GetInt32("CurrentUserId");
                 if (userId == null)
                 {
-                    // Xử lý trường hợp chưa đăng nhập, ví dụ:
                     return RedirectToAction("Login", "Login");
                 }
 
                 if (_appointmentService.SaveAppointment(model, userId.Value))
                 {
                     TempData["SuccessMessage"] = "Đặt lịch thành công!";
-                    // Return JSON for AJAX requests
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
                         return Json(new { success = true, redirectUrl = Url.Action("Success") });
@@ -105,30 +108,16 @@ namespace pet_spa_system1.Controllers
                     return RedirectToAction(nameof(Success));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
-
-                // Return JSON for AJAX requests
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
                     return Json(new { success = false, message = "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại." });
                 }
             }
 
-            int? userIdFinal = HttpContext.Session.GetInt32("CurrentUserId");
-            if (userIdFinal != null)
-            {
-                model.Pets = _petService.GetPetsByUserId(userIdFinal.Value);
-                model.User = _userService.GetUserInfo(userIdFinal.Value);
-            }
-            else
-            {
-                model.Pets = new List<Pet>();
-                model.User = null;
-            }
-            model.Services = _serviceService.GetActiveServices().ToList();
-            model.Categories = _serviceService.GetAllCategories().ToList();
+            FillViewModel(model, userId);
             return View(model);
         }
 
@@ -177,6 +166,7 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
             }
         }
+        
     }
 
     public class RequestCancelDto

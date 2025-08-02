@@ -7,7 +7,7 @@ namespace pet_spa_system1.ViewModel
         public string Service { get; set; } = string.Empty;
         public List<int> StatusIds { get; set; } = new List<int>();
         public DateTime? Date { get; set; }
-        public int EmployeeId { get; set; } = 0;
+        public int? StaffId { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }

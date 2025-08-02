@@ -195,7 +195,7 @@ namespace pet_spa_system1.Services
                     {
                         AppointmentId = a.AppointmentId,
                         CustomerName = a.Appointment.User.FullName,
-                        AppointmentDate = a.Appointment.AppointmentDate,
+                        AppointmentDate = a.Appointment.AppointmentDate.ToDateTime(a.Appointment.StartTime),
                         StatusName = a.Appointment.Status.StatusName,
                         Price = a.Service?.Price ?? 0
                     })

@@ -11,7 +11,7 @@ public partial class Appointment
 
     public int? EmployeeId { get; set; }
 
-    public DateTime AppointmentDate { get; set; }
+    public DateOnly AppointmentDate { get; set; }
 
     public int StatusId { get; set; }
 
@@ -22,6 +22,10 @@ public partial class Appointment
     public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+
+    public TimeOnly StartTime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
 
     public virtual ICollection<AppointmentPet> AppointmentPets { get; set; } = new List<AppointmentPet>();
 

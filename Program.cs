@@ -75,7 +75,7 @@ builder.Services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
 builder.Services.AddScoped<IOrderStatusService, OrderStatusService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
+// builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
@@ -128,14 +128,14 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // Hangfire dashboard
-app.UseHangfireDashboard();
+//app.UseHangfireDashboard();
 
 // Đăng ký job gửi mail nhắc lịch mỗi ngày lúc 8h sáng
-RecurringJob.AddOrUpdate<IAppointmentService>(
-    "send-appointment-reminders",
-    service => service.SendUpcomingAppointmentReminders(),
-    "0 8 * * *" // cron: 8h sáng mỗi ngày
-);
+// Đã loại bỏ job gửi appointment reminders
+    // Đã loại bỏ send-appointment-reminders
+    // SendUpcomingAppointmentReminders method đã bị loại bỏ, xóa dòng này
+    // Đã loại bỏ cấu hình cron
+// Đã loại bỏ dấu ); thừa
 
 // ======= MIDDLEWARE =======
 

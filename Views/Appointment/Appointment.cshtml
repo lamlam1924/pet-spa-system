@@ -208,9 +208,9 @@
                                        value="@Model.AppointmentDate.ToString("yyyy-MM-dd")" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="AppointmentTime" class="form-label">Giờ hẹn</label>
-                                <input type="time" class="form-control" id="AppointmentTime" name="AppointmentTime" 
-                                       value="@Model.AppointmentTime.ToString(@"hh\:mm")" required>
+                                <label for="StartTimeString" class="form-label">Giờ hẹn</label>
+                                <input type="time" class="form-control" id="StartTimeString" name="StartTimeString" 
+                                       value="@(Model.StartTimeString ?? Model.StartTime.ToString("HH:mm"))" required>
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="Notes" class="form-label">Ghi chú</label>

@@ -215,7 +215,7 @@ namespace pet_spa_system1.Services
             // Thống kê số lịch hẹn đã xử lý trong tháng/ngày
             var now = DateTime.Now;
             var monthCount = user.AppointmentEmployees.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
-            var dayCount = user.AppointmentEmployees.Count(a => a.AppointmentDate.Date == now.Date);
+            var dayCount = user.AppointmentEmployees.Count(a => a.AppointmentDate == DateOnly.FromDateTime(now));
             return new { MonthCount = monthCount, DayCount = dayCount };
         }
 

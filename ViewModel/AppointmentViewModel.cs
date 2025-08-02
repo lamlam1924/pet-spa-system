@@ -1,10 +1,11 @@
-﻿
+﻿   
+
+
 using pet_spa_system1.Models;
 
 namespace pet_spa_system1.ViewModel
-{
     
-
+{
     public class PetStaffAssignViewModel
     {
         public int PetId { get; set; }
@@ -25,15 +26,30 @@ namespace pet_spa_system1.ViewModel
     public class AppointmentBaseViewModel
     {
         public int AppointmentId { get; set; }
-        public DateTime AppointmentDate { get; set; }
-        public TimeSpan AppointmentTime { get; set; }
+        public DateOnly AppointmentDate { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        // For form binding: string property for StartTime (HH:mm)
+        public string? StartTimeString { get; set; }
         public string? Notes { get; set; }
         public List<int> SelectedPetIds { get; set; } = new();
         public List<int> SelectedServiceIds { get; set; } = new();
+
+        public void CalculateEndTime(List<AppointmentServiceInfo> services)
+        {
+            var totalMinutes = services?.Sum(s => s.DurationMinutes ?? 0) ?? 0;
+            EndTime = StartTime.AddMinutes(totalMinutes);
+        }
     }
 
     public class AppointmentViewModel : AppointmentBaseViewModel
     {
+        // Các property bổ sung cho controller
+        public int? NewHour { get; set; }
+        public int? NewStaffId { get; set; }
+        public DateTime? NewStart { get; set; }
+        public int? NewEmployeeId { get; set; }
+
         // Đảm bảo property CustomerId để binding đúng với select2 và controller
         // --- Properties for user booking form (Views/Appointment/Appointment.cshtml) ---
         public List<Pet> Pets { get; set; } = new();
@@ -49,15 +65,15 @@ namespace pet_spa_system1.ViewModel
         public string? EmployeeName { get; set; }
         public List<int> EmployeeIds { get; set; } = new();
         public List<User> Customers { get; set; } = new();
-        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Users { get; set; } = Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
-        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Staffs { get; set; } = Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Users { get; set; } =
+            Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Staffs { get; set; } =
+            Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
         public string CustomerName { get; set; } = string.Empty;
         public string StatusName { get; set; } = string.Empty;
         public int DurationMinutes { get; set; }
-        public DateTime EndTime { get; set; }
         public List<AppointmentPetViewModel> SelectedPets { get; set; } = new();
         public List<AppointmentServiceInfo> SelectedServices { get; set; } = new();
-        public List<CategoryInfo> CategoriesAdmin { get; set; } = new();
         public int? SuggestedStaffId { get; set; }
         public List<User> EmployeeList { get; set; } = new();
         public int StatusId { get; set; }
@@ -68,6 +84,7 @@ namespace pet_spa_system1.ViewModel
         public List<Service> AllServices { get; set; } = new();
         // Bổ sung property cho 1 pet 1 staff
         public List<PetStaffAssignViewModel> PetStaffAssignments { get; set; } = new();
+
         public class CategoryInfo
         {
             public int CategoryId { get; set; }
@@ -83,7 +100,7 @@ namespace pet_spa_system1.ViewModel
         public string Breed { get; set; } = string.Empty;
     }
 
-public class AppointmentServiceInfo
+    public class AppointmentServiceInfo
     {
         public int ServiceId { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -116,12 +133,13 @@ public class AppointmentServiceInfo
         public string? StaffName { get; set; }
         public List<string> PetNames { get; set; } = new();
         public decimal TotalPrice => Services?.Sum(s => s.Price) ?? 0;
+
         public AppointmentItemViewModel MapToViewModel(Appointment appointment)
         {
             return new AppointmentItemViewModel
             {
                 AppointmentId = appointment.AppointmentId,
-                AppointmentDate = appointment.AppointmentDate,
+                AppointmentDate = appointment.AppointmentDate.ToDateTime(appointment.StartTime),
                 CustomerName = appointment.User?.FullName ?? "",
                 CustomerPhone = appointment.User?.Phone,
                 StatusId = appointment.StatusId,
@@ -218,6 +236,8 @@ public class AppointmentServiceInfo
         public List<ServiceInfo> AllServices { get; set; } = new();
         public List<int> EmployeeIds { get; set; } = new();
         public List<User> EmployeeList { get; set; } = new();
+        public List<AppointmentPetViewModel> SelectedPets { get; set; } = new List<AppointmentPetViewModel>();
+        public List<AppointmentServiceInfo> SelectedServices { get; set; } = new List<AppointmentServiceInfo>();
     }
 
     public class PetInfo
@@ -239,10 +259,9 @@ public class AppointmentServiceInfo
         public int? DurationMinutes { get; set; }
     }
 
-    public class ApproveRequestModel
-    {
-        public int AppointmentId { get; set; }
-        public int StaffId { get; set; }
-    }
+public class ApproveRequestModel
+{
+    public int AppointmentId { get; set; }
+    public int StaffId { get; set; }
 }
-
+}
