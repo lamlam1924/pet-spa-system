@@ -1,10 +1,7 @@
-﻿   
-
-
 using pet_spa_system1.Models;
 
 namespace pet_spa_system1.ViewModel
-    
+
 {
     public class PetStaffAssignViewModel
     {
@@ -21,6 +18,11 @@ namespace pet_spa_system1.ViewModel
         public string Category { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Duration { get; set; }
+        public List<string> PetImages { get; set; } = new(); // Thêm property này
+        public int StatusId { get; set; } // trạng thái từng dịch vụ
+        public string StatusName { get; set; } = string.Empty; // tên trạng thái từng dịch vụ
+        public List<string> PetImagesBefore { get; set; } = new();
+        public List<string> PetImagesAfter { get; set; } = new();
     }
 
     public class AppointmentBaseViewModel
@@ -28,7 +30,9 @@ namespace pet_spa_system1.ViewModel
         public int AppointmentId { get; set; }
         public DateOnly AppointmentDate { get; set; }
         public TimeOnly StartTime { get; set; }
+
         public TimeOnly EndTime { get; set; }
+
         // For form binding: string property for StartTime (HH:mm)
         public string? StartTimeString { get; set; }
         public string? Notes { get; set; }
@@ -54,9 +58,12 @@ namespace pet_spa_system1.ViewModel
         // --- Properties for user booking form (Views/Appointment/Appointment.cshtml) ---
         public List<Pet> Pets { get; set; } = new();
         public List<Service> Services { get; set; } = new();
+
         public List<SerCate> Categories { get; set; } = new();
+
         // Đã có User ở trên, không khai báo lại
         public string? Phone { get; set; }
+
         // AppointmentDate, AppointmentTime, Notes đã có ở base
         public string? CustomerPhone { get; set; }
         public string? CustomerEmail { get; set; }
@@ -65,10 +72,13 @@ namespace pet_spa_system1.ViewModel
         public string? EmployeeName { get; set; }
         public List<int> EmployeeIds { get; set; } = new();
         public List<User> Customers { get; set; } = new();
+
         public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Users { get; set; } =
             Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
         public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Staffs { get; set; } =
             Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
         public string CustomerName { get; set; } = string.Empty;
         public string StatusName { get; set; } = string.Empty;
         public int DurationMinutes { get; set; }
@@ -81,7 +91,9 @@ namespace pet_spa_system1.ViewModel
         public int CustomerId { get; set; }
         public int StaffId { get; set; } // Only one staff per appointment
         public List<PetInfo> AllPets { get; set; } = new();
+
         public List<Service> AllServices { get; set; } = new();
+
         // Bổ sung property cho 1 pet 1 staff
         public List<PetStaffAssignViewModel> PetStaffAssignments { get; set; } = new();
 
@@ -178,6 +190,8 @@ namespace pet_spa_system1.ViewModel
     {
         public int AppointmentId { get; set; }
         public DateTime AppointmentDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
         public int StatusId { get; set; }
         public string StatusName { get; set; } = string.Empty;
         public List<string> PetNames { get; set; } = new();
@@ -208,7 +222,6 @@ namespace pet_spa_system1.ViewModel
         public string ServiceNames { get; set; } = string.Empty;
     }
 
-   
 
     public class AdminAppointmentDetailViewModel
     {
@@ -272,31 +285,32 @@ namespace pet_spa_system1.ViewModel
         public int AppointmentId { get; set; }
         public int StaffId { get; set; }
     }
-public class AppointmentDashboardViewModel
-{
-    public int TodayAppointments { get; set; }
-    public int UpcomingAppointments { get; set; }
-    public int PendingApprovalAppointments { get; set; }
-    public int PendingCancelAppointments { get; set; }
-    public List<AppointmentDashboardItemViewModel> RecentAppointments { get; set; } = new();
-    public List<AppointmentDashboardMonthStat> MonthlyStats { get; set; } = new();
-}
 
-public class AppointmentDashboardItemViewModel
-{
-    public int AppointmentId { get; set; }
-    public string CustomerName { get; set; } = string.Empty;
-    public DateTime AppointmentDate { get; set; }
-    public string PetNames { get; set; } = string.Empty;
-    public string ServiceNames { get; set; } = string.Empty;
-    public int StatusId { get; set; }
-    public string StatusName { get; set; } = string.Empty;
-}
+    public class AppointmentDashboardViewModel
+    {
+        public int TodayAppointments { get; set; }
+        public int UpcomingAppointments { get; set; }
+        public int PendingApprovalAppointments { get; set; }
+        public int PendingCancelAppointments { get; set; }
+        public List<AppointmentDashboardItemViewModel> RecentAppointments { get; set; } = new();
+        public List<AppointmentDashboardMonthStat> MonthlyStats { get; set; } = new();
+    }
 
-public class AppointmentDashboardMonthStat
-{
-    public int Month { get; set; }
-    public string MonthLabel { get; set; } = string.Empty;
-    public int AppointmentCount { get; set; }
-}
+    public class AppointmentDashboardItemViewModel
+    {
+        public int AppointmentId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public DateTime AppointmentDate { get; set; }
+        public string PetNames { get; set; } = string.Empty;
+        public string ServiceNames { get; set; } = string.Empty;
+        public int StatusId { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+    }
+
+    public class AppointmentDashboardMonthStat
+    {
+        public int Month { get; set; }
+        public string MonthLabel { get; set; } = string.Empty;
+        public int AppointmentCount { get; set; }
+    }
 }

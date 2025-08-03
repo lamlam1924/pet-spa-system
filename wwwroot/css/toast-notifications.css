@@ -1,0 +1,207 @@
+/* Toast Notifications CSS */
+
+/* Toast Container */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 350px;
+    pointer-events: none;
+}
+
+/* Toast Notification */
+.toast-notification {
+    background: #fff;
+    color: #333;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    pointer-events: auto;
+    border-left: 4px solid;
+}
+
+/* Toast Types */
+.toast-notification.toast-success {
+    background: #d4edda;
+    color: #155724;
+    border-left-color: #28a745;
+}
+
+.toast-notification.toast-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left-color: #dc3545;
+}
+
+.toast-notification.toast-warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left-color: #ffc107;
+}
+
+.toast-notification.toast-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-left-color: #17a2b8;
+}
+
+/* Toast Icon */
+.toast-notification i {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Toast Close Button */
+.toast-notification button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.toast-notification button:hover {
+    opacity: 1;
+}
+
+/* Toast Animation */
+.toast-notification {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+/* Confirmation Modal */
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.confirmation-modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.confirmation-modal h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.confirmation-modal p {
+    margin-bottom: 25px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.confirmation-modal .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.confirmation-modal button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.confirmation-modal .btn-confirm {
+    background: #dc3545;
+    color: white;
+}
+
+.confirmation-modal .btn-confirm:hover {
+    background: #c82333;
+}
+
+.confirmation-modal .btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.confirmation-modal .btn-cancel:hover {
+    background: #5a6268;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #toast-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .toast-notification {
+        margin-bottom: 8px;
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+    
+    .confirmation-modal .modal-content {
+        margin: 20px;
+        padding: 25px;
+    }
+}
+
+/* Legacy Toast Support (for existing code) */
+.toast-notification.success {
+    background: #d4edda;
+    color: #155724;
+    border-left-color: #28a745;
+}
+
+.toast-notification.error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left-color: #dc3545;
+}
+
+.toast-notification.warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left-color: #ffc107;
+}
+
+.toast-notification.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-left-color: #17a2b8;
+} 

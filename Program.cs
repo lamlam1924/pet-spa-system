@@ -1,20 +1,21 @@
-using Hangfire;
-using Hangfire.MemoryStorage;
-using System;
-using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using pet_spa_system1.Hubs;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Repository;
 using pet_spa_system1.Services;
+using System;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,15 +29,14 @@ var smtpPass = builder.Configuration["Smtp:Pass"];
 
 // ======= SERVICES =======
 builder.Services.AddControllersWithViews();
-// Hangfire cấu hình lưu job trong RAM (demo/dev)
-builder.Services.AddHangfire(x => x.UseMemoryStorage());
-builder.Services.AddHangfireServer();
 // Đăng ký IHttpContextAccessor cho DI container
 builder.Services.AddHttpContextAccessor();
 
 // Kết nối DB từ appsettings.json
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddSignalR();
+
 
 // DI cho Repository và Service
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
@@ -80,6 +80,10 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+
 
 // Đăng ký ICloudinaryService
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
@@ -127,16 +131,6 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// Hangfire dashboard
-//app.UseHangfireDashboard();
-
-// Đăng ký job gửi mail nhắc lịch mỗi ngày lúc 8h sáng
-// Đã loại bỏ job gửi appointment reminders
-    // Đã loại bỏ send-appointment-reminders
-    // SendUpcomingAppointmentReminders method đã bị loại bỏ, xóa dòng này
-    // Đã loại bỏ cấu hình cron
-// Đã loại bỏ dấu ); thừa
-
 // ======= MIDDLEWARE =======
 
 if (!app.Environment.IsDevelopment())
@@ -144,6 +138,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -153,6 +148,8 @@ app.UseRouting();
 app.UseSession();             // ✅ Session phải trước Authentication
 app.UseAuthentication();      // ✅ Dùng xác thực
 app.UseAuthorization();       // ✅ Dùng phân quyền
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 // ✅ Kiểm tra kết nối DB
 using (var scope = app.Services.CreateScope())
@@ -216,5 +213,6 @@ app.MapControllerRoute(
     pattern: "Blogs/Create",
     defaults: new { controller = "Blogs", action = "Create" });
 
+        app.Run();
 
-app.Run();
+

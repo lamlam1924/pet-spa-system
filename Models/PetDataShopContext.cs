@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +20,10 @@ public partial class PetDataShopContext : DbContext
     public virtual DbSet<AppointmentPet> AppointmentPets { get; set; }
 
     public virtual DbSet<AppointmentService> AppointmentServices { get; set; }
+
+    public virtual DbSet<AppointmentServiceImage> AppointmentServiceImages { get; set; }
+
+    public virtual DbSet<AppointmentServiceStatus> AppointmentServiceStatus { get; set; }
 
     public virtual DbSet<Blog> Blogs { get; set; }
 
@@ -74,8 +78,19 @@ public partial class PetDataShopContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=MSI;Database=PetDataShop;User Id=sa;Password=123;MultipleActiveResultSets=True;TrustServerCertificate=True");
+    {
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        optionsBuilder.UseSqlServer(connectionString);
+    }
+
+     
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -205,6 +220,11 @@ public partial class PetDataShopContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Blog_Comm__BlogI__6501FCD8");
 
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.HasOne(d => d.ParentComment).WithMany(p => p.InverseParentComment)
                 .HasForeignKey(d => d.ParentCommentId)
                 .HasConstraintName("FK__Blog_Comm__Paren__66EA454A");
@@ -231,6 +251,8 @@ public partial class PetDataShopContext : DbContext
                 .HasForeignKey(d => d.BlogId)
                 .HasConstraintName("FK__Blog_Imag__BlogI__5F492382");
         });
+
+
 
         modelBuilder.Entity<BlogLike>(entity =>
         {
@@ -291,6 +313,14 @@ public partial class PetDataShopContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Notificat__UserI__7167D3BD");
+        });
+        modelBuilder.Entity<AppointmentServiceImage>(entity =>
+        {
+            entity.HasKey(e => e.ImageId); // 🔑 Chỉ rõ khóa chính
+        });
+        modelBuilder.Entity<AppointmentServiceStatus>(entity =>
+        {
+            entity.HasKey(e => e.StatusId);  // 🔑 Chỉ định rõ khóa chính
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -450,6 +480,18 @@ public partial class PetDataShopContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Products__Catego__4D94879B");
         });
+        modelBuilder.Entity<AppointmentService>()
+    .HasOne(d => d.StatusNavigation)
+    .WithMany(p => p.AppointmentServices)
+    .HasForeignKey(d => d.Status)
+    .HasConstraintName("FK_AppointmentServices_Status");
+
+        modelBuilder.Entity<AppointmentServiceImage>()
+            .HasOne(d => d.AppointmentService)
+            .WithMany(p => p.AppointmentServiceImages)
+            .HasForeignKey(d => d.AppointmentServiceId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_ServiceImages_AppointmentService");
 
         modelBuilder.Entity<ProductCategory>(entity =>
         {

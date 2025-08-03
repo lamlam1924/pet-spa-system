@@ -7,208 +7,409 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-        
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-   
-
-    <style>
-        body {
-            
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .order-card {
-            border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .order-status {
-            font-weight: 500;
-        }
-
-        .badge-status {
-            font-size: 14px;
-        }
-
-        .order-header {
-            background-color: #343a40;
-            color: white;
-            padding: 15px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-            .order-header h5 {
-                margin: 0;
-            }
-
-        .table th, .table td {
-            vertical-align: middle;
-        }
-
-        /* Hiệu ứng zoom khi hover vào card-body của order-card */
-        .order-card .card-body {
-            transition: transform 0.25s cubic-bezier(.4,2,.6,1), box-shadow 0.25s;
-        }
-        .order-card:hover  {
-            transform: scale(1.03);
-            box-shadow: 0 8px 32px rgba(60, 180, 114, 0.13);
-            z-index: 2;
-            position: relative;
-        }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="@Url.Content("~/cssOrder/AllOrder.css")" rel="stylesheet">
+    
 </head>
 <body>
-    <div class="container mt-5 mb-5">
-        <div class="card p-4 shadow-lg rounded-4" style="background: #fff;">
-            <h3 class="mb-4">Lịch Sử Đơn Hàng Của Bạn</h3>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var order in Model)
-                {
-                    <div class="card order-card mb-3">
-                        <div class="order-header">
-                            <div class="d-flex justify-content-between">
-                                <h5 style="color:white">Đơn hàng #@order.OrderID</h5>
-                                <span class="badge bg-success badge-status">@order.Status</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Ngày đặt:</strong> @order.OrderDate?.ToString("dd/MM/yyyy")</p>
-                            <p><strong>Tổng cộng:</strong> @order.TotalAmount.ToString("N0") đ</p>
-                            <h6>Sản phẩm:</h6>
-                            <table class="table table-bordered table-sm">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Tên sản phẩm</th>
-                                        <th>Số lượng</th>
-                                        <th>Giá</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (order.Items != null)
-                                    {
-                                        foreach (var item in order.Items)
-                                        {
-                                            <tr>
-                                                <td>@item.ProductName</td>
-                                                <td>@item.Quantity</td>
-                                                <td>@item.UnitPrice?.ToString("N0") đ</td>
-                                            </tr>
-                                        }
-                                    }
-                                    
-                                </tbody>
-                            </table>
+    <div class="container-fluid">
+        <div class="main-container">
+            <div class="page-header">
+                <h1><i class="fas fa-history"></i> Lịch Sử Đơn Hàng</h1>
+                <p class="subtitle" style="color: white">Theo dõi và quản lý tất cả đơn hàng của bạn</p>
+            </div>
+            <form method="get" class="mb-4" style="max-width: 100%;">
+                @{
+                    var statuses = new Dictionary<int, string>
+                                {
+                                {1, "Đang xử lý"},
+                                {2, "Đang chuẩn bị"},
+                                {3, "Đã giao vận chuyển"},
+                                {4, "Đã giao"},
+                                {5, "Đã hủy"}
+                                };
+                    int? selectedId = ViewBag.StatusId as int?;
+                    string orderIdSearch = ViewBag.OrderIdSearch as string ?? "";
+                }
 
-                            @if (order.StatusId <= 3)
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <select name="statusId" class="form-select" onchange="this.form.submit()">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            @foreach (var s in statuses)
                             {
-                                <form asp-action="CancelOrder" asp-controller="Order" method="post" class="d-inline cancel-form">
-                                    <input type="hidden" name="orderId" value="@order.OrderID" />
-                                    <button type="button" class="btn btn-danger btn-sm btn-cancel-order" data-orderid="@order.OrderID">Hủy đơn hàng</button>
-                                </form>
+                                <option value="@s.Key" selected="@(selectedId == s.Key ? "selected" : null)">
+                                    @s.Value
+                                </option>
                             }
-                            else if (order.StatusId >= 4)
-                            {
-                                <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
-                                    <input type="hidden" name="orderId" value="@order.OrderID" />
-                                    <button type="button" class="btn btn-success btn-sm btn-buy-again" data-orderid="@order.OrderID">Mua lại</button>
-                                </form>
-                            }
-                            <a href="@Url.Action("OrderStatusDetail", "Order", new { orderId = order.OrderID })" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                            
-                        </div>
-                        
+                        </select>
                     </div>
 
-                }
-              
-            }
-           
-            else
-            {
-                <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-            }
-   
-              @{
-                                int currentPage = ViewBag.CurrentPage ?? 1;
-                                int pageSize = ViewBag.PageSize ?? 5;
-                                int totalOrders = ViewBag.TotalOrders ?? 0;
-                                int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
-                            }
+                    <div class="col-md-4">
+                        <input type="text" name="orderId" class="form-control" placeholder="Nhập mã đơn hàng..." value="@orderIdSearch" />
+                    </div>
 
-                            @if (totalPages > 1)
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+
+            <div class="orders-container">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var order in Model)
+                    {
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <h5 class="order-id">
+                                        <i class="fas fa-receipt"></i>
+                                        Đơn hàng #@order.OrderID
+                                    </h5>
+                                    <span class="status-badge success">@order.Status</span>
+                                </div>
+                            </div>
+
+                            <div class="order-body">
+                                <div class="order-info">
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <h6>Ngày đặt</h6>
+                                            <p>@order.OrderDate?.ToString("dd/MM/yyyy")</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <h6>Tổng cộng</h6>
+                                            <p>@order.TotalAmount.ToString("N0") đ</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="products-section">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-box"></i>
+                                        Sản phẩm trong đơn hàng
+                                    </h6>
+                                    <div class="products-table">
+                                        <table class="table mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th><i class="fas fa-tag"></i> Tên sản phẩm</th>
+                                                    <th><i class="fas fa-sort-numeric-up"></i> Số lượng</th>
+                                                    <th><i class="fas fa-dollar-sign"></i> Giá</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (order.Items != null)
+                                                {
+                                                    foreach (var item in order.Items)
+                                                    {
+                                                        <tr>
+                                                            <td><strong>@item.ProductName</strong></td>
+                                                            <td>
+                                                                <span class="badge bg-primary">@item.Quantity</span>
+                                                            </td>
+                                                            <td><strong>@item.UnitPrice?.ToString("N0") đ</strong></td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="action-buttons">
+                                    @if (order.StatusId <= 3)
+                                    {
+                                        <form asp-action="CancelOrder" asp-controller="Order" method="post" class="d-inline cancel-form">
+                                            <input type="hidden" name="orderId" value="@order.OrderID" />
+                                            <button type="button" class="btn-modern btn-danger-modern btn-cancel-order" data-orderid="@order.OrderID">
+                                                <i class="fas fa-times"></i> Hủy đơn hàng
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (order.StatusId >= 4)
+                                    {
+                                        <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
+                                            <input type="hidden" name="orderId" value="@order.OrderID" />
+                                            <button type="button" class="btn-modern btn-success-modern btn-buy-again" data-orderid="@order.OrderID">
+                                                <i class="fas fa-redo"></i> Mua lại
+                                            </button>
+                                        </form>
+                                    }
+                                    <a href="@Url.Action("OrderStatusDetail", "Order", new { orderId = order.OrderID })" class="btn-modern btn-outline-modern">
+                                        <i class="fas fa-eye"></i> Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>Chưa có đơn hàng nào</h3>
+                        <p>Bạn chưa thực hiện đơn hàng nào. Hãy khám phá các sản phẩm của chúng tôi!</p>
+                    </div>
+                }
+            </div>
+
+            @{
+                int currentPage = ViewBag.CurrentPage ?? 1;
+                int pageSize = ViewBag.PageSize ?? 5;
+                int totalOrders = ViewBag.TotalOrders ?? 0;
+                int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
+            }
+
+            @if (totalPages > 1)
+            {
+                <div class="pagination-container">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("AllOrder", new { page = currentPage - 1, pageSize = pageSize })">
+                                    <i class="fas fa-chevron-left"></i> Trước
+                                </a>
+                            </li>
+                            @for (int i = 1; i <= totalPages; i++)
                             {
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination justify-content-center">
-                                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                            <a class="page-link" href="@Url.Action("AllOrder", new { page = currentPage - 1, pageSize = pageSize })">Trước</a>
-                                        </li>
-                                        @for (int i = 1; i <= totalPages; i++)
-                                        {
-                                            <li class="page-item @(i == currentPage ? "active" : "")">
-                                                <a class="page-link" href="@Url.Action("AllOrder", new { page = i, pageSize = pageSize })">@i</a>
-                                            </li>
-                                        }
-                                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                            <a class="page-link" href="@Url.Action("AllOrder", new { page = currentPage + 1, pageSize = pageSize })">Sau</a>
-                                        </li>
-                                    </ul>
-                                </nav>
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("AllOrder", new { page = i, pageSize = pageSize })">@i</a>
+                                </li>
                             }
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("AllOrder", new { page = currentPage + 1, pageSize = pageSize })">
+                                    Sau <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
         </div>
     </div>
 
-<!-- Modal xác nhận -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmModalLabel">Xác nhận</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body" id="confirmModalBody">
-        <!-- Nội dung sẽ được thay đổi bằng JS -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" id="confirmModalOk">Đồng ý</button>
-      </div>
+    <!-- Modal xác nhận -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">
+                        <i class="fas fa-question-circle"></i> Xác nhận hành động
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    <!-- Nội dung sẽ được thay đổi bằng JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-primary" id="confirmModalOk">
+                        <i class="fas fa-check"></i> Đồng ý
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-    let formToSubmit = null;
 
-    // Khi bấm nút Hủy đơn hàng
-    $(document).on('click', '.btn-cancel-order', function () {
-        formToSubmit = $(this).closest('form');
-        $('#confirmModalBody').text('Bạn chắc chắn muốn hủy đơn hàng này?');
-        $('#confirmModal').modal('show');
-    });
+    <script>
+        let formToSubmit = null;
 
-    // Khi bấm nút Mua lại
-    $(document).on('click', '.btn-buy-again', function () {
-        formToSubmit = $(this).closest('form');
-        $('#confirmModalBody').text('Bạn muốn mua lại đơn hàng này và chuyển đến trang giỏ hàng?');
-        $('#confirmModal').modal('show');
-    });
+        // Khi bấm nút Hủy đơn hàng
+        $(document).on('click', '.btn-cancel-order', function () {
+            formToSubmit = $(this).closest('form');
+            $('#confirmModalBody').html('<i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem; margin-bottom: 1rem;"></i><br>Bạn chắc chắn muốn hủy đơn hàng này?');
+            $('#confirmModal').modal('show');
+        });
 
-    // Khi xác nhận trong modal
-    $('#confirmModalOk').on('click', function () {
-        if (formToSubmit) {
-            formToSubmit.submit();
-            formToSubmit = null;
-            $('#confirmModal').modal('hide');
+        // Khi bấm nút Mua lại
+        $(document).on('click', '.btn-buy-again', function () {
+            formToSubmit = $(this).closest('form');
+            $('#confirmModalBody').html('<i class="fas fa-shopping-cart text-success" style="font-size: 2rem; margin-bottom: 1rem;"></i><br>Bạn muốn mua lại đơn hàng này và chuyển đến trang giỏ hàng?');
+            $('#confirmModal').modal('show');
+        });
+
+        // Khi xác nhận trong modal
+        $('#confirmModalOk').on('click', function () {
+            if (formToSubmit) {
+                formToSubmit.submit();
+                formToSubmit = null;
+                $('#confirmModal').modal('hide');
+            }
+        });
+
+          // Smooth scroll animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.order-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+
+            // Initialize filter functionality
+            initializeFilters();
+        });
+
+        // Filter and Search Functionality
+        function initializeFilters() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            const orderCards = document.querySelectorAll('.order-card');
+            const searchInput = document.getElementById('searchInput');
+            const clearSearch = document.getElementById('clearSearch');
+            const noResults = document.getElementById('noResults');
+
+            let currentFilter = 'all';
+            let currentSearch = '';
+
+            // Count orders by status
+            function updateCounts() {
+                const counts = {
+                    all: 0,
+                    'Đang chờ xử lý': 0,
+                    'Đang chuẩn bị': 0,
+                    'Đã giao vận chuyển': 0,
+                    'Đã giao': 0,
+                    'Đã hủy': 0
+                };
+
+                orderCards.forEach(card => {
+                    const status = card.dataset.status;
+                    counts.all++;
+                    if (counts[status] !== undefined) {
+                        counts[status]++;
+                    }
+                });
+
+                // Update count displays
+                document.getElementById('count-all').textContent = counts.all;
+                document.getElementById('count-pending').textContent = counts['Đang chờ xử lý'];
+                document.getElementById('count-preparing').textContent = counts['Đang chuẩn bị'];
+                document.getElementById('count-shipping').textContent = counts['Đã giao vận chuyển'];
+                document.getElementById('count-delivered').textContent = counts['Đã giao'];
+                document.getElementById('count-cancelled').textContent = counts['Đã hủy'];
+            }
+
+            // Filter orders
+            function filterOrders() {
+                let visibleCount = 0;
+
+                orderCards.forEach(card => {
+                    const status = card.dataset.status;
+                    const orderId = card.dataset.orderId;
+                    const productNames = Array.from(card.querySelectorAll('.products-table td:first-child')).map(td => td.textContent.toLowerCase());
+
+                    // Check status filter
+                    const statusMatch = currentFilter === 'all' || status === currentFilter;
+
+                    // Check search filter
+                    const searchMatch = currentSearch === '' ||
+                        orderId.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                        productNames.some(name => name.includes(currentSearch.toLowerCase()));
+
+                    if (statusMatch && searchMatch) {
+                        card.classList.remove('hide');
+                        card.classList.add('show');
+                        visibleCount++;
+                    } else {
+                        card.classList.remove('show');
+                        card.classList.add('hide');
+                    }
+                });
+
+                // Show/hide no results message
+                if (visibleCount === 0 && orderCards.length > 0) {
+                    noResults.classList.add('show');
+                } else {
+                    noResults.classList.remove('show');
+                }
+            }
+
+            // Filter tab click handlers
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Update active tab
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Update current filter
+                    currentFilter = this.dataset.status;
+
+                    // Apply filter
+                    filterOrders();
+                });
+            });
+
+            // Search input handler
+            searchInput.addEventListener('input', function() {
+                currentSearch = this.value.trim();
+
+                // Show/hide clear button
+                if (currentSearch) {
+                    document.querySelector('.search-box').classList.add('has-content');
+                } else {
+                    document.querySelector('.search-box').classList.remove('has-content');
+                }
+
+                // Apply filter
+                filterOrders();
+            });
+
+            // Clear search button
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                currentSearch = '';
+                document.querySelector('.search-box').classList.remove('has-content');
+                filterOrders();
+                searchInput.focus();
+            });
+
+            // Initialize counts
+            updateCounts();
         }
-    });
-</script>
 
-
+        // Helper function to get status class (for C# Razor syntax)
+        @functions {
+                private string GetStatusClass(string status)
+                {
+                        return status switch
+                        {
+                                "Đang chờ xử lý" => "pending",
+                                "Đang chuẩn bị" => "preparing",
+                                "Đã giao vận chuyển" => "shipping",
+                                "Đã giao" => "delivered",
+                                "Đã hủy" => "cancelled",
+                                _ => "success"
+                        };
+                }
+        }
+    </script>
+   
 </body>
-
 </html>

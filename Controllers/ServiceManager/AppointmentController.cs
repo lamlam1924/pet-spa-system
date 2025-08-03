@@ -6,23 +6,26 @@ using pet_spa_system1.Services;
 namespace pet_spa_system1.Controllers
 {
     public class AppointmentController : Controller
-        
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IPetService _petService;
         private readonly IServiceService _serviceService;
 
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
+
         public AppointmentController(
             IAppointmentService appointmentService,
             IPetService petService,
             IServiceService serviceService,
-            IUserService userService)
+            IUserService userService,
+            INotificationService notificationService)
         {
             _appointmentService = appointmentService;
             _petService = petService;
             _serviceService = serviceService;
             _userService = userService;
+            _notificationService = notificationService;
         }
 
         // GET: /Appointment
@@ -60,7 +63,7 @@ namespace pet_spa_system1.Controllers
         // POST: /Appointment
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Appointment(AppointmentViewModel model)
+        public async Task<IActionResult> AppointmentSync(AppointmentViewModel model)
         {
             // Parse StartTime từ StartTimeString nếu có
             if (!string.IsNullOrEmpty(model.StartTimeString))
@@ -88,6 +91,7 @@ namespace pet_spa_system1.Controllers
                         .ToList();
                     return Json(new { success = false, errors });
                 }
+
                 return View(model);
             }
 
@@ -95,16 +99,31 @@ namespace pet_spa_system1.Controllers
             {
                 if (userId == null)
                 {
+                    // Xử lý trường hợp chưa đăng nhập, ví dụ:
                     return RedirectToAction("Login", "Login");
                 }
 
                 if (_appointmentService.SaveAppointment(model, userId.Value))
                 {
+                    // Tạo thông báo khi đặt lịch thành công
+                    var notification = new Notification
+                    {
+                        UserId = userId.Value,
+                        Title = "Đặt lịch thành công",
+                        Message = $"Lịch hẹn của bạn đã được đặt thành công. Chúng tôi sẽ xác nhận sớm nhất.",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false
+                    };
+
+                   await _notificationService.AddAsync(notification);
+
                     TempData["SuccessMessage"] = "Đặt lịch thành công!";
+                    // Return JSON for AJAX requests
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
                         return Json(new { success = true, redirectUrl = Url.Action("Success") });
                     }
+
                     return RedirectToAction(nameof(Success));
                 }
             }
@@ -138,6 +157,7 @@ namespace pet_spa_system1.Controllers
                 // Xử lý trường hợp chưa đăng nhập, ví dụ:
                 return RedirectToAction("Login", "Login");
             }
+
             var model = _appointmentService.GetAppointmentHistory(userId.Value);
             return View("History", model);
         }
@@ -159,6 +179,18 @@ namespace pet_spa_system1.Controllers
 
             if (result)
             {
+                // Tạo thông báo khi gửi yêu cầu hủy lịch thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Yêu cầu hủy lịch",
+                    Message = $"Yêu cầu hủy lịch hẹn đã được gửi. Chúng tôi sẽ xử lý trong thời gian sớm nhất.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+
+                _notificationService.AddAsync(notification);
+
                 return Json(new { success = true, message = "Yêu cầu hủy lịch đã được gửi, chờ admin duyệt." });
             }
             else
@@ -166,7 +198,117 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Không thể gửi yêu cầu hủy lịch. Vui lòng thử lại." });
             }
         }
-        
+
+        // GET: /Appointment/Detail/{id}
+        [HttpGet]
+        public IActionResult Detail(int id)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để xem chi tiết lịch hẹn." });
+            }
+
+            var detail = _appointmentService.GetAppointmentDetailWithPetImages(id, userId.Value);
+            if (detail == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy lịch hẹn." });
+            }
+
+            return Json(new { success = true, data = detail });
+        }
+
+        public IActionResult AppointmentDetail()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> AddPetPartial()
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để thêm thú cưng.");
+            }
+
+            var species = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+            var model = new PetDetailViewModel
+            {
+                SpeciesList = species
+            };
+            return PartialView("AddPetPartial", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPet(PetDetailViewModel model, IFormFile ImageFile)
+        {
+            Console.WriteLine("[UserHomeController] AddPet POST called");
+            Console.WriteLine($"Received data: Name={model.Pet?.Name}, SpeciesId={model.Pet?.SpeciesId}, " +
+                              $"Breed={model.Pet?.Breed}, Age={model.Pet?.Age}, Gender={model.Pet?.Gender}, " +
+                              $"SpecialNotes={model.Pet?.SpecialNotes}, ImageFile={ImageFile?.FileName}");
+
+
+            ModelState.Remove("ImageFile");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    if (state.Value?.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"❌ ERROR AT: {state.Key}");
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"   ➤ {error.ErrorMessage}");
+                        }
+                    }
+                }
+
+                model.SpeciesList = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
+                return PartialView("AddPetPartial", model);
+            }
+
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                Console.WriteLine("[UserHomeController] UserId is null, returning ErrorPartial");
+                return PartialView("_ErrorPartial", "Vui lòng đăng nhập để thêm thú cưng.");
+            }
+
+            var pet = model.Pet;
+            pet.UserId = userId.Value;
+            pet.CreatedAt = DateTime.Now;
+            pet.IsActive = true;
+
+            var images = ImageFile != null ? new List<IFormFile> { ImageFile } : new List<IFormFile>();
+            try
+            {
+                Console.WriteLine("[UserHomeController] Attempting to add pet... Name: " + pet.Name);
+                await _petService.CreatePetAsync(pet, images);
+                Console.WriteLine("[UserHomeController] Pet added successfully, PetId: " + pet.PetId);
+
+                // Tạo thông báo khi thêm thú cưng thành công
+                var notification = new Notification
+                {
+                    UserId = userId.Value,
+                    Title = "Thêm thú cưng thành công",
+                    Message = $"Thú cưng '{pet.Name}' đã được thêm vào hồ sơ của bạn.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+
+                await _notificationService.AddAsync(notification);
+
+                return Json(new { success = true, message = "Thêm thú cưng thành công!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[UserHomeController] Error adding pet: " + ex.Message + " - StackTrace: " +
+                                  ex.StackTrace);
+                return Json(new { success = false, message = $"Lỗi khi thêm thú cưng: {ex.Message}" });
+            }
+        }
     }
 
     public class RequestCancelDto

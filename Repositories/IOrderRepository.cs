@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using pet_spa_system1.Models;
+﻿using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
+using System.Collections.Generic;
 
 namespace pet_spa_system1.Repositories
 {
@@ -14,5 +15,7 @@ namespace pet_spa_system1.Repositories
         List<Order> GetAllOrders();
         List<Order> GetAllOrdersPaged(int page, int pageSize, out int totalOrders);
         List<Order> GetOrdersByStatusPaged(string status, int page, int pageSize, out int totalOrders);
+        List<OrderViewModel> GetOrdersByUserIdPaged(int? userId, int page, int pageSize,
+    out int totalOrders, int? statusId = null, int? orderId = null);
     }
 }

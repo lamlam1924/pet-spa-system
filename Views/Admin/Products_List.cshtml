@@ -107,7 +107,7 @@
                                                     <tr data-description="@item.Description" data-categoryid="@item.CategoryId">
                                                         <td><button class="btn btn-link btn-sm btn-product-id" data-productid="@item.ProductId">@item.ProductId</button></td>
                                                         <td>@item.Name</td>
-                                                        <td>@(item.Category?.Name ?? "No Category")</td>
+                                                        <td>@(item. Category?.Name ?? "No Category")</td>
                                                         <td>@item.Price.ToString("N0") đ</td>
                                                         <td>@item.Stock</td>
                                                         <td>@(item.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
@@ -121,16 +121,23 @@
                                                         }
                                                         <td>
                                                             <div class="btn-group" role="group">
-                                                                <a href="@Url.Action("Edit_Products", "Admin", new { id = item.ProductId })" class="btn btn-primary btn-sm">Sửa</a>
+                                                                <a href="@Url.Action("Edit_Products", "Admin", new { id = item.ProductId })" class="btn btn-primary btn-sm" title="Sửa">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
                                                                 @if (item.IsActive == true)
                                                                 {
-                                                                    <button class="btn btn-danger btn-sm btn-delete" data-productid="@item.ProductId">Xóa</button>
+                                                                    <button class="btn btn-danger btn-sm btn-delete" data-productid="@item.ProductId" title="Xóa">
+                                                                        <i class="fas fa-trash-alt"></i>
+                                                                    </button>
                                                                 }
-                                                                else{
-                                                                    <button class="btn btn-danger btn-sm btn-enable" data-productid="@item.ProductId" >↺</button>
+                                                                else
+                                                                {
+                                                                    <button class="btn btn-warning btn-sm btn-enable" data-productid="@item.ProductId" title="Kích hoạt lại">
+                                                                        <i class="fas fa-redo-alt"></i>
+                                                                    </button>
                                                                 }
-                                                              
                                                             </div>
+
 
 
                                                             @* <a href="@Url.Action("Product_Detail", "Admin", new { productID = item.ProductId })" class="btn btn-info btn-sm btn-detail">Chi Tiết</a> *@
@@ -215,67 +222,7 @@
                         </div>
                     </div>
 
-                    @* <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content shadow-lg border-0 rounded-3">
-                                <form id="editForm">
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title" id="editModalLabel">Chỉnh sửa sản phẩm</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                                    </div>
-
-                                    <div class="modal-body px-4 py-3">
-                                        <input type="hidden" id="edit-id" />
-
-                                        <div class="mb-3">
-                                            <label for="edit-category" class="form-label">Danh mục</label>
-                                            <select id="edit-category" class="form-select" name="CategoryId" required>
-                                                @{
-                                                    var categories = Model
-                                                    .Where(p => p.ProductCategory != null)
-                                                    .Select(p => p.ProductCategory)
-                                                    .DistinctBy(c => c.CategoryId)
-                                                    .ToList();
-                                                }
-                                                @foreach (var category in categories)
-                                                {
-                                                    <option value="@category.CategoryId">@category.Name</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="edit-name" class="form-label">Tên sản phẩm</label>
-                                            <input type="text" id="edit-name" class="form-control" name="Name" required />
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="edit-description" class="form-label">Mô tả</label>
-                                            <textarea id="edit-description" class="form-control" name="Description" rows="3"></textarea>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="edit-price" class="form-label">Giá</label>
-                                                <input type="number" step="0.01" min="0" id="edit-price" class="form-control" name="Price" required />
-                                            </div>
-
-                                            <div class="col-md-6 mb-3">
-                                                <label for="edit-stock" class="form-label">Số lượng trong kho</label>
-                                                <input type="number" min="0" id="edit-stock" class="form-control" name="Stock" required />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer px-4 pb-3">
-                                        <button type="submit" class="btn btn-primary px-4">💾 Lưu</button>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div> *@
-
+                   
 
                 </div>
                 <!---Container Fluid-->

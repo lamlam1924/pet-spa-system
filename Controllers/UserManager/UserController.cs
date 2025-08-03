@@ -16,25 +16,34 @@ namespace pet_spa_system1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List(string search = "", string sort = "", int? roleId = null)
+        public async Task<IActionResult> List(string search = "", string sort = "", int? roleId = null, int page = 1, int pageSize = 10)
         {
-            var users = await _userService.GetActiveUsersAsync(search, sort);
+            var users = await _userService.GetActiveUsersAsync(search, sort, page, pageSize);
+            // Lấy tất cả user để đếm tổng số (không phân trang)
+            var allUsers = await _userService.GetActiveUsersAsync(search, sort, 1, int.MaxValue);
             if (roleId.HasValue)
-                users = users.Where(u => u.RoleId == roleId.Value).ToList();
-            return Json(users.Select(u => new
             {
-                u.UserId,
-                u.Username,
-                u.Email,
-                u.FullName,
-                u.Phone,
-                u.Address,
-                Role = u.Role != null ? u.Role.RoleName : "N/A",
-                RoleId = u.RoleId,
-                Status = u.IsActive == true ? "On" : "Off",
-                CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
-                IsActive = u.IsActive
-            }));
+                users = users.Where(u => u.RoleId == roleId.Value).ToList();
+                allUsers = allUsers.Where(u => u.RoleId == roleId.Value).ToList();
+            }
+            var totalCount = allUsers.Count;
+            return Json(new {
+                data = users.Select(u => new
+                {
+                    u.UserId,
+                    u.Username,
+                    u.Email,
+                    u.FullName,
+                    u.Phone,
+                    u.Address,
+                    Role = u.Role != null ? u.Role.RoleName : "N/A",
+                    RoleId = u.RoleId,
+                    Status = u.IsActive == true ? "On" : "Off",
+                    CreatedAt = u.CreatedAt.HasValue ? u.CreatedAt.Value.ToString("yyyy-MM-dd") : null,
+                    IsActive = u.IsActive
+                }),
+                totalCount
+            });
         }
 
         [HttpGet]
@@ -207,6 +216,103 @@ namespace pet_spa_system1.Controllers
             return Ok(new { message = result.Message });
         }
 
+        // [HttpGet]
+        // [Route("Admin/StaffDetail/{id}")]
+        // public async Task<IActionResult> StaffDetail(int id, [FromServices] IAdminStaffScheduleService scheduleService)
+        // {
+        //     Console.WriteLine("[AdminController] Accessing Index...");
+        //     // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+        //     var userId = HttpContext.Session.GetInt32("CurrentUserId");
+        //     var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+        //
+        //     if (userId == null || roleId == null)
+        //     {
+        //         Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+        //         return RedirectToAction("AccessDenied", "Account");
+        //     }
+        //
+        //     // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+        //     if (roleId != 1)
+        //     {
+        //         Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+        //         return RedirectToAction("AccessDenied", "Account");
+        //     }
+        //     var staff = await _userService.GetStaffDetailAsync(id);
+        //     if (staff == null) return NotFound();
+        //     var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
+        //     var now = DateTime.Now;
+        //     var todayCount = appointments.Count(a => a.AppointmentDate.Date == now.Date);
+        //     var monthCount = appointments.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
+        //     var allAppointments = await _userService.GetAppointmentsByStaffIdAsync(id);
+        //     // Tính hiệu suất làm việc
+        //     int totalAppointments = allAppointments.Count;
+        //     int completedAppointments = allAppointments.Count(a => a.Status?.StatusName == "Hoàn thành" || a.Status?.StatusName == "Completed");
+        //     int cancelledAppointments = allAppointments.Count(a => a.Status?.StatusName == "Đã hủy" || a.Status?.StatusName == "Cancelled");
+        //     int uniqueCustomers = allAppointments.Select(a => a.UserId).Distinct().Count();
+        //     var vm = new StaffDetailViewModel
+        //     {
+        //         UserId = staff.UserId,
+        //         FullName = staff.FullName,
+        //         Email = staff.Email,
+        //         Phone = staff.Phone,
+        //         Address = staff.Address,
+        //         IsActive = staff.IsActive ?? false,
+        //         TodayCount = todayCount,
+        //         MonthCount = monthCount,
+        //         ProfilePictureUrl = staff.ProfilePictureUrl,
+        //         AllAppointments = allAppointments,
+        //         // Hiệu suất làm việc
+        //         PerformanceStats = new StaffPerformanceStats
+        //         {
+        //             TotalAppointments = totalAppointments,
+        //             CompletedAppointments = completedAppointments,
+        //             CancelledAppointments = cancelledAppointments,
+        //             UniqueCustomers = uniqueCustomers,
+        //             TotalRevenue = 0 // Nếu muốn tính doanh thu, cần join thêm bảng Order
+        //         }
+        //     };
+        //     return View("~/Views/Admin/StaffDetail.cshtml", vm);
+        // }
+        //
+        // [HttpPost]
+        // public async Task<IActionResult> StaffDetail(StaffDetailViewModel model, IFormFile imageFile, [FromServices] IAdminStaffScheduleService scheduleService)
+        // {
+        //     var staff = await _userService.GetStaffDetailAsync(model.UserId);
+        //     if (staff == null) return NotFound();
+        //     // Upload ảnh nếu có
+        //     if (imageFile != null && imageFile.Length > 0)
+        //     {
+        //         var account = new Account(
+        //             "dprp1jbd9", // cloud_name
+        //             "584135338254938", // api_key
+        //             "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+        //         );
+        //         var cloudinary = new Cloudinary(account);
+        //         var uploadParams = new ImageUploadParams()
+        //         {
+        //             File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream())
+        //         };
+        //         var uploadResult = await cloudinary.UploadAsync(uploadParams);
+        //         string imageUrl = uploadResult.SecureUrl.ToString();
+        //         if (staff.ProfilePictureUrl != imageUrl)
+        //         {
+        //             staff.ProfilePictureUrl = imageUrl;
+        //         }
+        //     }
+        //     // Cập nhật thông tin nếu có thay đổi
+        //     if (staff.FullName != model.FullName)
+        //         staff.FullName = model.FullName;
+        //     if (staff.Email != model.Email)
+        //         staff.Email = model.Email;
+        //     if (staff.Phone != model.Phone)
+        //         staff.Phone = model.Phone;
+        //     if (staff.Address != model.Address)
+        //         staff.Address = model.Address;
+        //     await _userService.EditUserAsync(staff);
+        //     // Sau khi lưu, redirect lại chính trang StaffDetail
+        //     return RedirectToAction("StaffDetail", new { id = model.UserId });
+        // }
+
         
         
         [HttpGet]
@@ -266,6 +372,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/UserDetail/{id}")]
         public async Task<IActionResult> UserDetail(int id, [FromServices] IUserService userService)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             var pets = await userService.GetPetsByUserIdAsync(id);
@@ -289,6 +412,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/UserDetail/{id}")]
         public async Task<IActionResult> UserDetail(int id, [FromForm] string FullName, [FromForm] string Email, [FromForm] string Phone, [FromForm] string Address, IFormFile AvatarFile, [FromServices] IUserService userService)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var user = await userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             // Upload avatar if provided
@@ -313,6 +453,23 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/List_Customer")]
         public async Task<IActionResult> List_Customer()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var users = await _userService.GetActiveUsersAsync();
             var customers = users.Where(u => u.RoleId == 2).ToList();
             // Chỉ định rõ đường dẫn view

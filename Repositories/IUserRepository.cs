@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using pet_spa_system1.Models;
 
 namespace pet_spa_system1.Repositories;
-    
 
-    public interface IUserRepository
+public interface IUserRepository
 {
     User FindById(int userId);
     Task<User?> GetByEmailAsync(string email);
@@ -13,9 +12,11 @@ namespace pet_spa_system1.Repositories;
     Task<Role?> GetRoleByIdAsync(int roleId);
     User? GetUserById(int userId);
     Task AddAsync(User user);
-    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null);
+    // Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null);
+    Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null, int page = 1, int pageSize = 10);
     Task<List<User>> GetDeletedUsersAsync();
     Task<List<Role>> GetActiveRolesAsync();
+    
     Task UpdateAsync(User user);
     Task<User?> GetByIdAsync(int userId);
     Task<List<Pet>> GetPetsByUserIdAsync(int userId);

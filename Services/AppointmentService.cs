@@ -12,17 +12,20 @@ namespace pet_spa_system1.Services
         private readonly IUserRepository _userRepository;
         private readonly IPetRepository _petRepository;
         private readonly IEmailService _emailService;
+        private readonly PetDataShopContext _context;
 
         public AppointmentService(
             IAppointmentRepository appointmentRepository,
             IUserRepository userRepository,
             IPetRepository petRepository,
-            IEmailService emailService)
+            IEmailService emailService,
+            PetDataShopContext context)
         {
             _appointmentRepository = appointmentRepository;
             _userRepository = userRepository;
             _petRepository = petRepository;
             _emailService = emailService;
+            _context = context;
         }
 
 
@@ -56,7 +59,7 @@ namespace pet_spa_system1.Services
         }
 
         public AdminAppointmentDetailViewModel GetAdminAppointmentDetail(int appointmentId)
-            
+
         {
             var appointment = _appointmentRepository.GetById(appointmentId);
             if (appointment == null) return new AdminAppointmentDetailViewModel();
@@ -83,9 +86,12 @@ namespace pet_spa_system1.Services
                 CustomerPhone = appointment.User?.Phone ?? string.Empty,
                 CustomerEmail = appointment.User?.Email ?? string.Empty,
                 CustomerAddress = appointment.User?.Address ?? string.Empty,
-                EmployeeName = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.FullName ?? string.Empty,
-                EmployeePhone = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.Phone ?? string.Empty,
-                EmployeeEmail = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.Email ?? string.Empty,
+                EmployeeName = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.FullName ??
+                               string.Empty,
+                EmployeePhone = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.Phone ??
+                                string.Empty,
+                EmployeeEmail = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.Email ??
+                                string.Empty,
                 Pets = pets,
                 Services = services,
                 TotalPrice = totalPrice,
@@ -159,9 +165,15 @@ namespace pet_spa_system1.Services
 
                     calendarViewModel.Resources.Add(new StaffResourceViewModel
                     {
-                        Id = resourceDict.ContainsKey("id") ? resourceDict["id"]?.ToString() ?? string.Empty : string.Empty,
-                        Title = resourceDict.ContainsKey("title") ? resourceDict["title"]?.ToString() ?? string.Empty : string.Empty,
-                        ImageUrl = resourceDict.ContainsKey("avatarUrl") ? resourceDict["avatarUrl"]?.ToString() ?? string.Empty : string.Empty,
+                        Id = resourceDict.ContainsKey("id")
+                            ? resourceDict["id"]?.ToString() ?? string.Empty
+                            : string.Empty,
+                        Title = resourceDict.ContainsKey("title")
+                            ? resourceDict["title"]?.ToString() ?? string.Empty
+                            : string.Empty,
+                        ImageUrl = resourceDict.ContainsKey("avatarUrl")
+                            ? resourceDict["avatarUrl"]?.ToString() ?? string.Empty
+                            : string.Empty,
                         BusinessHours = string.Empty // Default business hours can be added if needed
                     });
                 }
@@ -216,7 +228,7 @@ namespace pet_spa_system1.Services
 
                     // Create pet names list
                     var petNames = new List<string>();
-                    
+
                     // Create services list from services property
                     var servicesList = new List<string>();
                     if (evtDict.ContainsKey("services") && evtDict["services"] != null)
@@ -232,28 +244,38 @@ namespace pet_spa_system1.Services
                             }
                         }
                     }
-                    
+
                     // Create event view model
                     calendarViewModel.Events.Add(new CalendarEventViewModel
                     {
                         Id = evtDict.ContainsKey("id") ? Convert.ToInt32(evtDict["id"] ?? 0) : 0,
-                        Title = evtDict.ContainsKey("title") ? evtDict["title"]?.ToString() ?? string.Empty : string.Empty,
+                        Title = evtDict.ContainsKey("title")
+                            ? evtDict["title"]?.ToString() ?? string.Empty
+                            : string.Empty,
                         Start = start,
                         End = end,
-                        Status = evtDict.ContainsKey("status") ? evtDict["status"]?.ToString() ?? string.Empty : string.Empty,
-                        Customer = evtDict.ContainsKey("customer") ? evtDict["customer"]?.ToString() ?? string.Empty : string.Empty,
-                        Phone = evtDict.ContainsKey("phone") ? evtDict["phone"]?.ToString() ?? string.Empty : string.Empty,
+                        Status = evtDict.ContainsKey("status")
+                            ? evtDict["status"]?.ToString() ?? string.Empty
+                            : string.Empty,
+                        Customer = evtDict.ContainsKey("customer")
+                            ? evtDict["customer"]?.ToString() ?? string.Empty
+                            : string.Empty,
+                        Phone = evtDict.ContainsKey("phone")
+                            ? evtDict["phone"]?.ToString() ?? string.Empty
+                            : string.Empty,
                         PetNames = petNames,
                         Services = servicesList,
                         ResourceId = resourceId,
-                        Color = GetStatusColor(evtDict.ContainsKey("status") ? evtDict["status"]?.ToString() ?? string.Empty : string.Empty)
+                        Color = GetStatusColor(evtDict.ContainsKey("status")
+                            ? evtDict["status"]?.ToString() ?? string.Empty
+                            : string.Empty)
                     });
                 }
             }
 
             return calendarViewModel;
         }
-        
+
         // Helper method to get color based on appointment status
         private string GetStatusColor(string status)
         {
@@ -577,7 +599,7 @@ namespace pet_spa_system1.Services
         {
             var appointment = _appointmentRepository.GetById(vm.AppointmentId);
             if (appointment == null) return;
-            
+
             // Cập nhật thông tin cơ bản
             appointment.AppointmentDate = vm.AppointmentDate;
             appointment.StartTime = vm.StartTime;
@@ -698,15 +720,15 @@ namespace pet_spa_system1.Services
         {
             // Lấy tất cả lịch hẹn của user
             var appointments = _appointmentRepository.GetAppointments(new AppointmentFilter
-            {
-                Customer = string.Empty,
-                Pet = string.Empty,
-                Service = string.Empty,
-                StaffId = null,
-                Date = null,
-                Page = 1,
-                PageSize = 1000 // lấy hết
-            })
+                {
+                    Customer = string.Empty,
+                    Pet = string.Empty,
+                    Service = string.Empty,
+                    StaffId = null,
+                    Date = null,
+                    Page = 1,
+                    PageSize = 1000 // lấy hết
+                })
                 .Where(a => a.UserId == userId && (a.IsActive == null || a.IsActive == true))
                 .ToList();
 
@@ -848,6 +870,7 @@ namespace pet_spa_system1.Services
         {
             return _appointmentRepository.GetAllStatuses();
         }
+
         public void DeleteAppointment(int id)
         {
             // Xóa mềm lịch hẹn và các liên kết
@@ -856,6 +879,7 @@ namespace pet_spa_system1.Services
             _appointmentRepository.DeleteAppointmentServices(id);
             _appointmentRepository.SaveChanges();
         }
+
         public ServiceResult ApproveAndAssignStaff(int appointmentId, int staffId)
         {
             var appointment = _appointmentRepository.GetById(appointmentId);
@@ -890,6 +914,64 @@ namespace pet_spa_system1.Services
             _appointmentRepository.SaveChanges();
 
             return new ServiceResult { Success = true, Message = "Cập nhật trạng thái thành công!" };
+        }
+
+        public AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId)
+        {
+            // Lấy lịch hẹn theo id và user
+            var appointment = _context.Appointments
+                .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
+            if (appointment == null) return null;
+
+            // Lấy thú cưng trong lịch hẹn
+            var pets = _context.AppointmentPets
+                .Where(ap => ap.AppointmentId == appointmentId)
+                .Select(ap => ap.Pet)
+                .ToList();
+            var petNames = pets.Select(p => p.Name).ToList();
+
+            // Lấy danh sách AppointmentService kèm service và status
+            var appointmentServices = _context.AppointmentServices
+                .Where(asv => asv.AppointmentId == appointmentId)
+                .Select(asv => new
+                {
+                    asv.Service,
+                    asv.Status,
+                    StatusName = asv.StatusNavigation.StatusName,
+                    AppointmentServiceId = asv.AppointmentServiceId,
+                    Images = asv.AppointmentServiceImages.Select(img => new
+                    {
+                        img.ImgUrl,
+                        img.PhotoType
+                    }).ToList()
+                })
+                .ToList();
+
+            var serviceHistory = appointmentServices.Select(s => new ServiceHistoryInfo
+            {
+                ServiceId = s.Service.ServiceId,
+                Name = s.Service.Name,
+                Category = s.Service.Category?.Name ?? "",
+                Price = s.Service.Price,
+                Duration = s.Service.DurationMinutes ?? 0,
+                StatusId = s.Status ?? 0,
+                StatusName = s.StatusName ?? "",
+                PetImagesBefore = s.Images.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
+                PetImagesAfter = s.Images.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
+            }).ToList();
+
+            return new AppointmentHistoryItemViewModel
+            {
+                AppointmentId = appointment.AppointmentId,
+                AppointmentDate = appointment.AppointmentDate.ToDateTime(appointment.StartTime),
+                StartTime = appointment.StartTime.ToTimeSpan(),
+                EndTime = appointment.EndTime.ToTimeSpan(),
+                StatusId = appointment.StatusId,
+                StatusName = appointment.Status?.StatusName ?? string.Empty,
+                PetNames = petNames,
+                Notes = appointment.Notes,
+                Services = serviceHistory
+            };
         }
     }
 }

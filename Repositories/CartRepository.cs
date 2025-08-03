@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Abp.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,12 @@ namespace pet_spa_system1.Repositories
     public class CartRepository : ICartRepository
     {
         private readonly PetDataShopContext _context;
+        
 
         public CartRepository(PetDataShopContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+           
         }
 
         public async Task<List<Cart>> GetCartByUserIdAsync(int userId)
@@ -26,7 +29,9 @@ namespace pet_spa_system1.Repositories
 
         public async Task AddToCartAsync(int userId, int productId, int quantity)
         {
-            if (quantity <= 0) throw new ArgumentException("Số lượng phải lớn hơn 0.", nameof(quantity));
+          
+            if (quantity <= 0)
+                throw new ArgumentException("Số lượng phải lớn hơn 0.", nameof(quantity));
 
             var existingCartItem = await _context.Carts
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == productId);
@@ -34,6 +39,7 @@ namespace pet_spa_system1.Repositories
             if (existingCartItem != null)
             {
                 existingCartItem.Quantity += quantity;
+                _context.Carts.Update(existingCartItem);
             }
             else
             {
@@ -125,5 +131,31 @@ namespace pet_spa_system1.Repositories
                 .Where(c => c.UserId == userId)
                 .SumAsync(c => c.Quantity * c.Product.Price );
         }
+
+        public async Task<List<Cart>> GetCartsByProductIdAsync(int productId)
+        {
+            return await _context.Carts
+                .Where(c => c.ProductId == productId)
+                .ToListAsync();
+        }
+
+        public async Task<List<int>> GetUsersHavingProductExceedingStock(int productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
+                return new List<int>();
+
+            var stock = product.Stock;
+
+            var userIds = await _context.Carts
+                .Where(c => c.ProductId == productId && c.Quantity > stock)
+                .Select(c => c.UserId)
+                .Distinct()
+                .ToListAsync();
+
+            return userIds;
+        }
+
+
     }
 }

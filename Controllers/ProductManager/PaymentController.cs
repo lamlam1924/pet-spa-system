@@ -52,6 +52,11 @@ namespace pet_spa_system1.Controllers.ProductManager
         [HttpGet]
         public IActionResult GetPaymentMethods()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             // Lấy từ DB, ví dụ:
             var methods = _context.PaymentMethods.Select(m => new { m.PaymentMethodId, m.MethodName }).ToList();
             return Json(methods);
@@ -60,6 +65,11 @@ namespace pet_spa_system1.Controllers.ProductManager
         [HttpGet]
         public IActionResult GetPaymentStatuses()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var statuses = _context.PaymentStatuses.Select(s => new { s.PaymentStatusId, s.StatusName }).ToList();
             return Json(statuses);
         }
@@ -67,32 +77,48 @@ namespace pet_spa_system1.Controllers.ProductManager
         [HttpPost]
         public IActionResult AddPayment([FromBody] PaymentViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid || model.OrderId == null || model.Amount == null)
+                return BadRequest("Thiếu thông tin bắt buộc");
+
             var payment = new Payment
             {
-                OrderId = model.OrderId,
-                Amount = model.Amount,
-                TransactionId = model.TransactionId,
-                PaymentDate = model.PaymentDate,
-                // Cần map PaymentMethodId, PaymentStatusId, UserId từ tên sang id
+                OrderId = model.OrderId.Value,
+                Amount = model.Amount.Value,
+                TransactionId = model.TransactionId ?? "",
+                PaymentDate = model.PaymentDate ?? DateTime.Now, // hoặc null nếu cho phép
+                                                                 // TODO: map method/status name => id
             };
+
             _paymentService.AddPayment(payment);
             return Ok();
         }
 
+
         [HttpPost]
         public IActionResult UpdatePayment([FromBody] PaymentViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var payment = _paymentService.GetPaymentById(model.PaymentId);
-            if (payment == null) return NotFound();
-            payment.Amount = model.Amount;
-            payment.TransactionId = model.TransactionId;
-            payment.PaymentDate = model.PaymentDate;
-            // Cập nhật các trường khác nếu cần
+            if (payment == null)
+                return NotFound();
+
+            // Chỉ cập nhật các trường được sửa trên form
+            var paymentMethod = _context.PaymentMethods.FirstOrDefault(p => p.MethodName == model.PaymentMethod);
+            if (paymentMethod == null) return BadRequest("Phương thức thanh toán không hợp lệ.");
+
+            payment.PaymentMethod = paymentMethod;
+
+            var status = _context.PaymentStatuses.FirstOrDefault(s => s.StatusName == model.Status);
+            if (status == null) return BadRequest("Trạng thái không hợp lệ.");
+
+            payment.PaymentStatus = status;
+
             _paymentService.UpdatePayment(payment);
             return Ok();
         }
+
 
         [HttpPost]
         public IActionResult DeletePayment(int id)

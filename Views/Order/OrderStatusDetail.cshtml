@@ -1,138 +1,242 @@
-﻿@model pet_spa_system1.ViewModel.OrderViewModel
+﻿@using Microsoft.AspNetCore.Html
+@model pet_spa_system1.ViewModel.OrderViewModel
 @{
     ViewData["Title"] = "Trạng Thái Đơn Hàng";
     Layout = @Url.Content("~/Views/Shared/_Layout.cshtml");
 }
+
+@functions {
+    private List<string> StatusList => new List<string> {
+        "Đang chờ xử lý",
+        "Đang chuẩn bị",
+        "Đã giao vận chuyển",
+        "Đã giao"
+    };
+
+    private string GetStepClass(int stepIndex, string currentStatus)
+    {
+        var currentIndex = StatusList.IndexOf(currentStatus);
+        if (stepIndex <= currentIndex)
+            return "step completed";
+        return "step";
+    }
+
+    private IHtmlContent GetStepContent(int stepIndex, string currentStatus)
+    {
+        var currentIndex = StatusList.IndexOf(currentStatus);
+        if (stepIndex <= currentIndex)
+        {
+            return new HtmlString("<i class='fas fa-check'></i>");
+        }
+        return new HtmlString((stepIndex + 1).ToString());
+    }
+}
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>@ViewBag.Title</title>
-   
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="@Url.Content("~/cssOrder/Ordercss.css")" rel="stylesheet">
-    @* <style>
-        .order-status .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-right: 40px;
-        }
-        .order-status .circle {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #eee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        .order-status .active .circle {
-            background: #28a745;
-            color: #fff;
-        }
-        .order-status .label {
-            font-size: 13px;
-        }
-    </style> *@
+
+
 </head>
 <body>
-    <div class="container mt-5 mb-5 order-status-wrapper">
-        <div class="card shadow">
-            <div class="card-body">
-                <h4 class="mb-3">Trạng Thái Đơn Hàng #@Model.OrderID</h4>
+    <div class="container-fluid">
+        <div class="main-container">
+            <div class="page-header">
+                <h1><i class="fas fa-truck"></i> Trạng Thái Đơn Hàng</h1>
+                <p class="subtitle">Theo dõi tiến trình giao hàng đơn hàng #@Model.OrderID</p>
+            </div>
 
-                <!-- Thông tin khách hàng (bổ sung vào ViewModel nếu cần) -->
-                <div class="mb-3">
-                    <strong>Khách hàng:</strong> @Model.CustomerName<br>
-                    <strong>Địa chỉ:</strong> @Model.CustomerAddress<br>
-                    <strong>Điện thoại:</strong> @Model.CustomerPhone
-                </div>
+            <div class="content-container">
+                <!-- Customer Information -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Thông tin khách hàng
+                        </h6>
+                    </div>
+                    <div class="section-body">
+                        <div class="customer-info">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h6>Khách hàng</h6>
+                                    <p>@Model.CustomerName</p>
+                                </div>
+                            </div>
 
-                <!-- Danh sách sản phẩm -->
-                <h6>Sản phẩm đã đặt:</h6>
-                <table class="table table-sm">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Tên sản phẩm</th>
-                            <th>Số lượng</th>
-                            <th>Giá</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.Items != null)
-                        {
-                            foreach (var item in Model.Items)
-                            {
-                                <tr>
-                                    
-                                    <td>@item.ProductName</td>
-                                    <td>@item.Quantity</td>
-                                    <td>@item.UnitPrice?.ToString("N0") đ</td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h6>Địa chỉ</h6>
+                                    <p>@Model.CustomerAddress</p>
+                                </div>
+                            </div>
 
-                <!-- Trạng thái đơn hàng: tiến trình giao hàng -->
-                <h6 class="mt-4">Tiến trình giao hàng:</h6>
-                <div class="d-flex order-status my-4">
-                    <div class="step @(Model.Status == "Đang xử lý" || Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
-                        <div class="circle">1</div>
-                        <div class="label">Đã đặt hàng</div>
-                    </div>
-                    <div class="step @(Model.Status == "Đang xử lý" || Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
-                        <div class="circle">2</div>
-                        <div class="label">Đang xử lý</div>
-                    </div>
-                    <div class="step @(Model.Status == "Đang giao" || Model.Status == "Hoàn tất" ? "active" : "")">
-                        <div class="circle">3</div>
-                        <div class="label">Đang giao</div>
-                    </div>
-                    <div class="step @(Model.Status == "Hoàn tất" ? "active" : "")">
-                        <div class="circle">4</div>
-                        <div class="label">Hoàn tất</div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h6>Điện thoại</h6>
+                                    <p>@Model.CustomerPhone</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tổng tiền -->
-                <div class="text-end">
-                    <h5>Tổng cộng: <strong>@Model.TotalAmount.ToString("N0") đ</strong></h5>
+                <!-- Products Section -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-box"></i>
+                            Sản phẩm đã đặt
+                        </h6>
+                    </div>
+                    <div class="section-body">
+                        <div class="products-table">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-tag"></i> Tên sản phẩm</th>
+                                        <th><i class="fas fa-sort-numeric-up"></i> Số lượng</th>
+                                        <th><i class="fas fa-dollar-sign"></i> Giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Items != null)
+                                    {
+                                        foreach (var item in Model.Items)
+                                        {
+                                            <tr>
+                                                <td><strong>@item.ProductName</strong></td>
+                                                <td>
+                                                    <span class="badge bg-primary rounded-pill">@item.Quantity</span>
+                                                </td>
+                                                <td><strong>@item.UnitPrice?.ToString("N0") đ</strong></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                  @if (Model.StatusId <= 3) // hoặc != 3, tùy logic
-                            {
-                                <form asp-action="CancelOrder" asp-controller="Order" method="post" style="display:inline;">
-                                    <input type="hidden" name="orderId" value="@Model.OrderID" />
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn hàng</button>
-                                </form>
-                            }
-                else if (Model.StatusId >=4)
-                {
-                    <form asp-action="BuyAgain" asp-controller="Order" method="post" class="d-inline buyagain-form">
-                        <input type="hidden" name="orderId" value="@Model.OrderID" />
-                        <button type="button" class="btn btn-success btn-sm btn-buy-again" data-orderid="@Model.OrderID">Mua lại</button>
-                    </form>
-                }
+
+                <!-- Order Status Progress -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-shipping-fast"></i>
+                            Tiến trình đơn hàng
+                        </h6>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="order-status-wrapper">
+                            <div class="order-status">
+                                @for (int i = 0; i < StatusList.Count; i++)
+                                {
+                                    <div class="@GetStepClass(i, Model.Status)">
+                                        <div class="circle">@GetStepContent(i, Model.Status)</div>
+                                        <div class="label">@StatusList[i]</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Amount -->
+                <div class="total-section">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-calculator text-primary"></i> Tổng thanh toán:
+                        </h6>
+                        <h4 class="total-amount mb-0">@Model.TotalAmount.ToString("N0") đ</h4>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    @if (Model.StatusId <= 3)
+                    {
+                        <form asp-action="CancelOrder" asp-controller="Order" method="post" class="cancel-form">
+                            <input type="hidden" name="orderId" value="@Model.OrderID" />
+                            <button type="button" class="btn-modern btn-danger-modern btn-cancel-order" data-orderid="@Model.OrderID">
+                                <i class="fas fa-times"></i> Hủy đơn hàng
+                            </button>
+                        </form>
+                    }
+                    else if (Model.StatusId >= 4)
+                    {
+                        <form asp-action="BuyAgain" asp-controller="Order" method="post" class="buyagain-form">
+                            <input type="hidden" name="orderId" value="@Model.OrderID" />
+                            <button type="button" class="btn-modern btn-success-modern btn-buy-again" data-orderid="@Model.OrderID">
+                                <i class="fas fa-redo"></i> Mua lại
+                            </button>
+                        </form>
+                    }
+                    <a href="javascript:history.back()" class="btn-modern btn-back">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal xác nhận -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">
+                        <i class="fas fa-question-circle"></i> Xác nhận hành động
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    <!-- Nội dung sẽ được thay đổi bằng JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-primary" id="confirmModalOk">
+                        <i class="fas fa-check"></i> Đồng ý
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         let formToSubmit = null;
 
         // Khi bấm nút Hủy đơn hàng
         $(document).on('click', '.btn-cancel-order', function () {
             formToSubmit = $(this).closest('form');
-            $('#confirmModalBody').text('Bạn chắc chắn muốn hủy đơn hàng này?');
+            $('#confirmModalBody').html('<i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem; margin-bottom: 1rem;"></i><br>Bạn chắc chắn muốn hủy đơn hàng này?');
             $('#confirmModal').modal('show');
         });
 
         // Khi bấm nút Mua lại
         $(document).on('click', '.btn-buy-again', function () {
             formToSubmit = $(this).closest('form');
-            $('#confirmModalBody').text('Bạn muốn mua lại đơn hàng này và chuyển đến trang giỏ hàng?');
+            $('#confirmModalBody').html('<i class="fas fa-shopping-cart text-success" style="font-size: 2rem; margin-bottom: 1rem;"></i><br>Bạn muốn mua lại đơn hàng này và chuyển đến trang giỏ hàng?');
             $('#confirmModal').modal('show');
         });
 
@@ -144,6 +248,20 @@
                 $('#confirmModal').modal('hide');
             }
         });
+
+        // Animation for progress line
+        document.addEventListener('DOMContentLoaded', function() {
+            const completedSteps = document.querySelectorAll('.step.completed');
+            const progressLine = document.querySelector('.order-status::after');
+
+            if (completedSteps.length > 0) {
+                const percentage = (completedSteps.length / 4) * 100;
+                if (progressLine) {
+                    progressLine.style.width = percentage + '%';
+                }
+            }
+        });
     </script>
+
 </body>
 </html>

@@ -72,9 +72,9 @@ namespace pet_spa_system1.Services
         }
 
         // Lấy danh sách user active
-        public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null)
+        public async Task<List<User>> GetActiveUsersAsync(string? search = null, string? sort = null, int page = 1, int pageSize = 10)
         {
-            return await _userRepository.GetActiveUsersAsync(search, sort);
+            return await _userRepository.GetActiveUsersAsync(search, sort, page, pageSize);
         }
 
         // Lấy danh sách user đã xóa mềm

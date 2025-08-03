@@ -794,6 +794,18 @@ h3 {
     }
 }
 
+/* Override màu cam cho btn-outline-primary */
+.btn-outline-primary {
+    color: #FF4B00 !important;
+    background-image: none !important;
+    border-color: #FF4B00 !important;
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    color: #fff !important;
+    background-color: #FF4B00 !important;
+    border-color: #FF4B00 !important;
+}
+
 @media (min-width: 768px) and (max-width: 991px) {
     /* line 73, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_section_title.scss */
     .section_title3 h3 {
@@ -6204,17 +6216,11 @@ h6 {
     text-align: right;
 }
 
-    /* line 1278, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_blog.scss */
-    .single-post-area .navigation-area .nav-right .thumb {
-        margin-left: 20px;
-        background: #000;
+    /* line 1282, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_blog.scss */
+    .single-post-area .navigation-area .nav-right .thumb img {
+        -webkit-transition: 0.5s;
+        transition: 0.5s;
     }
-
-        /* line 1282, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_blog.scss */
-        .single-post-area .navigation-area .nav-right .thumb img {
-            -webkit-transition: 0.5s;
-            transition: 0.5s;
-        }
 
     /* line 1287, ../../Arafath/CL/january 2020/240. Animal/HTML/scss/_blog.scss */
     .single-post-area .navigation-area .nav-right .lnr {

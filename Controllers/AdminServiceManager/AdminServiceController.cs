@@ -27,6 +27,11 @@ namespace pet_spa_system1.Controllers
         // ===== SERVICE LIST - Pure ViewModel =====
         public IActionResult ServiceList(ServiceFilterModel filter, int page = 1)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 // ✅ Pass page parameter to service
@@ -55,6 +60,11 @@ namespace pet_spa_system1.Controllers
         // ===== SERVICE DASHBOARD - UNIFIED VERSION =====
         public IActionResult ServiceDashboard()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var dashboardModel = _serviceService.GetServiceDashboardViewModel();
@@ -73,6 +83,11 @@ namespace pet_spa_system1.Controllers
         // ===== SERVICE DETAIL - ViewModel =====
         public IActionResult ServiceDetail(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var viewModel = _serviceService.GetServiceDetailViewModel(id);
@@ -96,6 +111,11 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public IActionResult EditService(int id)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var service = _serviceService.GetServiceById(id);
@@ -140,6 +160,11 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditService(ServiceFormViewModel model, IFormFile ImageFile)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _logger.LogInformation("EditService POST: ModelState.IsValid = {IsValid}", ModelState.IsValid);
             _logger.LogInformation("EditService POST: ServiceId = {Id}, Name = {Name}, Price = {Price}", 
                 model.Input.ServiceId, model.Input.Name, model.Input.Price);
@@ -150,6 +175,12 @@ namespace pet_spa_system1.Controllers
             var existingService = _serviceService.GetServiceById(input.ServiceId ?? 0);
             if (!ModelState.IsValid || (string.IsNullOrEmpty(existingService?.ImageUrl) && (ImageFile == null || ImageFile.Length == 0)))
             {
+                if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                    return RedirectToAction("AccessDenied", "Account");
+                }
+
                 if (string.IsNullOrEmpty(existingService?.ImageUrl) && (ImageFile == null || ImageFile.Length == 0))
                 {
                     ModelState.AddModelError("ImageFile", "Vui lòng chọn ảnh cho dịch vụ.");
@@ -247,6 +278,11 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public IActionResult AddService()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var viewModel = new ServiceFormViewModel
@@ -270,7 +306,12 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
 public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFormFile ImageFile)
 {
-    var input = viewModel.Input;
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            var input = viewModel.Input;
     if (!ModelState.IsValid)
     {
         viewModel.Categories = _serviceService.GetAllCategories();
@@ -324,7 +365,12 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
             [ValidateAntiForgeryToken]
             public IActionResult SoftDeleteService(int serviceId)
             {
-                try
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            try
                 {
                     var service = _serviceService.GetServiceById(serviceId);
                     if (service == null)
@@ -349,6 +395,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         [ValidateAntiForgeryToken]
         public IActionResult RestoreService(int serviceId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var service = _serviceService.GetServiceById(serviceId);
@@ -372,6 +423,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         // ===== INDEX PAGE =====
         public IActionResult Index()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var dashboardData = _serviceService.GetServiceDashboardViewModel();
@@ -388,6 +444,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         // ===== SERVICE CATEGORY =====
         public IActionResult ServiceCategory()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 var viewModel = new ServiceCategoryViewModel
@@ -412,6 +473,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         [HttpPost]
         public IActionResult AddServiceCategory(SerCate category)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -432,6 +498,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         [ValidateAntiForgeryToken]
         public IActionResult ExportToExcel()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var allServices = _serviceService.GetAllServicesViewModel();
             if (allServices == null || !allServices.Any())
             {

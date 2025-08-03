@@ -15,6 +15,10 @@
     {
         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
     }
+    @{
+        TempData.Remove("SuccessMessage");
+        TempData.Remove("ErrorMessage");
+    }
 
     @if (Model.Any())
     {
@@ -92,17 +96,17 @@
                     success: function (response) {
                         $('#loading-indicator').hide();
                         if (response.success) {
-                            alert(response.message);
+                            showToast(response.message, 'success');
                             // Reload toàn bộ trang
                             window.location.href = '@Url.Action("Myblogs", "Blogs")';
                         } else {
-                            alert('Lỗi: ' + response.message);
+                            showToast('Lỗi: ' + response.message, 'error');
                         }
                     },
                     error: function (xhr, status, error) {
                         $('#loading-indicator').hide();
                         console.log('AJAX Error:', xhr.responseText, status, error); // Debug chi tiết
-                        alert('Có lỗi xảy ra khi xóa blog. Kiểm tra console để biết thêm chi tiết.');
+                        showToast('Có lỗi xảy ra khi xóa blog. Kiểm tra console để biết thêm chi tiết.', 'error');
                     }
                 });
             }

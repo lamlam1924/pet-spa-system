@@ -48,5 +48,6 @@ namespace pet_spa_system1.Services
         void DeleteAppointment(int id);
         object GetCalendarData();
         ViewModel.CalendarViewModel GetCalendarViewModel();
+        AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
     }
 }

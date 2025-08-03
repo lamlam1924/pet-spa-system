@@ -235,4 +235,3 @@ namespace pet_spa_system1.ViewModel
         public Dictionary<int, int> ServiceCountsByCategory { get; set; } = new Dictionary<int, int>();
     }
 }
-

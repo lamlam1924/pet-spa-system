@@ -1,14 +1,18 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using pet_spa_system1.Hubs;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
+using System.Security.Claims;
 
 namespace pet_spa_system1.Controllers
 {
+    //[Authorize]
     public class AdminController : Controller
     {
         private readonly PetDataShopContext _context;
@@ -18,8 +22,15 @@ namespace pet_spa_system1.Controllers
         private readonly IPetService _petService;
         private readonly IOrderService _orderService;
         private readonly IPaymentService _paymentService;
+        private readonly ICloudinaryService _cloudinaryService;
+        private readonly ICartService _cartService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService, IPaymentService paymentService)
+
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService, 
+            IPaymentService paymentService, ICloudinaryService cloudinaryService, ICartService cartService, 
+            INotificationService notificationService, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _productService = productService;
@@ -28,6 +39,11 @@ namespace pet_spa_system1.Controllers
             _petService = petService;
             _orderService = orderService;
             _paymentService = paymentService;
+            _cloudinaryService = cloudinaryService;
+            _cartService =cartService;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
+
         }
         //=======================================================================================================================
         // SERVICE
@@ -49,22 +65,85 @@ namespace pet_spa_system1.Controllers
         public IActionResult Index()
         {
             Console.WriteLine("[AdminController] Accessing Index...");
-            if (!User.Identity?.IsAuthenticated ?? true)
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
             {
                 Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
             }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            DateTime now = DateTime.Now;
+            var totalRevenueThisMonth = _context.Payments
+                .Where(o => o.PaymentStatusId == 2
+                    && o.PaymentDate.Value.Month == now.Month
+                    && o.PaymentDate.Value.Year == now.Year)
+                .Sum(o => o.Amount);
+            ViewBag.TotalRevenue = totalRevenueThisMonth;
+
+            int userCount = _context.Users.Count();
+            ViewBag.UserCount = userCount;
+
+            int pendingOrders = _context.Orders.Count(o => o.StatusId==1);
+            ViewBag.PendingOrders = pendingOrders;
+
+
             ViewBag.Title = "Admin Dashboard";
             return View();
         }
 
         public IActionResult Payment()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var payments = _paymentService.GetAllPayments();
             return View(payments);
         }
 
         public async Task<IActionResult> Pets_List(int page = 1, string searchName = "", string searchOwner = "", bool? isActive = null, string sortOrder = "name", string speciesName = "")
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             Console.WriteLine($"[AdminController] Pets_List called, page: {page}, searchName: {searchName}, searchOwner: {searchOwner}, isActive: {isActive}, sortOrder: {sortOrder}, speciesName: {speciesName}");
             const int pageSize = 10;
 
@@ -137,6 +216,24 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> DeletePetImage(int imageId, string imageUrl)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             try
             {
                 Console.WriteLine($"[AdminController] DeletePetImage called, imageId: {imageId}, imageUrl: {imageUrl}");
@@ -157,6 +254,23 @@ namespace pet_spa_system1.Controllers
         }
         public async Task<IActionResult> Pet_Detail(int petId)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var (pet, suggestedPets) = await _petService.GetPetDetailWithSuggestionsAsync(petId);
             if (pet == null)
             {
@@ -180,6 +294,23 @@ namespace pet_spa_system1.Controllers
 
         public async Task<IActionResult> Add_New_Pet()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine("[AdminController] Add_New_Pet called");
             var species = await _petService.GetAllSpeciesAsync() ?? new List<Species>();
             var users = await _context.Users.ToListAsync();
@@ -196,6 +327,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Pet(PetDetailViewModel viewModel, List<IFormFile> Images)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine("[AdminController] Add_New_Pet POST called");
             Console.WriteLine($"[AdminController] Received data: Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, UserId={viewModel.Pet.UserId}");
 
@@ -255,6 +403,23 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchOwners(string term)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var users = await _context.Users
                 .Where(u => (u.Email != null && u.Email.Contains(term)) ||
                            (u.FullName != null && u.FullName.Contains(term)) ||
@@ -265,6 +430,23 @@ namespace pet_spa_system1.Controllers
         }
         public async Task<IActionResult> Edit_Pet(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var pet = await _petService.GetPetByIdAsync(id);
             if (pet == null)
             {
@@ -290,6 +472,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit_Pet(int id, PetDetailViewModel viewModel, List<IFormFile> Images)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             Console.WriteLine("[AdminController] Edit_Pet POST called");
             Console.WriteLine($"Received data: PetId={id}, Name={viewModel.Pet.Name}, SpeciesId={viewModel.Pet.SpeciesId}, " +
                               $"Gender={viewModel.Pet.Gender}, UserId={viewModel.Pet.UserId}, IsActive={viewModel.Pet.IsActive}, " +
@@ -366,6 +565,23 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> DisablePet(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var pet = await _petService.GetPetByIdAsync(id);
             if (pet == null)
             {
@@ -383,6 +599,23 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public async Task<IActionResult> RestorePet(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var pet = await _petService.GetPetByIdAsync(id);
             if (pet == null)
             {
@@ -401,6 +634,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePet(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             try
             {
                 await _petService.DeletePetAsync(id);
@@ -419,13 +669,49 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult List_Customer()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             return View();
         }
+            
 
         //=======================================================================================================================
         // Hiển thị danh sách sản phẩm
         public async Task<IActionResult> Product_Detail(int productID)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var product = await _context.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == productID);
@@ -441,6 +727,23 @@ namespace pet_spa_system1.Controllers
 
         public async Task<IActionResult> Products_List(int page = 1)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {   
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             const int pageSize = 15; // Số sản phẩm trên mỗi trang
             var totalProducts = await _context.Products.CountAsync();
@@ -476,6 +779,23 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult AddService(Service service)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.AddService(service);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -492,6 +812,23 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         public IActionResult EditService(Service service)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.UpdateService(service);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -499,6 +836,23 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult SoftDeleteService(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.SoftDeleteService(id);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -506,6 +860,23 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult RestoreService(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             _serviceService.RestoreService(id);
             _serviceService.Save();
             return RedirectToAction("ManageService");
@@ -517,8 +888,25 @@ namespace pet_spa_system1.Controllers
 
         // Add New Product
 
-        public async Task<IActionResult> Add_New_Product()
+        public async Task<IActionResult> Add_New_Product() // hàm hiển thị form thêm sản phẩm
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var categories = await _productService.GetAllProductCategoriesAsync();
             var viewModel = new ProductViewModel
             {
@@ -533,7 +921,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add_New_Product(ProductViewModel viewModel, IFormFile Image)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
 
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             if (!ModelState.IsValid)
             {
                 foreach (var state in ModelState)
@@ -547,29 +951,24 @@ namespace pet_spa_system1.Controllers
                         }
                     }
                 }
-                // Gửi lại categories nếu có lỗi
                 viewModel.Categories = await _productService.GetAllProductCategoriesAsync();
                 return View(viewModel);
             }
 
             var product = viewModel.Product;
 
-            // Upload ảnh
+            // Upload ảnh lên Cloudinary
             if (Image != null && Image.Length > 0)
             {
-                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imgProducts");
-                if (!Directory.Exists(imagePath))
-                    Directory.CreateDirectory(imagePath);
-
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
-                var filePath = Path.Combine(imagePath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var imageUrl = await _cloudinaryService.UploadImageAsync(Image, "Products");
+                if (string.IsNullOrEmpty(imageUrl))
                 {
-                    await Image.CopyToAsync(stream);
+                    TempData["ErrorMessage"] = "Không thể upload ảnh lên Cloudinary.";
+                    Console.WriteLine("[Cloudinary] Upload failed or returned empty URL.");
+                    viewModel.Categories = await _productService.GetAllProductCategoriesAsync();
+                    return View(viewModel);
                 }
-
-                product.ImageUrl = "/imgProducts/" + fileName;
+                product.ImageUrl = imageUrl;
             }
 
             product.CreatedAt = DateTime.Now;
@@ -580,7 +979,6 @@ namespace pet_spa_system1.Controllers
 
             try
             {
-                // thêm hoặc cập nhật
                 await _productService.CreateProductAsync(product);
                 TempData["SuccessMessage"] = "Thêm sản phẩm thành công!";
                 return RedirectToAction("Add_New_Product");
@@ -590,13 +988,29 @@ namespace pet_spa_system1.Controllers
                 TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
                 return RedirectToAction("Add_New_Product");
             }
-
         }
         //=======================================================================================================================
 
         //Edit Products
         public async Task<IActionResult> Edit_Products(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var product = await _productService.GetProductByIdAsync(id);
             if (product == null)
             {
@@ -617,6 +1031,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit_Products(ProductViewModel viewModel, IFormFile? Image)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var product = await _productService.GetProductByIdAsync(viewModel.Product.ProductId);
             if (product == null) return NotFound();
 
@@ -631,6 +1062,11 @@ namespace pet_spa_system1.Controllers
             // Nếu có ảnh mới
             if (Image != null && Image.Length > 0)
             {
+                if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imgProducts");
                 if (!Directory.Exists(imagePath))
                     Directory.CreateDirectory(imagePath);
@@ -648,6 +1084,27 @@ namespace pet_spa_system1.Controllers
 
             // Cập nhật vào CSDL
             await _productService.UpdateProductAsync(product);
+            // Sau khi cập nhật tồn kho thành công
+            // Sau khi cập nhật tồn kho thành công
+            var affectedUserIds = await _cartService.GetUsersHavingProductExceedingStock(product.ProductId);
+
+            foreach (var affectedUserId in affectedUserIds)
+            {
+                var noti = new Notification
+                {
+                    UserId = affectedUserId,
+                    Title = "Sản phẩm vượt quá tồn kho",
+                    Message = $"Sản phẩm \"{product.Name}\" trong giỏ hàng của bạn đã vượt quá tồn kho ({product.Stock}). Vui lòng kiểm tra lại.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                await _notificationService.AddAsync(noti);
+
+                // Gửi realtime bằng SignalR
+                await _hubContext.Clients.User(affectedUserId.ToString())
+                    .SendAsync("ReceiveNotification", noti.Title, noti.Message);
+            }
+
             try
             {
                 // thêm hoặc cập nhật
@@ -671,6 +1128,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             await _productService.DisableProductAsync(id);
             TempData["SuccessMessage"] = "Đã ngừng kích hoạt sản phẩm.";
             return RedirectToAction("Products_List");
@@ -681,6 +1155,23 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnableProduct(int id)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             await _productService.EnableProductAsync(id);
             TempData["SuccessMessage"] = "Đã kích hoạt sản phẩm.";
             return RedirectToAction("Products_List");
@@ -702,16 +1193,56 @@ namespace pet_spa_system1.Controllers
 
         public IActionResult Refund()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             return View();
         }
 
         public IActionResult Staff()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View();
         }
 
         public IActionResult StaffSchedule()
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View("StaffSchedule");
         }
 
@@ -719,6 +1250,24 @@ namespace pet_spa_system1.Controllers
         // BLOG MANAGEMENT
         public async Task<IActionResult> ManageBlog(string status = "All", string? search = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserName = HttpContext.Session.GetString("CurrentUserName") ?? "Unknown";
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
@@ -780,6 +1329,24 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveBlog(int blogId)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] ApproveBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -809,8 +1376,75 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectBlog(int blogId, string? reason = null)
+        {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
+            Console.WriteLine($"[AdminController] RejectBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
+
+            if (!currentUserId.HasValue || (currentUserRoleId != 1 && currentUserRoleId != 3))
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện." });
+            }
+
+            try
+            {
+                var success = await _blogService.RejectBlogAsync(blogId, currentUserId.Value, reason);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Blog đã bị từ chối." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không thể từ chối blog này." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PublishBlog(int blogId)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] PublishBlog - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -842,6 +1476,24 @@ namespace pet_spa_system1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBlogAdmin(int blogId)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             var currentUserRoleId = HttpContext.Session.GetInt32("CurrentUserRoleId") ?? -1;
             Console.WriteLine($"[AdminController] DeleteBlogAdmin - CurrentUserId: {currentUserId ?? -1}, CurrentUserRoleId: {currentUserRoleId}");
@@ -874,7 +1526,25 @@ namespace pet_spa_system1.Controllers
 
 public IActionResult OrderHistory(string status = "All", int page = 1)
 {
-    int pageSize = 10;
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            int pageSize = 10;
     int totalOrders;
     List<OrderViewModel> orders;
 
@@ -897,6 +1567,24 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
         [HttpPost]
         public IActionResult UpdateOrderStatus(int orderId, string newStatus)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             try
             {
                 var order = _orderService.GetOrderById(orderId);
@@ -936,6 +1624,24 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
         [HttpPost]
         public IActionResult DeleteOrder(int orderId)
         {
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             try
             {
                 var order = _orderService.GetOrderById(orderId);
@@ -966,7 +1672,25 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
             [HttpGet]
             public IActionResult GetOrderDetail(int orderId)
             {
-                try
+            Console.WriteLine("[AdminController] Accessing Index...");
+            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
+            if (userId == null || roleId == null)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
+            if (roleId != 1)
+            {
+                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            try
                 {
                     Console.WriteLine($"[AdminController] GetOrderDetail called with orderId: {orderId}");
                 
@@ -987,6 +1711,7 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
                     return Json(new { success = false, message = "Lỗi khi tải chi tiết đơn hàng: " + ex.Message });
                 }
             }
+
 
         // Helper: Map status name to id
         private int MapStatusNameToId(string statusName)

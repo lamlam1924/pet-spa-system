@@ -32,5 +32,8 @@ namespace pet_spa_system1.Services
 
         // Tính tổng tiền của giỏ hàng theo UserId
         Task<decimal> GetTotalAmountAsync(int userId);
+
+        Task<List<Cart>> GetCartsByProductIdAsync(int productId);
+        Task<List<int>> GetUsersHavingProductExceedingStock(int productId);
     }
 }

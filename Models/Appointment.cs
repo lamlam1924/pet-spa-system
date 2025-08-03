@@ -14,6 +14,7 @@ public partial class Appointment
     public DateOnly AppointmentDate { get; set; }
 
     public int StatusId { get; set; }
+    
 
     public string? Notes { get; set; }
 

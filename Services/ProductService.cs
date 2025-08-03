@@ -8,10 +8,12 @@ namespace pet_spa_system1.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _repository;
+        private readonly PetDataShopContext _context;
 
-        public ProductService(IProductRepository repository)
+        public ProductService(IProductRepository repository, PetDataShopContext context)
         {
             _repository = repository;
+            _context = context;
         }
 
         public async Task<Product> GetProductByIdAsync(int id)
@@ -48,8 +50,10 @@ namespace pet_spa_system1.Services
 
         public async Task UpdateProductAsync(Product product)
         {
-            await _repository.UpdateProductAsync(product);
+            _context.Products.Update(product); // ✅ Cập nhật vào DbContext
+            await _context.SaveChangesAsync(); // ✅ Lưu lại thay đổi
         }
+
 
         public async Task DeleteProductAsync(int id)
         {
@@ -121,11 +125,30 @@ namespace pet_spa_system1.Services
             await _repository.AddReplyToReviewAsync(parentReviewId, userId, content);
         }
 
+        public async Task AddSystemReplyToReviewAsync(int parentReviewId, int userId, string content)
+        {
+            await _repository.AddSystemReplyToReviewAsync(parentReviewId, userId, content);
+        }
+
         public async Task<Review> GetLastReplyOfUserForParentAsync(int parentReviewId, int userId)
         {
             return await _repository.GetLastReplyOfUserForParentAsync(parentReviewId, userId);
         }
 
+        public async Task<Review> GetReviewByIdAsync(int reviewId)
+        {
+            return await _repository.GetReviewByIdAsync(reviewId);
+        }
+        
+        public async Task<Review> GetAutoReplyForReviewAsync(int parentReviewId)
+        {
+            return await _repository.GetAutoReplyForReviewAsync(parentReviewId);
+        }
+        
+        public async Task DeleteReplyAsync(int reviewId)
+        {
+            await _repository.DeleteReplyAsync(reviewId);
+        }
     }
 }
 

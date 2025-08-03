@@ -331,14 +331,14 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                alert(response.message);
+                                showToast(response.message, 'success');
                                 location.reload();
                             } else {
-                                alert('Lỗi: ' + response.message);
+                                showToast('Lỗi: ' + response.message, 'error');
                             }
                         },
                         error: function() {
-                            alert('Có lỗi xảy ra khi duyệt blog.');
+                            showToast('Có lỗi xảy ra khi duyệt blog.', 'error');
                         }
                     });
                 }
@@ -360,14 +360,14 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                alert(response.message);
+                                showToast(response.message, 'success');
                                 location.reload();
                             } else {
-                                alert('Lỗi: ' + response.message);
+                                showToast('Lỗi: ' + response.message, 'error');
                             }
                         },
                         error: function() {
-                            alert('Có lỗi xảy ra khi từ chối blog.');
+                            showToast('Có lỗi xảy ra khi từ chối blog.', 'error');
                         }
                     });
                 }
@@ -387,14 +387,14 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                alert(response.message);
+                                showToast(response.message, 'success');
                                 location.reload();
                             } else {
-                                alert('Lỗi: ' + response.message);
+                                showToast('Lỗi: ' + response.message, 'error');
                             }
                         },
                         error: function() {
-                            alert('Có lỗi xảy ra khi xóa blog.');
+                            showToast('Có lỗi xảy ra khi xóa blog.', 'error');
                         }
                     });
                 }

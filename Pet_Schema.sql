@@ -351,12 +351,12 @@ GO
 
 
 
-ALTER TABLE Users
-ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
-GO
+	ALTER TABLE Users
+	ALTER COLUMN PasswordHash NVARCHAR(255) NULL;
+	GO
 
-ALTER TABLE Reviews
-ADD ParentReviewId INT NULL;
+	ALTER TABLE Reviews
+	ADD ParentReviewId INT NULL;
 
 ALTER TABLE Reviews
 ADD CONSTRAINT FK_Reviews_ParentReview
@@ -431,3 +431,45 @@ PRINT 'Please restart your application to apply the changes.';
 ALTER TABLE Services
 ADD ImageUrl NVARCHAR(255);
 
+
+
+
+
+CREATE TABLE AppointmentServiceImages (
+    ImageID INT PRIMARY KEY IDENTITY(1,1),
+    AppointmentServiceID INT NOT NULL,
+    ImgUrl NVARCHAR(500) NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_ServiceImages_AppointmentService 
+        FOREIGN KEY (AppointmentServiceID) REFERENCES AppointmentServices(AppointmentServiceID)
+        ON DELETE CASCADE
+);
+
+INSERT INTO AppointmentServiceStatus (StatusName)
+VALUES 
+('Pending'),        -- 1
+('In Progress'),    -- 2
+('Completed'),      -- 3
+('Cancelled');      -- 4
+CREATE TABLE AppointmentServiceStatus (
+    StatusID INT PRIMARY KEY IDENTITY(1,1),
+    StatusName NVARCHAR(100) NOT NULL
+);
+
+-- Thêm cột Status (FK tới AppointmentServiceStatus)
+ALTER TABLE AppointmentServices
+ADD Status INT;
+
+-- Thêm ràng buộc khóa ngoại Status → AppointmentServiceStatus
+ALTER TABLE AppointmentServices
+ADD CONSTRAINT FK_AppointmentServices_Status
+FOREIGN KEY (Status) REFERENCES AppointmentServiceStatus(StatusID);
+
+-- Thêm cột PhotoType với ràng buộc CHECK
+ALTER TABLE AppointmentServiceImages
+ADD PhotoType NVARCHAR(20) CHECK (PhotoType IN ('Before', 'After'));
+
+-- (Tùy chọn) Thiết lập giá trị mặc định nếu cần
+ALTER TABLE AppointmentServiceImages
+ADD CONSTRAINT DF_AppointmentServiceImages_PhotoType
+DEFAULT 'Before' FOR PhotoType;

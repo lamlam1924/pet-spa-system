@@ -14,17 +14,23 @@ namespace pet_spa_system1.Controllers.ProductManager
             _cartService = cartService;
         }
 
-        public IActionResult AllOrder(int page = 1, int pageSize = 5)
+        public IActionResult AllOrder(int? statusId, int? orderId, int page = 1, int pageSize = 5)
         {
             var userId = HttpContext.Session.GetInt32("CurrentUserId");
+
             int totalOrders;
-            var orders = _orderService.GetOrdersByUserIdPaged(userId, page, pageSize, out totalOrders);
+            var orders = _orderService.GetOrdersByUserIdPaged(userId, page, pageSize, out totalOrders, statusId, orderId);
 
             ViewBag.CurrentPage = page;
             ViewBag.PageSize = pageSize;
             ViewBag.TotalOrders = totalOrders;
+            ViewBag.StatusId = statusId;
+            ViewBag.OrderIdSearch = orderId?.ToString();
+
             return View(orders);
         }
+
+
 
         public IActionResult OrderStatusDetail(int orderId)
         {

@@ -1,5 +1,6 @@
 ﻿@model List<pet_spa_system1.ViewModel.PetViewModel>
 
+
 <div class="card shadow p-4" id="content-main">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">
@@ -24,8 +25,7 @@
         <table class="table table-bordered align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Id</th>
-                    <th>Ảnh</th>
+                    @* <th>Id</th> *@
                     <th>Tên</th>
                     <th>Loài</th>
                     <th>Giới tính</th>
@@ -38,13 +38,8 @@
                 @for (int i = 0; i < Model.Count; i++)
                 {
                     var pet = Model[i];
-                    var firstImageUrl = pet.PetImages?.FirstOrDefault()?.ImageUrl ?? "/images/default-pet.jpg"; // Lấy ảnh đầu tiên hoặc dùng ảnh mặc định
                     <tr>
-                        <td>@pet.Id</td>
-                        <td>
-                            <img src="@Url.Content(firstImageUrl)" alt="@pet.Name" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
-                                 onclick="showImage('@Url.Content(firstImageUrl)', '@pet.Name')">
-                        </td>
+                        @* <td>@pet.Id</td> *@
                         <td>@pet.Name</td>
                         <td>@pet.Species</td>
                         <td>@pet.Gender</td>
@@ -76,7 +71,7 @@
     <!-- Chỉ báo loading -->
     <div id="loading-indicator" class="htmx-indicator" style="display: none;">
         <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+                                    <span class="visually-hidden">Đang tải...</span>
         </div>
     </div>
     <!-- Khu vực hiển thị thông báo -->
