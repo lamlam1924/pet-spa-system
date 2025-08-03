@@ -233,21 +233,18 @@ public async Task<IActionResult> PaymentCallbackVnpay()
     UserId = order.UserId, // <-- Bổ sung dòng này
     Amount = order.TotalAmount,
     PaymentMethodId = 1,
+    PaymentStatusId =2,
     TransactionId = transactionNo,
     PaymentDate = DateTime.Now
 };
         _paymentService.AddPayment(payment);
 
             // XÓA GIỎ HÀNG SAU KHI THANH TOÁN THÀNH CÔNG
+            // Cập nhật tồn kho
             foreach (var item in order.OrderItems)
             {
-                // Lấy sản phẩm từ item
                 var product = item.Product;
-
-                // Trừ số lượng đặt mua vào tồn kho
                 product.Stock -= item.Quantity;
-
-                // Cập nhật lại sản phẩm
                 await _productService.UpdateProductAsync(product);
             }
 

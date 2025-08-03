@@ -93,21 +93,43 @@
                                     </td>
                                     <td class="align-middle">@item.Product.Price.ToString("N0") đ</td>
                                     <td class="align-middle">
-                                      <div class="input-group quantity mx-auto" style="width: 100px;">
-                                          <div class="input-group-btn">
-                                             <button class="btn btn-sm btn-primary btn-minus" onclick="updateQuantity(@item.ProductId, 'decrease')">
-                                                    <i class="fa fa-minus"></i>
-                                             </button>
-                                      </div>
+                                    <div class="input-group quantity mx-auto" style="width: 100px;">
+                                        <style>/* Ẩn nút tăng/giảm số trong input type="number" */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
-                                    <input type="text" id="qty-@item.ProductId" class="form-control form-control-sm bg-secondary text-center" value="@item.Quantity" readonly>
+input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
+</style>
+    <div class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-primary btn-minus"
+                onclick="updateQuantity(@item.ProductId, 'decrease')">
+            <i class="fa fa-minus"></i>
+        </button>
+    </div>
 
-                                         <div class="input-group-btn">
-                                         <button class="btn btn-sm btn-primary btn-plus" onclick="updateQuantity(@item.ProductId, 'increase')">
-                                         <i class="fa fa-plus"></i>
-                                            </button>
-                                         </div>
-                                      </div>
+ <input type="number"
+       id="qty-@item.ProductId"
+       class="form-control form-control-sm bg-secondary text-center"
+       value="@item.Quantity"
+       min="1"
+       data-price="@item.Product.Price"
+       data-stock="@item.Product.Stock"
+       onchange="handleQuantityInput(@item.ProductId, this.value)" />
+
+
+    <div class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-primary btn-plus"
+                onclick="updateQuantity(@item.ProductId, 'increase')">
+            <i class="fa fa-plus"></i>
+        </button>
+    </div>
+</div>
+
                                     </td>
                                         <td class="align-middle">
                                         <span id="total-@item.ProductId">@((item.Quantity * item.Product.Price).ToString("N0")) đ</span>
@@ -148,8 +170,9 @@
                             <h5 class="font-weight-bold">Tổng cộng </h5>
                             <h5 class="font-weight-bold"  id="cartTotalAmount" data-has-shipping-fee="false" >@((Model.TotalAmount + 30000).ToString("N0")) đ</h5>
                         </div>
-                       <a class="btn btn-block btn-primary my-3 py-3" href="@Url.Action("Checkout", "Checkout")">Thanh Toán</a>
+                      <a class="btn btn-block btn-primary my-3 py-3" id="checkoutButton" href="@Url.Action("Checkout", "Checkout")">Thanh Toán</a>
 
+                      <div id="cart-error-message" class="text-danger fw-bold" style="display: none;"></div>    
                     </div>
                 </div>
             </div>
@@ -157,7 +180,10 @@
         </div>
     </div>
     <!-- Cart End -->
-   
+   <div id="cart-toast" class="toast-popup" style="display: none;">
+    <span id="cart-toast-message"></span>
+</div>
+
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
 
@@ -204,6 +230,7 @@
     <script src="@Url.Content("~/js/mail-script.js")"></script>
 
     <script src="@Url.Content("~/js/main.js")"></script>
+   
     <script>
         function confirmRemove(productId) {
             Swal.fire({
@@ -236,38 +263,192 @@ function formatVND(amount) {
 }
 
 
-function updateQuantity(productId, action) {
-    $.ajax({
-        url: `/Cart/${action === 'increase' ? 'IncreaseQuantityAjax' : 'DecreaseQuantityAjax'}`,
-        method: 'POST',
-        data: { productId: productId },
-        success: function (result) {
-            // Cập nhật số lượng
-            $(`#qty-${productId}`).val(result.newQuantity);
+// Gọi API để tăng/giảm số lượng
+// Gọi API để tăng/giảm số lượng
+async function updateQuantity(productId, action) {
+    const input = document.getElementById(`qty-${productId}`);
+    let currentQty = parseInt(input.value);
+    const stock = parseInt(input.getAttribute('data-stock')); // ⚠️ Bạn cần thêm thuộc tính này vào input
 
-            // Cập nhật tổng tiền sản phẩm
-            $(`#total-${productId}`).text(formatVND(result.itemTotal));
+    if (isNaN(currentQty)) currentQty = 1;
 
-            // Cập nhật tổng tiền giỏ hàng
-            if (result.cartTotal) {
-                const shippingFee = 30000;
-                const cartTotal = parseCurrencyToNumber(result.cartTotal); // chắc chắn là số
+    let newQty = currentQty;
 
-                const totalWithFee = cartTotal + shippingFee;
-
-                // Cập nhật giao diện
-                $('#cartSubTotalAmount').text(formatVND(cartTotal));
-                $('#cartTotalAmount').text(formatVND(totalWithFee));
-            }
-        },
-        error: function () {
-            showToast("Có lỗi xảy ra!", "error");
+    if (action === 'increase') {
+        if (currentQty < stock) {
+            newQty = currentQty + 1;
+        } else {
+              showToast("Đã đạt số lượng tồn kho tối đa.", false);
+            return;
         }
-    });
+    } else if (action === 'decrease') {
+        if (currentQty > 1) {
+            newQty = currentQty - 1;
+        } else {
+            return; // Không giảm dưới 1
+        }
+    }
+
+    // ✅ GỌI API và cập nhật UI, tổng tiền, thành tiền
+    await updateCartQuantity(productId, newQty);
 }
 
 
+
+
+// Xử lý nhập trực tiếp số lượng
+// Xử lý nhập trực tiếp số lượng
+async function handleQuantityInput(productId, newQty) {
+    const quantity = parseInt(newQty);
+    if (isNaN(quantity) || quantity < 1) {
+        showToast("Số lượng không hợp lệ.", false);
+        return;
+    }
+
+    const response = await fetch('/Cart/UpdateQuantity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity })
+    });
+
+    const result = await response.json();
+
+    const input = document.getElementById(`qty-${productId}`);
+    if (response.ok) {
+        input.value = quantity;
+
+        // ✅ Cập nhật thành tiền từng sản phẩm
+        const price = parseFloat(input.getAttribute('data-price'));
+        const total = price * quantity;
+        document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
+
+        // ✅ Cập nhật tổng tiền
+        updateCartTotals();
+
+        // ✅ Toast thành công
+        showToast("Cập nhật số lượng thành công!");
+    } else {
+        showToast(result.message || "Số lượng vượt quá giới hạn.", false);
+
+        if (result.availableStock) {
+            input.value = result.availableStock;
+
+            // Cập nhật lại giá trị tiền nếu cần
+            const price = parseFloat(input.getAttribute('data-price'));
+            const total = price * result.availableStock;
+            document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
+            updateCartTotals();
+        }
+    }
+}
+
+
+
+// Gửi request cập nhật đến controller
+async function updateCartQuantity(productId, quantity) {
+    const response = await fetch('/Cart/UpdateQuantity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+        // ✅ Cập nhật lại số lượng trong input
+        const input = document.getElementById(`qty-${productId}`);
+        input.value = quantity;
+
+        // ✅ Lấy giá sản phẩm từ thuộc tính data-price
+        const price = parseFloat(input.getAttribute('data-price')); // ví dụ: 50000
+
+        // ✅ Cập nhật thành tiền sản phẩm
+        const total = price * quantity;
+        document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
+
+        // ✅ Gọi lại hàm cập nhật tổng tiền
+        updateCartTotals();
+    } else {
+        showToast(result.message || "Lỗi khi cập nhật.", false);
+        if (result.availableStock) {
+            document.getElementById(`qty-${productId}`).value = result.availableStock;
+        }
+    }
+}
+
+function updateCartTotals() {
+    let subTotal = 0;
+
+    document.querySelectorAll('[id^="total-"]').forEach(span => {
+        const text = span.innerText.replace(/[^\d]/g, ''); // loại bỏ "đ" và dấu chấm
+        const value = parseInt(text);
+        subTotal += isNaN(value) ? 0 : value;
+    });
+
+    const shippingFee = 30000;
+    const totalAmount = subTotal + shippingFee;
+
+    document.getElementById('cartSubTotalAmount').innerText = formatCurrency(subTotal);
+    document.getElementById('cartTotalAmount').innerText = formatCurrency(totalAmount);
+}
+
+
+function formatCurrency(amount) {
+    return amount.toLocaleString('vi-VN') + ' đ';
+}
+function showToast(message, isSuccess = true) {
+    const toast = document.getElementById('cart-toast');
+    const toastMsg = document.getElementById('cart-toast-message');
+
+    toastMsg.textContent = message;
+    toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545'; // xanh/đỏ
+    toast.style.display = 'block';
+
+    // Reset animation để toast lại từ đầu
+    toast.classList.remove('toast-popup'); 
+    void toast.offsetWidth; // force reflow
+    toast.classList.add('toast-popup');
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 2000);
+}
+
+
+
+
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkoutBtn = document.getElementById("checkoutButton");
+        const errorMsg = document.getElementById("cart-error-message");
+
+        // Gửi yêu cầu kiểm tra giỏ hàng
+        fetch('@Url.Action("CheckCartBeforeCheckout", "Cart")')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    checkoutBtn.classList.add("disabled");
+                    checkoutBtn.setAttribute("href", "#");
+                    errorMsg.style.display = "block";
+
+                    let detail = "";
+                    if (data.details && data.details.length > 0) {
+                        detail = data.details.map(d => `- ${d.name} (đã đặt: ${d.quantity}, tồn kho: ${d.stock})`).join("<br>");
+                    }
+
+                    errorMsg.innerHTML = `
+                        ⚠ Không thể thanh toán vì có sản phẩm vượt quá số lượng tồn kho.<br>${detail}
+                        <br>Vui lòng cập nhật lại số lượng trước khi tiếp tục.
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi khi kiểm tra giỏ hàng:", err);
+            });
+    });
+</script>
+
 
 
     <script>
@@ -289,6 +470,8 @@ function updateQuantity(productId, action) {
             format: 'HH.MM'
         });
     </script>
+
+    
 
 
 

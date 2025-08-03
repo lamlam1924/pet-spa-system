@@ -10,10 +10,12 @@ namespace pet_spa_system1.Controllers.ProductManager
     public class CartController : Controller
     {
         private readonly ICartService _cartService;
+        private readonly IProductService _productService;
 
-        public CartController(ICartService cartService)
+        public CartController(ICartService cartService, IProductService productService)
         {
             _cartService = cartService ?? throw new ArgumentNullException(nameof(cartService));
+            _productService = productService;
         }
 
         //===========================================================================================
@@ -164,5 +166,91 @@ namespace pet_spa_system1.Controllers.ProductManager
                 return Json(new { success = false, message = $"Lỗi: {ex.Message}" });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckStock(int productId, int quantity)
+        {
+            var product = await _productService.GetProductByIdAsync(productId);
+            if (product == null)
+            {
+                return Json(new { success = false, message = "Sản phẩm không tồn tại." });
+            }
+
+            if (quantity > product.Stock)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Chỉ còn lại {product.Stock} sản phẩm trong kho.",
+                    availableStock = product.Stock
+                });
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateQuantity([FromBody] UpdateCartRequest request)
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+                return Unauthorized();
+
+            if (request.Quantity < 1)
+                return BadRequest(new { message = "Số lượng không hợp lệ." });
+
+            var product = await _productService.GetProductByIdAsync(request.ProductId);
+            if (product == null)
+                return NotFound(new { message = "Sản phẩm không tồn tại." });
+
+            if (request.Quantity > product.Stock)
+                return BadRequest(new { message = $"Chỉ còn lại {product.Stock} sản phẩm trong kho." });
+
+            // Lấy danh sách giỏ hàng của người dùng
+            var cartItems = await _cartService.GetCartByUserIdAsync(userId.Value);
+            if (cartItems == null || cartItems.Count == 0)
+                return NotFound(new { message = "Giỏ hàng không tồn tại hoặc rỗng." });
+
+            // Tìm item cần cập nhật trong giỏ hàng
+            var cartItem = cartItems.FirstOrDefault(i => i.ProductId == request.ProductId);
+            if (cartItem == null)
+                await _cartService.AddToCartAsync(userId.Value,product.ProductId, request.Quantity);
+
+            // Gọi service cập nhật số lượng (theo CartId)
+            await _cartService.UpdateQuantityAsync(cartItem.CartId, request.Quantity);
+
+            return Ok(new { message = "Cập nhật số lượng thành công." });
+        }
+        [HttpGet]
+        public async Task<IActionResult> CheckCartBeforeCheckout()
+        {
+            var userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Vui lòng đăng nhập." });
+            }
+
+            var cartItems = await _cartService.GetCartByUserIdAsync(userId.Value);
+            var invalidItems = cartItems
+                .Where(c => c.Quantity > c.Product.Stock)
+                .Select(c => new { c.Product.Name, Stock = c.Product.Stock, Quantity = c.Quantity })
+                .ToList();
+
+            if (invalidItems.Any())
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Một số sản phẩm vượt quá tồn kho.",
+                    details = invalidItems
+                });
+            }
+
+            return Json(new { success = true });
+        }
+
+
+
+
     }
 }

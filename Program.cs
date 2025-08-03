@@ -1,18 +1,21 @@
-using System;
-using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using pet_spa_system1.Hubs;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Repository;
 using pet_spa_system1.Services;
+using System;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,8 @@ builder.Services.AddHttpContextAccessor();
 // Kết nối DB từ appsettings.json
 builder.Services.AddDbContext<PetDataShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddSignalR();
+
 
 // DI cho Repository và Service
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
@@ -74,6 +79,10 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+
 
 // Đăng ký ICloudinaryService
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
@@ -129,6 +138,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -137,6 +147,8 @@ app.UseRouting();
 app.UseSession();             // ✅ Session phải trước Authentication
 app.UseAuthentication();      // ✅ Dùng xác thực
 app.UseAuthorization();       // ✅ Dùng phân quyền
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 // ✅ Kiểm tra kết nối DB
 using (var scope = app.Services.CreateScope())

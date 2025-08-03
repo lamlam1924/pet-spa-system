@@ -7,6 +7,7 @@
         public string? ImageUrl { get; set; }
         public decimal Price { get; set; }
         public string? CategoryName { get; set; }
+        public int Stock { get; set; }
 
         // ⭐ Đánh giá
         public int AverageRating { get; set; }

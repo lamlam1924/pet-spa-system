@@ -1,12 +1,14 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using pet_spa_system1.Hubs;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
+using System.Security.Claims;
 
 namespace pet_spa_system1.Controllers
 {
@@ -21,8 +23,14 @@ namespace pet_spa_system1.Controllers
         private readonly IOrderService _orderService;
         private readonly IPaymentService _paymentService;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly ICartService _cartService;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService, IPaymentService paymentService, ICloudinaryService cloudinaryService)
+
+        public AdminController(PetDataShopContext context, IProductService productService, IServiceService serviceService, IBlogService blogService, IPetService petService, IOrderService orderService, 
+            IPaymentService paymentService, ICloudinaryService cloudinaryService, ICartService cartService, 
+            INotificationService notificationService, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _productService = productService;
@@ -32,6 +40,10 @@ namespace pet_spa_system1.Controllers
             _orderService = orderService;
             _paymentService = paymentService;
             _cloudinaryService = cloudinaryService;
+            _cartService =cartService;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
+
         }
         //=======================================================================================================================
         // SERVICE
@@ -1072,6 +1084,27 @@ namespace pet_spa_system1.Controllers
 
             // Cập nhật vào CSDL
             await _productService.UpdateProductAsync(product);
+            // Sau khi cập nhật tồn kho thành công
+            // Sau khi cập nhật tồn kho thành công
+            var affectedUserIds = await _cartService.GetUsersHavingProductExceedingStock(product.ProductId);
+
+            foreach (var affectedUserId in affectedUserIds)
+            {
+                var noti = new Notification
+                {
+                    UserId = affectedUserId,
+                    Title = "Sản phẩm vượt quá tồn kho",
+                    Message = $"Sản phẩm \"{product.Name}\" trong giỏ hàng của bạn đã vượt quá tồn kho ({product.Stock}). Vui lòng kiểm tra lại.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false
+                };
+                await _notificationService.AddAsync(noti);
+
+                // Gửi realtime bằng SignalR
+                await _hubContext.Clients.User(affectedUserId.ToString())
+                    .SendAsync("ReceiveNotification", noti.Title, noti.Message);
+            }
+
             try
             {
                 // thêm hoặc cập nhật

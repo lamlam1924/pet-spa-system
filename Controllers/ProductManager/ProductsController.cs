@@ -102,6 +102,7 @@ namespace pet_spa_system1.Controllers.ProductManager
                 Price = product.Price,
                 CategoryName = product.Category?.Name,
                 AverageRating = averageRating,
+                Stock = product.Stock,
                 ReviewCount = reviewCount,
                 Reviews = parentReviews.Skip((reviewPage - 1) * pageSize).Take(pageSize).ToList()
             };
