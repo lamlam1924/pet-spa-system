@@ -35,5 +35,5 @@ public partial class Pet
 
     public virtual Species? Species { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; } = null!;
 }
