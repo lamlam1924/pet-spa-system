@@ -119,7 +119,7 @@
                                                 <p class="card-text">Dịch
                                                     vụ: @string.Join(", ", appointment.SelectedServices.Select(s => s.Name))</p>
                                                 <p class="card-text">Thời
-                                                    gian: @appointment.AppointmentDate.ToString("HH:mm")</p>
+                                                    gian: @appointment.AppointmentDate.ToDateTime(appointment.StartTime).ToString("HH:mm")</p>
                                                 @if (appointment.StatusId == 6)
                                                 {
                                                     <div class="mb-2 text-warning font-weight-bold">Yêu cầu hủy lịch

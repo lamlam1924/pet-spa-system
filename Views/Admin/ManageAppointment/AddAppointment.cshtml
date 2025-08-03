@@ -65,9 +65,14 @@
                     <div class="card-body">
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label for="AppointmentDate" class="form-label">Ngày & giờ hẹn</label>
-                                <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
+                                <label for="AppointmentDate" class="form-label">Ngày hẹn</label>
+                                <input asp-for="AppointmentDate" class="form-control" type="date" />
                                 <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="StartTime" class="form-label">Giờ hẹn</label>
+                                <input asp-for="StartTime" class="form-control" type="time" />
+                                <span asp-validation-for="StartTime" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
                                 <label for="Notes" class="form-label">Ghi chú</label>

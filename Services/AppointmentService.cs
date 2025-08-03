@@ -1,11 +1,9 @@
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModel;
-using System.Collections.Generic;
 
 namespace pet_spa_system1.Services
 {
-    // Đã có model riêng cho trạng thái AppointmentStatus, không cần enum nữa
     public class AppointmentService : IAppointmentService
 
 
@@ -58,34 +56,79 @@ namespace pet_spa_system1.Services
         }
 
         public AdminAppointmentDetailViewModel GetAdminAppointmentDetail(int appointmentId)
+            
         {
-            // Trả về chi tiết lịch hẹn cho admin
             var appointment = _appointmentRepository.GetById(appointmentId);
             if (appointment == null) return new AdminAppointmentDetailViewModel();
-            // Tùy chỉnh trả về ViewModel chi tiết
+
+            var selectedPets = MapAppointmentPets(appointment.AppointmentPets);
+            var pets = MapPetInfos(appointment.AppointmentPets);
+            var services = MapServiceInfos(appointment.AppointmentServices);
+
+            decimal totalPrice = services.Sum(s => s.Price);
+            int totalDuration = services.Sum(s => s.DurationMinutes ?? 0);
+
+            DateTime appointmentDateTime = appointment.AppointmentDate.ToDateTime(appointment.StartTime);
+
             return new AdminAppointmentDetailViewModel
             {
                 AppointmentId = appointment.AppointmentId,
-                CustomerName = appointment.User?.FullName ?? string.Empty,
-                AppointmentDate = appointment.AppointmentDate.ToDateTime(appointment.StartTime),
+                AppointmentDate = appointmentDateTime,
+                Notes = appointment.Notes,
                 StatusId = appointment.StatusId,
                 StatusName = appointment.Status?.StatusName ?? string.Empty,
-                SelectedPets = appointment.AppointmentPets?.Select(p => new AppointmentPetViewModel
-                {
-                    PetId = p.PetId,
-                    Name = p.Pet?.Name ?? string.Empty,
-                    Breed = p.Pet?.Breed ?? string.Empty
-                }).ToList() ?? new List<AppointmentPetViewModel>(),
-                SelectedServices = appointment.AppointmentServices?.Select(s => new AppointmentServiceInfo
-                {
-                    ServiceId = s.ServiceId,
-                    Name = s.Service?.Name ?? string.Empty,
-                    CategoryName = s.Service?.Category?.Name ?? string.Empty,
-                    Price = s.Service?.Price ?? 0,
-                    DurationMinutes = s.Service?.DurationMinutes ?? 0
-                }).ToList() ?? new List<AppointmentServiceInfo>(),
-                Notes = appointment.Notes
+                TotalDurationMinutes = totalDuration,
+                UserId = appointment.UserId,
+                CustomerName = appointment.User?.FullName ?? string.Empty,
+                CustomerPhone = appointment.User?.Phone ?? string.Empty,
+                CustomerEmail = appointment.User?.Email ?? string.Empty,
+                CustomerAddress = appointment.User?.Address ?? string.Empty,
+                EmployeeName = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.FullName ?? string.Empty,
+                EmployeePhone = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.Phone ?? string.Empty,
+                EmployeeEmail = appointment.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff?.Email ?? string.Empty,
+                Pets = pets,
+                Services = services,
+                TotalPrice = totalPrice,
+                CreatedAt = appointment.CreatedAt,
+                SelectedPets = selectedPets,
             };
+        }
+
+        // Helper methods for mapping
+        private List<AppointmentPetViewModel> MapAppointmentPets(IEnumerable<AppointmentPet>? appointmentPets)
+        {
+            return appointmentPets?.Select(ap => new AppointmentPetViewModel
+            {
+                PetId = ap.PetId,
+                Name = ap.Pet?.Name ?? string.Empty,
+                Breed = ap.Pet?.Breed ?? string.Empty,
+                StaffName = ap.Staff?.FullName
+            }).ToList() ?? new List<AppointmentPetViewModel>();
+        }
+
+        private List<PetInfo> MapPetInfos(IEnumerable<AppointmentPet>? appointmentPets)
+        {
+            return appointmentPets?.Select(p => new PetInfo
+            {
+                PetId = p.PetId,
+                Name = p.Pet?.Name ?? string.Empty,
+                SpeciesName = p.Pet?.Species?.SpeciesName ?? string.Empty,
+                Breed = p.Pet?.Breed ?? string.Empty,
+                Age = p.Pet?.Age ?? 0,
+                Gender = p.Pet?.Gender
+            }).ToList() ?? new List<PetInfo>();
+        }
+
+        private List<ServiceInfo> MapServiceInfos(IEnumerable<Models.AppointmentService>? appointmentServices)
+        {
+            return appointmentServices?.Select(s => new ServiceInfo
+            {
+                ServiceId = s.AppointmentServiceId,
+                Name = s.Service?.Name ?? string.Empty,
+                CategoryName = s.Service?.Category?.Name ?? string.Empty,
+                Price = s.Service?.Price ?? 0,
+                DurationMinutes = s.Service?.DurationMinutes ?? 0
+            }).ToList() ?? new List<ServiceInfo>();
         }
 
         public object GetCalendarData()
@@ -95,6 +138,134 @@ namespace pet_spa_system1.Services
                 _userRepository.GetStaffResources(); // Trả về List<object> hoặc List<StaffResourceViewModel>
             var events = _appointmentRepository.GetCalendarEvents(); // Trả về List<CalendarEventViewModel>
             return new { resources, events };
+        }
+
+        public ViewModel.CalendarViewModel GetCalendarViewModel()
+        {
+            var calendarViewModel = new ViewModel.CalendarViewModel
+            {
+                Resources = new List<StaffResourceViewModel>(),
+                Events = new List<CalendarEventViewModel>()
+            };
+
+            // Get staff resources from repository
+            var staffResources = _userRepository.GetStaffResources();
+            if (staffResources != null)
+            {
+                foreach (var resource in staffResources)
+                {
+                    var resourceDict = resource.GetType().GetProperties()
+                        .ToDictionary(prop => prop.Name, prop => prop.GetValue(resource));
+
+                    calendarViewModel.Resources.Add(new StaffResourceViewModel
+                    {
+                        Id = resourceDict.ContainsKey("id") ? resourceDict["id"]?.ToString() ?? string.Empty : string.Empty,
+                        Title = resourceDict.ContainsKey("title") ? resourceDict["title"]?.ToString() ?? string.Empty : string.Empty,
+                        ImageUrl = resourceDict.ContainsKey("avatarUrl") ? resourceDict["avatarUrl"]?.ToString() ?? string.Empty : string.Empty,
+                        BusinessHours = string.Empty // Default business hours can be added if needed
+                    });
+                }
+            }
+
+            // Get appointment events from repository
+            var appointmentEvents = _appointmentRepository.GetCalendarEvents();
+            if (appointmentEvents != null)
+            {
+                foreach (var evt in appointmentEvents)
+                {
+                    var evtDict = evt.GetType().GetProperties()
+                        .ToDictionary(prop => prop.Name, prop => prop.GetValue(evt));
+
+                    // Parse date strings
+                    DateTime start = DateTime.Now, end = DateTime.Now;
+                    if (evtDict.ContainsKey("start") && evtDict["start"] != null)
+                    {
+                        string? startStr = evtDict["start"]?.ToString();
+                        if (!string.IsNullOrEmpty(startStr))
+                        {
+                            DateTime.TryParse(startStr, out start);
+                        }
+                    }
+
+                    if (evtDict.ContainsKey("end") && evtDict["end"] != null)
+                    {
+                        string? endStr = evtDict["end"]?.ToString();
+                        if (!string.IsNullOrEmpty(endStr))
+                        {
+                            DateTime.TryParse(endStr, out end);
+                        }
+                    }
+
+                    // Get resource ID
+                    string resourceId = string.Empty;
+                    if (evtDict.ContainsKey("resourceIds") && evtDict["resourceIds"] != null)
+                    {
+                        if (evtDict["resourceIds"] is System.Collections.IEnumerable resourceIds)
+                        {
+                            // Convert each item to string
+                            foreach (var id in resourceIds)
+                            {
+                                if (id != null)
+                                {
+                                    resourceId = id.ToString() ?? string.Empty;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Create pet names list
+                    var petNames = new List<string>();
+                    
+                    // Create services list from services property
+                    var servicesList = new List<string>();
+                    if (evtDict.ContainsKey("services") && evtDict["services"] != null)
+                    {
+                        if (evtDict["services"] is System.Collections.IEnumerable services)
+                        {
+                            foreach (var service in services)
+                            {
+                                if (service != null)
+                                {
+                                    servicesList.Add(service.ToString() ?? string.Empty);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Create event view model
+                    calendarViewModel.Events.Add(new CalendarEventViewModel
+                    {
+                        Id = evtDict.ContainsKey("id") ? Convert.ToInt32(evtDict["id"] ?? 0) : 0,
+                        Title = evtDict.ContainsKey("title") ? evtDict["title"]?.ToString() ?? string.Empty : string.Empty,
+                        Start = start,
+                        End = end,
+                        Status = evtDict.ContainsKey("status") ? evtDict["status"]?.ToString() ?? string.Empty : string.Empty,
+                        Customer = evtDict.ContainsKey("customer") ? evtDict["customer"]?.ToString() ?? string.Empty : string.Empty,
+                        Phone = evtDict.ContainsKey("phone") ? evtDict["phone"]?.ToString() ?? string.Empty : string.Empty,
+                        PetNames = petNames,
+                        Services = servicesList,
+                        ResourceId = resourceId,
+                        Color = GetStatusColor(evtDict.ContainsKey("status") ? evtDict["status"]?.ToString() ?? string.Empty : string.Empty)
+                    });
+                }
+            }
+
+            return calendarViewModel;
+        }
+        
+        // Helper method to get color based on appointment status
+        private string GetStatusColor(string status)
+        {
+            return status?.ToLower() switch
+            {
+                "pending" => "#FFC107", // Yellow
+                "approved" => "#4CAF50", // Green
+                "completed" => "#2196F3", // Blue
+                "cancelled" => "#F44336", // Red
+                "rescheduled" => "#9C27B0", // Purple
+                _ => "#757575" // Grey for unknown status
+            };
         }
 
         public Appointment GetAppointmentById(int appointmentId)
@@ -263,6 +434,8 @@ namespace pet_spa_system1.Services
             {
                 AppointmentId = appointment.AppointmentId,
                 AppointmentDate = appointment.AppointmentDate,
+                StartTime = appointment.StartTime,
+                EndTime = appointment.EndTime,
                 Notes = appointment.Notes,
                 StatusId = appointment.StatusId,
                 CustomerId = appointment.UserId,
@@ -404,7 +577,11 @@ namespace pet_spa_system1.Services
         {
             var appointment = _appointmentRepository.GetById(vm.AppointmentId);
             if (appointment == null) return;
+            
+            // Cập nhật thông tin cơ bản
             appointment.AppointmentDate = vm.AppointmentDate;
+            appointment.StartTime = vm.StartTime;
+            appointment.EndTime = vm.EndTime;
             appointment.StatusId = vm.StatusId;
             appointment.Notes = vm.Notes;
             // Không cần gọi Update, chỉ cần SaveChanges vì entity đã được sửa trực tiếp
@@ -450,12 +627,31 @@ namespace pet_spa_system1.Services
         {
             try
             {
+                // Tính toán EndTime trước khi lưu
+                if (model.SelectedServices != null && model.SelectedServices.Count > 0)
+                {
+                    model.CalculateEndTime(model.SelectedServices);
+                }
+                else if (model.SelectedServiceIds != null && model.SelectedServiceIds.Count > 0)
+                {
+                    // Lấy thông tin services để tính EndTime
+                    var services = _appointmentRepository.GetAllServices()
+                        .Where(s => model.SelectedServiceIds.Contains(s.ServiceId))
+                        .Select(s => new AppointmentServiceInfo
+                        {
+                            ServiceId = s.ServiceId,
+                            DurationMinutes = s.DurationMinutes
+                        }).ToList();
+                    model.CalculateEndTime(services);
+                }
+
                 // Tạo mới entity Appointment
                 var appointment = new Appointment
                 {
                     UserId = userId,
                     AppointmentDate = model.AppointmentDate,
                     StartTime = model.StartTime,
+                    EndTime = model.EndTime, // ✅ Thêm EndTime
                     StatusId = 1, // Pending
                     Notes = model.Notes
                 };
@@ -501,7 +697,7 @@ namespace pet_spa_system1.Services
         public AppointmentHistoryViewModel GetAppointmentHistory(int userId)
         {
             // Lấy tất cả lịch hẹn của user
-            var appointments = _appointmentRepository.GetAppointments(new ViewModel.AppointmentFilter
+            var appointments = _appointmentRepository.GetAppointments(new AppointmentFilter
             {
                 Customer = string.Empty,
                 Pet = string.Empty,
@@ -635,7 +831,8 @@ namespace pet_spa_system1.Services
                 AppointmentServices = a.AppointmentServices?.ToList(),
                 IsActive = a.IsActive,
                 Status = a.Status,
-                Employee = a.Employee,
+                // Lấy staff từ AppointmentPet thay vì Employee
+                Employee = a.AppointmentPets?.FirstOrDefault(ap => ap.Staff != null)?.Staff,
 
                 // Map DateTime for view formatting
                 AppointmentDateTime = a.AppointmentDate.ToDateTime(a.StartTime)
@@ -658,6 +855,41 @@ namespace pet_spa_system1.Services
             _appointmentRepository.DeleteAppointmentPets(id);
             _appointmentRepository.DeleteAppointmentServices(id);
             _appointmentRepository.SaveChanges();
+        }
+        public ServiceResult ApproveAndAssignStaff(int appointmentId, int staffId)
+        {
+            var appointment = _appointmentRepository.GetById(appointmentId);
+            if (appointment == null)
+                return new ServiceResult { Success = false, Message = "Không tìm thấy lịch hẹn!" };
+
+            // Cập nhật trạng thái thành Confirmed
+            appointment.StatusId = 2;
+            // Không cần gọi Update riêng vì entity đã được theo dõi bởi DbContext
+            // và sẽ được cập nhật khi gọi SaveChanges()
+
+            // Gán staff cho tất cả pets
+            var appointmentPets = _appointmentRepository.GetAppointmentPets(appointmentId);
+            foreach (var ap in appointmentPets)
+            {
+                _appointmentRepository.UpdateAppointmentPetStaff(appointmentId, ap.PetId, staffId);
+            }
+
+            _appointmentRepository.SaveChanges();
+            return new ServiceResult { Success = true, Message = "Đã duyệt và gán nhân viên thành công!" };
+        }
+
+        public ServiceResult QuickUpdateStatus(int appointmentId, int statusId)
+        {
+            var appointment = _appointmentRepository.GetById(appointmentId);
+            if (appointment == null)
+                return new ServiceResult { Success = false, Message = "Không tìm thấy lịch hẹn!" };
+
+            appointment.StatusId = statusId;
+            // Không cần gọi Update riêng vì entity đã được theo dõi bởi DbContext
+            // và sẽ được cập nhật khi gọi SaveChanges()
+            _appointmentRepository.SaveChanges();
+
+            return new ServiceResult { Success = true, Message = "Cập nhật trạng thái thành công!" };
         }
     }
 }

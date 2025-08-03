@@ -109,6 +109,7 @@ namespace pet_spa_system1.ViewModel
         public int PetId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Breed { get; set; } = string.Empty;
+        public string? StaffName { get; set; } // Thêm property để hiển thị nhân viên phụ trách từng pet
     }
 
     public class AppointmentServiceInfo

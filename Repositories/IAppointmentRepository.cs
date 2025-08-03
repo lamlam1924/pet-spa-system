@@ -1,17 +1,19 @@
-       
+
 
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 using System;
 using System.Collections.Generic;
 
 namespace pet_spa_system1.Repositories
 {
     public interface IAppointmentRepository
-
     {
+        List<Appointment> GetAll();
         List<object> GetCalendarEvents();
         List<Service> GetAllServices();
         List<Service> GetActiveServices();
+        void Update(Appointment appointment);
         List<User> GetCustomers();
         List<User> GetEmployeeUsers();
         List<Pet> GetAllPets();
@@ -23,6 +25,7 @@ namespace pet_spa_system1.Repositories
         List<int> GetAppointmentIdsByStaff(int staffId);
         List<Appointment> GetAppointmentsByIds(List<int> appointmentIds);
         AppointmentPet GetAppointmentPet(int appointmentId, int petId);
+        List<AppointmentPet> GetAppointmentPets(int appointmentId);
         void UpdateAppointmentPetStaff(int appointmentId, int petId, int staffId);
         void SaveChanges();
         List<StatusAppointment> GetAllStatuses();
@@ -32,8 +35,8 @@ namespace pet_spa_system1.Repositories
         List<Appointment> GetPendingApprovalAppointments();
         List<Appointment> GetPendingAppointments();
         List<Appointment> GetPendingCancelAppointments();
-        List<Appointment> GetAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter);
-        int CountAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter);
+        List<Appointment> GetAppointments(AppointmentFilter filter);
+        int CountAppointments(AppointmentFilter filter);
 
         // Dashboard helpers
         List<Appointment> GetAppointmentsByDateRange(DateTime start, DateTime end);

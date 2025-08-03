@@ -156,7 +156,7 @@ public class UserRepository : IUserRepository
         foreach (var staff in staffList)
         {
             // Kiểm tra nhân viên có lịch hẹn trùng giờ hiện tại không
-            var isBusy = _context.Appointments.Any(a => a.EmployeeId == staff.UserId && a.AppointmentDate == DateOnly.FromDateTime(now) && a.StartTime.Hour == now.Hour && a.StatusId != 4);
+            var isBusy = _context.Appointments.Any(a => a.AppointmentPets.Any(ap => ap.StaffId == staff.UserId) && a.AppointmentDate == DateOnly.FromDateTime(now) && a.StartTime.Hour == now.Hour && a.StatusId != 4);
             staffViewModels.Add(new StaffViewModel
             {
                 UserId = staff.UserId,

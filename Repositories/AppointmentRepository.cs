@@ -12,6 +12,18 @@ namespace pet_spa_system1.Repositories
         {
             _context = context;
         }
+        
+        public List<Appointment> GetAll()
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(s => s.Service)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(p => p.Pet)
+                .ToList();
+        }
 
         public List<object> GetCalendarEvents()
         {
@@ -27,6 +39,7 @@ namespace pet_spa_system1.Repositories
                     userFullName = a.User?.FullName,
                     appointmentDate = a.AppointmentDate,
                     startTime = a.StartTime,
+                    endTime = a.EndTime,
                     staffIds = a.AppointmentPets?.Select(ap => ap.StaffId).ToList(),
                     status = a.Status?.StatusName,
                     phone = a.User?.Phone,
@@ -39,8 +52,7 @@ namespace pet_spa_system1.Repositories
                     id = a.id,
                     title = a.userFullName + " - " + string.Join(", ", a.serviceNames ?? new List<string>()),
                     start = a.appointmentDate.ToDateTime(a.startTime).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = a.appointmentDate.ToDateTime(a.startTime).AddMinutes(a.duration)
-                        .ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = a.appointmentDate.ToDateTime(a.endTime).ToString("yyyy-MM-ddTHH:mm:ss"),
                     resourceIds = a.staffIds,
                     customer = a.userFullName,
                     phone = a.phone,
@@ -417,6 +429,15 @@ namespace pet_spa_system1.Repositories
         {
             return _context.AppointmentPets.FirstOrDefault(ap =>
                 ap.AppointmentId == appointmentId && ap.PetId == petId) ?? new AppointmentPet();
+        }
+
+        public List<AppointmentPet> GetAppointmentPets(int appointmentId)
+        {
+            return _context.AppointmentPets
+                .Include(ap => ap.Pet)
+                .Include(ap => ap.Staff)
+                .Where(ap => ap.AppointmentId == appointmentId)
+                .ToList();
         }
 
         public void UpdateAppointmentPetStaff(int appointmentId, int petId, int staffId)

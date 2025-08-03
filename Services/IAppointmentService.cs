@@ -1,18 +1,23 @@
-﻿        
-using pet_spa_system1.Models;
+﻿using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
-
+using System;
 
 namespace pet_spa_system1.Services
 {
+    public class ServiceResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
+
     public interface IAppointmentService
     {
-        void SendAppointmentNotificationMail(int appointmentId, string type, object? model = null);
+        ServiceResult ApproveAndAssignStaff(int appointmentId, int staffId);
+        ServiceResult QuickUpdateStatus(int appointmentId, int statusId);
         List<User> GetEmployees();
         List<Pet> GetCustomerPets(int userId);
-        object GetCalendarData();
-        Appointment GetAppointmentById(int appointmentId);
         bool RequestCancelAppointment(int appointmentId, int userId);
+        Appointment GetAppointmentById(int appointmentId);
         AdminAppointmentDetailViewModel GetAdminAppointmentDetail(int id);
         List<AdminAppointmentDetailViewModel> GetPendingApprovalAppointments();
         List<AdminAppointmentDetailViewModel> GetPendingAppointments();
@@ -21,7 +26,6 @@ namespace pet_spa_system1.Services
         List<AppointmentViewModel> GetAppointments(AppointmentFilter filter);
         int CountAppointments(AppointmentFilter filter);
         RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
-        bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
         ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "");
         AppointmentViewModel PrepareEditViewModel(int id);
         T BuildAppointmentEmailModel<T>(Appointment appointment) where T : new();
@@ -34,11 +38,15 @@ namespace pet_spa_system1.Services
         AppointmentPet GetAppointmentPet(int appointmentId, int petId);
         void UpdateAppointmentWithPetStaff(AppointmentViewModel vm);
         bool RestoreAppointment(int id);
+        void SendAppointmentNotificationMail(int appointmentId, string type, object? model = null);
         bool SaveAppointment(AppointmentViewModel model, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
+        bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
+        bool IsTimeConflict(DateOnly appointmentDate, TimeOnly startTime, int staffId, int durationMinutes);
         AppointmentDashboardViewModel GetDashboardViewModel();
         List<StatusAppointment> GetAllStatuses();
         void DeleteAppointment(int id);
-
+        object GetCalendarData();
+        ViewModel.CalendarViewModel GetCalendarViewModel();
     }
 }
