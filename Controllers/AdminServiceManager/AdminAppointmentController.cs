@@ -455,7 +455,7 @@ namespace pet_spa_system1.Controllers
                 else
                 {
                     Console.WriteLine("[AdminAppointmentController] SaveAppointment trả về false - thất bại");
-                    ModelState.AddModelError("", "Có lỗi xảy ra khi tạo lịch hẹn!");
+                    ModelState.AddModelError("", "Có lịch trùng của Pet!");
                     model.Statuses = _appointmentService.GetAllStatuses();
                     model.EmployeeList = _appointmentService.GetEmployees();
                     return View("~/Views/Admin/ManageAppointment/AddAppointment.cshtml", model);
@@ -515,7 +515,7 @@ namespace pet_spa_system1.Controllers
             ViewBag.TotalPages = model.TotalPages;
             return View("~/Views/Admin/ManageAppointment/AppointmentList.cshtml", model);
         }
-        
+
         [HttpPost]
         [Route("ApproveAndAssignStaff")]
         [ValidateAntiForgeryToken]
