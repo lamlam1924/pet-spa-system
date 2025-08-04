@@ -577,6 +577,7 @@ namespace pet_spa_system1.Services
         {
             return _appointmentRepository.GetAllServices();
         }
+        
 
         public List<User> GetAllCustomersAndStaffs()
         {
@@ -646,7 +647,12 @@ namespace pet_spa_system1.Services
         }
 
         public bool SaveAppointment(AppointmentViewModel model, int userId)
-        {
+        {   
+            Console.WriteLine($"[SaveAppointment] Bắt đầu lưu lịch hẹn cho user {userId}");
+            Console.WriteLine($"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
+            Console.WriteLine($"[SaveAppointment] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
+            Console.WriteLine($"[SaveAppointment] Ngày: {model.AppointmentDate}, Giờ bắt đầu: {model.StartTime}");
+            
             try
             {
                 // Tính toán EndTime trước khi lưu
@@ -665,6 +671,27 @@ namespace pet_spa_system1.Services
                             DurationMinutes = s.DurationMinutes
                         }).ToList();
                     model.CalculateEndTime(services);
+                }
+
+                // Lấy danh sách petId
+               
+
+                // Kiểm tra trùng lịch
+                var conflicts = CheckPetAppointment(
+                    model.SelectedPetIds,
+                    model.AppointmentDate,
+                    model.StartTime,
+                    model.EndTime
+                );
+                if (conflicts.Any())
+                {
+                    Console.WriteLine($"[CheckPetAppointment] Có {conflicts.Count} lịch trùng!");
+                    foreach (var c in conflicts)
+                    {
+                        Console.WriteLine($"Pet: {c.PetName} | Lịch trùng: {c.ConflictingStartTime:dd/MM/yyyy HH:mm} - {c.ConflictingEndTime:HH:mm}");
+                    }
+                    // Có trùng lịch, không lưu và trả về false
+                    return false;
                 }
 
                 // Tạo mới entity Appointment
@@ -972,6 +999,101 @@ namespace pet_spa_system1.Services
                 Notes = appointment.Notes,
                 Services = serviceHistory
             };
+        }
+
+        
+        public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null)
+        {
+            Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra với DateTime");
+            Console.WriteLine($"[CheckPetAppointment] StartDateTime: {startDateTime:dd/MM/yyyy HH:mm}");
+            Console.WriteLine($"[CheckPetAppointment] EndDateTime: {endDateTime:dd/MM/yyyy HH:mm}");
+            
+            if (petIds == null || !petIds.Any())
+            {
+                Console.WriteLine("[CheckPetAppointment] Không có petIds để kiểm tra");
+                return new List<PetConflictInfo>();
+            }
+
+            var conflicts = new List<PetConflictInfo>();
+
+            // Lấy tất cả lịch hẹn của các pet trong khoảng thời gian chỉ định
+            var conflictingAppointments = _context.AppointmentPets
+                .Where(ap => petIds.Contains(ap.PetId) && 
+                            ap.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
+                            ap.Appointment.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
+                            ap.Appointment.StatusId != 5) // Loại trừ lịch đã từ chối (Rejected)
+                .Select(ap => new
+                {
+                    ap.PetId,
+                    ap.Pet.Name,
+                    ap.Pet.Breed,
+                    ap.AppointmentId,
+                    ap.Appointment.AppointmentDate,
+                    ap.Appointment.StartTime,
+                    ap.Appointment.EndTime,
+                    ap.Appointment.Status.StatusName,
+                    ap.Appointment.User.FullName
+                })
+                .ToList();
+
+            Console.WriteLine($"[CheckPetAppointment] Tìm thấy {conflictingAppointments.Count} lịch hẹn của các pet");
+
+            // Loại trừ lịch hẹn hiện tại nếu đang cập nhật
+            if (excludeAppointmentId.HasValue)
+            {
+                conflictingAppointments = conflictingAppointments
+                    .Where(ca => ca.AppointmentId != excludeAppointmentId.Value)
+                    .ToList();
+                Console.WriteLine($"[CheckPetAppointment] Sau khi loại trừ appointment {excludeAppointmentId.Value}, còn {conflictingAppointments.Count} lịch hẹn");
+            }
+
+            // Kiểm tra từng lịch hẹn có trùng thời gian không
+            foreach (var appointment in conflictingAppointments)
+            {
+                var appointmentStart = appointment.AppointmentDate.ToDateTime(appointment.StartTime);
+                var appointmentEnd = appointment.AppointmentDate.ToDateTime(appointment.EndTime);
+
+                Console.WriteLine($"[CheckPetAppointment] Kiểm tra lịch {appointment.AppointmentId}: {appointmentStart:dd/MM/yyyy HH:mm} - {appointmentEnd:HH:mm}");
+
+                // Kiểm tra xem có trùng thời gian không
+                if (startDateTime < appointmentEnd && endDateTime > appointmentStart)
+                {
+                    Console.WriteLine($"[CheckPetAppointment] PHÁT HIỆN TRÙNG LỊCH! Pet: {appointment.Name}");
+                    conflicts.Add(new PetConflictInfo
+                    {
+                        PetId = appointment.PetId,
+                        PetName = appointment.Name ?? string.Empty,
+                        Breed = appointment.Breed ?? string.Empty,
+                        ConflictingAppointmentId = appointment.AppointmentId,
+                        ConflictingStartTime = appointmentStart,
+                        ConflictingEndTime = appointmentEnd,
+                        CustomerName = appointment.FullName ?? string.Empty,
+                        StatusName = appointment.StatusName ?? string.Empty
+                    });
+                }
+                else
+                {
+                    Console.WriteLine($"[CheckPetAppointment] Không trùng lịch");
+                }
+            }
+
+            Console.WriteLine($"[CheckPetAppointment] Tổng số lịch trùng: {conflicts.Count}");
+            return conflicts;
+        }
+
+        
+        public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null)
+        {
+            Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra trùng lịch với EndTime");
+            Console.WriteLine($"[CheckPetAppointment] PetIds: {string.Join(", ", petIds)}");
+            Console.WriteLine($"[CheckPetAppointment] Ngày: {appointmentDate}, Giờ bắt đầu: {startTime}, Giờ kết thúc: {endTime}");
+            
+            var startDateTime = appointmentDate.ToDateTime(startTime);
+            var endDateTime = appointmentDate.ToDateTime(endTime);
+            
+            Console.WriteLine($"[CheckPetAppointment] Thời gian kiểm tra: {startDateTime:dd/MM/yyyy HH:mm} - {endDateTime:HH:mm}");
+            
+            return CheckPetAppointment(petIds, startDateTime, endDateTime, excludeAppointmentId);
         }
     }
 }

@@ -49,5 +49,11 @@ namespace pet_spa_system1.Services
         object GetCalendarData();
         ViewModel.CalendarViewModel GetCalendarViewModel();
         AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
+        
+        
+        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null);
+        
+        
+        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
     }
 }

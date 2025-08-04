@@ -15,4 +15,19 @@ namespace pet_spa_system1.ViewModel
         public int? Age { get; set; }        // Thêm thuộc tính mới, nullable để cho phép null
         public List<PetImage> PetImages { get; set; }
     }
+
+    /// <summary>
+    /// Thông tin về pet có lịch hẹn trùng thời gian
+    /// </summary>
+    public class PetConflictInfo
+    {
+        public int PetId { get; set; }
+        public string PetName { get; set; } = string.Empty;
+        public string Breed { get; set; } = string.Empty;
+        public int ConflictingAppointmentId { get; set; }
+        public DateTime ConflictingStartTime { get; set; }
+        public DateTime ConflictingEndTime { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public string StatusName { get; set; } = string.Empty;
+    }
 }

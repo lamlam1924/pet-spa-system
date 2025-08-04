@@ -440,15 +440,21 @@ namespace pet_spa_system1.Controllers
                     model.CalculateEndTime(model.SelectedServices);
                 }
 
+                Console.WriteLine($"[AdminAppointmentController] Gọi SaveAppointment với CustomerId: {model.CustomerId}");
+                Console.WriteLine($"[AdminAppointmentController] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
+                Console.WriteLine($"[AdminAppointmentController] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
+
                 var success = _appointmentService.SaveAppointment(model, model.CustomerId);
                 if (success)
                 {
+                    Console.WriteLine("[AdminAppointmentController] SaveAppointment trả về true - thành công");
                     TempData["SuccessMessage"] = "Tạo lịch hẹn thành công!";
                     TempData["NewAppointmentId"] = model.AppointmentId;
                     return RedirectToAction("Create");
                 }
                 else
                 {
+                    Console.WriteLine("[AdminAppointmentController] SaveAppointment trả về false - thất bại");
                     ModelState.AddModelError("", "Có lỗi xảy ra khi tạo lịch hẹn!");
                     model.Statuses = _appointmentService.GetAllStatuses();
                     model.EmployeeList = _appointmentService.GetEmployees();
