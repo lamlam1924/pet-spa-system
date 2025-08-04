@@ -31,25 +31,33 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <script>
+            // Lưu ID lịch hẹn mới vào biến window
             window.newAppointmentId = '@TempData["NewAppointmentId"]';
+            console.log("TempData có ID lịch hẹn mới: " + window.newAppointmentId);
         </script>
     }
 </div>
 
 <!-- Modal xác nhận sau khi tạo lịch hẹn thành công -->
-<div class="modal fade" id="afterCreateModal" tabindex="-1" aria-labelledby="afterCreateModalLabel" aria-hidden="true">
+<div class="modal fade" id="afterCreateModal" tabindex="-1" aria-labelledby="afterCreateModalLabel" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="afterCreateModalLabel">Tạo lịch hẹn thành công</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="afterCreateModalLabel">
+            <i class="fas fa-check-circle me-2"></i>Tạo lịch hẹn thành công
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Bạn muốn làm gì tiếp theo?
+        <p class="mb-0">Bạn muốn thực hiện thao tác nào tiếp theo?</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="btnGoToDetail">Xem chi tiết lịch hẹn</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tiếp tục tạo mới</button>
+        <button type="button" class="btn btn-primary" id="btnGoToDetail">
+            <i class="fas fa-eye me-2"></i>Xem chi tiết lịch hẹn
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-plus me-2"></i>Tiếp tục tạo lịch hẹn mới
+        </button>
       </div>
     </div>
   </div>
@@ -233,13 +241,53 @@
     }
     // Hiển thị modal xác nhận sau khi tạo lịch thành công
     if (typeof window.newAppointmentId !== 'undefined' && window.newAppointmentId && window.newAppointmentId !== '0') {
-        setTimeout(function() {
-            var modal = new bootstrap.Modal(document.getElementById('afterCreateModal'));
-            modal.show();
-            document.getElementById('btnGoToDetail').onclick = function() {
-                window.location.href = '/AdminAppointment/Detail?id=' + window.newAppointmentId;
-            };
-        }, 500);
+        console.log("Hiển thị modal với ID lịch hẹn: " + window.newAppointmentId);
+        // Đảm bảo modal được khởi tạo sau khi DOM đã sẵn sàng
+        $(document).ready(function() {
+            console.log("DOM đã sẵn sàng, chuẩn bị hiển thị modal");
+            setTimeout(function() {
+                try {
+                    console.log("Đang khởi tạo modal element...");
+                    var modalElement = document.getElementById('afterCreateModal');
+                    console.log("Modal element found:", modalElement);
+                    
+                    // Đảm bảo Bootstrap đã tải xong
+                    if (typeof bootstrap !== 'undefined') {
+                        console.log("Bootstrap đã tải, khởi tạo modal...");
+                        var modal = new bootstrap.Modal(modalElement);
+                        console.log("Modal đã khởi tạo, hiển thị...");
+                        modal.show();
+                        
+                        document.getElementById('btnGoToDetail').onclick = function() {
+                            console.log("Chuyển hướng đến trang chi tiết lịch hẹn...");
+                            window.location.href = '/AdminAppointment/Detail?id=' + window.newAppointmentId;
+                        };
+                        console.log("Modal setup hoàn tất");
+                    } else {
+                        console.error("Bootstrap chưa được tải!");
+                        // Thông báo thành công dù không hiện modal
+                        Swal.fire({
+                            title: 'Tạo lịch hẹn thành công!',
+                            text: 'Bạn có muốn xem chi tiết lịch hẹn?',
+                            icon: 'success',
+                            showCancelButton: true,
+                            confirmButtonText: 'Xem chi tiết',
+                            cancelButtonText: 'Tiếp tục tạo mới'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/AdminAppointment/Detail?id=' + window.newAppointmentId;
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error("Lỗi khi hiển thị modal:", err);
+                    // Phương án dự phòng với alert
+                    alert("Tạo lịch hẹn thành công! ID: " + window.newAppointmentId);
+                }
+            }, 500); // Đợi 500ms để đảm bảo trang đã tải xong
+        });
+    } else {
+        console.log("Không phát hiện ID lịch hẹn mới");
     }
     // Hàm load toàn bộ pet của customer và nạp vào select2-pet
     function loadPetsForCustomer(customerId, selectedPetIds) {

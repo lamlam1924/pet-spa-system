@@ -140,10 +140,23 @@ namespace pet_spa_system1.Services
         public object GetCalendarData()
         {
             // Truy vấn resources và events đã được tách sang repo
-            var resources =
-                _userRepository.GetStaffResources(); // Trả về List<object> hoặc List<StaffResourceViewModel>
-            var events = _appointmentRepository.GetCalendarEvents(); // Trả về List<CalendarEventViewModel>
-            return new { resources, events };
+            var resources = _userRepository.GetStaffResources();
+            
+            // Lấy danh sách events và convert sang anonymous type
+            var appointments = _appointmentRepository.GetAll()
+                .Where(a => new[] { 2, 3, 4, 6 }.Contains(a.StatusId)) // Lọc theo status yêu cầu
+                .Select(a => new
+                {
+                    id = a.AppointmentId,
+                    resourceId = a.AppointmentPets?.FirstOrDefault()?.StaffId,
+                    start = $"{a.AppointmentDate:yyyy-MM-dd}T{a.StartTime:HH:mm:ss}",
+                    end = $"{a.AppointmentDate:yyyy-MM-dd}T{a.EndTime:HH:mm:ss}",
+                    title = $"{a.User?.FullName ?? "Khách hàng"} - {string.Join(", ", a.AppointmentServices?.Select(s => s.Service?.Name) ?? Array.Empty<string>())}",
+                    statusId = a.StatusId // Thêm statusId vào event
+                })
+                .ToList();
+
+            return new { resources, events = appointments };
         }
 
         public ViewModel.CalendarViewModel GetCalendarViewModel()
@@ -596,30 +609,61 @@ namespace pet_spa_system1.Services
             return _appointmentRepository.GetAppointmentPet(appointmentId, petId);
         }
 
-        public void UpdateAppointmentWithPetStaff(AppointmentViewModel vm)
+        public bool UpdateAppointmentWithPetStaff(AppointmentViewModel vm)
         {
-            var appointment = _appointmentRepository.GetById(vm.AppointmentId);
-            if (appointment == null) return;
-
-            // Cập nhật thông tin cơ bản
-            appointment.AppointmentDate = vm.AppointmentDate;
-            appointment.StartTime = vm.StartTime;
-            appointment.EndTime = vm.EndTime;
-            appointment.StatusId = vm.StatusId;
-            appointment.Notes = vm.Notes;
-            // Không cần gọi Update, chỉ cần SaveChanges vì entity đã được sửa trực tiếp
-
-            // Chuẩn hóa: mỗi pet gán 1 staff
-            if (vm.PetStaffAssignments != null)
+            try
             {
-                foreach (var assign in vm.PetStaffAssignments)
+                var appointment = _appointmentRepository.GetById(vm.AppointmentId);
+                if (appointment == null)
                 {
-                    _appointmentRepository.UpdateAppointmentPetStaff(vm.AppointmentId, assign.PetId,
-                        assign.StaffId ?? 0);
+                    Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không tìm thấy lịch hẹn với ID: {vm.AppointmentId}");
+                    return false;
                 }
-            }
 
-            _appointmentRepository.SaveChanges();
+                // Cập nhật thông tin cơ bản
+                appointment.AppointmentDate = vm.AppointmentDate;
+                appointment.StartTime = vm.StartTime;
+                appointment.EndTime = vm.EndTime;
+                appointment.StatusId = vm.StatusId;
+                appointment.Notes = vm.Notes;
+                // Không cần gọi Update, chỉ cần SaveChanges vì entity đã được sửa trực tiếp
+
+                // Ghi log thông tin debug
+                Console.WriteLine($"[UpdateAppointmentWithPetStaff] Cập nhật lịch hẹn ID: {vm.AppointmentId}");
+                Console.WriteLine($"[UpdateAppointmentWithPetStaff] Số lượng phân công: {vm.PetStaffAssignments?.Count ?? 0}");
+                
+                // Chuẩn hóa: mỗi pet gán 1 staff
+                if (vm.PetStaffAssignments != null && vm.PetStaffAssignments.Any())
+                {
+                    foreach (var assign in vm.PetStaffAssignments)
+                    {
+                        if (assign.PetId <= 0)
+                        {
+                            Console.WriteLine($"[UpdateAppointmentWithPetStaff] Bỏ qua phân công có PetId không hợp lệ: {assign.PetId}");
+                            continue;
+                        }
+
+                        int staffIdToAssign = assign.StaffId ?? 0;
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Đang cập nhật: AppointmentID={vm.AppointmentId}, PetID={assign.PetId}, StaffID={staffIdToAssign}");
+                        _appointmentRepository.UpdateAppointmentPetStaff(vm.AppointmentId, assign.PetId, staffIdToAssign);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không có phân công nhân viên nào được gửi lên");
+                }
+
+                // Lưu các thay đổi vào database
+                _appointmentRepository.SaveChanges();
+                Console.WriteLine($"[UpdateAppointmentWithPetStaff] Đã lưu thành công tất cả thay đổi");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UpdateAppointmentWithPetStaff] Lỗi: {ex.Message}");
+                Console.WriteLine($"[UpdateAppointmentWithPetStaff] Stack Trace: {ex.StackTrace}");
+                return false;
+            }
         }
 
         public bool RestoreAppointment(int id)
@@ -646,7 +690,7 @@ namespace pet_spa_system1.Services
             if (appointment == null) return;
         }
 
-        public bool SaveAppointment(AppointmentViewModel model, int userId)
+        public (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId)
         {   
             Console.WriteLine($"[SaveAppointment] Bắt đầu lưu lịch hẹn cho user {userId}");
             Console.WriteLine($"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
@@ -675,7 +719,6 @@ namespace pet_spa_system1.Services
 
                 // Lấy danh sách petId
                
-
                 // Kiểm tra trùng lịch
                 var conflicts = CheckPetAppointment(
                     model.SelectedPetIds,
@@ -691,7 +734,7 @@ namespace pet_spa_system1.Services
                         Console.WriteLine($"Pet: {c.PetName} | Lịch trùng: {c.ConflictingStartTime:dd/MM/yyyy HH:mm} - {c.ConflictingEndTime:HH:mm}");
                     }
                     // Có trùng lịch, không lưu và trả về false
-                    return false;
+                    return (false, 0);
                 }
 
                 // Tạo mới entity Appointment
@@ -706,6 +749,7 @@ namespace pet_spa_system1.Services
                 };
                 // Lưu vào DB
                 int appointmentId = _appointmentRepository.AddAppointment(appointment);
+                model.AppointmentId = appointmentId; // Cập nhật ID vào model
 
                 // Lưu từng pet với staff
                 if (model.PetStaffAssignments != null && model.PetStaffAssignments.Count > 0)
@@ -734,12 +778,13 @@ namespace pet_spa_system1.Services
                 }
 
                 _appointmentRepository.SaveChanges();
-                return true;
+                Console.WriteLine($"[SaveAppointment] Đã lưu lịch hẹn thành công với ID: {appointmentId}");
+                return (true, appointmentId);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] SaveAppointment: {ex.Message}");
-                return false;
+                return (false, 0);
             }
         }
 

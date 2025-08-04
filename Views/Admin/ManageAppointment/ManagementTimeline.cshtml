@@ -4,199 +4,386 @@
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
+@section Styles {
+    <link href="~/lib/demo/themes/scheduler_blue.css" rel="stylesheet"/>
+    <link href="~/css/management-timeline.css" rel="stylesheet"/>
+}
+
 
 
 
 <div class="container-fluid py-4">
-    <h2 class="text-success mb-4">Lịch làm việc nhân viên</h2>
-    <div class="mb-3 d-flex align-items-center gap-2">
-        <button class="btn btn-outline-primary btn-sm" id="btnPrevWeek">&lt; Tuần trước</button>
-        <button class="btn btn-outline-secondary btn-sm" id="btnToday">Hôm nay</button>
-        <button class="btn btn-outline-primary btn-sm" id="btnNextWeek">Tuần sau &gt;</button>
-        <input type="date" id="startDateInput" class="form-control form-control-sm ms-3" style="width: 180px;" />
+    <div class="tools-container d-flex align-items-center gap-3 flex-wrap">
+        <div class="d-flex align-items-center">
+            <h2 class="text-primary mb-0 me-4 fs-4">Lịch làm việc nhân viên</h2>
+            <div class="btn-group" role="group">
+                <button class="btn btn-calendar btn-outline-primary" id="btnPrevWeek">
+                    <i class="fas fa-chevron-left me-1"></i>Tuần trước
+                </button>
+                <button class="btn btn-calendar btn-outline-secondary" id="btnToday">
+                    <i class="fas fa-calendar-day me-1"></i>Hôm nay
+                </button>
+                <button class="btn btn-calendar btn-outline-primary" id="btnNextWeek">
+                    Tuần sau<i class="fas fa-chevron-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            <div class="position-relative">
+                <i class="fas fa-calendar-alt position-absolute text-muted"
+                   style="left: 12px; top: 50%; transform: translateY(-50%)"></i>
+                <input type="date" id="startDateInput" class="date-picker ps-4"/>
+            </div>
+            <div class="btn-group" role="group">
+                <button class="btn btn-calendar btn-outline-secondary" id="btnDayView">Ngày</button>
+                <button class="btn btn-calendar btn-outline-secondary active" id="btnWeekView">Tuần</button>
+                <button class="btn btn-calendar btn-outline-secondary" id="btnMonthView">Tháng</button>
+            </div>
+        </div>
     </div>
-    <div class="card shadow border-0">
+
+    <div class="card shadow-sm border-0 mt-3">
         <div class="card-body p-0">
             <div id="dp"></div>
+        </div>
+    </div>
+
+    <!-- Legend cho các loại trạng thái -->
+    <div class="d-flex gap-2 mt-4 flex-wrap justify-content-center">
+        <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(45deg, #1a73e8, #4285f4);"></span>
+            <span class="legend-text">Đã xác nhận</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(45deg, #0f9d58, #34a853);"></span>
+            <span class="legend-text">Đang thực hiện</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(45deg, #673ab7, #7e57c2);"></span>
+            <span class="legend-text">Đã hoàn thành</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(45deg, #f6bf26, #fdd663);"></span>
+            <span class="legend-text">Chờ duyệt hủy</span>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="eventDetailModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-sm">
-      <div class="modal-header bg-light border-0 pb-2">
-        <h5 class="modal-title text-primary fw-bold" id="eventDetailTitle">
-          <i class="far fa-calendar-alt me-2"></i>Chi tiết lịch hẹn
-        </h5>
-        <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body" id="eventDetailContent">
-        <!-- Nội dung sẽ được render động -->
-      </div>
-      <div class="modal-footer bg-light border-0 pt-2">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
-      </div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-sm">
+            <div class="modal-header bg-light border-0 pb-2">
+                <h5 class="modal-title text-primary fw-bold" id="eventDetailTitle">
+                    <i class="far fa-calendar-alt me-2"></i>Chi tiết lịch hẹn
+                </h5>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="eventDetailContent">
+                <!-- Nội dung sẽ được render động -->
+            </div>
+            <div class="modal-footer bg-light border-0 pt-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
 
-@section Styles {
-    <link href="~/lib/demo/themes/scheduler_blue.css" rel="stylesheet" />
-    <style>
-        #dp { width: 100%; min-height: 600px; }
-    </style>
-}
 @section Scripts {
     <script src="~/lib/scripts/daypilot-all.src.js"></script>
     <script>
-        var dp;
-        var currentStartDate = new Date();
 
-        function loadScheduler(startDate) {
-            fetch('/AdminAppointment/GetCalendarData')
-                .then(res => res.json())
-                .then(data => {
-                    var resources = data.resources.map(r => ({
-                        id: r.id,
-                        name: r.title
-                    }));
-                    var events = data.events.map(e => ({
+        // Constants
+        const VIEW_TYPES = {
+            DAY: 'Day',
+            WEEK: 'Week',
+            MONTH: 'Month'
+        };
+
+        const STATUS_CLASSES = {
+            2: 'status-confirmed',
+            3: 'status-in-progress',
+            4: 'status-completed',
+            6: 'status-pending-cancel'
+        };
+
+        const BUSINESS_HOURS = {
+            START: 8,
+            END: 20
+        };
+
+        // State management
+        let dp;
+        let currentStartDate = new Date();
+        let currentViewType = VIEW_TYPES.WEEK;
+
+        // Helper functions
+        const formatEventBubble = (event) => {
+            const startTime = new Date(event.start).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+            const endTime = new Date(event.end).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+            return `
+                <div class="p-3 rounded-lg shadow-sm" style="min-width: 200px;">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="far fa-calendar-check text-primary me-2"></i>
+                        <div class="fw-bold">${event.title}</div>
+                    </div>
+                    <div class="d-flex align-items-center text-muted">
+                        <i class="far fa-clock me-2"></i>
+                        <div>${startTime} - ${endTime}</div>
+                    </div>
+                </div>`;
+        };
+
+        const checkEventOverlap = (eventId, resource, start, end, eventsList) => {
+            return eventsList.some(ev =>
+                ev.id !== eventId &&
+                ev.resource === resource &&
+                !(new DayPilot.Date(end) <= new DayPilot.Date(ev.start) ||
+                    new DayPilot.Date(start) >= new DayPilot.Date(ev.end))
+            );
+        };
+
+        const handleEventChange = async (eventData, newResource, newStart) => {
+            try {
+                const response = await fetch('@Url.Action("UpdateAppointmentCalendar", "AdminAppointment")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        AppointmentId: eventData.id,
+                        NewEmployeeId: newResource,
+                        NewStart: newStart.toString("yyyy-MM-ddTHH:mm:ss")
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error('Cập nhật lịch hẹn thất bại!');
+                return true;
+            } catch (error) {
+                dp.message(error.message || 'Có lỗi khi cập nhật lịch hẹn!');
+                return false;
+            }
+        };
+
+        async function loadScheduler(startDate, viewType) {
+            try {
+                const response = await fetch('/AdminAppointment/GetCalendarData');
+                const data = await response.json();
+
+                const resources = data.resources.map(r => ({
+                    id: r.id,
+                    name: r.title,
+                    expanded: true
+                }));
+
+                const events = data.events
+                    .filter(e => Object.keys(STATUS_CLASSES).includes(e.statusId.toString()))
+                    .map(e => ({
                         id: e.id,
                         resource: e.resourceId,
                         start: e.start,
                         end: e.end,
-                        text: e.title
+                        text: e.title,
+                        cssClass: STATUS_CLASSES[e.statusId] || '',
+                        backColor: 'transparent',
+                        fontColor: '#ffffff',
+                        moveViaHeaders: false,
+                        bubbleHtml: formatEventBubble(e)
                     }));
 
-                    if (!startDate) startDate = new Date();
-                    currentStartDate = new Date(startDate);
+            if (!startDate) startDate = new Date();
+            currentStartDate = new Date(startDate);
 
-                    if (dp) {
-                        dp.update({
-                            resources: resources,
-                            events: events,
-                            startDate: new DayPilot.Date(currentStartDate.toISOString().slice(0,10))
-                        });
-                    } else {
-                        dp = new DayPilot.Scheduler("dp", {
-                            resources: resources,
-                            events: events,
-                            startDate: new DayPilot.Date(currentStartDate.toISOString().slice(0,10)),
-                            days: 1,
-                            timeHeaders: [
-                                { groupBy: "Day", format: "d/M" },
-                                { groupBy: "Hour" }
-                            ],
-                            scale: "Hour",
-                            cellWidth: 60,
-                            onEventMoved: function(args) {
-                            },
-                            onEventMoving: function(args) {
-                                // Prevent overlap: check if the new time/resource overlaps with any other event
-                                var movingId = args.e.data.id;
-                                var newResource = args.newResource;
-                                var newStart = args.newStart;
-                                var newEnd = args.newEnd;
-                                var overlap = dp.events.list.some(function(ev) {
-                                    if (ev.id === movingId) return false;
-                                    if (ev.resource !== newResource) return false;
-                                    var evStart = new DayPilot.Date(ev.start);
-                                    var evEnd = new DayPilot.Date(ev.end);
-                                    // Check for overlap
-                                    return !(newEnd <= evStart || newStart >= evEnd);
-                                });
-                                if (overlap) {
-                                    args.preventDefault();
-                                    dp.message('Không thể xếp chồng nhiều lịch cho cùng một nhân viên trong cùng thời gian!');
-                                }
-                            },
-                            onEventResizing: function(args) {
-                                // Prevent overlap on resize
-                                var resizingId = args.e.data.id;
-                                var resource = args.e.data.resource;
-                                var newStart = args.newStart;
-                                var newEnd = args.newEnd;
-                                var overlap = dp.events.list.some(function(ev) {
-                                    if (ev.id === resizingId) return false;
-                                    if (ev.resource !== resource) return false;
-                                    var evStart = new DayPilot.Date(ev.start);
-                                    var evEnd = new DayPilot.Date(ev.end);
-                                    return !(newEnd <= evStart || newStart >= evEnd);
-                                });
-                                if (overlap) {
-                                    args.preventDefault();
-                                    dp.message('Không thể xếp chồng nhiều lịch cho cùng một nhân viên trong cùng thời gian!');
-                                }
-                                const oldResource = args.e.data.resource;
-                                const oldStart = args.e.data.start;
-                                const oldEnd = args.e.data.end;
-                                fetch('@Url.Action("UpdateAppointmentCalendar", "AdminAppointment")', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-                                    },
-                                    body: JSON.stringify({
-                                        AppointmentId: args.e.data.id,
-                                        NewEmployeeId: args.newResource,
-                                        NewStart: args.newStart.toString("yyyy-MM-ddTHH:mm:ss")
-                                    })
-                                })
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (!data.success) {
-                                        // revert event to old position
-                                        args.e.data.resource = oldResource;
-                                        args.e.data.start = oldStart;
-                                        args.e.data.end = oldEnd;
-                                        dp.events.update(args.e);
-                                        dp.update();
-                                        dp.message('Cập nhật lịch hẹn thất bại!');
-                                    }
-                                })
-                                .catch(() => {
-                                    // revert event to old position
-                                    args.e.data.resource = oldResource;
-                                    args.e.data.start = oldStart;
-                                    args.e.data.end = oldEnd;
-                                    dp.events.update(args.e);
-                                    dp.update();
-                                    dp.message('Có lỗi khi cập nhật lịch hẹn!');
-                                });
-                            }
-                        });
-                        dp.init();
+            const getViewConfig = (viewType) => {
+                const baseConfig = {
+                    days: viewType === VIEW_TYPES.MONTH ? 31 : (viewType === VIEW_TYPES.WEEK ? 7 : 1),
+                    scale: viewType === VIEW_TYPES.MONTH ? "Day" : "Hour",
+                    timeHeaders: viewType === VIEW_TYPES.MONTH ?
+                        [{groupBy: "Month"}, {groupBy: "Day", format: "d"}] :
+                        [{groupBy: "Day", format: "dddd d/M"}, {groupBy: "Hour", format: "HH:mm"}]
+                };
+                return baseConfig;
+            };
+
+            const config = {
+                resources: resources,
+                events: events,
+                startDate: new DayPilot.Date(currentStartDate.toISOString().slice(0, 10)),
+                cellWidth: 60,
+                businessBeginsHour: BUSINESS_HOURS.START,
+                businessEndsHour: BUSINESS_HOURS.END,
+                showNonBusiness: false,
+                heightSpec: "BusinessHours",
+                rowHeaderColumns: [
+                    {name: "name", title: "Nhân viên", width: 150}
+                ],
+                contextMenu: new DayPilot.Menu({
+                    items: [
+                        {
+                            text: "Xem chi tiết",
+                            onClick: ({source}) => window.location.href = `/AdminAppointment/Detail/${source.id}`
+                        },
+                        {
+                            text: "Chỉnh sửa",
+                            onClick: ({source}) => window.location.href = `/AdminAppointment/Edit/${source.id}`
+                        }
+                    ]
+                }),
+
+                onBeforeEventRender: ({data}) => {
+                    data.areas = [{
+                        right: 4,
+                        top: 4,
+                        width: 16,
+                        height: 16,
+                        html: '<i class="fas fa-edit text-white"></i>',
+                        action: "JavaScript",
+                        js: () => window.location.href = `/AdminAppointment/Edit/${data.id}`
+                    }];
+                },
+
+                onEventClick: ({e}) => {
+                    window.location.href = `/AdminAppointment/Detail/${e.id()}`;
+                },
+
+                onEventMoving: ({e, newResource, newStart, newEnd}) => {
+                    if (checkEventOverlap(e.data.id, newResource, newStart, newEnd, dp.events.list)) {
+                        e.preventDefault();
+                        dp.message('Không thể xếp chồng nhiều lịch cho cùng một nhân viên trong cùng thời gian!');
                     }
-                    document.getElementById('startDateInput').value = currentStartDate.toISOString().slice(0,10);
-                });
-        }
+                },
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.DayPilot) {
-                loadScheduler();
-                document.getElementById('btnToday').onclick = function() {
-                    loadScheduler(new Date());
-                };
-                document.getElementById('btnPrevWeek').onclick = function() {
-                    var prev = new Date(currentStartDate);
-                    prev.setDate(prev.getDate() - 7);
-                    loadScheduler(prev);
-                };
-                document.getElementById('btnNextWeek').onclick = function() {
-                    var next = new Date(currentStartDate);
-                    next.setDate(next.getDate() + 7);
-                    loadScheduler(next);
-                };
-                document.getElementById('startDateInput').onchange = function(e) {
-                    var val = e.target.value;
-                    if (val) loadScheduler(new Date(val));
-                };
+                onEventMoved: async ({e, newResource, newStart}) => {
+                    if (!await handleEventChange(e.data, newResource, newStart)) {
+                        // Revert the change if update fails
+                        dp.events.update(e);
+                        dp.update();
+                    }
+                },
+
+                onEventResizing: ({e, newStart, newEnd}) => {
+                    if (checkEventOverlap(e.data.id, e.data.resource, newStart, newEnd, dp.events.list)) {
+                        e.preventDefault();
+                        dp.message('Không thể xếp chồng nhiều lịch cho cùng một nhân viên trong cùng thời gian!');
+                    }
+                },
+                theme: "scheduler_white"
+            };
+
+            // Áp dụng cấu hình view
+            const viewConfig = getViewConfig(viewType || currentViewType);
+            Object.assign(config, viewConfig);
+
+            if (dp) {
+                dp.update(config);
             } else {
-                console.error('DayPilot chưa load!');
+                dp = new DayPilot.Scheduler("dp", config);
+                dp.init();
             }
+
+            // Cập nhật ngày hiển thị
+            document.getElementById('startDateInput').value = currentStartDate.toISOString().slice(0, 10);
+        } catch (error) {
+            console.error('Lỗi khi tải lịch:', error);
+            dp?.message('Có lỗi khi tải dữ liệu lịch!');
+        }
+}
+
+const initializeEventHandlers = () => {
+    // Navigation handlers
+    const navigationHandlers = {
+        today: () => {
+            currentStartDate = new Date();
+            loadScheduler(currentStartDate, currentViewType);
+        },
+
+        prev: () => {
+            const prev = new Date(currentStartDate);
+            switch (currentViewType) {
+                case VIEW_TYPES.DAY:
+                    prev.setDate(prev.getDate() - 1);
+                    break;
+                case VIEW_TYPES.WEEK:
+                    prev.setDate(prev.getDate() - 7);
+                    break;
+                case VIEW_TYPES.MONTH:
+                    prev.setMonth(prev.getMonth() - 1);
+                    break;
+            }
+            currentStartDate = prev;
+            loadScheduler(currentStartDate, currentViewType);
+        },
+
+        next: () => {
+            const next = new Date(currentStartDate);
+            switch (currentViewType) {
+                case VIEW_TYPES.DAY:
+                    next.setDate(next.getDate() + 1);
+                    break;
+                case VIEW_TYPES.WEEK:
+                    next.setDate(next.getDate() + 7);
+                    break;
+                case VIEW_TYPES.MONTH:
+                    next.setMonth(next.getMonth() + 1);
+                    break;
+            }
+            currentStartDate = next;
+            loadScheduler(currentStartDate, currentViewType);
+        }
+    };
+
+    // Date picker handler
+    const handleDateChange = (e) => {
+        const val = e.target.value;
+        if (val) {
+            currentStartDate = new Date(val);
+            loadScheduler(currentStartDate, currentViewType);
+        }
+    };
+
+    // View type handlers
+    const handleViewChange = (viewType) => {
+        const viewButtons = {
+            [VIEW_TYPES.DAY]: 'btnDayView',
+            [VIEW_TYPES.WEEK]: 'btnWeekView',
+            [VIEW_TYPES.MONTH]: 'btnMonthView'
+        };
+
+        currentViewType = viewType;
+
+        // Update button states
+        Object.entries(viewButtons).forEach(([type, btnId]) => {
+            document.getElementById(btnId).classList.toggle('active', type === viewType);
         });
-    </script>
+
+        loadScheduler(currentStartDate, viewType);
+    };
+
+    // Attach event listeners
+    document.getElementById('btnToday').addEventListener('click', navigationHandlers.today);
+    document.getElementById('btnPrevWeek').addEventListener('click', navigationHandlers.prev);
+    document.getElementById('btnNextWeek').addEventListener('click', navigationHandlers.next);
+    document.getElementById('startDateInput').addEventListener('change', handleDateChange);
+
+    // View type buttons
+    document.getElementById('btnDayView').addEventListener('click', () => handleViewChange(VIEW_TYPES.DAY));
+    document.getElementById('btnWeekView').addEventListener('click', () => handleViewChange(VIEW_TYPES.WEEK));
+    document.getElementById('btnMonthView').addEventListener('click', () => handleViewChange(VIEW_TYPES.MONTH));
+};
+
+// Initialize on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.DayPilot) {
+        console.error('DayPilot chưa load!');
+        return;
+    }
+
+    loadScheduler(new Date(), VIEW_TYPES.WEEK);
+    initializeEventHandlers();
+});
+</script>
 }

@@ -446,6 +446,19 @@ namespace pet_spa_system1.Repositories
             if (ap != null)
             {
                 ap.StaffId = staffId;
+                Console.WriteLine($"[UpdateAppointmentPetStaff] Cập nhật: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
+            }
+            else
+            {
+                // Nếu không tìm thấy AppointmentPet, tạo mới một record
+                var newAp = new AppointmentPet
+                {
+                    AppointmentId = appointmentId,
+                    PetId = petId,
+                    StaffId = staffId
+                };
+                _context.AppointmentPets.Add(newAp);
+                Console.WriteLine($"[UpdateAppointmentPetStaff] Tạo mới: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
             }
         }
 

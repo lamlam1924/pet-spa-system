@@ -36,10 +36,10 @@ namespace pet_spa_system1.Services
         List<User> GetAllCustomersAndStaffs();
         Pet GetPetById(int petId);
         AppointmentPet GetAppointmentPet(int appointmentId, int petId);
-        void UpdateAppointmentWithPetStaff(AppointmentViewModel vm);
+        bool UpdateAppointmentWithPetStaff(AppointmentViewModel vm);
         bool RestoreAppointment(int id);
         void SendAppointmentNotificationMail(int appointmentId, string type, object? model = null);
-        bool SaveAppointment(AppointmentViewModel model, int userId);
+        (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
         bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
         bool IsTimeConflict(DateOnly appointmentDate, TimeOnly startTime, int staffId, int durationMinutes);

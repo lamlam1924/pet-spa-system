@@ -73,8 +73,39 @@ namespace pet_spa_system1.Controllers
         public IActionResult Edit(AppointmentViewModel vm)
         {
             if (!ModelState.IsValid) return View(vm);
-            // Bổ sung: cập nhật staff cho từng pet
-            if (vm.PetStaffAssignments == null) vm.PetStaffAssignments = new List<PetStaffAssignViewModel>();
+            
+            // Đọc PetStaffAssignmentsJson từ form và chuyển đổi thành danh sách
+            string? petStaffAssignmentsJson = Request.Form["PetStaffAssignmentsJson"].ToString();
+            Console.WriteLine($"[AdminAppointmentController.Edit] PetStaffAssignmentsJson: {petStaffAssignmentsJson}");
+            
+            if (!string.IsNullOrEmpty(petStaffAssignmentsJson))
+            {
+                try
+                {
+                    var petStaffAssignments = System.Text.Json.JsonSerializer.Deserialize<List<PetStaffAssignViewModel>>(petStaffAssignmentsJson);
+                    if (petStaffAssignments != null)
+                    {
+                        vm.PetStaffAssignments = petStaffAssignments;
+                        Console.WriteLine($"[AdminAppointmentController.Edit] Deserialized {vm.PetStaffAssignments.Count} pet-staff assignments");
+                    }
+                    else
+                    {
+                        vm.PetStaffAssignments = new List<PetStaffAssignViewModel>();
+                        Console.WriteLine("[AdminAppointmentController.Edit] Deserialized result was null");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[AdminAppointmentController.Edit] Error deserializing PetStaffAssignmentsJson: {ex.Message}");
+                    TempData["ErrorMessage"] = "Có lỗi khi xử lý dữ liệu phân công nhân viên: " + ex.Message;
+                    vm.PetStaffAssignments = new List<PetStaffAssignViewModel>();
+                }
+            }
+            else
+            {
+                Console.WriteLine("[AdminAppointmentController.Edit] PetStaffAssignmentsJson is null or empty");
+                vm.PetStaffAssignments = new List<PetStaffAssignViewModel>();
+            }
 
             // Lấy trạng thái cũ để kiểm tra thay đổi trạng thái
             int? oldStatusId = null;
@@ -85,9 +116,19 @@ namespace pet_spa_system1.Controllers
             }
 
             // Gọi service cập nhật staff từng pet
-            _appointmentService.UpdateAppointmentWithPetStaff(vm);
+            bool updateSuccess = _appointmentService.UpdateAppointmentWithPetStaff(vm);
+            
+            if (!updateSuccess)
+            {
+                // Nếu cập nhật không thành công, báo lỗi và hiển thị lại form
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật lịch hẹn!";
+                // Cập nhật danh sách cho dropdown
+                vm.Statuses = _appointmentService.GetAllStatuses();
+                vm.EmployeeList = _appointmentService.GetEmployees();
+                return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", vm);
+            }
 
-            // Chỉ gửi mail nếu trạng thái thực sự thay đổi
+            // Chỉ gửi mail nếu cập nhật thành công và trạng thái thực sự thay đổi
             if (oldStatusId != null && oldStatusId != vm.StatusId)
             {
                 try
@@ -103,12 +144,17 @@ namespace pet_spa_system1.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Có lỗi khi gửi email: " + ex.Message;
+                    TempData["ErrorMessage"] = "Lịch hẹn đã được cập nhật nhưng có lỗi khi gửi email: " + ex.Message;
                     Console.WriteLine($"[Edit] Lỗi gửi mail: {ex.Message}\n{ex.StackTrace}");
                 }
             }
 
-            return RedirectToAction("List");
+            // Đặt các biến TempData để hiện thông báo và modal CHỈ khi thành công
+            TempData["SuccessMessage"] = "Cập nhật lịch hẹn thành công!";
+            TempData["EditedAppointmentId"] = vm.AppointmentId;
+            
+            // Quay lại trang chỉnh sửa thay vì chuyển đến List
+            return RedirectToAction("Edit", new { id = vm.AppointmentId });
         }
 
 
@@ -202,7 +248,7 @@ namespace pet_spa_system1.Controllers
             appointment.StartTime = new TimeOnly(vm.NewHour ?? 8, 0);
 
             // Update via service
-            _appointmentService.UpdateAppointmentWithPetStaff(new pet_spa_system1.ViewModel.AppointmentViewModel
+            var updateSuccess = _appointmentService.UpdateAppointmentWithPetStaff(new pet_spa_system1.ViewModel.AppointmentViewModel
             {
                 AppointmentId = appointment.AppointmentId,
                 AppointmentDate = appointment.AppointmentDate,
@@ -215,7 +261,10 @@ namespace pet_spa_system1.Controllers
                 PetStaffAssignments = petStaffAssignments
             });
 
-            return Ok(new { success = true });
+            if (updateSuccess)
+                return Ok(new { success = true });
+            else
+                return BadRequest(new { success = false, message = "Có lỗi khi cập nhật lịch hẹn" });
         }
 
         [HttpGet]
@@ -251,7 +300,10 @@ namespace pet_spa_system1.Controllers
                 .Select(u => new
                 {
                     id = u.UserId,
-                    text = $"{u.FullName} - {u.Phone} - {u.Email}"
+                    text = $"{u.FullName} - {u.Phone} - {u.Email}",
+                    fullName = u.FullName,
+                    phone = u.Phone,
+                    email = u.Email
                 })
                 .Take(20)
                 .ToList();
@@ -365,7 +417,7 @@ namespace pet_spa_system1.Controllers
             // Gán staff mới cho từng pet nếu có thông tin
             var petStaffAssignments = vm.PetStaffAssignments ?? new List<PetStaffAssignViewModel>();
 
-            _appointmentService.UpdateAppointmentWithPetStaff(new pet_spa_system1.ViewModel.AppointmentViewModel
+            bool updateSuccess = _appointmentService.UpdateAppointmentWithPetStaff(new pet_spa_system1.ViewModel.AppointmentViewModel
             {
                 AppointmentId = appointment.AppointmentId,
                 AppointmentDate = DateOnly.FromDateTime(newStart),
@@ -380,7 +432,8 @@ namespace pet_spa_system1.Controllers
                 PetStaffAssignments = petStaffAssignments
             });
 
-            return Json(new { success = true });
+            return Json(new { success = updateSuccess, 
+                             message = updateSuccess ? "Cập nhật thành công" : "Có lỗi khi cập nhật lịch hẹn" });
         }
 
         [HttpPost("RestoreAppointment")]
@@ -444,12 +497,13 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine($"[AdminAppointmentController] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
                 Console.WriteLine($"[AdminAppointmentController] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
 
-                var success = _appointmentService.SaveAppointment(model, model.CustomerId);
-                if (success)
+                var result = _appointmentService.SaveAppointment(model, model.CustomerId);
+                if (result.Success)
                 {
-                    Console.WriteLine("[AdminAppointmentController] SaveAppointment trả về true - thành công");
+                    Console.WriteLine("[AdminAppointmentController] SaveAppointment trả về thành công");
+                    Console.WriteLine($"[AdminAppointmentController] AppointmentId: {result.AppointmentId}");
                     TempData["SuccessMessage"] = "Tạo lịch hẹn thành công!";
-                    TempData["NewAppointmentId"] = model.AppointmentId;
+                    TempData["NewAppointmentId"] = result.AppointmentId;
                     return RedirectToAction("Create");
                 }
                 else

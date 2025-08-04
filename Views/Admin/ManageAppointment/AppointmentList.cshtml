@@ -66,7 +66,7 @@
                                     Khách hàng <i class="fas fa-sort ms-1 text-muted small"></i>
                                 </a>
                             </th>
-                            <th>Thú cưng</th>
+                            <th>Thú cưng & Nhân viên phụ trách</th>
                             <th>Dịch vụ</th>
                             <th>
                                 <a href="#" class="text-dark d-flex align-items-center sort-link">
@@ -74,7 +74,6 @@
                                 </a>
                             </th>
                             <th>Trạng thái</th>
-                            <th>Nhân viên</th>
                             <th class="text-end">Tổng tiền</th>
                             <th class="text-center pe-3">Thao tác</th>
                         </tr>
@@ -97,7 +96,7 @@
                                     {
                                         foreach (var pet in item.AppointmentPets)
                                         {
-                                            <li>
+                                            <li class="mb-1">
                                                 @if (pet.Pet.Species != null)
                                                 {
                                                     <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
@@ -109,6 +108,13 @@
                                                     <span class="badge rounded-pill badge-pet bg-light text-dark">
                                                         @pet.Pet.Name
                                                     </span>
+                                                }
+
+                                                @if (pet.Staff != null)
+                                                {
+                                                    <small class="ms-1 text-primary">
+                                                        <i class="fas fa-user-md me-1"></i>@pet.Staff.FullName
+                                                    </small>
                                                 }
                                             </li>
                                         }
@@ -137,22 +143,7 @@
                                     <span class="status-icon"></span> @(item.Status != null ? item.Status.StatusName : "")
                                 </span>
                             </td>
-                            <td>
-                                @if (item.Employee != null)
-                                {
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-2 rounded-circle text-center" 
-                                             style="width: 32px; height: 32px; line-height: 32px;">
-                                            @(string.IsNullOrEmpty(item.Employee.FullName) ? "?" : item.Employee.FullName.Substring(0, 1))
-                                        </div>
-                                        <span>@item.Employee.FullName</span>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted"><i class="fas fa-user-clock me-1"></i>Chưa phân công</span>
-                                }
-                            </td>
+
                             <td class="text-end">
                                 <span class="total-price">
                                     @item.AppointmentServices.Sum(s => s.Service.Price).ToString("N0") đ

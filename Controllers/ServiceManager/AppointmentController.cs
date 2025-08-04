@@ -107,9 +107,10 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine($"[AppointmentController] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
                 Console.WriteLine($"[AppointmentController] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
                 
-                if (_appointmentService.SaveAppointment(model, userId.Value))
+                var result = _appointmentService.SaveAppointment(model, userId.Value);
+                if (result.Success)
                 {
-                    Console.WriteLine("[AppointmentController] SaveAppointment trả về true - thành công");
+                    Console.WriteLine("[AppointmentController] SaveAppointment trả về thành công");
                     // Tạo thông báo khi đặt lịch thành công
                     var notification = new Notification
                     {
