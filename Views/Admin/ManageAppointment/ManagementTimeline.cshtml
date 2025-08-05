@@ -50,22 +50,26 @@
     </div>
 
     <!-- Legend cho các loại trạng thái -->
-    <div class="d-flex gap-2 mt-4 flex-wrap justify-content-center">
-        <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(45deg, #1a73e8, #4285f4);"></span>
-            <span class="legend-text">Đã xác nhận</span>
+    <div class="d-flex gap-3 mt-3 flex-wrap">
+        <div class="d-flex align-items-center">
+            <span class="d-inline-block rounded me-2"
+                  style="width: 20px; height: 20px; background-color: #1a73e8;"></span>
+            <span>Đã xác nhận</span>
         </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(45deg, #0f9d58, #34a853);"></span>
-            <span class="legend-text">Đang thực hiện</span>
+        <div class="d-flex align-items-center">
+            <span class="d-inline-block rounded me-2"
+                  style="width: 20px; height: 20px; background-color: #0f9d58;"></span>
+            <span>Đang thực hiện</span>
         </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(45deg, #673ab7, #7e57c2);"></span>
-            <span class="legend-text">Đã hoàn thành</span>
+        <div class="d-flex align-items-center">
+            <span class="d-inline-block rounded me-2"
+                  style="width: 20px; height: 20px; background-color: #673ab7;"></span>
+            <span>Đã hoàn thành</span>
         </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(45deg, #f6bf26, #fdd663);"></span>
-            <span class="legend-text">Chờ duyệt hủy</span>
+        <div class="d-flex align-items-center">
+            <span class="d-inline-block rounded me-2"
+                  style="width: 20px; height: 20px; background-color: #f6bf26;"></span>
+            <span>Chờ duyệt hủy</span>
         </div>
     </div>
 </div>
@@ -121,17 +125,13 @@
 
         // Helper functions
         const formatEventBubble = (event) => {
-            const startTime = new Date(event.start).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
-            const endTime = new Date(event.end).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
             return `
-                <div class="p-3 rounded-lg shadow-sm" style="min-width: 200px;">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="far fa-calendar-check text-primary me-2"></i>
-                        <div class="fw-bold">${event.title}</div>
-                    </div>
-                    <div class="d-flex align-items-center text-muted">
-                        <i class="far fa-clock me-2"></i>
-                        <div>${startTime} - ${endTime}</div>
+                <div class="p-2">
+                    <div class="fw-bold mb-1">${event.title}</div>
+                    <div class="small">
+                        <i class="far fa-clock me-1"></i>
+                        ${new Date(event.start).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'})} - 
+                        ${new Date(event.end).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'})}
                     </div>
                 </div>`;
         };

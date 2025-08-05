@@ -425,6 +425,7 @@ namespace pet_spa_system1.Services
                 AppointmentId = appt.AppointmentId,
                 CustomerName = appt.User?.FullName ?? appt.User?.Username ?? "Khách hàng",
                 AppointmentDate = appt.AppointmentDate,
+                StartTime = appt.StartTime,
                 EndTime = TimeOnly.FromDateTime(appt.AppointmentDate.ToDateTime(appt.StartTime).AddMinutes(
                     appt.AppointmentServices.Sum(s => s.Service?.DurationMinutes ?? 0))),
                 SelectedServices = appt.AppointmentServices.Select(s => new AppointmentServiceInfo

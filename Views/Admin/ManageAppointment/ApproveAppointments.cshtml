@@ -1,4 +1,29 @@
 <link rel="stylesheet" href="~/css/approve-appointments.css"/>
+<style>
+    .appointment-item {
+        transition: all 0.3s ease;
+        border: 2px solid transparent !important;
+    }
+    .appointment-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    }
+    .bg-warning-subtle {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    .bg-info-subtle {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+    }
+    .appointment-item.border-warning {
+        border-color: #ffc107 !important;
+    }
+    .appointment-item:not(.border-warning) {
+        border-color: #0dcaf0 !important;
+    }
+    .card-title {
+        font-weight: 600;
+    }
+</style>
 
 
 @model pet_spa_system1.ViewModel.ApproveAppointmentsViewModel
@@ -10,44 +35,6 @@
         .OrderBy(g => g.Key)
         .ToList();
 }
-<style>
-    #toast-overlay {
-        position: fixed;
-        z-index: 1040;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.18);
-        display: none;
-    }
-    #toast-container.toast-center-screen {
-        position: fixed;
-        z-index: 1050;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: auto;
-        max-width: 90vw;
-        pointer-events: all;
-    }
-    #toast-container.toast-center-screen > .toast {
-        min-width: 340px;
-        font-size: 1.08rem;
-        font-weight: 500;
-        padding: 28px 32px 32px 32px;
-        border-radius: 10px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        background: #fffbe7;
-        color: #333;
-        border: 1.5px solid #f7b731;
-        text-align: center;
-    }
-    #toast-container.toast-center-screen .toast-action {
-        margin-top: 18px;
-    }
-    #toast-container.toast-center-screen .btn {
-        font-size: 1rem;
-        padding: 6px 18px;
-    }
-</style>
 <div id="toast-overlay"></div>
 <div class="container-fluid mt-3">
     <h2 class="mb-4">Duyệt lịch hẹn</h2>
@@ -94,32 +81,35 @@
             foreach (var group in grouped)
             {
                 var collapseId = $"collapse-{group.Key:yyyyMMdd}";
-                <div class="card mb-3">
+                <div class="card mb-3 appointment-card">
                     <div class="card-header d-flex justify-content-between align-items-center"
-                        style="cursor:pointer; background-color:#f8f9fa;" data-toggle="collapse"
-                        data-target="#@collapseId" aria-expanded="@(groupIndex == 0 ? "true" : "false")"
-                        aria-controls="@collapseId" role="button" tabindex="0"
-                        onkeydown="if(event.key==='Enter'||event.key===' '){this.click();}">
+                        style="cursor:pointer; background-color:#f8f9fa;" 
+                        role="button" tabindex="0">
                         <h5 class="mb-0 text-primary">@group.Key.ToString("dd/MM/yyyy")</h5>
                         <span class="badge badge-info">@group.Count() lịch hẹn</span>
-                        <span class="ml-auto"><i class="fas fa-chevron-down"></i></span>
+                        <span class="ml-auto"><i class="fas fa-chevron-down collapse-icon"></i></span>
                     </div>
-                    <div id="@collapseId" class="collapse @(groupIndex == 0 ? "show" : "")" data-parent="#appointments-list">
+                    <div id="@collapseId" class="collapse-content @(groupIndex == 0 ? "show" : "")">
                         <div class="card-body">
                             <div class="row">
                                 @foreach (var appointment in group)
                                 {
                                     <div class="col-md-4 mb-3" id="row-appointment-@appointment.AppointmentId">
                                         <div
-                                            class="card shadow @(appointment.StatusId == 6 ? "border-warning" : "")">
+                                            class="card shadow appointment-item @(appointment.StatusId == 6 ? "border-warning bg-warning-subtle" : "bg-info-subtle")">
                                             <div class="card-body">
-                                                <h6 class="card-title">Khách: @appointment.CustomerName</h6>
+                                                <h6 class="card-title">
+                                                    <i class="fas @(appointment.StatusId == 6 ? "fa-exclamation-triangle text-warning" : "fa-clock text-info") me-2"></i>
+                                                    Khách: @appointment.CustomerName
+                                                </h6>
                                                 <p class="card-text">Thú
                                                     cưng: @string.Join(", ", appointment.SelectedPets.Select(p => p.Name))</p>
                                                 <p class="card-text">Dịch
                                                     vụ: @string.Join(", ", appointment.SelectedServices.Select(s => s.Name))</p>
-                                                <p class="card-text">Thời
-                                                    gian: @appointment.AppointmentDate.ToDateTime(appointment.StartTime).ToString("HH:mm")</p>
+                                                <p class="card-text">
+                                                    Thời gian: @appointment.StartTime.ToString("HH:mm") - 
+                                                    @appointment.EndTime.ToString("HH:mm")
+                                                </p>
                                                 @if (appointment.StatusId == 6)
                                                 {
                                                     <div class="mb-2 text-warning font-weight-bold">Yêu cầu hủy lịch
@@ -134,38 +124,16 @@
                                                 }
                                                 else
                                                 {
-                                                    <select class="form-control staff-dropdown mb-2">
-                                                        <option value="">Chọn nhân viên</option>
-                                                        @foreach (var staff in Model.StaffList)
-                                                        {
-                                                            <option value="@staff.UserId">@staff.FullName</option>
-                                                        }
-                                                    </select>
-                                                    <button class="btn btn-success btn-approve"
-                                                            data-appointment-id="@appointment.AppointmentId">Duyệt & Gán
-                                                        nhân viên
-                                                    </button>
-                                                    
+                                                    <div class="mt-3 d-flex gap-2">
+                                                        <button class="btn btn-primary flex-fill" onclick="alert('Chức năng đang được phát triển');">
+                                                            <i class="fas fa-magic me-1"></i>Tự động
+                                                        </button>
+                                                        <a href="/AdminAppointment/Edit?id=@appointment.AppointmentId" 
+                                                           class="btn btn-outline-primary flex-fill">
+                                                            <i class="fas fa-user-edit me-1"></i>Thủ công
+                                                        </a>
+                                                    </div>
                                                 }
-                                                <button class="btn btn-secondary btn-detail"
-                                                        data-appointment-id="@appointment.AppointmentId"
-                                                        aria-label="Xem chi tiết lịch hẹn">Chi tiết
-                                                </button>
-                                                <select class="form-control status-dropdown mt-2"
-                                                        data-appointment-id="@appointment.AppointmentId">
-                                                    @if (Model.Statuses != null && Model.Statuses.Any())
-                                                    {
-                                                        foreach (var status in Model.Statuses)
-                                                        {
-                                                            <option value="@status.StatusId"
-                                                                    selected="@(appointment.StatusId == status.StatusId ? "selected" : null)">@status.StatusName</option>
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <option disabled>Không có danh sách trạng thái</option>
-                                                    }
-                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -233,9 +201,36 @@
 
             let loading = false;
 
+            // Lưu trữ trạng thái của các collapse
+            let expandedDates = new Set();
+            
+            // Lưu trạng thái collapse hiện tại
+            function saveCollapseStates() {
+                $('.collapse').each(function() {
+                    if ($(this).hasClass('show')) {
+                        expandedDates.add($(this).attr('id'));
+                    }
+                });
+            }
+
+            // Khôi phục trạng thái collapse
+            function restoreCollapseStates() {
+                expandedDates.forEach(id => {
+                    $(`#${id}`).addClass('show');
+                    $(`[data-target="#${id}"]`).attr('aria-expanded', 'true');
+                });
+            }
+
             function loadPage(page, filters = {}) {
                 if (loading) return;
                 loading = true;
+                
+                // Add loading state
+                $('#appointments-list').addClass('loading-state');
+                
+                // Lưu trạng thái collapse trước khi load
+                saveCollapseStates();
+                
                 let url = '/AdminAppointment/ApproveAppointments?page=' + page;
                 if (filters) {
                     url += '&customer=' + encodeURIComponent(filters.customer || '');
@@ -243,9 +238,21 @@
                     url += '&service=' + encodeURIComponent(filters.service || '');
                     url += '&status=' + encodeURIComponent(filters.status || '');
                 }
-                $.get(url, function (data) {
-                    $('#appointments-list').html($(data).find('#appointments-list').html());
-                    loading = false;
+
+                // Use requestAnimationFrame for smooth updates
+                requestAnimationFrame(() => {
+                    $.get(url, function (data) {
+                        const $newContent = $(data).find('#appointments-list').html();
+                        requestAnimationFrame(() => {
+                            $('#appointments-list')
+                                .html($newContent)
+                                .removeClass('loading-state');
+                            
+                            // Khôi phục trạng thái collapse sau khi load
+                            restoreCollapseStates();
+                            loading = false;
+                        });
+                    });
                 });
             }
 
@@ -281,29 +288,24 @@
                 window.location.href = '/AdminAppointment/Detail?id=' + id;
             });
 
-            // Duyệt & Gán nhân viên (toast xác nhận ở giữa)
-            $(document.body).on('click', '.btn-approve', function (e) {
+            // Xử lý gán tự động
+            $(document.body).on('click', '.btn-auto-assign', function (e) {
                 e.preventDefault();
                 let $btn = $(this);
                 let id = $btn.data('appointment-id');
-                let staffId = $btn.closest('.card-body').find('.staff-dropdown').val();
-                if (!staffId) {
-                    toastr.options.positionClass = 'toast-top-right';
-                    toastr.warning('Vui lòng chọn nhân viên!');
-                    return;
-                }
                 let token = $("input[name='__RequestVerificationToken']").val() || $('meta[name="csrf-token"]').attr('content') || '';
+                
                 showCenterConfirmToast(
-                    'Bạn có chắc chắn muốn duyệt và gán nhân viên cho lịch hẹn này?',
-                    'Xác nhận duyệt',
+                    'Bạn có chắc chắn muốn gán nhân viên tự động cho lịch hẹn này?',
+                    'Xác nhận',
                     'Huỷ',
                     function () {
                         $btn.prop('disabled', true);
                         $.ajax({
-                            url: '/AdminAppointment/ApproveAndAssignStaff',
+                            url: '/AdminAppointment/AutoAssignStaff',
                             type: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({AppointmentId: id, StaffId: staffId}),
+                            data: JSON.stringify({AppointmentId: id}),
                             headers: {'RequestVerificationToken': token},
                             success: function (res) {
                                 toastr.options.positionClass = 'toast-top-right';
@@ -313,15 +315,10 @@
                                         $row.fadeOut(300, function () {
                                             $(this).remove();
                                         });
-                                        toastr.success(res.message || 'Đã duyệt và gán nhân viên thành công!');
-                                    } else {
-                                        toastr.success(res.message || 'Đã duyệt và gán nhân viên thành công!');
-                                        setTimeout(function () {
-                                            location.reload();
-                                        }, 1000);
+                                        toastr.success('Đã gán nhân viên tự động thành công!');
                                     }
                                 } else {
-                                    toastr.error(res.message || 'Có lỗi xảy ra khi gán nhân viên!');
+                                    toastr.error(res.message || 'Không thể tìm thấy nhân viên phù hợp');
                                     $btn.prop('disabled', false);
                                 }
                             },
@@ -434,7 +431,48 @@
                     }
                 });
             });
-            // Only prevent collapse/expand when clicking interactive elements inside card-header
+            // Tối ưu xử lý collapse/expand
+            function initializeCollapse() {
+                $('.appointment-card').each(function() {
+                    const $card = $(this);
+                    const $content = $card.find('.collapse-content');
+                    const $header = $card.find('.card-header');
+                    const id = $content.attr('id');
+
+                    // Thiết lập trạng thái ban đầu
+                    if (!$content.hasClass('show')) {
+                        $content.css('max-height', '0px');
+                    }
+
+                    // Xử lý click
+                    $header.off('click').on('click', function(e) {
+                        if ($(e.target).closest('button, select, input, a').length) return;
+
+                        const isShow = $content.hasClass('show');
+                        const scrollHeight = $content[0].scrollHeight;
+
+                        if (!isShow) {
+                            $content.css('max-height', scrollHeight + 'px');
+                            $content.addClass('show');
+                            expandedDates.add(id);
+                        } else {
+                            $content.css('max-height', '0px');
+                            $content.removeClass('show');
+                            expandedDates.delete(id);
+                        }
+                    });
+                });
+            }
+
+            // Khởi tạo collapse khi trang load
+            initializeCollapse();
+
+            // Khởi tạo lại collapse sau khi load nội dung mới
+            const originalLoadPage = loadPage;
+            loadPage = function(...args) {
+                originalLoadPage.apply(this, args);
+                setTimeout(initializeCollapse, 100);
+            };
             $(document).on('click', '.card-header button, .card-header select, .card-header input, .card-header a', function(e) {
                 e.stopPropagation();
             });
