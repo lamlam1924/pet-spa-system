@@ -50,10 +50,18 @@ namespace pet_spa_system1.Services
         ViewModel.CalendarViewModel GetCalendarViewModel();
         AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
         
+        // Kiểm tra số lượng nhân viên rảnh cho lịch hẹn
+        (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(int appointmentId);
+        
+        List<int> listStaffAvailable(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime);
+        
+        
+        List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
         
         List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null);
         
-        
         List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
+        bool AutoAssignStaff(int appointmentId);
+        bool ConfirmedAppointment(Appointment appointment);
     }
 }

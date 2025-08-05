@@ -1,29 +1,4 @@
 <link rel="stylesheet" href="~/css/approve-appointments.css"/>
-<style>
-    .appointment-item {
-        transition: all 0.3s ease;
-        border: 2px solid transparent !important;
-    }
-    .appointment-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
-    }
-    .bg-warning-subtle {
-        background-color: rgba(255, 193, 7, 0.1) !important;
-    }
-    .bg-info-subtle {
-        background-color: rgba(13, 202, 240, 0.1) !important;
-    }
-    .appointment-item.border-warning {
-        border-color: #ffc107 !important;
-    }
-    .appointment-item:not(.border-warning) {
-        border-color: #0dcaf0 !important;
-    }
-    .card-title {
-        font-weight: 600;
-    }
-</style>
 
 
 @model pet_spa_system1.ViewModel.ApproveAppointmentsViewModel
@@ -83,8 +58,10 @@
                 var collapseId = $"collapse-{group.Key:yyyyMMdd}";
                 <div class="card mb-3 appointment-card">
                     <div class="card-header d-flex justify-content-between align-items-center"
-                        style="cursor:pointer; background-color:#f8f9fa;" 
-                        role="button" tabindex="0">
+                        style="cursor:pointer; background-color:#f8f9fa;" data-toggle="collapse"
+                        data-target="#@collapseId" aria-expanded="@(groupIndex == 0 ? "true" : "false")"
+                        aria-controls="@collapseId" role="button" tabindex="0"
+                        onkeydown="if(event.key==='Enter'||event.key===' '){this.click();}">
                         <h5 class="mb-0 text-primary">@group.Key.ToString("dd/MM/yyyy")</h5>
                         <span class="badge badge-info">@group.Count() lịch hẹn</span>
                         <span class="ml-auto"><i class="fas fa-chevron-down collapse-icon"></i></span>
@@ -125,8 +102,8 @@
                                                 else
                                                 {
                                                     <div class="mt-3 d-flex gap-2">
-                                                        <button class="btn btn-primary flex-fill" onclick="alert('Chức năng đang được phát triển');">
-                                                            <i class="fas fa-magic me-1"></i>Tự động
+                                                        <button class="btn btn-success btn-auto-assign" data-appointment-id="@appointment.AppointmentId">
+                                                            auto gán  và duyệt
                                                         </button>
                                                         <a href="/AdminAppointment/Edit?id=@appointment.AppointmentId" 
                                                            class="btn btn-outline-primary flex-fill">
@@ -333,29 +310,56 @@
                     }
                 );
             });
-
-            // Tự động gán nhân viên
-            $(document.body).on('click', '.btn-auto-assign', function () {
-                let id = $(this).data('appointment-id');
-                $.ajax({
-                    url: '/AdminAppointment/AutoAssignStaff',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({AppointmentId: id}),
-                    headers: {'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()},
-                    success: function (res) {
-                        toastr.options.positionClass = 'toast-top-right';
-                        if (res.success) {
-                            toastr.success('Đã tự động gán nhân viên!');
-                            $('#row-appointment-' + id).fadeOut(300, function () {
-                                $(this).remove();
-                            });
-                        } else {
-                            toastr.error(res.message);
-                        }
+            $(document.body).on('click', '.btn-auto-assign', function (e) {
+                e.preventDefault();
+                let $btn = $(this);
+                let id = $btn.data('appointment-id');
+                let token = $("input[name='__RequestVerificationToken']").val() || $('meta[name="csrf-token"]').attr('content') || '';
+                showCenterConfirmToast(
+                    'Bạn có chắc chắn muốn duyệt và gán nhân viên tự động cho lịch hẹn này?',
+                    'Xác nhận duyệt',
+                    'Huỷ',
+                    function () {
+                        $btn.prop('disabled', true);
+                        $.ajax({
+                            url: '/AdminAppointment/AutoAssignStaff',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({AppointmentId: id}),
+                            headers: {'RequestVerificationToken': token},
+                            success: function (res) {
+                                toastr.options.positionClass = 'toast-top-right';
+                                if (res.success) {
+                                    let $row = $('#row-appointment-' + id);     
+                                    if ($row.length) {
+                                        $row.fadeOut(300, function () {
+                                            $(this).remove();
+                                        });
+                                        toastr.success(res.message || 'Đã duyệt và gán nhân viên thành công!');
+                                    } else {
+                                        toastr.success(res.message || 'Đã duyệt và gán nhân viên thành công!');
+                                        setTimeout(function () {
+                                            location.reload();
+                                        }, 1000);
+                                    }
+                                } else {
+                                    toastr.error(res.message || 'Có lỗi xảy ra khi gán nhân viên!');
+                                    $btn.prop('disabled', false);
+                                }
+                            },
+                            error: function (xhr) {
+                                toastr.options.positionClass = 'toast-top-right';
+                                let msg = 'Lỗi hệ thống, vui lòng thử lại!';
+                                if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                                toastr.error(msg);
+                                $btn.prop('disabled', false);
+                            }
+                        });
                     }
-                });
+                );
             });
+            // Tự động gán nhân viên
+            
 
             // Duyệt hủy lịch (admin) - toast xác nhận ở giữa
             $(document.body).on('click', '.btn-approve-cancel', function () {

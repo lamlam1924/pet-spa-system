@@ -219,6 +219,7 @@ namespace pet_spa_system1.Controllers
             var viewModel = _appointmentService.GetManagementTimelineData(selectedDate);
             return View("~/Views/Admin/ManageAppointment/ManagementTimeline.cshtml", viewModel);
         }
+        
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -588,7 +589,48 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-
+        [HttpPost]
+        [Route("AutoAssignStaff")]
+        [ValidateAntiForgeryToken]
+        public IActionResult AutoAssignStaff([FromBody] ApproveRequestModel model)
+        {
+            try
+            {
+                var (isEnoughStaff, availableStaffCount, requiredStaffCount) = _appointmentService.checkNumStaffForAppointment(model.AppointmentId);
+                
+                if (isEnoughStaff)
+                {
+                    if (_appointmentService.AutoAssignStaff(model.AppointmentId))
+                    {
+                        return Json(new
+                        {
+                            success = true,
+                            message = "Gán nhân viên và đã chấp nhận lịch thành công"
+                        });
+                    } else
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Không thể tự động gán nhân viên cho lịch hẹn này."
+                        });
+                    }
+                   
+                }
+                else
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = $"Thiếu nhân viên! Rảnh: {availableStaffCount}, Cần: {requiredStaffCount}",
+                        
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
         [HttpPost]
         [Route("QuickUpdateStatus")]
         [ValidateAntiForgeryToken]
