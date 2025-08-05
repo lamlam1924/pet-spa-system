@@ -1095,5 +1095,265 @@ namespace pet_spa_system1.Services
             
             return CheckPetAppointment(petIds, startDateTime, endDateTime, excludeAppointmentId);
         }
+
+        
+        public List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null)
+        {
+            try
+            {
+                var query = _context.AppointmentPets
+                    .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
+                               ap.Appointment.IsActive == true &&
+                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
+                               ap.StaffId.HasValue && // Chỉ lấy những pet đã được phân công nhân viên
+                               ((ap.Appointment.StartTime <= startTime && ap.Appointment.EndTime > startTime) ||
+                                (ap.Appointment.StartTime < endTime && ap.Appointment.EndTime >= endTime) ||
+                                (ap.Appointment.StartTime >= startTime && ap.Appointment.EndTime <= endTime)));
+
+                // Loại trừ lịch hẹn nếu có
+                if (excludeAppointmentId.HasValue)
+                {
+                    query = query.Where(ap => ap.AppointmentId != excludeAppointmentId.Value);
+                }
+
+                var busyStaffIds = query
+                    .Select(ap => ap.StaffId.Value)
+                    .Distinct()
+                    .ToList();
+
+                Console.WriteLine($"[getBusyStaffIds] Ngày: {appointmentDate}, Giờ: {startTime} - {endTime}");
+                Console.WriteLine($"[getBusyStaffIds] - Số nhân viên bận: {busyStaffIds.Count}");
+                Console.WriteLine($"[getBusyStaffIds] - Danh sách StaffId bận: {string.Join(", ", busyStaffIds)}");
+
+                return busyStaffIds;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[getBusyStaffIds] Lỗi: {ex.Message}");
+                return new List<int>();
+            }
+        }
+
+        public List<int> listStaffAvailable(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime)
+        {
+            try
+            {
+                // Lấy tất cả nhân viên (RoleId == 3)
+                var allStaff = _context.Users
+                    .Where(u => u.RoleId == 3 && u.IsActive == true)
+                    .Select(u => u.UserId)
+                    .ToList();
+
+                if (!allStaff.Any())
+                {
+                    return new List<int>();
+                }
+
+                // Sử dụng hàm helper để lấy nhân viên bận
+                var busyStaffIds = getBusyStaffIds(appointmentDate, startTime, endTime);
+
+                // Lấy danh sách nhân viên rảnh
+                var availableStaffIds = allStaff.Except(busyStaffIds).ToList();
+
+                if (!availableStaffIds.Any())
+                {
+                    return new List<int>();
+                }
+
+                // Đếm số lịch hẹn của mỗi nhân viên trong ngày
+                var staffAppointmentCounts = _context.AppointmentPets
+                    .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
+                               ap.Appointment.IsActive == true &&
+                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
+                               ap.StaffId.HasValue &&
+                               availableStaffIds.Contains(ap.StaffId.Value))
+                    .GroupBy(ap => ap.StaffId.Value)
+                    .Select(g => new { StaffId = g.Key, AppointmentCount = g.Count() })
+                    .ToDictionary(x => x.StaffId, x => x.AppointmentCount);
+
+                // Sắp xếp nhân viên rảnh theo số lịch hẹn từ ít đến nhiều
+                var sortedAvailableStaff = availableStaffIds
+                    .OrderBy(staffId => staffAppointmentCounts.ContainsKey(staffId) ? staffAppointmentCounts[staffId] : 0)
+                    .ToList();
+
+                Console.WriteLine($"[listStaffAvailable] Ngày: {appointmentDate}, Giờ: {startTime} - {endTime}");
+                Console.WriteLine($"[listStaffAvailable] - Tổng số nhân viên: {allStaff.Count}");
+                Console.WriteLine($"[listStaffAvailable] - Số nhân viên bận: {busyStaffIds.Count}");
+                Console.WriteLine($"[listStaffAvailable] - Số nhân viên rảnh: {availableStaffIds.Count}");
+                Console.WriteLine($"[listStaffAvailable] - Danh sách nhân viên rảnh (sắp xếp theo số lịch): {string.Join(", ", sortedAvailableStaff)}");
+
+                return sortedAvailableStaff;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[listStaffAvailable] Lỗi: {ex.Message}");
+                return new List<int>();
+            }
+        }
+
+        
+        public (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(int appointmentId)
+        {
+            try
+            {
+                // Lấy thông tin lịch hẹn
+                var appointment = _appointmentRepository.GetById(appointmentId);
+                if (appointment == null)
+                {
+                    return (false, 0, 0);
+                }
+
+                // Lấy số lượng pet trong lịch hẹn (số nhân viên cần thiết)
+                var appointmentPets = _appointmentRepository.GetAppointmentPets(appointmentId);
+                int requiredStaffCount = appointmentPets.Count;
+
+                if (requiredStaffCount == 0)
+                {
+                    return (true, 0, 0); // Không có pet nào thì không cần nhân viên
+                }
+
+                // Lấy tất cả nhân viên (RoleId == 3)
+                var allStaff = _context.Users
+                    .Where(u => u.RoleId == 3 && u.IsActive == true)
+                    .ToList();
+
+                if (!allStaff.Any())
+                {
+                    return (false, 0, requiredStaffCount);
+                }
+
+                // Sử dụng hàm helper để lấy nhân viên bận
+                var busyStaffIds = getBusyStaffIds(appointment.AppointmentDate, appointment.StartTime, appointment.EndTime, appointmentId);
+
+                // Tính số nhân viên rảnh
+                int availableStaffCount = allStaff.Count - busyStaffIds.Count;
+
+                // Kiểm tra xem có đủ nhân viên không
+                bool isEnoughStaff = availableStaffCount >= requiredStaffCount;
+
+                Console.WriteLine($"[checkNumStaffForAppointment] Appointment {appointmentId}:");
+                Console.WriteLine($"[checkNumStaffForAppointment] - Số pet cần phục vụ: {requiredStaffCount}");
+                Console.WriteLine($"[checkNumStaffForAppointment] - Tổng số nhân viên: {allStaff.Count}");
+                Console.WriteLine($"[checkNumStaffForAppointment] - Số nhân viên bận (từ StaffId): {busyStaffIds.Count}");
+                Console.WriteLine($"[checkNumStaffForAppointment] - Số nhân viên rảnh: {availableStaffCount}");
+                Console.WriteLine($"[checkNumStaffForAppointment] - Có đủ nhân viên: {isEnoughStaff}");
+
+                return (isEnoughStaff, availableStaffCount, requiredStaffCount);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[checkNumStaffForAppointment] Lỗi: {ex.Message}");
+                return (false, 0, 0);
+            }
+        }
+        public bool AutoAssignStaff(int appointmentId)
+        {
+            try
+            {
+                Console.WriteLine($"[AutoAssignStaff] 👉 Bắt đầu gán nhân viên cho AppointmentId: {appointmentId}");
+
+                // Lấy lịch hẹn từ repository
+                var appointment = _appointmentRepository.GetById(appointmentId);
+
+                if (appointment == null)
+                {
+                    Console.WriteLine($"[AutoAssignStaff] ❌ Không tìm thấy lịch hẹn với ID: {appointmentId}");
+                    return false;
+                }
+
+                if (appointment.IsActive != true || appointment.StatusId == 5)
+                {
+                    Console.WriteLine($"[AutoAssignStaff] ❌ Lịch hẹn không hợp lệ hoặc đã bị từ chối (IsActive: {appointment.IsActive}, StatusId: {appointment.StatusId})");
+                    return false;
+                }
+
+                // Lấy danh sách AppointmentPet chưa được gán Staff
+                var appointmentPets = _appointmentRepository
+                    .GetAppointmentPets(appointmentId)
+                    .Where(p => p.StaffId == null && p.IsActive == true)
+                    .ToList();
+
+                Console.WriteLine($"[AutoAssignStaff] 🔍 Số lượng AppointmentPet chưa gán Staff: {appointmentPets.Count}");
+
+                if (!appointmentPets.Any())
+                {
+                    Console.WriteLine("[AutoAssignStaff] ✅ Tất cả pet đã được gán Staff.");
+                    return false;
+                }
+
+                // Lấy danh sách nhân viên rảnh (chỉ gọi 1 lần)
+                var availableStaff = listStaffAvailable(
+                    appointment.AppointmentDate,
+                    appointment.StartTime,
+                    appointment.EndTime
+                );
+
+                Console.WriteLine($"[AutoAssignStaff] 👥 Danh sách nhân viên rảnh: {string.Join(", ", availableStaff)}");
+
+                bool assigned = false;
+                int staffIndex = 0;
+
+                foreach (var ap in appointmentPets)
+                {
+                    if (staffIndex >= availableStaff.Count)
+                    {
+                        Console.WriteLine($"[AutoAssignStaff] ⚠️ Không đủ nhân viên để gán cho PetId: {ap.PetId}");
+                        break;
+                    }
+
+                    int chosenStaffId = availableStaff[staffIndex];
+                    ap.StaffId = chosenStaffId;
+                    Console.WriteLine($"[AutoAssignStaff] ✅ Gán StaffId {chosenStaffId} cho PetId: {ap.PetId}");
+                    assigned = true;
+                    staffIndex++;
+                }
+
+                if (assigned)
+                {
+                    Console.WriteLine($"[AutoAssignStaff] ✅ Gán thành công ít nhất 1 nhân viên. Đang cập nhật trạng thái...");
+                    ConfirmedAppointment(appointment); // Xác nhận trạng thái nếu cần
+                    _appointmentRepository.SaveChanges(); // hoặc _unitOfWork.SaveChanges()
+                    Console.WriteLine("[AutoAssignStaff] 💾 Đã lưu thay đổi vào database.");
+                }
+                else
+                {
+                    Console.WriteLine("[AutoAssignStaff] ❌ Không gán được nhân viên nào.");
+                }
+
+                return assigned;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AutoAssignStaff] ❌ Lỗi: {ex.Message}");
+                return false;
+            }
+        }
+
+
+        public bool ConfirmedAppointment(Appointment appointment)
+        {
+            try
+            {
+                // Kiểm tra lịch hẹn hợp lệ
+                if (appointment == null || appointment.StatusId == 5)
+                    return false;
+
+                // Cập nhật trạng thái
+                appointment.StatusId = 2; // 2 = "Đã xác nhận"
+                appointment.IsActive = true;
+                _appointmentRepository.Update(appointment); // Cập nhật đối tượng
+
+                _appointmentRepository.SaveChanges(); // Lưu thay đổi
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ConfirmedAppointment] Lỗi: {ex.Message}");
+                return false;
+            }
+        }
+
+
     }
 }
