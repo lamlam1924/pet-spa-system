@@ -63,5 +63,6 @@ namespace pet_spa_system1.Services
         List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
         bool AutoAssignStaff(int appointmentId);
         bool ConfirmedAppointment(Appointment appointment);
+        List<User> getAllStaffFreeByAppointmentId(int appointmentId);
     }
 }

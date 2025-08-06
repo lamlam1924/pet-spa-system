@@ -48,17 +48,17 @@ namespace pet_spa_system1.Repositories
         void Delete(int id);
         void DeleteAppointmentPets(int appointmentId);
         void DeleteAppointmentServices(int appointmentId);
-}
-
-
-public class MonthlyAppointmentStats
-{
-    public int Year { get; set; }
-    public int Month { get; set; }
-    public int TotalAppointments { get; set; }
-    public int CompletedAppointments { get; set; }
-    public int CancelledAppointments { get; set; }
-}
-        
     }
+
+
+    public class MonthlyAppointmentStats
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int TotalAppointments { get; set; }
+        public int CompletedAppointments { get; set; }
+        public int CancelledAppointments { get; set; }
+    }
+
+}
 

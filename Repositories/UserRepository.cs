@@ -34,6 +34,20 @@ public class UserRepository : IUserRepository
     {
         return await _context.Roles.FindAsync(roleId);
     }
+    public List<User> GetUsersByIdsOrdered(List<int> userIds)
+    {
+        if (userIds == null || !userIds.Any())
+            return new List<User>();
+
+        // Truy vấn và sắp xếp theo thứ tự của userIds đầu vào
+        var users = _context.Users
+            .Where(u => userIds.Contains(u.UserId))
+            .ToList()
+            .OrderBy(u => userIds.IndexOf(u.UserId)) // Giữ thứ tự ưu tiên
+            .ToList();
+
+        return users;
+    }
 
     public User? GetUserById(int userId)
         => _context.Users.FirstOrDefault(u => u.UserId == userId);

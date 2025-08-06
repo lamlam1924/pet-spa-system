@@ -1400,6 +1400,46 @@ namespace pet_spa_system1.Services
             }
         }
 
+        public List<User> getAllStaffFreeByAppointmentId(int appointmentId)
+        {
+            try
+            {
+                // 🔁 Dùng repository để lấy appointment
+                var appointment = _appointmentRepository.GetById(appointmentId);
+
+                if (appointment == null || appointment.IsActive == false) // Fix: Explicitly compare nullable bool
+                {
+                    Console.WriteLine($"[getAllStaffFreeByAppointmentId] ❌ Không tìm thấy lịch hẹn hoặc đã bị vô hiệu hóa (ID: {appointmentId})");
+                    return new List<User>();
+                }
+
+                // 🔍 Lấy thông tin ngày và giờ từ lịch hẹn
+                var appointmentDate = appointment.AppointmentDate;
+                var startTime = appointment.StartTime;
+                var endTime = appointment.EndTime;
+
+                // 📞 Gọi hàm có sẵn để lấy danh sách staffId rảnh
+                var availableStaffIds = listStaffAvailable(appointmentDate, startTime, endTime);
+
+                if (!availableStaffIds.Any())
+                {
+                    Console.WriteLine($"[getAllStaffFreeByAppointmentId] ⚠️ Không có nhân viên rảnh cho lịch hẹn #{appointmentId}");
+                    return new List<User>();
+                }
+
+                // 👥 Lấy thông tin chi tiết của các staff từ User DbSet
+                var staffList = _userRepository.GetUsersByIdsOrdered(availableStaffIds);
+
+
+                Console.WriteLine($"[getAllStaffFreeByAppointmentId] ✅ Tìm thấy {staffList.Count} nhân viên rảnh.");
+                return staffList;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[getAllStaffFreeByAppointmentId] ❌ Lỗi: {ex.Message}");
+                return new List<User>();
+            }
+        }
 
     }
 }

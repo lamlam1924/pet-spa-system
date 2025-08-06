@@ -79,9 +79,9 @@
     <form asp-action="Edit" asp-controller="AdminAppointment" method="post" class="needs-validation" id="editAppointmentForm" novalidate>
         <input type="hidden" name="AppointmentId" id="mainAppointmentId" value="@Model.AppointmentId"/>
         <!-- Debug: Hiển thị AppointmentId -->
-        <div class="alert alert-info">
+        @* <div class="alert alert-info">
             AppointmentId: @Model.AppointmentId
-        </div>
+        </div> *@
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="card shadow-sm mb-4">
