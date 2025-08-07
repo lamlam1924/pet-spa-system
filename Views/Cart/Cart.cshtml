@@ -170,9 +170,14 @@ input[type=number] {
                             <h5 class="font-weight-bold">Tổng cộng </h5>
                             <h5 class="font-weight-bold"  id="cartTotalAmount" data-has-shipping-fee="false" >@((Model.TotalAmount + 30000).ToString("N0")) đ</h5>
                         </div>
-                      <a class="btn btn-block btn-primary my-3 py-3" id="checkoutButton" href="@Url.Action("Checkout", "Checkout")">Thanh Toán</a>
+                      <a class="btn btn-block btn-primary my-3 py-3" 
+   id="checkoutButton" 
+   href="@Url.Action("Checkout", "Checkout")" 
+   data-href="@Url.Action("Checkout", "Checkout")">
+   Thanh Toán
+</a>
+<div id="cart-error-message" class="text-danger fw-bold" style="display: none;"></div>
 
-                      <div id="cart-error-message" class="text-danger fw-bold" style="display: none;"></div>    
                     </div>
                 </div>
             </div>
@@ -251,136 +256,25 @@ input[type=number] {
     </script>
     
 <script>
-    function parseCurrencyToNumber(value) {
-    // Loại bỏ dấu phẩy, khoảng trắng và đ ký tự tiền tệ
+// ----------- Format tiền tệ -----------
+function parseCurrencyToNumber(value) {
     if (typeof value === "string") {
         value = value.replace(/[^0-9.-]+/g, "");
     }
     return parseFloat(value);
 }
-function formatVND(amount) {
+function formatCurrency(amount) {
     return amount.toLocaleString('vi-VN') + ' đ';
 }
-
-
-// Gọi API để tăng/giảm số lượng
-// Gọi API để tăng/giảm số lượng
-async function updateQuantity(productId, action) {
-    const input = document.getElementById(`qty-${productId}`);
-    let currentQty = parseInt(input.value);
-    const stock = parseInt(input.getAttribute('data-stock')); // ⚠️ Bạn cần thêm thuộc tính này vào input
-
-    if (isNaN(currentQty)) currentQty = 1;
-
-    let newQty = currentQty;
-
-    if (action === 'increase') {
-        if (currentQty < stock) {
-            newQty = currentQty + 1;
-        } else {
-              showToast("Đã đạt số lượng tồn kho tối đa.", false);
-            return;
-        }
-    } else if (action === 'decrease') {
-        if (currentQty > 1) {
-            newQty = currentQty - 1;
-        } else {
-            return; // Không giảm dưới 1
-        }
-    }
-
-    // ✅ GỌI API và cập nhật UI, tổng tiền, thành tiền
-    await updateCartQuantity(productId, newQty);
+function formatVND(amount) {
+    return formatCurrency(amount);
 }
 
-
-
-
-// Xử lý nhập trực tiếp số lượng
-// Xử lý nhập trực tiếp số lượng
-async function handleQuantityInput(productId, newQty) {
-    const quantity = parseInt(newQty);
-    if (isNaN(quantity) || quantity < 1) {
-        showToast("Số lượng không hợp lệ.", false);
-        return;
-    }
-
-    const response = await fetch('/Cart/UpdateQuantity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity })
-    });
-
-    const result = await response.json();
-
-    const input = document.getElementById(`qty-${productId}`);
-    if (response.ok) {
-        input.value = quantity;
-
-        // ✅ Cập nhật thành tiền từng sản phẩm
-        const price = parseFloat(input.getAttribute('data-price'));
-        const total = price * quantity;
-        document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
-
-        // ✅ Cập nhật tổng tiền
-        updateCartTotals();
-
-        // ✅ Toast thành công
-        showToast("Cập nhật số lượng thành công!");
-    } else {
-        showToast(result.message || "Số lượng vượt quá giới hạn.", false);
-
-        if (result.availableStock) {
-            input.value = result.availableStock;
-
-            // Cập nhật lại giá trị tiền nếu cần
-            const price = parseFloat(input.getAttribute('data-price'));
-            const total = price * result.availableStock;
-            document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
-            updateCartTotals();
-        }
-    }
-}
-
-
-
-// Gửi request cập nhật đến controller
-async function updateCartQuantity(productId, quantity) {
-    const response = await fetch('/Cart/UpdateQuantity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity })
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-        // ✅ Cập nhật lại số lượng trong input
-        const input = document.getElementById(`qty-${productId}`);
-        input.value = quantity;
-
-        // ✅ Lấy giá sản phẩm từ thuộc tính data-price
-        const price = parseFloat(input.getAttribute('data-price')); // ví dụ: 50000
-
-        // ✅ Cập nhật thành tiền sản phẩm
-        const total = price * quantity;
-        document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
-
-        // ✅ Gọi lại hàm cập nhật tổng tiền
-        updateCartTotals();
-    } else {
-        showToast(result.message || "Lỗi khi cập nhật.", false);
-        if (result.availableStock) {
-            document.getElementById(`qty-${productId}`).value = result.availableStock;
-        }
-    }
-}
-
+// ----------- Cập nhật tổng tiền giỏ hàng -----------
 function updateCartTotals() {
     let subTotal = 0;
-
     document.querySelectorAll('[id^="total-"]').forEach(span => {
-        const text = span.innerText.replace(/[^\d]/g, ''); // loại bỏ "đ" và dấu chấm
+        const text = span.innerText.replace(/[^\d]/g, '');
         const value = parseInt(text);
         subTotal += isNaN(value) ? 0 : value;
     });
@@ -392,63 +286,135 @@ function updateCartTotals() {
     document.getElementById('cartTotalAmount').innerText = formatCurrency(totalAmount);
 }
 
-
-function formatCurrency(amount) {
-    return amount.toLocaleString('vi-VN') + ' đ';
-}
+// ----------- Thông báo Toast -----------
 function showToast(message, isSuccess = true) {
     const toast = document.getElementById('cart-toast');
     const toastMsg = document.getElementById('cart-toast-message');
-
     toastMsg.textContent = message;
-    toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545'; // xanh/đỏ
+    toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
     toast.style.display = 'block';
-
-    // Reset animation để toast lại từ đầu
-    toast.classList.remove('toast-popup'); 
-    void toast.offsetWidth; // force reflow
+    toast.classList.remove('toast-popup');
+    void toast.offsetWidth;
     toast.classList.add('toast-popup');
-
-    setTimeout(() => {
-        toast.style.display = 'none';
-    }, 2000);
+    setTimeout(() => { toast.style.display = 'none'; }, 2000);
 }
 
+// ----------- Bật / Tắt nút thanh toán -----------
+function setCheckoutButtonEnabled(isEnabled, errorDetails = "") {
+    const checkoutBtn = document.getElementById("checkoutButton");
+    const errorMsg = document.getElementById("cart-error-message");
 
+    if (!isEnabled) {
+        checkoutBtn.classList.add("disabled");
+        checkoutBtn.setAttribute("href", "#");
+        errorMsg.style.display = "block";
+        errorMsg.innerHTML = `
+            ⚠ Không thể thanh toán vì có sản phẩm vượt quá số lượng tồn kho.<br>${errorDetails}
+            <br>Vui lòng cập nhật lại số lượng trước khi tiếp tục.
+        `;
+    } else {
+        checkoutBtn.classList.remove("disabled");
+        checkoutBtn.setAttribute("href", checkoutBtn.getAttribute("data-href"));
+        errorMsg.style.display = "none";
+    }
+}
 
+// ----------- Kiểm tra tồn kho giỏ hàng từ server -----------
+async function checkCartStock() {
+    try {
+        const response = await fetch('/Cart/CheckCartBeforeCheckout');
+        const data = await response.json();
 
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkoutBtn = document.getElementById("checkoutButton");
-        const errorMsg = document.getElementById("cart-error-message");
+        if (!data.success) {
+            let detail = "";
+            if (data.details && data.details.length > 0) {
+                detail = data.details.map(d =>
+                    `- ${d.name} (đã đặt: ${d.quantity}, tồn kho: ${d.stock})`
+                ).join("<br>");
+            }
+            setCheckoutButtonEnabled(false, detail);
+        } else {
+            setCheckoutButtonEnabled(true);
+        }
+    } catch (err) {
+        console.error("Lỗi khi kiểm tra giỏ hàng:", err);
+    }
+}
 
-        // Gửi yêu cầu kiểm tra giỏ hàng
-        fetch('@Url.Action("CheckCartBeforeCheckout", "Cart")')
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) {
-                    checkoutBtn.classList.add("disabled");
-                    checkoutBtn.setAttribute("href", "#");
-                    errorMsg.style.display = "block";
-
-                    let detail = "";
-                    if (data.details && data.details.length > 0) {
-                        detail = data.details.map(d => `- ${d.name} (đã đặt: ${d.quantity}, tồn kho: ${d.stock})`).join("<br>");
-                    }
-
-                    errorMsg.innerHTML = `
-                        ⚠ Không thể thanh toán vì có sản phẩm vượt quá số lượng tồn kho.<br>${detail}
-                        <br>Vui lòng cập nhật lại số lượng trước khi tiếp tục.
-                    `;
-                }
-            })
-            .catch(err => {
-                console.error("Lỗi khi kiểm tra giỏ hàng:", err);
-            });
+// ----------- Gửi yêu cầu cập nhật số lượng -----------
+async function updateCartQuantity(productId, quantity) {
+    const response = await fetch('/Cart/UpdateQuantity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity })
     });
-</script>
 
+    const result = await response.json();
+    const input = document.getElementById(`qty-${productId}`);
+
+    if (response.ok) {
+        input.value = quantity;
+        const price = parseFloat(input.getAttribute('data-price'));
+        const total = price * quantity;
+        document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
+        updateCartTotals();
+        await checkCartStock(); // 🟢 Kiểm tra lại tồn kho sau khi cập nhật
+    } else {
+        showToast(result.message || "Lỗi khi cập nhật.", false);
+        if (result.availableStock) {
+            input.value = result.availableStock;
+            const price = parseFloat(input.getAttribute('data-price'));
+            const total = price * result.availableStock;
+            document.getElementById(`total-${productId}`).innerText = formatCurrency(total);
+            updateCartTotals();
+            await checkCartStock();
+        }
+    }
+}
+
+// ----------- Tăng / Giảm số lượng -----------
+async function updateQuantity(productId, action) {
+    const input = document.getElementById(`qty-${productId}`);
+    let currentQty = parseInt(input.value);
+    const stock = parseInt(input.getAttribute('data-stock'));
+
+    if (isNaN(currentQty)) currentQty = 1;
+
+    let newQty = currentQty;
+
+    if (action === 'increase') {
+        if (currentQty < stock) {
+            newQty = currentQty + 1;
+        } else {
+            showToast("Đã đạt số lượng tồn kho tối đa.", false);
+            return;
+        }
+    } else if (action === 'decrease') {
+        if (currentQty > 1) {
+            newQty = currentQty - 1;
+        } else {
+            return;
+        }
+    }
+
+    await updateCartQuantity(productId, newQty);
+}
+
+// ----------- Nhập trực tiếp số lượng -----------
+async function handleQuantityInput(productId, newQty) {
+    const quantity = parseInt(newQty);
+    if (isNaN(quantity) || quantity < 1) {
+        showToast("Số lượng không hợp lệ.", false);
+        return;
+    }
+    await updateCartQuantity(productId, quantity);
+}
+
+// ----------- Gọi khi trang tải -----------
+document.addEventListener("DOMContentLoaded", function () {
+    checkCartStock();
+});
+</script>
 
 
     <script>
