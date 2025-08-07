@@ -16,5 +16,6 @@ namespace pet_spa_system1.Services
         Task<bool> RestoreAppointmentAsync(int id);
         Task<List<Appointment>> GetDeletedAppointmentsAsync(int? staffId = null, DateTime? date = null, int? statusId = null);
         Task<bool> DeleteAppointmentPermanentAsync(int id);
+        Task<bool> UpdateAppointmentStatusAsync(int appointmentId, int statusId, string? reason = null);
     }
-} 
+}

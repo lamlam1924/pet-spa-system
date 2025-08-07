@@ -1,0 +1,282 @@
+@model List<pet_spa_system1.Models.Appointment>
+@{
+    ViewData["Title"] = "Lịch làm việc của tôi";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <style>
+        .fc-event {
+            cursor: pointer !important;
+            border-radius: 4px !important;
+            font-weight: 600 !important;
+        }
+        .fc-event-title, .fc-event-time {
+            color: white !important;
+            font-weight: 600 !important;
+        }
+        .fc-event-main {
+            color: white !important;
+        }
+        /* Override FullCalendar default styles */
+        .fc-daygrid-event {
+            border-radius: 4px !important;
+            padding: 2px 4px !important;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Lịch làm việc của tôi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Calendar -->
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Detail Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết lịch hẹn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <div id="appointmentActions">
+                    <!-- Action buttons will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                locale: 'vi',
+                height: 'auto',
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    // Load appointments from server
+                    $.get('/Staff/GetMyAppointments', {
+                        start: fetchInfo.startStr,
+                        end: fetchInfo.endStr
+                    })
+                    .done(function(response) {
+                        if (response.success) {
+                            var events = response.data.map(function(appointment) {
+                                var customerName = appointment.user ? appointment.user.fullName : 'N/A';
+                                var services = appointment.appointmentServices ?
+                                    appointment.appointmentServices.map(s => s.service.name).join(', ') : 'N/A';
+
+                                return {
+                                    id: appointment.appointmentId,
+                                    title: customerName + ' - ' + services,
+                                    start: appointment.appointmentDate,
+                                    end: new Date(new Date(appointment.appointmentDate).getTime() + 60*60*1000), // +1 hour
+                                    extendedProps: {
+                                        appointment: appointment
+                                    }
+                                };
+                            });
+                            successCallback(events);
+                        } else {
+                            failureCallback(response.message || 'Lỗi tải dữ liệu');
+                        }
+                    })
+                    .fail(function() {
+                        failureCallback('Lỗi kết nối server');
+                    });
+                },
+                eventClick: function(info) {
+                    showAppointmentDetails(info.event.extendedProps.appointment);
+                },
+                eventDidMount: function(info) {
+                    // Áp dụng màu sắc trực tiếp cho element
+                    const appointment = info.event.extendedProps.appointment;
+                    const statusName = appointment.status ? appointment.status.statusName : 'Pending';
+                    const statusId = getStatusIdFromName(statusName);
+                    const color = getStatusColor(statusId);
+
+                    console.log('Event:', info.event.title);
+                    console.log('StatusName:', statusName, 'StatusId:', statusId, 'Color:', color);
+
+                    // Áp dụng style trực tiếp với !important
+                    info.el.style.setProperty('background-color', color, 'important');
+                    info.el.style.setProperty('border-color', color, 'important');
+                    info.el.style.setProperty('color', '#ffffff', 'important');
+
+                    // Tìm element con chứa text và áp dụng màu
+                    const eventMain = info.el.querySelector('.fc-event-main');
+                    if (eventMain) {
+                        eventMain.style.setProperty('background-color', color, 'important');
+                        eventMain.style.setProperty('border-color', color, 'important');
+                        eventMain.style.setProperty('color', '#ffffff', 'important');
+                    }
+
+                    const eventTitle = info.el.querySelector('.fc-event-title');
+                    if (eventTitle) {
+                        eventTitle.style.setProperty('color', '#ffffff', 'important');
+                    }
+                }
+            });
+            
+            calendar.render();
+        });
+
+        function getStatusClass(statusId) {
+            switch(statusId) {
+                case 1: return 'status-pending';
+                case 2: return 'status-confirmed';
+                case 3: return 'status-inprogress';
+                case 4: return 'status-completed';
+                case 5: return 'status-cancelled';
+                default: return 'status-pending';
+            }
+        }
+
+        function getStatusIdFromName(statusName) {
+            switch(statusName) {
+                case 'Pending': return 1;
+                case 'Confirmed': return 2;
+                case 'InProgress': return 3;
+                case 'Completed': return 4;
+                case 'Cancelled': return 5;
+                default: return 1;
+            }
+        }
+
+        function getStatusColor(statusId) {
+            switch(statusId) {
+                case 1: return '#ffc107'; // Pending - Vàng
+                case 2: return '#0d6efd'; // Confirmed - Xanh dương
+                case 3: return '#198754'; // In Progress - Xanh lá
+                case 4: return '#6c757d'; // Completed - Xám
+                case 5: return '#dc3545'; // Cancelled - Đỏ
+                default: return '#ffc107';
+            }
+        }
+
+        function showAppointmentDetails(appointment) {
+            var customerName = appointment.user ? appointment.user.fullName : 'N/A';
+            var customerPhone = appointment.user ? appointment.user.phone : 'N/A';
+            var customerEmail = appointment.user ? appointment.user.email : 'N/A';
+            var statusName = appointment.status ? appointment.status.statusName : 'N/A';
+            var services = appointment.appointmentServices ?
+                appointment.appointmentServices.map(s => s.service.name).join(', ') : 'N/A';
+            var pets = appointment.appointmentPets ?
+                appointment.appointmentPets.map(p => p.pet.name).join(', ') : 'N/A';
+
+            var html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Thông tin khách hàng</h6>
+                        <p><strong>Tên:</strong> ${customerName}</p>
+                        <p><strong>Điện thoại:</strong> ${customerPhone}</p>
+                        <p><strong>Email:</strong> ${customerEmail}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Thông tin lịch hẹn</h6>
+                        <p><strong>Ngày giờ:</strong> ${new Date(appointment.appointmentDate).toLocaleString('vi-VN')}</p>
+                        <p><strong>Trạng thái:</strong> <span class="badge bg-${getStatusBadgeClass(appointment.statusId)}">${statusName}</span></p>
+                        <p><strong>Dịch vụ:</strong> ${services}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Thú cưng</h6>
+                        <p>${pets}</p>
+                    </div>
+                </div>
+                ${appointment.notes ? `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Ghi chú</h6>
+                        <p>${appointment.notes}</p>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('appointmentDetails').innerHTML = html;
+            
+            // Add action buttons based on status
+            var actionsHtml = '';
+            if (appointment.statusId == 2) { // Confirmed
+                actionsHtml = `
+                    <button type="button" class="btn btn-success" onclick="updateStatus(${appointment.appointmentId}, 3)">
+                        <i class="fas fa-play"></i> Bắt đầu
+                    </button>
+                `;
+            } else if (appointment.statusId == 3) { // In Progress
+                actionsHtml = `
+                    <button type="button" class="btn btn-primary" onclick="updateStatus(${appointment.appointmentId}, 4)">
+                        <i class="fas fa-check"></i> Hoàn thành
+                    </button>
+                `;
+            }
+            
+            document.getElementById('appointmentActions').innerHTML = actionsHtml;
+            
+            var modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+            modal.show();
+        }
+
+        function getStatusBadgeClass(statusId) {
+            switch(statusId) {
+                case 1: return 'warning';
+                case 2: return 'info';
+                case 3: return 'success';
+                case 4: return 'secondary';
+                case 5: return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        function updateStatus(appointmentId, statusId) {
+            if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái này?')) {
+                $.post('/Staff/UpdateAppointmentStatus', {
+                    appointmentId: appointmentId,
+                    statusId: statusId
+                })
+                .done(function(response) {
+                    if (response.success) {
+                        alert('Cập nhật thành công!');
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Lỗi kết nối server');
+                });
+            }
+        }
+    </script>
+}

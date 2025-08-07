@@ -84,23 +84,30 @@ namespace pet_spa_system1.Utils
         public static string GetUserFullName(User? user)
         {
             if (user == null) return "Không xác định";
-            
+
             // Thử lấy FullName trước
-            string fullName = GetStringValue(user, "FullName", "Name", "DisplayName");
-            if (!string.IsNullOrEmpty(fullName))
-                return fullName;
-            
+            if (!string.IsNullOrEmpty(user.FullName))
+                return user.FullName;
+
             // Thử kết hợp FirstName và LastName
             string firstName = GetStringValue(user, "FirstName", "GivenName");
             string lastName = GetStringValue(user, "LastName", "Surname", "FamilyName");
-            
+
             if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
                 return $"{firstName} {lastName}";
             else if (!string.IsNullOrEmpty(firstName))
                 return firstName;
             else if (!string.IsNullOrEmpty(lastName))
                 return lastName;
-            
+
+            // Fallback về Username nếu có
+            if (!string.IsNullOrEmpty(user.Username))
+                return user.Username;
+
+            // Fallback về Email nếu có
+            if (!string.IsNullOrEmpty(user.Email))
+                return user.Email;
+
             return "Không xác định";
         }
         

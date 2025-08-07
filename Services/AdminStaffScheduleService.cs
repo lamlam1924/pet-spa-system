@@ -21,6 +21,10 @@ namespace pet_spa_system1.Services
                 .Include(a => a.Employee)
                 .Include(a => a.Status)
                 .Include(a => a.User)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(aps => aps.Service)
                 .Where(a => a.IsActive == true)
                 .AsQueryable();
             if (staffId.HasValue)
@@ -82,6 +86,10 @@ namespace pet_spa_system1.Services
                 .Include(a => a.Employee)
                 .Include(a => a.Status)
                 .Include(a => a.User)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(aps => aps.Service)
                 .Where(a => a.IsActive == false)
                 .AsQueryable();
             if (staffId.HasValue)
@@ -99,5 +107,32 @@ namespace pet_spa_system1.Services
             _context.Appointments.Remove(appt);
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> UpdateAppointmentStatusAsync(int appointmentId, int statusId, string? reason = null)
+        {
+            try
+            {
+                var appointment = await _context.Appointments.FindAsync(appointmentId);
+                if (appointment == null) return false;
+
+                appointment.StatusId = statusId;
+
+                // Nếu có lý do (thường là khi hủy), có thể lưu vào Notes
+                if (!string.IsNullOrEmpty(reason))
+                {
+                    appointment.Notes = string.IsNullOrEmpty(appointment.Notes)
+                        ? reason
+                        : $"{appointment.Notes}\n[Cập nhật]: {reason}";
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating appointment status: {ex.Message}");
+                return false;
+            }
+        }
     }
-} 
+}

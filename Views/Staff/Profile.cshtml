@@ -1,0 +1,322 @@
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/staff-profile.css" />
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">Thông tin cá nhân</h2>
+                    <p class="text-muted mb-0">Quản lý thông tin tài khoản của bạn</p>
+                </div>
+                <button class="btn btn-outline-secondary" onclick="history.back()">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fullName" class="form-label">Họ và tên</label>
+                                <input type="text" class="form-control" id="fullName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" id="username" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" readonly>
+                                <small class="text-muted">Email không thể thay đổi</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="phone">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="address" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>Khôi phục
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Picture & Quick Info -->
+        <div class="col-lg-4 mb-4">
+            <!-- Profile Picture -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-camera me-2"></i>Ảnh đại diện
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="profile-picture-container mb-3">
+                        <img id="profilePicture" 
+                             src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" 
+                             alt="Profile Picture" 
+                             class="rounded-circle profile-picture">
+                        <div class="profile-picture-overlay">
+                            <i class="fas fa-camera fa-2x"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="$('#profileImageInput').click()">
+                        <i class="fas fa-upload me-1"></i>Thay đổi ảnh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Thống kê nhanh
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Lịch hẹn tháng này:</span>
+                        <span class="fw-bold" id="monthlyAppointments">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Lịch hẹn hoàn thành:</span>
+                        <span class="fw-bold text-success" id="completedAppointments">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Đánh giá trung bình:</span>
+                        <span class="fw-bold text-warning" id="averageRating">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Khách hàng phục vụ:</span>
+                        <span class="fw-bold text-info" id="uniqueCustomers">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Section -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="passwordForm">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                                <input type="password" class="form-control" id="currentPassword" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                                <input type="password" class="form-control" id="newPassword" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/staff-profile.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadProfileData();
+            loadQuickStats();
+            setupEventHandlers();
+        });
+
+        function loadProfileData() {
+            $.get('/Staff/GetProfile', function(response) {
+                if (response.success) {
+                    $('#fullName').val(response.data.fullName || '');
+                    $('#username').val(response.data.username || '');
+                    $('#email').val(response.data.email || '');
+                    $('#phone').val(response.data.phone || '');
+                    $('#address').val(response.data.address || '');
+
+                    // Update profile picture if available
+                    if (response.data.profilePictureUrl) {
+                        $('#profilePicture').attr('src', response.data.profilePictureUrl);
+                    }
+                } else {
+                    showNotification('Không thể tải thông tin profile', 'error');
+                }
+            }).fail(function() {
+                showNotification('Lỗi kết nối khi tải profile', 'error');
+            });
+        }
+
+        function loadQuickStats() {
+            $.get('/Staff/GetPersonalStats', function(response) {
+                if (response.success && response.data) {
+                    $('#monthlyAppointments').text(response.data.monthlyAppointments || 0);
+                    $('#completedAppointments').text(response.data.completedAppointments || 0);
+                    $('#averageRating').text(response.data.averageRating ? response.data.averageRating.toFixed(1) : 'N/A');
+                    $('#uniqueCustomers').text(response.data.uniqueCustomers || 0);
+                }
+            });
+        }
+
+        function setupEventHandlers() {
+            // Profile form submission
+            $('#profileForm').on('submit', function(e) {
+                e.preventDefault();
+                updateProfile();
+            });
+
+            // Password form submission
+            $('#passwordForm').on('submit', function(e) {
+                e.preventDefault();
+                changePassword();
+            });
+
+            // Profile image change
+            $('#profileImageInput').on('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#profilePicture').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+
+        function updateProfile() {
+            const formData = new FormData();
+            formData.append('FullName', $('#fullName').val());
+            // Email không được gửi vì đã bị khóa
+            formData.append('Phone', $('#phone').val());
+            formData.append('Address', $('#address').val());
+            
+            const profileImage = $('#profileImageInput')[0].files[0];
+            if (profileImage) {
+                formData.append('profileImage', profileImage);
+            }
+
+            $.ajax({
+                url: '/Staff/UpdateProfile',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Cập nhật thông tin thành công', 'success');
+                        // Reload lại thông tin profile để cập nhật ảnh mới
+                        loadProfile();
+                        // Reset file input
+                        $('#profileImageInput').val('');
+                    } else {
+                        showNotification(response.message || 'Có lỗi xảy ra', 'error');
+                    }
+                },
+                error: function() {
+                    showNotification('Không thể cập nhật thông tin', 'error');
+                }
+            });
+        }
+
+        function changePassword() {
+            const currentPassword = $('#currentPassword').val();
+            const newPassword = $('#newPassword').val();
+            const confirmPassword = $('#confirmPassword').val();
+
+            if (newPassword !== confirmPassword) {
+                showNotification('Mật khẩu xác nhận không khớp', 'warning');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showNotification('Mật khẩu mới phải có ít nhất 6 ký tự', 'warning');
+                return;
+            }
+
+            $.post('/Staff/ChangePassword', {
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            }, function(response) {
+                if (response.success) {
+                    showNotification('Đổi mật khẩu thành công', 'success');
+                    $('#passwordForm')[0].reset();
+                } else {
+                    showNotification(response.message || 'Có lỗi xảy ra', 'error');
+                }
+            }).fail(function() {
+                showNotification('Không thể đổi mật khẩu', 'error');
+            });
+        }
+
+        function resetForm() {
+            loadProfileData(); // Reload original data
+        }
+
+        function showNotification(message, type = 'info') {
+            const alertClass = type === 'error' ? 'alert-danger' : 
+                              type === 'success' ? 'alert-success' : 
+                              type === 'warning' ? 'alert-warning' : 'alert-info';
+            
+            const notification = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            
+            $('body').append(notification);
+            
+            setTimeout(function() {
+                notification.alert('close');
+            }, 5000);
+        }
+    </script>
+}

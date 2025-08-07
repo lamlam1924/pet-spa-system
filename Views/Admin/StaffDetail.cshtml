@@ -73,41 +73,41 @@
                         <div class="mb-3 text-center">
                             @if (Model.IsActive)
                             {
-                                <span class="badge bg-success fs-6 px-3 py-2">
-                                    <i class="fas fa-check-circle me-1"></i>Đang hoạt động
+                                <span class="badge badge-success px-3 py-2" style="font-size: 1rem;">
+                                    <i class="fas fa-check-circle mr-1"></i>Đang hoạt động
                                 </span>
                             }
                             else
                             {
-                                <span class="badge bg-danger fs-6 px-3 py-2">
-                                    <i class="fas fa-times-circle me-1"></i>Đã khoá/Đã ẩn
+                                <span class="badge badge-danger px-3 py-2" style="font-size: 1rem;">
+                                    <i class="fas fa-times-circle mr-1"></i>Đã khoá/Đã ẩn
                                 </span>
                             }
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-save mr-2"></i>Lưu thay đổi
                         </button>
                     </div>
                 </div>
             </div>
             <!-- Phần phải -->
             <div class="col-xl-9 col-lg-8">
-                <!-- Tabs -->
+                <!-- Tabs - Bootstrap 4 syntax -->
                 <ul class="nav nav-tabs nav-justified mb-4" id="staffTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button" role="tab">
-                            <i class="fas fa-calendar-alt me-2"></i>Lịch hẹn
-                        </button>
+                        <a class="nav-link active" id="appointments-tab" data-toggle="tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="true">
+                            <i class="fas fa-calendar-alt mr-2"></i>Lịch hẹn
+                        </a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button" role="tab">
-                            <i class="fas fa-bolt me-2"></i>Hiệu suất
-                        </button>
+                        <a class="nav-link" id="performance-tab" data-toggle="tab" href="#performance" role="tab" aria-controls="performance" aria-selected="false">
+                            <i class="fas fa-bolt mr-2"></i>Hiệu suất
+                        </a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="quickstats-tab" data-bs-toggle="tab" data-bs-target="#quickstats" type="button" role="tab">
-                            <i class="fas fa-chart-pie me-2"></i>Thống kê nhanh
-                        </button>
+                        <a class="nav-link" id="quickstats-tab" data-toggle="tab" href="#quickstats" role="tab" aria-controls="quickstats" aria-selected="false">
+                            <i class="fas fa-chart-pie mr-2"></i>Thống kê nhanh
+                        </a>
                     </li>
                 </ul>
                 <!-- Tab Content -->
@@ -117,8 +117,8 @@
                         <!-- Card: Lịch sử lịch hẹn -->
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header bg-light border-0 d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Lịch sử lịch hẹn của nhân viên</h6>
-                                <span class="badge bg-success">@Model.AllAppointments?.Count() lịch hẹn</span>
+                                <h6 class="mb-0"><i class="fas fa-history mr-2 text-primary"></i>Lịch sử lịch hẹn của nhân viên</h6>
+                                <span class="badge badge-success">@Model.AllAppointments?.Count() lịch hẹn</span>
                             </div>
                             <div class="card-body p-0">
                                 @if (Model.AllAppointments != null && Model.AllAppointments.Any())
@@ -141,38 +141,38 @@
                                                         <td>@appt.User?.FullName</td>
                                                         <td>@appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
                                                         <td>
-                                                            <span class="badge bg-light text-dark">
+                                                            <span class="badge badge-light text-dark">
                                                                 @string.Join(", ", appt.AppointmentServices.Select(s => s.Service?.Name))
                                                             </span>
                                                         </td>
                                                         <td>
                                                             @{
                                                                 var statusName = appt.Status?.StatusName ?? "Không rõ";
-                                                                var statusColor = "bg-light text-dark";
+                                                                var statusColor = "badge-light text-dark";
                                                                 switch (statusName)
                                                                 {
                                                                     case "Chờ xác nhận":
                                                                     case "Pending":
-                                                                        statusColor = "bg-warning text-dark";
+                                                                        statusColor = "badge-warning text-dark";
                                                                         break;
                                                                     case "Đã xác nhận":
                                                                     case "Confirmed":
-                                                                        statusColor = "bg-success";
+                                                                        statusColor = "badge-success";
                                                                         break;
                                                                     case "Đã hủy":
                                                                     case "Cancelled":
-                                                                        statusColor = "bg-danger";
+                                                                        statusColor = "badge-danger";
                                                                         break;
                                                                     case "Hoàn thành":
                                                                     case "Completed":
-                                                                        statusColor = "bg-primary";
+                                                                        statusColor = "badge-primary";
                                                                         break;
                                                                     case "Đang xử lý":
                                                                     case "Processing":
-                                                                        statusColor = "bg-info text-dark";
+                                                                        statusColor = "badge-info text-dark";
                                                                         break;
                                                                     default:
-                                                                        statusColor = "bg-light text-dark";
+                                                                        statusColor = "badge-light text-dark";
                                                                         break;
                                                                 }
                                                             }
@@ -201,7 +201,7 @@
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header bg-light border-0">
                                 <h6 class="card-title mb-0">
-                                    <i class="fas fa-bolt me-2 text-warning"></i>Hiệu suất làm việc
+                                    <i class="fas fa-bolt mr-2 text-warning"></i>Hiệu suất làm việc
                                 </h6>
                             </div>
                             <div class="card-body">
@@ -231,7 +231,7 @@
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header bg-gradient-primary text-white">
                                 <h6 class="card-title mb-0">
-                                    <i class="fas fa-chart-pie me-2"></i>Thống kê nhanh
+                                    <i class="fas fa-chart-pie mr-2"></i>Thống kê nhanh
                                 </h6>
                             </div>
                             <div class="card-body">

@@ -58,7 +58,7 @@
                         <ol class="breadcrumb small mb-0">
                             <li class="breadcrumb-item">
                                 <a href="@Url.Action("List_Customer", "User")" class="text-decoration-none">
-                                    <i class="fas fa-users me-1"></i>Danh sách khách hàng
+                                    <i class="fas fa-users mr-1"></i>Danh sách khách hàng
                                 </a>
                             </li>
                             <li class="breadcrumb-item active">Chi tiết</li>
@@ -67,7 +67,7 @@
                 </div>
                 <div>
                     <a href="/Admin/List_Customer" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                        <i class="fas fa-arrow-left mr-2"></i>Quay lại
                     </a>
                 </div>
             </div>
@@ -117,9 +117,9 @@
                             <label class="form-label small text-muted">Địa chỉ</label>
                             <textarea name="Address" class="form-control" rows="2" placeholder="Nhập địa chỉ">@Model.User.Address</textarea>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-save mr-2"></i>Lưu thay đổi
                         </button>
                     </form>
                 </div>
@@ -128,8 +128,8 @@
             <!-- Statistics Card -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light">
-                    <h6 class="card-title mb-0 text-primary fw-bold">
-                        <i class="fas fa-chart-pie me-2"></i>Thống kê tổng quan
+                    <h6 class="card-title mb-0 text-primary font-weight-bold">
+                        <i class="fas fa-chart-pie mr-2"></i>Thống kê tổng quan
                     </h6>
                 </div>
                 <div class="card-body p-0">
@@ -165,37 +165,37 @@
 
         <!-- Right Content Area -->
         <div class="col-xl-9 col-lg-8">
-            <!-- Tab Navigation -->
+            <!-- Tab Navigation - Bootstrap 4 -->
             <ul class="nav nav-tabs nav-justified mb-4" id="customerTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active d-flex align-items-center justify-content-center" id="pets-tab" data-bs-toggle="tab" data-bs-target="#pets" type="button" role="tab">
-                        <i class="fas fa-paw fa-lg me-2 text-primary"></i>
-                        <span class="fw-medium">Thú cưng</span>
-                    </button>
+                    <a class="nav-link active d-flex align-items-center justify-content-center" id="pets-tab" data-toggle="tab" href="#pets" role="tab" aria-controls="pets" aria-selected="true">
+                        <i class="fas fa-paw fa-lg mr-2 text-primary"></i>
+                        <span class="font-weight-medium">Thú cưng</span>
+                    </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link d-flex align-items-center justify-content-center" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button" role="tab">
-                        <i class="fas fa-calendar-alt fa-lg me-2 text-success"></i>
-                        <span class="fw-medium">Lịch hẹn</span>
-                    </button>
+                    <a class="nav-link d-flex align-items-center justify-content-center" id="appointments-tab" data-toggle="tab" href="#appointments" role="tab" aria-controls="appointments" aria-selected="false">
+                        <i class="fas fa-calendar-alt fa-lg mr-2 text-success"></i>
+                        <span class="font-weight-medium">Lịch hẹn</span>
+                    </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link d-flex align-items-center justify-content-center" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
-                        <i class="fas fa-shopping-cart fa-lg me-2 text-warning"></i>
-                        <span class="fw-medium">Đơn hàng</span>
-                    </button>
+                    <a class="nav-link d-flex align-items-center justify-content-center" id="orders-tab" data-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false">
+                        <i class="fas fa-shopping-cart fa-lg mr-2 text-warning"></i>
+                        <span class="font-weight-medium">Đơn hàng</span>
+                    </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link d-flex align-items-center justify-content-center" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
-                        <i class="fas fa-star fa-lg me-2 text-info"></i>
-                        <span class="fw-medium">Đánh giá</span>
-                    </button>
+                    <a class="nav-link d-flex align-items-center justify-content-center" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">
+                        <i class="fas fa-star fa-lg mr-2 text-info"></i>
+                        <span class="font-weight-medium">Đánh giá</span>
+                    </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link d-flex align-items-center justify-content-center" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">
-                        <i class="fas fa-credit-card fa-lg me-2 text-danger"></i>
-                        <span class="fw-medium">Thanh toán</span>
-                    </button>
+                    <a class="nav-link d-flex align-items-center justify-content-center" id="payments-tab" data-toggle="tab" href="#payments" role="tab" aria-controls="payments" aria-selected="false">
+                        <i class="fas fa-credit-card fa-lg mr-2 text-danger"></i>
+                        <span class="font-weight-medium">Thanh toán</span>
+                    </a>
                 </li>
             </ul>
 
@@ -206,9 +206,9 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-gradient-light d-flex justify-content-between align-items-center py-3">
                             <h6 class="mb-0 d-flex align-items-center">
-                                <i class="fas fa-paw text-primary me-2"></i> Danh sách thú cưng
+                                <i class="fas fa-paw text-primary mr-2"></i> Danh sách thú cưng
                             </h6>
-                            <span class="badge bg-primary rounded-pill px-3 py-2">@Model.Pets?.Count() thú cưng</span>
+                            <span class="badge badge-primary rounded-pill px-3 py-2">@Model.Pets?.Count() thú cưng</span>
                         </div>
                         <div class="card-body p-0">
                             @if (Model.Pets != null && Model.Pets.Any())
@@ -255,9 +255,9 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-gradient-light d-flex justify-content-between align-items-center py-3">
                             <h6 class="mb-0 d-flex align-items-center">
-                                <i class="fas fa-calendar-check text-success me-2"></i> Lịch sử lịch hẹn
+                                <i class="fas fa-calendar-check text-success mr-2"></i> Lịch sử lịch hẹn
                             </h6>
-                            <span class="badge bg-success rounded-pill px-3 py-2">@Model.Appointments?.Count() lịch hẹn</span>
+                            <span class="badge badge-success rounded-pill px-3 py-2">@Model.Appointments?.Count() lịch hẹn</span>
                         </div>
                         <div class="card-body p-0">
                             @if (Model.Appointments != null && Model.Appointments.Any())
@@ -277,38 +277,38 @@
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            <i class="fas fa-calendar-day me-2 text-primary"></i>
+                                                            <i class="fas fa-calendar-day mr-2 text-primary"></i>
                                                             @appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")
                                                         </div>
                                                     </td>
                                                     <td>
                                                         @{
                                                             var statusName = appt.Status?.StatusName ?? "Không rõ";
-                                                            var statusColor = "bg-light text-dark";
+                                                            var statusColor = "badge-light text-dark";
                                                             switch (statusName)
                                                             {
                                                                 case "Chờ xác nhận":
                                                                 case "Pending":
-                                                                    statusColor = "bg-warning text-dark";
+                                                                    statusColor = "badge-warning text-dark";
                                                                     break;
                                                                 case "Đã xác nhận":
                                                                 case "Confirmed":
-                                                                    statusColor = "bg-success";
+                                                                    statusColor = "badge-success";
                                                                     break;
                                                                 case "Đã hủy":
                                                                 case "Cancelled":
-                                                                    statusColor = "bg-danger";
+                                                                    statusColor = "badge-danger";
                                                                     break;
                                                                 case "Hoàn thành":
                                                                 case "Completed":
-                                                                    statusColor = "bg-primary";
+                                                                    statusColor = "badge-primary";
                                                                     break;
                                                                 case "Đang xử lý":
                                                                 case "Processing":
-                                                                    statusColor = "bg-info text-dark";
+                                                                    statusColor = "badge-info text-dark";
                                                                     break;
                                                                 default:
-                                                                    statusColor = "bg-light text-dark";
+                                                                    statusColor = "badge-light text-dark";
                                                                     break;
                                                             }
                                                         }
@@ -337,9 +337,9 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-gradient-light d-flex justify-content-between align-items-center py-3">
                             <h6 class="mb-0 d-flex align-items-center">
-                                <i class="fas fa-shopping-bag text-warning me-2"></i> Lịch sử đơn hàng
+                                <i class="fas fa-shopping-bag text-warning mr-2"></i> Lịch sử đơn hàng
                             </h6>
-                            <span class="badge bg-warning rounded-pill px-3 py-2">@Model.Orders?.Count() đơn hàng</span>
+                            <span class="badge badge-warning rounded-pill px-3 py-2">@Model.Orders?.Count() đơn hàng</span>
                         </div>
                         <div class="card-body p-0">
                             @if (Model.Orders != null && Model.Orders.Any())
@@ -359,37 +359,37 @@
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            <i class="fas fa-shopping-bag me-2 text-warning"></i>
+                                                            <i class="fas fa-shopping-bag mr-2 text-warning"></i>
                                                             @(order.OrderDate.HasValue ? order.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "")
                                                         </div>
                                                     </td>
                                                     <td><strong class="text-success">@order.TotalAmount.ToString("N0") đ</strong></td>
                                                     <td>
                                                         @{
-                                                            var orderStatusClass = "bg-secondary";
+                                                            var orderStatusClass = "badge-secondary";
                                                             var orderStatusName = "Chưa xác định";
                                                             var orderStatusId = order.StatusId;
-                                                            
+
                                                             switch (orderStatusId)
                                                             {
                                                                 case 1:
-                                                                    orderStatusClass = "bg-warning text-dark";
+                                                                    orderStatusClass = "badge-warning text-dark";
                                                                     orderStatusName = "Đang chờ xử lý";
                                                                     break;
                                                                 case 2:
-                                                                    orderStatusClass = "bg-info text-white";
+                                                                    orderStatusClass = "badge-info text-white";
                                                                     orderStatusName = "Đang chuẩn bị";
                                                                     break;
                                                                 case 3:
-                                                                    orderStatusClass = "bg-primary";
+                                                                    orderStatusClass = "badge-primary";
                                                                     orderStatusName = "Đã giao vận chuyển";
                                                                     break;
                                                                 case 4:
-                                                                    orderStatusClass = "bg-success";
+                                                                    orderStatusClass = "badge-success";
                                                                     orderStatusName = "Đã giao";
                                                                     break;
                                                                 case 5:
-                                                                    orderStatusClass = "bg-danger";
+                                                                    orderStatusClass = "badge-danger";
                                                                     orderStatusName = "Đã hủy";
                                                                     break;
                                                             }
@@ -418,9 +418,9 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-gradient-light d-flex justify-content-between align-items-center py-3">
                             <h6 class="mb-0 d-flex align-items-center">
-                                <i class="fas fa-star text-info me-2"></i> Đánh giá của khách hàng
+                                <i class="fas fa-star text-info mr-2"></i> Đánh giá của khách hàng
                             </h6>
-                            <span class="badge bg-info rounded-pill px-3 py-2">@Model.Reviews?.Count() đánh giá</span>
+                            <span class="badge badge-info rounded-pill px-3 py-2">@Model.Reviews?.Count() đánh giá</span>
                         </div>
                         <div class="card-body p-0">
                             @if (Model.Reviews != null && Model.Reviews.Any())
@@ -444,20 +444,20 @@
                                     <td>
                                         @if (review.ProductId != null)
                                         {
-                                            <span class="badge bg-primary">
-                                                <i class="fas fa-box me-1"></i>Sản phẩm: @review.ProductId
+                                            <span class="badge badge-primary">
+                                                <i class="fas fa-box mr-1"></i>Sản phẩm: @review.ProductId
                                             </span>
                                         }
                                         else if (review.ServiceId != null)
                                         {
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-spa me-1"></i>Dịch vụ: @review.ServiceId
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-spa mr-1"></i>Dịch vụ: @review.ServiceId
                                             </span>
                                         }
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <span class="me-2">@review.Rating</span>
+                                            <span class="mr-2">@review.Rating</span>
                                             <div class="text-warning">
                                                 @for (int i = 1; i <= 5; i++)
                                                 {
@@ -478,9 +478,9 @@
                                             <div class="accordion accordion-flush" id="replyAccordion-@review.ReviewId">
                                                 <div class="accordion-item border-0">
                                                     <h2 class="accordion-header" id="replyHeading-@review.ReviewId">
-                                                        <button class="btn btn-sm btn-outline-info" type="button" 
-                                                                data-bs-toggle="collapse" data-bs-target="#replyCollapse-@review.ReviewId">
-                                                            <i class="fas fa-comments me-1"></i> Xem (@replies.Count) phản hồi
+                                                        <button class="btn btn-sm btn-outline-info" type="button"
+                                                                data-toggle="collapse" data-target="#replyCollapse-@review.ReviewId">
+                                                            <i class="fas fa-comments mr-1"></i> Xem (@replies.Count) phản hồi
                                                         </button>
                                                     </h2>
                                                     <div id="replyCollapse-@review.ReviewId" class="accordion-collapse collapse"
@@ -500,7 +500,7 @@
                                                                                 @(reply.User?.FullName ?? reply.User?.Username ?? "Admin")
                                                                                 @if(reply.User?.RoleId == 1)
                                                                                 {
-                                                                                    <span class="badge bg-primary ms-1">Admin</span>
+                                                                                    <span class="badge badge-primary ml-1">Admin</span>
                                                                                 }
                                                                             }
                                                                         </span>
@@ -525,7 +525,7 @@
                                         }
                                         else if (review.Rating == 1)
                                         {
-                                            <span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Cần phản hồi</span>
+                                            <span class="text-danger"><i class="fas fa-exclamation-circle mr-1"></i>Cần phản hồi</span>
                                         }
                                         else
                                         {
@@ -535,9 +535,9 @@
                                     <td>
                                         @if((replies == null || !replies.Any()))
                                         {
-                                            <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                    data-bs-toggle="modal" data-bs-target="#replyModal-@review.ReviewId">
-                                                <i class="fas fa-reply me-1"></i> Phản hồi
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    data-toggle="modal" data-target="#replyModal-@review.ReviewId">
+                                                <i class="fas fa-reply mr-1"></i> Phản hồi
                                             </button>
                                             
                                             <!-- Modal phản hồi -->
@@ -593,9 +593,9 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-gradient-light d-flex justify-content-between align-items-center py-3">
                             <h6 class="mb-0 d-flex align-items-center">
-                                <i class="fas fa-money-check-alt text-danger me-2"></i> Lịch sử thanh toán
+                                <i class="fas fa-money-check-alt text-danger mr-2"></i> Lịch sử thanh toán
                             </h6>
-                            <span class="badge bg-danger rounded-pill px-3 py-2">@Model.Payments?.Count() thanh toán</span>
+                            <span class="badge badge-danger rounded-pill px-3 py-2">@Model.Payments?.Count() thanh toán</span>
                         </div>
                         <div class="card-body p-0">
                             @if (Model.Payments != null && Model.Payments.Any())
@@ -616,16 +616,16 @@
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            <i class="fas fa-money-bill-wave me-2 text-success"></i>
+                                                            <i class="fas fa-money-bill-wave mr-2 text-success"></i>
                                                             @(pay.PaymentDate.HasValue ? pay.PaymentDate.Value.ToString("dd/MM/yyyy HH:mm") : "")
                                                         </div>
                                                     </td>
                                                     <td><strong class="text-success">@pay.Amount.ToString("N0") đ</strong></td>
                                                     <td>
-                                                        <span class="badge bg-outline-primary">@pay.PaymentMethodId</span>
+                                                        <span class="badge badge-outline-primary">@pay.PaymentMethodId</span>
                                                     </td>
                                                     <td>
-                                                        <span class="badge bg-success">@pay.PaymentStatusId</span>
+                                                        <span class="badge badge-success">@pay.PaymentStatusId</span>
                                                     </td>
                                                 </tr>
                                             }
