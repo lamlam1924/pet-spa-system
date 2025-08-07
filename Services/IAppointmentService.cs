@@ -19,6 +19,22 @@ namespace pet_spa_system1.Services
         /// <param name="staffId">Id nhân viên được gán (nếu có)</param>
         void SendAppointmentNotificationMail(int appointmentId, string type, int? staffId);
 
+        /// <summary>
+        /// Cập nhật trạng thái appointment bởi staff
+        /// </summary>
+        /// <param name="appointmentId">Id lịch hẹn</param>
+        /// <param name="statusId">Id trạng thái mới</param>
+        /// <param name="staffId">Id nhân viên thực hiện</param>
+        /// <returns>True nếu thành công</returns>
+        bool UpdateAppointmentStatus(int appointmentId, int statusId, int staffId);
+
+        /// <summary>
+        /// Lấy chi tiết appointment cho staff
+        /// </summary>
+        /// <param name="appointmentId">Id lịch hẹn</param>
+        /// <returns>Chi tiết appointment</returns>
+        object GetAppointmentDetail(int appointmentId);
+
         int CalculateDurationMinutes(int appointmentId);
         bool SaveAppointment(AppointmentViewModel vm, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);

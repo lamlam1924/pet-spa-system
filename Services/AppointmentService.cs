@@ -868,6 +868,73 @@ namespace pet_spa_system1.Services
             return true;
         }
 
+        public bool UpdateAppointmentStatus(int appointmentId, int statusId, int staffId)
+        {
+            try
+            {
+                var appointment = _appointmentRepository.GetById(appointmentId);
+                if (appointment == null || appointment.EmployeeId != staffId)
+                {
+                    return false;
+                }
+
+                appointment.StatusId = statusId;
+                _appointmentRepository.Update(appointment);
+                _appointmentRepository.Save();
+
+                // Gửi email thông báo nếu cần
+                if (statusId == 4) // Hoàn thành
+                {
+                    SendAppointmentNotificationMail(appointmentId, "completed", staffId);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating appointment status: {ex.Message}");
+                return false;
+            }
+        }
+
+        public object GetAppointmentDetail(int appointmentId)
+        {
+            try
+            {
+                var appointment = _appointmentRepository.GetById(appointmentId);
+                if (appointment == null) return null;
+
+                return new
+                {
+                    appointmentId = appointment.AppointmentId,
+                    appointmentDate = appointment.AppointmentDate,
+                    notes = appointment.Notes,
+                    status = appointment.Status != null ? new { statusName = appointment.Status.StatusName } : null,
+                    user = appointment.User != null ? new
+                    {
+                        fullName = !string.IsNullOrEmpty(appointment.User.FullName) ? appointment.User.FullName : appointment.User.Username,
+                        username = appointment.User.Username,
+                        email = appointment.User.Email,
+                        phone = appointment.User.Phone
+                    } : null,
+                    employeeId = appointment.EmployeeId,
+                    appointmentPets = appointment.AppointmentPets?.Select(ap => new
+                    {
+                        pet = new { name = ap.Pet?.Name }
+                    }).ToList(),
+                    appointmentServices = appointment.AppointmentServices?.Select(aps => new
+                    {
+                        service = new { name = aps.Service?.Name }
+                    }).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting appointment detail: {ex.Message}");
+                return null;
+            }
+        }
+
         public ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "",
             string service = "", string status = "")
         {

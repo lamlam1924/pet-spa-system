@@ -1,0 +1,546 @@
+@{
+    ViewData["Title"] = "Lịch hẹn của tôi";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/staff-appointments.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        /* Đồng bộ màu sắc trạng thái với MySchedule */
+        .badge.bg-pending {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+        .badge.bg-confirmed {
+            background-color: #0d6efd !important;
+            color: #fff !important;
+        }
+        .badge.bg-inprogress {
+            background-color: #198754 !important;
+            color: #fff !important;
+        }
+        .badge.bg-completed {
+            background-color: #6c757d !important;
+            color: #fff !important;
+        }
+        .badge.bg-cancelled {
+            background-color: #dc3545 !important;
+            color: #fff !important;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">Lịch hẹn của tôi</h2>
+                    <p class="text-muted mb-0">Quản lý và theo dõi lịch hẹn được giao</p>
+                </div>
+                <button class="btn btn-primary" onclick="refreshAppointments()">
+                    <i class="fas fa-sync-alt me-2"></i>Làm mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="dateFilter" class="form-label">Ngày</label>
+                            <input type="date" class="form-control" id="dateFilter">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="statusFilter" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Tất cả</option>
+                                <option value="1">Đang chờ xử lý</option>
+                                <option value="2">Đã xác nhận</option>
+                                <option value="3">Đang thực hiện</option>
+                                <option value="4">Hoàn thành</option>
+                                <option value="5">Đã hủy</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="timeFilter" class="form-label">Thời gian</label>
+                            <select class="form-select" id="timeFilter">
+                                <option value="">Tất cả</option>
+                                <option value="today">Hôm nay</option>
+                                <option value="tomorrow">Ngày mai</option>
+                                <option value="week">Tuần này</option>
+                                <option value="month">Tháng này</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-outline-primary w-100" onclick="applyFilters()">
+                                <i class="fas fa-filter me-2"></i>Lọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Danh sách lịch hẹn
+                    </h5>
+                    <span class="badge bg-primary" id="appointmentCount">0 lịch hẹn</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="appointmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Ngày giờ</th>
+                                    <th>Khách hàng</th>
+                                    <th>Liên hệ</th>
+                                    <th>Thú cưng</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Đang tải...</span>
+                                        </div>
+                                        <p class="mt-2 mb-0">Đang tải dữ liệu...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Detail Modal -->
+<div class="modal fade" id="appointmentDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết lịch hẹn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="appointmentDetailContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <div id="appointmentActions">
+                    <!-- Action buttons will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật trạng thái</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="statusUpdateForm">
+                    <input type="hidden" id="updateAppointmentId">
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label">Trạng thái mới</label>
+                        <select class="form-select" id="newStatus" required>
+                            <option value="">Chọn trạng thái</option>
+                            <option value="3">Đang thực hiện</option>
+                            <option value="4">Hoàn thành</option>
+                            <option value="5">Hủy lịch hẹn</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="cancelReasonGroup" style="display: none;">
+                        <label for="cancelReason" class="form-label">Lý do hủy</label>
+                        <textarea class="form-control" id="cancelReason" rows="3" placeholder="Nhập lý do hủy lịch hẹn..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="updateAppointmentStatus()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+    <script src="~/js/staff-appointments.js"></script>
+    <script>
+        $(document).ready(function() {
+            initializeAppointmentsPage();
+            loadAppointments();
+            setupStatusModal();
+        });
+
+        function setupStatusModal() {
+            $('#newStatus').on('change', function() {
+                const statusId = $(this).val();
+                if (statusId === '5') { // Hủy lịch hẹn
+                    $('#cancelReasonGroup').show();
+                    $('#cancelReason').prop('required', true);
+                } else {
+                    $('#cancelReasonGroup').hide();
+                    $('#cancelReason').prop('required', false);
+                    $('#cancelReason').val('');
+                }
+            });
+        }
+
+        function initializeAppointmentsPage() {
+            // Initialize date picker
+            flatpickr("#dateFilter", {
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                defaultDate: "today"
+            });
+
+            // Set up event handlers
+            $('#statusFilter, #timeFilter').on('change', applyFilters);
+            $('#newStatus').on('change', function() {
+                if ($(this).val() === '5') {
+                    $('#cancelReasonGroup').show();
+                } else {
+                    $('#cancelReasonGroup').hide();
+                }
+            });
+        }
+
+        function loadAppointments() {
+            const filters = getFilters();
+
+            $.get('/Staff/GetMyAppointments', filters, function(response) {
+                if (response.success) {
+                    displayAppointments(response.data);
+                } else {
+                    showError('Không thể tải danh sách lịch hẹn');
+                }
+            }).fail(function() {
+                showError('Lỗi kết nối. Vui lòng thử lại.');
+            });
+        }
+
+        function getFilters() {
+            const filters = {};
+            
+            const date = $('#dateFilter').val();
+            if (date) filters.date = date;
+            
+            const statusId = $('#statusFilter').val();
+            if (statusId) filters.statusId = statusId;
+            
+            const timeFilter = $('#timeFilter').val();
+            if (timeFilter) {
+                const today = new Date();
+                switch (timeFilter) {
+                    case 'today':
+                        filters.date = today.toISOString().split('T')[0];
+                        break;
+                    case 'tomorrow':
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        filters.date = tomorrow.toISOString().split('T')[0];
+                        break;
+                    // Add more time filter logic as needed
+                }
+            }
+            
+            return filters;
+        }
+
+        function applyFilters() {
+            loadAppointments();
+        }
+
+        function refreshAppointments() {
+            loadAppointments();
+        }
+
+        function displayAppointments(appointments) {
+            const tbody = $('#appointmentsTableBody');
+            tbody.empty();
+            
+            $('#appointmentCount').text(`${appointments.length} lịch hẹn`);
+            
+            if (appointments.length === 0) {
+                tbody.append(`
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Không có lịch hẹn nào</p>
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+            
+            appointments.forEach(function(appointment) {
+                const row = createAppointmentRow(appointment);
+                tbody.append(row);
+            });
+        }
+
+        function createAppointmentRow(appointment) {
+            const statusColor = getStatusColor(appointment.status?.statusName);
+            const dateTime = new Date(appointment.appointmentDate).toLocaleString('vi-VN');
+            
+            return `
+                <tr>
+                    <td>${dateTime}</td>
+                    <td>
+                        <div>
+                            <strong>${appointment.user?.fullName || appointment.user?.username || 'N/A'}</strong>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small">
+                            <div><i class="fas fa-envelope me-1"></i>${appointment.user?.email || 'N/A'}</div>
+                            <div><i class="fas fa-phone me-1"></i>${appointment.user?.phone || 'N/A'}</div>
+                        </div>
+                    </td>
+                    <td>${getPetNames(appointment.appointmentPets)}</td>
+                    <td>${getServiceNames(appointment.appointmentServices)}</td>
+                    <td>
+                        <span class="badge bg-${statusColor}">
+                            ${appointment.status?.statusName || 'N/A'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewAppointmentDetail(${appointment.appointmentId})" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${canUpdateStatus(appointment.status?.statusName) ? 
+                                `<button class="btn btn-sm btn-outline-success" onclick="showStatusUpdateModal(${appointment.appointmentId})" title="Cập nhật trạng thái">
+                                    <i class="fas fa-edit"></i>
+                                </button>` : ''
+                            }
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function getPetNames(appointmentPets) {
+            if (!appointmentPets || appointmentPets.length === 0) return 'N/A';
+            return appointmentPets.map(ap => ap.pet?.name || 'N/A').join(', ');
+        }
+
+        function getServiceNames(appointmentServices) {
+            if (!appointmentServices || appointmentServices.length === 0) return 'N/A';
+            return appointmentServices.map(as => as.service?.name || 'N/A').join(', ');
+        }
+
+        function getStatusColor(status) {
+            // Đồng bộ với MySchedule - trả về class tương ứng với màu sắc đã định
+            switch (status) {
+                case 'Pending':
+                case 'Đang chờ xử lý':
+                    return 'pending'; // #ffc107 - Vàng
+                case 'Confirmed':
+                case 'Đã xác nhận':
+                    return 'confirmed'; // #0d6efd - Xanh dương
+                case 'InProgress':
+                case 'Đang thực hiện':
+                    return 'inprogress'; // #198754 - Xanh lá
+                case 'Completed':
+                case 'Hoàn thành':
+                    return 'completed'; // #6c757d - Xám
+                case 'Cancelled':
+                case 'Đã hủy':
+                    return 'cancelled'; // #dc3545 - Đỏ
+                default:
+                    return 'pending';
+            }
+        }
+
+        function canUpdateStatus(status) {
+            return ['Đã xác nhận', 'Đang thực hiện'].includes(status);
+        }
+
+        function showError(message) {
+            $('#appointmentsTableBody').html(`
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                        <p class="text-danger mb-0">${message}</p>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadAppointments()">
+                            <i class="fas fa-retry me-1"></i>Thử lại
+                        </button>
+                    </td>
+                </tr>
+            `);
+        }
+
+        function viewAppointmentDetail(appointmentId) {
+            $.get('/Staff/AppointmentDetail', { id: appointmentId }, function(response) {
+                if (response.success) {
+                    showAppointmentDetailModal(response.data);
+                } else {
+                    showNotification(response.message || 'Không thể tải chi tiết lịch hẹn', 'error');
+                }
+            }).fail(function() {
+                showNotification('Không thể tải chi tiết lịch hẹn', 'error');
+            });
+        }
+
+        function showAppointmentDetailModal(appointment) {
+            const modalContent = createAppointmentDetailContent(appointment);
+            $('#appointmentDetailContent').html(modalContent);
+
+            // Add action buttons
+            const canUpdate = canUpdateStatus(appointment.status?.statusName);
+            const actionButtons = canUpdate ?
+                `<button type="button" class="btn btn-primary" onclick="showStatusUpdateFromDetail(${appointment.appointmentId})">
+                    <i class="fas fa-edit me-1"></i>Cập nhật trạng thái
+                </button>` : '';
+            $('#appointmentActions').html(actionButtons);
+
+            $('#appointmentDetailModal').modal('show');
+        }
+
+        function createAppointmentDetailContent(appointment) {
+            const dateTime = new Date(appointment.appointmentDate).toLocaleString('vi-VN');
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="fas fa-user me-2"></i>Thông tin khách hàng
+                        </h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Tên:</strong></td><td>${appointment.user?.fullName || appointment.user?.username || 'N/A'}</td></tr>
+                            <tr><td><strong>Email:</strong></td><td>${appointment.user?.email || 'N/A'}</td></tr>
+                            <tr><td><strong>Điện thoại:</strong></td><td>${appointment.user?.phone || 'N/A'}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="fas fa-calendar me-2"></i>Thông tin lịch hẹn
+                        </h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Ngày giờ:</strong></td><td>${dateTime}</td></tr>
+                            <tr><td><strong>Trạng thái:</strong></td><td>
+                                <span class="badge bg-${getStatusColor(appointment.status?.statusName)}">
+                                    ${appointment.status?.statusName || 'N/A'}
+                                </span>
+                            </td></tr>
+                            <tr><td><strong>Mã lịch hẹn:</strong></td><td>#${appointment.appointmentId}</td></tr>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary"><i class="fas fa-paw me-2"></i>Thú cưng</h6>
+                        <div class="border rounded p-2 bg-light">${getPetNames(appointment.appointmentPets)}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary"><i class="fas fa-spa me-2"></i>Dịch vụ</h6>
+                        <div class="border rounded p-2 bg-light">${getServiceNames(appointment.appointmentServices)}</div>
+                    </div>
+                </div>
+                ${appointment.notes ? `
+                    <hr>
+                    <h6 class="text-primary"><i class="fas fa-sticky-note me-2"></i>Ghi chú</h6>
+                    <div class="border rounded p-2 bg-light">${appointment.notes}</div>
+                ` : ''}
+            `;
+        }
+
+        function showStatusUpdateModal(appointmentId) {
+            $('#updateAppointmentId').val(appointmentId);
+            $('#newStatus').val('');
+            $('#cancelReason').val('');
+            $('#cancelReasonGroup').hide();
+            $('#statusUpdateModal').modal('show');
+        }
+
+        function showStatusUpdateFromDetail(appointmentId) {
+            $('#appointmentDetailModal').modal('hide');
+            setTimeout(() => {
+                showStatusUpdateModal(appointmentId);
+            }, 300);
+        }
+
+        function updateAppointmentStatus() {
+            const appointmentId = $('#updateAppointmentId').val();
+            const statusId = $('#newStatus').val();
+            const cancelReason = $('#cancelReason').val();
+
+            if (!statusId) {
+                showNotification('Vui lòng chọn trạng thái', 'warning');
+                return;
+            }
+
+            if (statusId === '5' && !cancelReason.trim()) {
+                showNotification('Vui lòng nhập lý do hủy', 'warning');
+                return;
+            }
+
+            const data = {
+                appointmentId: appointmentId,
+                statusId: parseInt(statusId)
+            };
+
+            if (cancelReason) {
+                data.reason = cancelReason;
+            }
+
+            $.post('/Staff/UpdateAppointmentStatus', data, function(response) {
+                if (response.success) {
+                    showNotification('Cập nhật trạng thái thành công', 'success');
+                    $('#statusUpdateModal').modal('hide');
+                    loadAppointments();
+                } else {
+                    showNotification(response.message || 'Có lỗi xảy ra', 'error');
+                }
+            }).fail(function() {
+                showNotification('Không thể cập nhật trạng thái', 'error');
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const alertClass = type === 'error' ? 'alert-danger' :
+                              type === 'success' ? 'alert-success' :
+                              type === 'warning' ? 'alert-warning' : 'alert-info';
+
+            const notification = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show position-fixed"
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+
+            $('body').append(notification);
+
+            setTimeout(function() {
+                notification.alert('close');
+            }, 5000);
+        }
+    </script>
+}

@@ -49,15 +49,25 @@ namespace pet_spa_system1.Controllers
         public async Task<IActionResult> Index()
         {
             int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            int? roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
+
             if (userId == null)
             {
                 return RedirectToAction("Login", "Login");
             }
+
             var currentUser = await _userService.GetUserByIdAsync(userId.Value);
             if (currentUser == null)
             {
                 return RedirectToAction("Login", "Login");
             }
+
+            // Nếu là staff (RoleId = 3), chuyển hướng đến Staff Dashboard
+            if (roleId == 3)
+            {
+                return RedirectToAction("StaffDashboard", "Staff");
+            }
+
             var userModel = new UserViewModel
             {
                 UserName = currentUser.Username,

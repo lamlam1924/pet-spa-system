@@ -64,6 +64,10 @@ namespace pet_spa_system1.Controllers
             {
                 return RedirectToAction("Index", "Admin");
             }
+            else if (user.RoleId == 3)
+            {
+                return RedirectToAction("StaffDashboard", "Staff");
+            }
             else
             {
                 return RedirectToAction("Index", "Home");
@@ -170,6 +174,10 @@ namespace pet_spa_system1.Controllers
             if (user.RoleId == 1)
             {
                 return RedirectToAction("Index", "Admin");
+            }
+            else if (user.RoleId == 3)
+            {
+                return RedirectToAction("StaffDashboard", "Staff");
             }
             else
             {
