@@ -379,7 +379,7 @@
                     url: '/AdminAppointment/SearchStaffs',
                     dataType: 'json',
                     delay: 250,
-                    data: function(params) { return { term: params.term }; },
+                        data: function(params) { return { term: params.term, appointmentId: $('#mainAppointmentId').val() }; },
                     processResults: function(data) { 
                         console.log("Kết quả tìm kiếm nhân viên cho thú cưng #" + petId + ":", data.results);
                         return { results: data.results }; 
