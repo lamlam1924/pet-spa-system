@@ -314,8 +314,8 @@ namespace pet_spa_system1.Controllers
         //     return RedirectToAction("StaffDetail", new { id = model.UserId });
         // }
 
-
-
+        
+        
         [HttpGet]
         [Route("User/StaffStats")]
         public async Task<IActionResult> StaffStats(int id)

@@ -1,4 +1,4 @@
-@model List<pet_spa_system1.Models.Appointment>
+@model pet_spa_system1.ViewModel.CalendarViewModel
 @{
     ViewData["Title"] = "Lịch hẹn theo thời gian";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
@@ -88,21 +88,7 @@
     <script src="~/cssjsAppointment/js/appointment-calendar.js"></script>
     <script id="calendar-data-script" type="application/json">
         @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-            (Model ?? new List<pet_spa_system1.Models.Appointment>())
-                .Where(a => a != null)
-                .Select(a => new {
-                    id = a.AppointmentId,
-                    title = (((a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Any())
-                        ? string.Join(", ", (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? ""))
-                        : "Lịch hẹn"),
-                    start = a.AppointmentDate.ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = (a.AppointmentDate.AddHours(1)).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    status = a.Status?.StatusName ?? "",
-                    customer = a.User?.FullName ?? "",
-                    phone = a.User?.Phone ?? "",
-                    petNames = (a.AppointmentPets ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentPet>()).Select(p => p.Pet?.Name ?? "").ToList(),
-                    services = (a.AppointmentServices ?? Enumerable.Empty<pet_spa_system1.Models.AppointmentService>()).Select(s => s.Service?.Name ?? "").ToList()
-                })
+            Model?.Events ?? new List<pet_spa_system1.ViewModel.CalendarEventViewModel>()
         ))
     </script>
 }

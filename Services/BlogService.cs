@@ -580,7 +580,7 @@ public class BlogService : IBlogService
             UserRole = GetUserRoleName(comment.User.RoleId),
             UserAvatar = comment.User.ProfilePictureUrl,
             ParentCommentId = comment.ParentCommentId,
-            Replies = comment.Replies.Where(r => r.Status == "Approved").Select(MapToCommentViewModel).ToList(),
+            Replies = comment.InverseParentComment.Where(r => r.Status == "Approved").Select(MapToCommentViewModel).ToList(),
             CanReply = true
         };
     }

@@ -1,6 +1,7 @@
-﻿
+
 using System.Collections.Generic;
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.ViewModel
 {
@@ -9,6 +10,6 @@ namespace pet_spa_system1.ViewModel
         public List<AppointmentViewModel> PendingAppointments { get; set; } = new();
         public List<StaffViewModel> StaffList { get; set; } = new();
         public List<StatusAppointment> Statuses { get; set; } = new();
-        public int? Page { get; set; } // Trang hiện tại cho phân trang
+    public int? Page { get; set; } // Trang hiện tại cho phân trang
     }
 }

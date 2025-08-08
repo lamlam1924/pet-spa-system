@@ -62,7 +62,7 @@
             </li>
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Quản lý</div>
-            @* <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="@Url.Content("~/Admin/Staff")" data-toggle="collapse" data-target="#collapseStaff" aria-expanded="false">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Nhân viên</span>
@@ -73,7 +73,7 @@
                         <a class="collapse-item" href="@Url.Content("~/Admin/Staff")">Danh sách nhân viên</a>
                     </div>
                 </div>
-            </li> *@
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="@Url.Action("List_Customer", "Admin")">
                     <i class="fas fa-fw fa-user-friends"></i>
@@ -121,7 +121,7 @@
                         <a class="collapse-item" href="@Url.Action("Index", "AdminService")">Tổng quan dịch vụ</a>
                         <a class="collapse-item" href="@Url.Action("ServiceList", "AdminService")">Danh sách dịch vụ</a>
                         <a class="collapse-item" href="@Url.Action("AddService", "AdminService")">Thêm dịch vụ mới</a>
-                        @* <a class="collapse-item" href="@Url.Action("ServiceCategory", "AdminService")">Quản lý danh mục</a> *@
+                        <a class="collapse-item" href="@Url.Action("ServiceCategory", "AdminService")">Quản lý danh mục</a>
                     </div>
                 </div>
             </li>
@@ -147,14 +147,14 @@
                         <h6 class="collapse-header">Quản lý lịch hẹn</h6>
                         <a class="collapse-item" href="@Url.Action("Dashboard", "AdminAppointment")">Tổng quan</a>
                         <a class="collapse-item" href="@Url.Action("ApproveAppointments", "AdminAppointment")">Duyệt lịch hẹn</a>
-                        @* <a class="collapse-item" href="@Url.Action("ManagementTimeline", "AdminAppointment")">Sắp xếp lịch làm</a> *@
+                        <a class="collapse-item" href="@Url.Action("ManagementTimeline", "AdminAppointment")">Sắp xếp lịch làm</a>
                         <a class="collapse-item" href="@Url.Action("List", "AdminAppointment")">Danh sách lịch hẹn</a>
                         <a class="collapse-item" href="@Url.Action("Calendar", "AdminAppointment")">Xem dạng lịch</a>
                         <a class="collapse-item" href="@Url.Action("Create", "AdminAppointment")">Tạo lịch hẹn mới</a>
                     </div>
                 </div>
             </li>
-
+          
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments" aria-expanded="false">
                     <i class="fas fa-fw fa-credit-card"></i>
@@ -165,7 +165,7 @@
                         <h6 class="collapse-header">Quản lý thanh toán</h6>
                         <a class="collapse-item" href="@Url.Action("OrderHistory", "Admin")">Danh Sách Đơn Hàng</a>
                         <a class="collapse-item" href="@Url.Content("~/Admin/Payment")">Danh sách thanh toán</a>
-                        @* <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Xử lý hoàn tiền</a> *@
+                        <a class="collapse-item" href="@Url.Content("~/Admin/Refund")">Xử lý hoàn tiền</a>
                     </div>
                 </div>
             </li>

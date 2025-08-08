@@ -1,0 +1,140 @@
+@model pet_spa_system1.ViewModel.RealtimeShiftViewModel
+@{
+    ViewData["Title"] = "Lịch trực hôm nay";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+
+<div class="container-fluid py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-12 col-md-6">
+            <h2 class="font-weight-bold text-success mb-0">Lịch trực hôm nay</h2>
+        </div>
+        <div class="col-12 col-md-6 text-md-right mt-2 mt-md-0">
+            <button id="refreshRealtimeBtn" class="btn btn-outline-info btn-sm" type="button" title="Cập nhật realtime"><i class="fas fa-sync-alt"></i> Cập nhật realtime</button>
+            <span class="badge badge-info p-2 ml-2">Realtime</span>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form class="form-row" id="realtimeFilterForm">
+                <div class="form-group col-md-4 mb-2">
+                    <label for="filterStaff">Nhân viên</label>
+                    <select class="form-control" id="filterStaff">
+                        <option value="">Tất cả</option>
+                        @foreach (var staff in Model.StaffShifts)
+                        {
+                            <option value="@staff.UserId">@staff.StaffName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group col-md-4 mb-2">
+                    <label for="filterStatus">Trạng thái</label>
+                    <select class="form-control" id="filterStatus">
+                        <option>Tất cả</option>
+                        <option>Đang diễn ra</option>
+                        <option>Sắp tới</option>
+                        <option>Đã hoàn thành</option>
+                        <option>Vắng mặt</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4 mb-2 align-self-end">
+                    <button type="submit" class="btn btn-outline-success btn-block">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <div id="realtimeDashboardTable">
+                <table class="table table-bordered mb-0 timeline-table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="min-width:180px;">Nhân viên</th>
+                            @foreach (var h in Model.Hours) {
+                                <th class="text-center" style="min-width:70px;">@($"{h}:00")</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var staff in Model.StaffShifts) {
+                            <tr>
+                                <td class="align-middle">
+                                    <img src="@staff.AvatarUrl" class="rounded-circle mr-2" width="32" height="32" alt="Ảnh nhân viên @staff.StaffName" />
+                                    @staff.StaffName
+                                </td>
+                                @foreach (var h in Model.Hours) {
+                                    <td style="position:relative; height:48px;">
+                                        @if (staff.HourStatus != null && staff.HourStatus.ContainsKey(h)) {
+                                            var status = staff.HourStatus[h];
+                                            <div class="@status.ColorClass rounded px-2 py-1 position-absolute" style="top:4px; left:0; right:0;">
+                                                @status.StatusText<br /><small>@status.TimeRange</small>
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .timeline-table th, .timeline-table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+        .timeline-table td {
+            min-width: 70px;
+            height: 48px;
+            position: relative;
+        }
+        .timeline-table .position-absolute {
+            font-size: 0.95rem;
+            z-index: 2;
+        }
+    </style>
+}
+
+@section Scripts {
+<script>
+// --- AJAX cập nhật realtime dashboard ---
+document.addEventListener('DOMContentLoaded', function() {
+    var refreshBtn = document.getElementById('refreshRealtimeBtn');
+    var dashboardTable = document.getElementById('realtimeDashboardTable');
+    var filterForm = document.getElementById('realtimeFilterForm');
+    function fetchRealtimeDashboard() {
+        var url = window.location.pathname + window.location.search;
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(response) { return response.text(); })
+            .then(function(html) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var newTable = doc.getElementById('realtimeDashboardTable');
+                if (newTable && dashboardTable) {
+                    dashboardTable.innerHTML = newTable.innerHTML;
+                }
+            });
+    }
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            fetchRealtimeDashboard();
+        });
+    }
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetchRealtimeDashboard();
+        });
+    }
+    // Tự động cập nhật mỗi 2 phút
+    setInterval(fetchRealtimeDashboard, 120000);
+});
+</script>
+}

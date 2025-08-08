@@ -97,11 +97,11 @@ namespace pet_spa_system1.Controllers
         public IActionResult Edit(AppointmentViewModel vm)
         {
             if (!ModelState.IsValid) return View(vm);
-
+            
             // Đọc PetStaffAssignmentsJson từ form và chuyển đổi thành danh sách
             string? petStaffAssignmentsJson = Request.Form["PetStaffAssignmentsJson"].ToString();
             Console.WriteLine($"[AdminAppointmentController.Edit] PetStaffAssignmentsJson: {petStaffAssignmentsJson}");
-
+            
             if (!string.IsNullOrEmpty(petStaffAssignmentsJson))
             {
                 try
@@ -141,7 +141,7 @@ namespace pet_spa_system1.Controllers
 
             // Gọi service cập nhật staff từng pet
             bool updateSuccess = _appointmentService.UpdateAppointmentWithPetStaff(vm);
-
+            
             if (!updateSuccess)
             {
                 // Nếu cập nhật không thành công, báo lỗi và hiển thị lại form
@@ -176,7 +176,7 @@ namespace pet_spa_system1.Controllers
             // Đặt các biến TempData để hiện thông báo và modal CHỈ khi thành công
             TempData["SuccessMessage"] = "Cập nhật lịch hẹn thành công!";
             TempData["EditedAppointmentId"] = vm.AppointmentId;
-
+            
             // Quay lại trang chỉnh sửa thay vì chuyển đến List
             return RedirectToAction("Edit", new { id = vm.AppointmentId });
         }
@@ -243,7 +243,7 @@ namespace pet_spa_system1.Controllers
             var viewModel = _appointmentService.GetManagementTimelineData(selectedDate);
             return View("~/Views/Admin/ManageAppointment/ManagementTimeline.cshtml", viewModel);
         }
-
+        
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -457,11 +457,8 @@ namespace pet_spa_system1.Controllers
                 PetStaffAssignments = petStaffAssignments
             });
 
-            return Json(new
-            {
-                success = updateSuccess,
-                message = updateSuccess ? "Cập nhật thành công" : "Có lỗi khi cập nhật lịch hẹn"
-            });
+            return Json(new { success = updateSuccess, 
+                             message = updateSuccess ? "Cập nhật thành công" : "Có lỗi khi cập nhật lịch hẹn" });
         }
 
         [HttpPost("RestoreAppointment")]
@@ -624,7 +621,7 @@ namespace pet_spa_system1.Controllers
             try
             {
                 var (isEnoughStaff, availableStaffCount, requiredStaffCount) = _appointmentService.checkNumStaffForAppointment(model.AppointmentId);
-
+                
                 if (isEnoughStaff)
                 {
                     if (_appointmentService.AutoAssignStaff(model.AppointmentId))
@@ -634,8 +631,7 @@ namespace pet_spa_system1.Controllers
                             success = true,
                             message = "Gán nhân viên và đã chấp nhận lịch thành công"
                         });
-                    }
-                    else
+                    } else
                     {
                         return Json(new
                         {
@@ -643,15 +639,14 @@ namespace pet_spa_system1.Controllers
                             message = "Không thể tự động gán nhân viên cho lịch hẹn này."
                         });
                     }
-
+                   
                 }
                 else
                 {
-                    return Json(new
-                    {
-                        success = false,
+                    return Json(new { 
+                        success = false, 
                         message = $"Thiếu nhân viên! Rảnh: {availableStaffCount}, Cần: {requiredStaffCount}",
-
+                        
                     });
                 }
             }

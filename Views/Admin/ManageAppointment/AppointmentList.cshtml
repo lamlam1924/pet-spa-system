@@ -1,4 +1,5 @@
 @model pet_spa_system1.ViewModel.AppointmentListViewModel
+@Html.AntiForgeryToken()
 @{
     ViewData["Title"] = "Danh sách lịch hẹn";
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
@@ -65,7 +66,7 @@
                                     Khách hàng <i class="fas fa-sort ms-1 text-muted small"></i>
                                 </a>
                             </th>
-                            <th>Thú cưng</th>
+                            <th>Thú cưng & Nhân viên phụ trách</th>
                             <th>Dịch vụ</th>
                             <th>
                                 <a href="#" class="text-dark d-flex align-items-center sort-link">
@@ -73,15 +74,15 @@
                                 </a>
                             </th>
                             <th>Trạng thái</th>
-                            <th>Nhân viên</th>
                             <th class="text-end">Tổng tiền</th>
                             <th class="text-center pe-3">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (var item in Model.Appointments)
+                    @foreach (var item in Model.Appointments.OrderByDescending(x => x.AppointmentDate))
                     {
-                        <tr>
+                        var inactive = item.IsActive.HasValue && !item.IsActive.Value;
+                        <tr class="@(inactive ? "table-secondary text-muted" : "")">
                             <td class="ps-3 fw-medium">@item.AppointmentId</td>
                             <td>
                                 <div class="d-flex flex-column">
@@ -91,60 +92,58 @@
                             </td>
                             <td>
                                 <ul class="list-unstyled mb-0">
-                                    @foreach (var pet in item.AppointmentPets)
+                                    @if (item.AppointmentPets != null)
                                     {
-                                        <li>
-                                            @if (pet.Pet.Species != null)
-                                            {
-                                                <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
-                                                    @pet.Pet.Name
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge rounded-pill badge-pet bg-light text-dark">
-                                                    @pet.Pet.Name
-                                                </span>
-                                            }
-                                        </li>
+                                        foreach (var pet in item.AppointmentPets)
+                                        {
+                                            <li class="mb-1">
+                                                @if (pet.Pet.Species != null)
+                                                {
+                                                    <span class="badge rounded-pill badge-pet bg-light text-dark" data-bs-toggle="tooltip" title="Loài: @pet.Pet.Species">
+                                                        @pet.Pet.Name
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill badge-pet bg-light text-dark">
+                                                        @pet.Pet.Name
+                                                    </span>
+                                                }
+
+                                                @if (pet.Staff != null)
+                                                {
+                                                    <small class="ms-1 text-primary">
+                                                        <i class="fas fa-user-md me-1"></i>@pet.Staff.FullName
+                                                    </small>
+                                                }
+                                            </li>
+                                        }
                                     }
                                 </ul>
                             </td>
                             <td>
                                 <ul class="list-unstyled mb-0">
-                                    @foreach (var service in item.AppointmentServices)
+                                    @if (item.AppointmentServices != null)
                                     {
-                                        <li><span class="badge rounded-pill badge-service bg-light text-dark" data-bs-toggle="tooltip" title="@service.Service.Description">@service.Service.Name</span></li>
+                                        foreach (var service in item.AppointmentServices)
+                                        {
+                                            <li><span class="badge rounded-pill badge-service bg-light text-dark" data-bs-toggle="tooltip" title="@service.Service.Description">@service.Service.Name</span></li>
+                                        }
                                     }
                                 </ul>
                             </td>
                             <td class="time-col">
                                 <div class="d-flex flex-column">
-                                    <span>@item.AppointmentDate.ToString("dd/MM/yyyy")</span>
-                                    <span class="text-muted small">@item.AppointmentDate.ToString("HH:mm")</span>
+                                    <span>@item.AppointmentDateTime.ToString("dd/MM/yyyy")</span>
+                                    <span class="text-muted small">@item.AppointmentDateTime.ToString("HH:mm")</span>
                                 </div>
                             </td>
                             <td class="status-col">
                                 <span class="badge badge-status status-@item.StatusId" data-statusid="@item.StatusId" style="font-size:1em;min-width:120px;">
-                                    <span class="status-icon"></span> @item.Status.StatusName
+                                    <span class="status-icon"></span> @(item.Status != null ? item.Status.StatusName : "")
                                 </span>
                             </td>
-                            <td>
-                                @if (item.Employee != null)
-                                {
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-2 rounded-circle text-center" 
-                                             style="width: 32px; height: 32px; line-height: 32px;">
-                                            @(string.IsNullOrEmpty(item.Employee.FullName) ? "?" : item.Employee.FullName.Substring(0, 1))
-                                        </div>
-                                        <span>@item.Employee.FullName</span>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted"><i class="fas fa-user-clock me-1"></i>Chưa phân công</span>
-                                }
-                            </td>
+
                             <td class="text-end">
                                 <span class="total-price">
                                     @item.AppointmentServices.Sum(s => s.Service.Price).ToString("N0") đ
@@ -152,15 +151,24 @@
                             </td>
                             <td class="text-center pe-3">
                                 <div class="action-buttons">
-                                    <a class="btn btn-outline-primary" title="Xem chi tiết" href="@Url.Action("Detail", "AdminAppointment", new { id = item.AppointmentId })">
+                                    <a class="btn btn-outline-primary @(inactive ? "disabled" : "")" title="Xem chi tiết" href="@Url.Action("Detail", "AdminAppointment", new { id = item.AppointmentId })" tabindex="@(inactive ? -1 : 0)">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a class="btn btn-outline-success" title="Chỉnh sửa" href="@Url.Action("Edit", "AdminAppointment", new { id = item.AppointmentId })">
+                                    <a class="btn btn-outline-success @(inactive ? "disabled" : "")" title="Chỉnh sửa" href="@Url.Action("Edit", "AdminAppointment", new { id = item.AppointmentId })" tabindex="@(inactive ? -1 : 0)">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-outline-danger" title="Xóa" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.AppointmentId">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    @if (!inactive)
+                                    {
+                                        <button class="btn btn-outline-danger btn-delete-appointment" title="Xóa" data-id="@item.AppointmentId">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-outline-success btn-restore-appointment" title="Khôi phục" data-id="@item.AppointmentId">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -191,33 +199,137 @@
                 </ul>
             </nav>
         </div>
-    </div>
 
-<!-- Modal xóa lịch hẹn -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
+<!-- Modal duyệt lịch & gán nhân viên -->
+<div class="modal fade" id="approveAssignModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Xác nhận xóa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa lịch hẹn này?</p>
-                <p class="text-danger"><small>Lưu ý: Hành động này không thể hoàn tác!</small></p>
-            </div>
-            <div class="modal-footer">
-                <form action="@Url.Action("DeleteAppointment", "Admin")" method="post">
-                    <input type="hidden" id="deleteAppointmentId" name="id" />
+            <form id="approveAssignForm" method="post" action="@Url.Action("ApproveAndAssign", "AdminAppointment")">
+                <div class="modal-header">
+                    <h5 class="modal-title">Duyệt lịch & Gán nhân viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="approveAssignAppointmentId" name="AppointmentId" />
+                    <div class="mb-3">
+                        <label for="employeeSelect" class="form-label">Chọn nhân viên thực hiện</label>
+                        <select class="form-select" id="employeeSelect" name="EmployeeId" required>
+                            <option value="">-- Chọn nhân viên --</option>
+                            @foreach (var emp in Model.EmployeeList)
+                            {
+                            <option value="@emp.UserId">@emp.FullName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" value="true" id="sendEmailConfirm" name="SendEmail" checked>
+                        <label class="form-check-label" for="sendEmailConfirm">
+                            Gửi email xác nhận cho khách hàng
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-danger">Xóa</button>
-                </form>
-            </div>
+                    <button type="submit" class="btn btn-info">Duyệt & Gán nhân viên</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+    </div>
+
+
 
 @section Scripts {
     <script src="~/cssjsappointment/js/appointment-list.js"></script>
+    <script>
+        // Native JS toast
+        function showToast(msg, type = 'info', duration = 3000) {
+            var toast = document.createElement('div');
+            toast.className = 'simple-toast simple-toast-' + type;
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(function () {
+                toast.style.opacity = '0';
+                setTimeout(function () { toast.remove(); }, 400);
+            }, duration);
+        }
+
+        // Hiển thị toast từ TempData
+        document.addEventListener('DOMContentLoaded', function () {
+            var successMsg = @((TempData["SuccessMessage"] != null) ? Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["SuccessMessage"].ToString())) : "null");
+            var errorMsg = @((TempData["ErrorMessage"] != null) ? Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["ErrorMessage"].ToString())) : "null");
+            if (successMsg !== null) {
+                showToast(successMsg, 'success');
+            }
+            if (errorMsg !== null) {
+                showToast(errorMsg, 'error');
+            }
+        });
+
+        // Gán dữ liệu vào modal khi click nút duyệt/gán
+        $('#approveAssignModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var appointmentId = button.data('id');
+            var employeeId = button.data('employee');
+            var modal = $(this);
+            modal.find('#approveAssignAppointmentId').val(appointmentId);
+            modal.find('#employeeSelect').val(employeeId);
+        });
+
+        // Xóa lịch hẹn bằng native toast xác nhận và AJAX
+        $(document).on('click', '.btn-delete-appointment', function () {
+            var id = $(this).data('id');
+            var confirmBox = document.createElement('div');
+            confirmBox.className = 'simple-toast simple-toast-warning';
+            confirmBox.innerHTML = '<div>Bạn có chắc chắn muốn ẩn lịch hẹn này không?<br><small class="text-danger">Lưu ý: Lịch hẹn sẽ được ẩn (xóa mềm) và có thể khôi phục lại bất cứ lúc nào.</small></div><div class="mt-2"><button type="button" class="btn btn-danger btn-confirm-delete" data-id="' + id + '">Xác nhận ẩn</button> <button type="button" class="btn btn-secondary btn-cancel-delete">Hủy</button></div>';
+            document.body.appendChild(confirmBox);
+            confirmBox.querySelector('.btn-confirm-delete').onclick = function () {
+                var delId = this.getAttribute('data-id');
+                var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                $.post('/AdminAppointment/DeleteAppointment', { id: delId, __RequestVerificationToken: token })
+                    .done(function (res) {
+                        confirmBox.remove();
+                        showToast(res.message || 'Đã ẩn lịch hẹn thành công!', 'success');
+                        setTimeout(function () { location.reload(); }, 1200);
+                    })
+                    .fail(function (xhr) {
+                        confirmBox.remove();
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Có lỗi xảy ra khi ẩn lịch hẹn!';
+                        showToast(msg, 'error');
+                    });
+            };
+            confirmBox.querySelector('.btn-cancel-delete').onclick = function () {
+                confirmBox.remove();
+            };
+        });
+
+        // Khôi phục lịch hẹn bằng native toast xác nhận và AJAX
+        $(document).on('click', '.btn-restore-appointment', function () {
+            var id = $(this).data('id');
+            var confirmBox = document.createElement('div');
+            confirmBox.className = 'simple-toast simple-toast-info';
+            confirmBox.innerHTML = '<div>Bạn có muốn khôi phục lịch hẹn này?</div><div class="mt-2"><button type="button" class="btn btn-success btn-confirm-restore" data-id="' + id + '">Khôi phục</button> <button type="button" class="btn btn-secondary btn-cancel-restore">Hủy</button></div>';
+            document.body.appendChild(confirmBox);
+            confirmBox.querySelector('.btn-confirm-restore').onclick = function () {
+                var restoreId = this.getAttribute('data-id');
+                $.post('/AdminAppointment/RestoreAppointment', { id: restoreId })
+                    .done(function (res) {
+                        confirmBox.remove();
+                        showToast(res.message || 'Khôi phục lịch hẹn thành công!', 'success');
+                        setTimeout(function () { location.reload(); }, 1200);
+                    })
+                    .fail(function (xhr) {
+                        confirmBox.remove();
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Có lỗi xảy ra khi khôi phục lịch hẹn!';
+                        showToast(msg, 'error');
+                    });
+            };
+            confirmBox.querySelector('.btn-cancel-restore').onclick = function () {
+                confirmBox.remove();
+            };
+        });
+    </script>
 }
 
 @section Styles {

@@ -1,4 +1,4 @@
-﻿using pet_spa_system1.Models;
+using pet_spa_system1.Models;
 
 namespace pet_spa_system1.Utils;
 
@@ -13,6 +13,6 @@ public static class AppointmentExtensions
     public static DateTime GetEndTime(this Appointment appointment)
     {
         if (appointment == null) return DateTime.MinValue;
-        return appointment.AppointmentDate.AddMinutes(appointment.GetDurationMinutes());
+        return appointment.AppointmentDate.ToDateTime(appointment.StartTime).AddMinutes(appointment.GetDurationMinutes());
     }
 }

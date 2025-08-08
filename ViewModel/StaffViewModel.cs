@@ -1,4 +1,4 @@
-﻿namespace pet_spa_system1.ViewModel
+namespace pet_spa_system1.ViewModel
 {
     public class StaffViewModel
     {

@@ -173,7 +173,7 @@ public class UserRepository : IUserRepository
         // Sinh m?t kh?u m?i, c?p nh?t DB, tr? v? m?t kh?u m?i
         return "newpassword123";
     }
-
+    
     public List<StaffViewModel> GetStaffList()
     {
         var staffList = _context.Users.Where(u => u.RoleId == 3).ToList();
@@ -193,7 +193,7 @@ public class UserRepository : IUserRepository
         }
         return staffViewModels;
     }
-
+    
     public List<object> GetStaffResources()
     {
         return GetStaffList()?.Select(u => new {

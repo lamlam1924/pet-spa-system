@@ -216,27 +216,9 @@ namespace pet_spa_system1.Services
             // Lấy tất cả appointments của staff
             var allAppointments = await _userRepository.GetAppointmentsByStaffIdAsync(id);
             var now = DateTime.Now;
-
-            // Thống kê lịch hẹn tháng này
-            var monthlyAppointments = allAppointments.Count(a =>
-                a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
-
-            // Thống kê lịch hẹn hoàn thành (StatusId = 4)
-            var completedAppointments = allAppointments.Count(a => a.StatusId == 4);
-
-            // Thống kê khách hàng duy nhất
-            var uniqueCustomers = allAppointments.Select(a => a.UserId).Distinct().Count();
-
-            // Tính đánh giá trung bình (giả sử có bảng Review liên kết với staff)
-            // Tạm thời để N/A vì chưa có logic review cho staff
-            decimal? averageRating = null;
-
-            return new {
-                monthlyAppointments = monthlyAppointments,
-                completedAppointments = completedAppointments,
-                uniqueCustomers = uniqueCustomers,
-                averageRating = averageRating
-            };
+            var monthCount = user.AppointmentEmployees.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
+            var dayCount = user.AppointmentEmployees.Count(a => a.AppointmentDate == DateOnly.FromDateTime(now));
+            return new { MonthCount = monthCount, DayCount = dayCount };
         }
 
         public async Task<(bool Success, string? Message)> ToggleLockStaffAsync(int id)

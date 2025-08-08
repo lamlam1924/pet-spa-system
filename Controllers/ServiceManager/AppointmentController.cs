@@ -106,7 +106,7 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine($"[AppointmentController] Gọi SaveAppointment với userId: {userId.Value}");
                 Console.WriteLine($"[AppointmentController] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
                 Console.WriteLine($"[AppointmentController] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
-
+                
                 var result = _appointmentService.SaveAppointment(model, userId.Value);
                 if (result.Success)
                 {
@@ -121,7 +121,7 @@ namespace pet_spa_system1.Controllers
                         IsRead = false
                     };
 
-                    await _notificationService.AddAsync(notification);
+                   await _notificationService.AddAsync(notification);
 
                     TempData["SuccessMessage"] = "Đặt lịch thành công!";
                     // Return JSON for AJAX requests

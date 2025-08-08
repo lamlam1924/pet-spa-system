@@ -12,6 +12,56 @@ namespace pet_spa_system1.Repositories
         {
             _context = context;
         }
+        
+        public List<Appointment> GetAll()
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(s => s.Service)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(p => p.Pet)
+                .ToList();
+        }
+
+        public List<object> GetCalendarEvents()
+        {
+            return GetAppointments(new AppointmentFilter { })
+                .Where(a =>
+                {
+                    var cancelledStatus = _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "Cancelled");
+                    return cancelledStatus != null && a.StatusId != cancelledStatus.StatusId;
+                })
+                .Select(a => new
+                {
+                    id = a.AppointmentId,
+                    userFullName = a.User?.FullName,
+                    appointmentDate = a.AppointmentDate,
+                    startTime = a.StartTime,
+                    endTime = a.EndTime,
+                    staffIds = a.AppointmentPets?.Select(ap => ap.StaffId).ToList(),
+                    status = a.Status?.StatusName,
+                    phone = a.User?.Phone,
+                    serviceNames = a.AppointmentServices?.Select(s => s.Service?.Name),
+                    duration = a.AppointmentServices?.Sum(s => s.Service?.DurationMinutes ?? 0) ?? 0
+                })
+                .Where(a => a.appointmentDate.Year >= 1900)
+                .Select(a => new
+                {
+                    id = a.id,
+                    title = a.userFullName + " - " + string.Join(", ", a.serviceNames ?? new List<string>()),
+                    start = a.appointmentDate.ToDateTime(a.startTime).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = a.appointmentDate.ToDateTime(a.endTime).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    resourceIds = a.staffIds,
+                    customer = a.userFullName,
+                    phone = a.phone,
+                    services = (a.serviceNames ?? new List<string>()).ToList(),
+                    status = a.status
+                })
+                .Cast<object>().ToList();
+        }
+
 
         public List<Appointment> GetAll()
         {

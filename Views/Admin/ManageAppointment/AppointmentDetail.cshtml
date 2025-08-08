@@ -1,7 +1,7 @@
 @model pet_spa_system1.ViewModel.AdminAppointmentDetailViewModel
 
 @{
-    ViewData["Title"] = "Chi tiết lịch hẹn #" + Model.AppointmentId;
+    ViewData["Title"] = "Chi tiết lịch hẹn AP-" + Model.AppointmentId;
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
 }
 
@@ -12,7 +12,7 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="m-0 fw-bold">
-            <i class="fas fa-calendar-alt me-2"></i> Chi tiết lịch hẹn #@Model.AppointmentId
+            <i class="fas fa-calendar-alt me-2"></i> Chi tiết lịch hẹn AP-@Model.AppointmentId
         </h3>
         <div class="d-flex gap-2">
             <a href="@Url.Action("List", "AdminAppointment")" class="btn btn-outline-secondary">
@@ -43,7 +43,7 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h6 class="text-muted mb-2">Mã lịch hẹn</h6>
-                            <p class="mb-0 fw-bold">#@Model.AppointmentId</p>
+                            <p class="mb-0 fw-bold">AP-@Model.AppointmentId</p>
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-muted mb-2">Trạng thái</h6>
@@ -102,21 +102,35 @@
                             @if (Model.Pets.Any())
                             {
                                 <div class="list-group list-group-flush">
-                                    @foreach (var pet in Model.Pets)
+                                    @for (int i = 0; i < Model.Pets.Count; i++)
                                     {
+                                        var pet = Model.Pets[i];
+                                        var staffName = Model.SelectedPets?.FirstOrDefault(p => p.PetId == pet.PetId)?.StaffName;
                                         <div class="list-group-item px-0">
-                                            <div class="d-flex">
-                                                <div class="flex-shrink-0 me-3">
-                                                    <div class="bg-light rounded-circle text-center" style="width: 48px; height: 48px; line-height: 48px;">
-                                                        <i class="fas fa-paw"></i>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex">
+                                                    <div class="flex-shrink-0 me-3">
+                                                        <div class="bg-light rounded-circle text-center" style="width: 48px; height: 48px; line-height: 48px;">
+                                                            <i class="fas fa-paw"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">@pet.Name</h6>
+                                                        <p class="mb-0 text-muted small">
+                                                            @pet.SpeciesName@if (!string.IsNullOrEmpty(pet.SpeciesName) && !string.IsNullOrEmpty(pet.Breed)) { <span> • @pet.Breed</span> }
+                                                            @if (pet.Age > 0) { <span> • @pet.Age tuổi</span> } else { <span> • Chưa rõ tuổi</span> }
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-1">@pet.Name</h6>
-                                                    <p class="mb-0 text-muted small">
-                                                        @pet.SpeciesName • @pet.Breed • 
-                                                        @(pet.Age > 0 ? $"{pet.Age} tuổi" : "Chưa rõ tuổi")
-                                                    </p>
+                                                    @if (!string.IsNullOrEmpty(staffName))
+                                                    {
+                                                        <span class="badge bg-info text-dark">@staffName</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Chưa gán nhân viên</span>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -145,17 +159,17 @@
                                 <div class="list-group list-group-flush">
                                     @foreach (var service in Model.Services)
                                     {
-                                        <div class="list-group-item px-0">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h6 class="mb-1">@service.Name</h6>
-                                                    <p class="mb-0 text-muted small">
-                                                        @service.CategoryName • @service.DurationMinutes phút
-                                                    </p>
-                                                </div>
-                                                <span class="text-success">@service.Price.ToString("N0") VNĐ</span>
+                                    <div class="list-group-item px-0">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">@service.Name</h6>
+                                                <p class="mb-0 text-muted small">
+                                                    @service.CategoryName@if (!string.IsNullOrEmpty(service.CategoryName) && service.DurationMinutes > 0) { <span> • @service.DurationMinutes phút</span> }
+                                                </p>
                                             </div>
+                                            <span class="text-success">@service.Price.ToString("N0") VNĐ</span>
                                         </div>
+                                    </div>
                                     }
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
@@ -220,13 +234,13 @@
                         </p>
                     </div>
 
-                    <a href="@Url.Action("Detail", "Customer", new { id = Model.UserId })" class="btn btn-outline-primary w-100">
+                    <a href="@Url.Action("UserDetail", "User", new { id = Model.UserId })" class="btn btn-outline-primary w-100">
                         <i class="fas fa-user me-1"></i>Xem hồ sơ khách hàng
                     </a>
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-4">
+            @* <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white">
                     <h5 class="m-0 fw-bold">Nhân viên phụ trách</h5>
                 </div>
@@ -261,7 +275,7 @@
                             </p>
                         </div>
 
-                        <a href="@Url.Action("Detail", "Staff", new { id = Model.EmployeeId })" class="btn btn-outline-info w-100">
+                        <a href="@Url.Action("StaffDetail", "User", new { id = Model.EmployeeId })" class="btn btn-outline-info w-100">
                             <i class="fas fa-user-tie me-1"></i>Xem hồ sơ nhân viên
                         </a>
                     }
@@ -276,7 +290,7 @@
                         </div>
                     }
                 </div>
-            </div>
+            </div> *@
 
             <div class="card shadow-sm mb-4"></div>
                 

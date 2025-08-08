@@ -21,5 +21,5 @@ public partial class AppointmentService
 
     public virtual Appointment Appointment { get; set; } = null!;
 
-    public virtual Service Service { get; set; } = null!;
+    public virtual Service? Service { get; set; }
 }

@@ -37,3 +37,8 @@ public partial class Pet
 
     public virtual User? User { get; set; } = null!;
 }
+
+        // Quan hệ với PetImages (hỗ trợ nhiều ảnh)
+        public virtual ICollection<PetImage> PetImages { get; set; } = new List<PetImage>();
+    }
+}

@@ -52,26 +52,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXERlbGV0ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Deleted.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXERlbGV0ZWQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXERldGFpbHMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXEVkaXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Admin/AdminStaffSchedule/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5TdGFmZlNjaGVkdWxlXEluZGV4LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/PRN212/PRJ_PET1/Views/Admin/Appointments.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXBwb2ludG1lbnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -116,28 +96,28 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnREZXRhaWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/AppointmentDetailPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnREZXRhaWxQYXJ0aWFsLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/AppointmentList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwb2ludG1lbnRMaXN0LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/ApprovalList.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwcm92YWxMaXN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/ApproveAppointments.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQXBwcm92ZUFwcG9pbnRtZW50cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/ConfirmAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcQ29uZmlybUFwcG9pbnRtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/EditAppointment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcRWRpdEFwcG9pbnRtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/TimelineScheduler.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcVGltZWxpbmVTY2hlZHVsZXIuY3NodG1s
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/ManagementTimeline.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcTWFuYWdlbWVudFRpbWVsaW5lLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageAppointment/RealtimeDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlQXBwb2ludG1lbnRcUmVhbHRpbWVEYXNoYm9hcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/ManageBlog.cshtml]
@@ -170,6 +150,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/PRN212/PRJ_PET1/Views/Admin/ManageService/ServiceNav.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxTZXJ2aWNlTmF2LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PRN212/PRJ_PET1/Views/Admin/ManageService/_LayoutAdmin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFuYWdlU2VydmljZVxfTGF5b3V0QWRtaW4uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/PRN212/PRJ_PET1/Views/Admin/Modals.cshtml]

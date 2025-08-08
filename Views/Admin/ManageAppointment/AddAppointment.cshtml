@@ -31,117 +31,125 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <script>
+            // Lưu ID lịch hẹn mới vào biến window
             window.newAppointmentId = '@TempData["NewAppointmentId"]';
+            console.log("TempData có ID lịch hẹn mới: " + window.newAppointmentId);
         </script>
     }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    @{ TempData.Remove("SuccessMessage"); TempData.Remove("ErrorMessage"); }
-
-<!-- Modal xác nhận sau khi tạo lịch hẹn thành công -->
-<div class="modal fade" id="afterCreateModal" tabindex="-1" aria-labelledby="afterCreateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="afterCreateModalLabel">Tạo lịch hẹn thành công</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Bạn muốn làm gì tiếp theo?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="btnGoToDetail">Xem chi tiết lịch hẹn</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tiếp tục tạo mới</button>
-            </div>
-        </div>
-    </div>
 </div>
 
-<form asp-action="Create" asp-controller="AdminAppointment" method="post" class="needs-validation" novalidate>
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="m-0 fw-bold">Thông tin lịch hẹn</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="AppointmentDate" class="form-label">Ngày & giờ hẹn</label>
-                            <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
-                            <span asp-validation-for="AppointmentDate" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="Notes" class="form-label">Ghi chú</label>
-                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
-                            <span asp-validation-for="Notes" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="card shadow-sm mb-4">
-                                <div class="card-header bg-white">
-                                    <h5 class="m-0 fw-bold">Thú cưng</h5>
-                                </div>
-                                <div class="card-body">
-                                    <label for="SelectedPetIds" class="form-label">Chọn thú cưng</label>
-                                    <select asp-for="SelectedPetIds" class="form-select select2-pet w-100" multiple style="width:100%"></select>
-                                    <span asp-validation-for="SelectedPetIds" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card shadow-sm mb-4">
-                                <div class="card-header bg-white">
-                                    <h5 class="m-0 fw-bold">Dịch vụ</h5>
-                                </div>
-                                <div class="card-body">
-                                    <label for="SelectedServiceIds" class="form-label">Chọn dịch vụ</label>
-                                    <select asp-for="SelectedServiceIds" class="form-select select2-service w-100" multiple style="width:100%"></select>
-                                    <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="m-0 fw-bold">Khách hàng</h5>
-                </div>
-                <div class="card-body">
-                    <label for="CustomerId" class="form-label">Chọn khách hàng</label>
-                    <select asp-for="CustomerId" class="form-select select2-user w-100" style="width:100%">
-                        <option value="">-- Chọn khách hàng --</option>
-                    </select>
-                    <span asp-validation-for="CustomerId" class="text-danger"></span>
-                    <div id="customer-preview" class="mt-3"></div>
-                </div>
-            </div>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="m-0 fw-bold">Nhân viên phụ trách</h5>
-                </div>
-                <div class="card-body">
-                    <label for="StaffId" class="form-label">Chọn nhân viên</label>
-                    <select asp-for="StaffId" class="form-select select2-staff w-100" style="width:100%">
-                        <option value="">-- Chọn nhân viên --</option>
-                    </select>
-                    <span asp-validation-for="StaffId" class="text-danger"></span>
-                    <div id="staff-preview" class="mt-3"></div>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 mt-2">Tạo lịch hẹn</button>
-        </div>
+<!-- Modal xác nhận sau khi tạo lịch hẹn thành công -->
+<div class="modal fade" id="afterCreateModal" tabindex="-1" aria-labelledby="afterCreateModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="afterCreateModalLabel">
+            <i class="fas fa-check-circle me-2"></i>Tạo lịch hẹn thành công
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">Bạn muốn thực hiện thao tác nào tiếp theo?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btnGoToDetail">
+            <i class="fas fa-eye me-2"></i>Xem chi tiết lịch hẹn
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-plus me-2"></i>Tiếp tục tạo lịch hẹn mới
+        </button>
+      </div>
     </div>
-</form>
+  </div>
+</div>
+
+    <form asp-action="Create" asp-controller="AdminAppointment" method="post" class="needs-validation" novalidate>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="m-0 fw-bold">Thông tin lịch hẹn</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="AppointmentDate" class="form-label">Ngày hẹn</label>
+                                <input asp-for="AppointmentDate" class="form-control" type="date" />
+                                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="StartTime" class="form-label">Giờ hẹn</label>
+                                <input asp-for="StartTime" class="form-control" type="time" />
+                                <span asp-validation-for="StartTime" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Notes" class="form-label">Ghi chú</label>
+                                <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card shadow-sm mb-4">
+                                    <div class="card-header bg-white">
+                                        <h5 class="m-0 fw-bold">Thú cưng & nhân viên phụ trách</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label for="SelectedPetIds" class="form-label">Chọn thú cưng</label>
+                                        <select asp-for="SelectedPetIds" class="form-select select2-pet w-100" multiple style="width:100%"></select>
+                                        <span asp-validation-for="SelectedPetIds" class="text-danger"></span>
+                                        <div id="pet-staff-assign-list" class="mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm mb-4">
+                                    <div class="card-header bg-white">
+                                        <h5 class="m-0 fw-bold">Dịch vụ</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <label for="SelectedServiceIds" class="form-label">Chọn dịch vụ</label>
+                                        <select asp-for="SelectedServiceIds" class="form-select select2-service w-100" multiple style="width:100%"></select>
+                                        <span asp-validation-for="SelectedServiceIds" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="m-0 fw-bold">Khách hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <label for="CustomerId" class="form-label">Chọn khách hàng</label>
+                        <select asp-for="CustomerId" class="form-select select2-user w-100" style="width:100%">
+                            <option value="">-- Chọn khách hàng --</option>
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                        <div id="customer-preview" class="mt-3"></div>
+                    </div>
+                </div>
+                @* <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="m-0 fw-bold">Nhân viên phụ trách</h5>
+                    </div>
+                    <div class="card-body">
+                        <label for="StaffId" class="form-label">Chọn nhân viên</label>
+                        <select asp-for="StaffId" class="form-select select2-staff w-100" style="width:100%">
+                            <option value="">-- Chọn nhân viên --</option>
+                        </select>
+                        <span asp-validation-for="StaffId" class="text-danger"></span>
+                        <div id="staff-preview" class="mt-3"></div>
+                    </div>
+                </div> *@
+                <button type="submit" class="btn btn-primary w-100 mt-2">Tạo lịch hẹn</button>
+                <input type="hidden" name="PetStaffAssignmentsJson" id="PetStaffAssignmentsJson" />
+            </div>
+        </div>
+    </form>
 @* </div> *@
 
 <!-- Modal xóa -->
@@ -169,206 +177,282 @@
 
 @section Scripts {
     <script src="~/cssjsAppointment/js/appointment-detail.js"></script>
-    <script>
-        // Hiển thị modal xác nhận sau khi tạo lịch thành công
-        if (typeof window.newAppointmentId !== 'undefined' && window.newAppointmentId && window.newAppointmentId !== '0') {
-            setTimeout(function() {
-                var modal = new bootstrap.Modal(document.getElementById('afterCreateModal'));
-                modal.show();
-                document.getElementById('btnGoToDetail').onclick = function() {
-                    window.location.href = '/AdminAppointment/Detail?id=' + window.newAppointmentId;
-                };
-            }, 500);
-        }
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-                // Hàm load toàn bộ pet của customer và nạp vào select2-pet
-                function loadPetsForCustomer(customerId, selectedPetIds) {
-                    if (!customerId) {
-                        $('.select2-pet').empty().trigger('change');
-                        return;
-                    }
-                    console.log('Gửi request GET /AdminAppointment/SearchPets', { userId: customerId });
-                    $.get('/AdminAppointment/SearchPets', { userId: customerId })
-                        .done(function(data) {
-                            console.log('Kết quả trả về từ SearchPets:', data);
-                            var options = [];
-                            if (data && data.results) {
-                                options = data.results.map(function(pet) {
-                                    return new Option(pet.text, pet.id, false, selectedPetIds && selectedPetIds.includes(pet.id));
-                                });
+    // --- Gán nhân viên cho từng thú cưng ---
+    var petStaffAssignments = {};
+    function renderPetStaffAssignList(petOptions, staffOptions) {
+        var selectedPetIds = $('.select2-pet').val() || [];
+        var html = '';
+        selectedPetIds.forEach(function(petId) {
+            var pet = petOptions.find(function(p) { return p.id == petId; });
+            var staffId = petStaffAssignments[petId] || '';
+            html += '<div class="row align-items-center mb-2 pet-staff-row" data-pet-id="' + petId + '">';
+            html += '<div class="col-5"><span class="fw-bold">' + (pet ? pet.text : 'Thú cưng #' + petId) + '</span></div>';
+            html += '<div class="col-7">';
+            html += '<select class="form-select form-select-sm select2-pet-staff" data-pet-id="' + petId + '" style="width:100%">';
+            html += '<option value="">-- Chọn nhân viên --</option>';
+            staffOptions.forEach(function(staff) {
+                html += '<option value="' + staff.id + '"' + (staffId == staff.id ? ' selected' : '') + '>' + staff.text + '</option>';
+            });
+            html += '</select></div></div>';
+        });
+        $('#pet-staff-assign-list').html(html);
+        $('.select2-pet-staff').select2({
+            placeholder: 'Chọn nhân viên',
+            allowClear: true,
+            width: 'resolve',
+            minimumInputLength: 0,
+            ajax: {
+                url: '/AdminAppointment/SearchStaffs',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) { return { term: params.term }; },
+                processResults: function(data) { return { results: data.results }; },
+                cache: true
+            }
+        });
+        $('.select2-pet-staff').off('change').on('change', function() {
+            var petId = $(this).data('pet-id');
+            var staffId = $(this).val();
+            petStaffAssignments[petId] = staffId;
+            updatePetStaffAssignmentsJson();
+        });
+        updatePetStaffAssignmentsJson();
+    }
+    function updatePetStaffAssignmentsJson() {
+        var arr = [];
+        Object.keys(petStaffAssignments).forEach(function(petId) {
+            if (petStaffAssignments[petId]) {
+                arr.push({ PetId: parseInt(petId), StaffId: parseInt(petStaffAssignments[petId]) });
+            }
+        });
+        $('#PetStaffAssignmentsJson').val(JSON.stringify(arr));
+    }
+    function getCurrentPetOptions() {
+        return $('.select2-pet option').map(function() {
+            return { id: $(this).val(), text: $(this).text() };
+        }).get();
+    }
+    function getCurrentStaffOptions() {
+        return $('.select2-staff option').map(function() {
+            return { id: $(this).val(), text: $(this).text() };
+        }).get().filter(function(x) { return x.id; });
+    }
+    // Hiển thị modal xác nhận sau khi tạo lịch thành công
+    if (typeof window.newAppointmentId !== 'undefined' && window.newAppointmentId && window.newAppointmentId !== '0') {
+        console.log("Hiển thị modal với ID lịch hẹn: " + window.newAppointmentId);
+        // Đảm bảo modal được khởi tạo sau khi DOM đã sẵn sàng
+        $(document).ready(function() {
+            console.log("DOM đã sẵn sàng, chuẩn bị hiển thị modal");
+            setTimeout(function() {
+                try {
+                    console.log("Đang khởi tạo modal element...");
+                    var modalElement = document.getElementById('afterCreateModal');
+                    console.log("Modal element found:", modalElement);
+                    
+                    // Đảm bảo Bootstrap đã tải xong
+                    if (typeof bootstrap !== 'undefined') {
+                        console.log("Bootstrap đã tải, khởi tạo modal...");
+                        var modal = new bootstrap.Modal(modalElement);
+                        console.log("Modal đã khởi tạo, hiển thị...");
+                        modal.show();
+                        
+                        document.getElementById('btnGoToDetail').onclick = function() {
+                            console.log("Chuyển hướng đến trang chi tiết lịch hẹn...");
+                            window.location.href = '/AdminAppointment/Detail?id=' + window.newAppointmentId;
+                        };
+                        console.log("Modal setup hoàn tất");
+                    } else {
+                        console.error("Bootstrap chưa được tải!");
+                        // Thông báo thành công dù không hiện modal
+                        Swal.fire({
+                            title: 'Tạo lịch hẹn thành công!',
+                            text: 'Bạn có muốn xem chi tiết lịch hẹn?',
+                            icon: 'success',
+                            showCancelButton: true,
+                            confirmButtonText: 'Xem chi tiết',
+                            cancelButtonText: 'Tiếp tục tạo mới'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/AdminAppointment/Detail?id=' + window.newAppointmentId;
                             }
-                            $('.select2-pet').empty();
-                            options.forEach(function(opt) { $('.select2-pet').append(opt); });
-                            $('.select2-pet').trigger('change');
-                        })
-                        .fail(function(jqXHR, textStatus, errorThrown) {
-                            console.error('Lỗi khi gọi SearchPets:', textStatus, errorThrown, jqXHR.status, jqXHR.responseText);
-                            alert('Không thể tải danh sách thú cưng! Lỗi: ' + jqXHR.status + ' ' + errorThrown);
                         });
-                }
-            $(document).ready(function() {
-                function renderUserCard(user, type) {
-                    if (!user) return '';
-                    var color = type === 'staff' ? 'info' : 'primary';
-                    return `
-                    <div class="card shadow-sm mb-2">
-                        <div class="card-header bg-white py-2">
-                            <h6 class="m-0 fw-bold">${type === 'staff' ? 'Nhân viên phụ trách' : 'Khách hàng'}</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex mb-2">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="bg-${color} text-white rounded-circle text-center" style="width: 48px; height: 48px; line-height: 48px; font-size: 1.2rem;">
-                                        ${user.fullName ? user.fullName.charAt(0) : '?'}
-                                    </div>
-                </div>
-            </div>
-        </form>
-
-                                </div>
-                            </div>
-                            <div class="mb-1">
-                                <i class="fas fa-phone-alt me-2 text-${color}"></i>
-                                <a href="tel:${user.phone || ''}" class="text-decoration-none">${user.phone || 'Chưa cập nhật'}</a>
-                            </div>
-                            <div class="mb-1">
-                                <i class="fas fa-envelope me-2 text-${color}"></i>
-                                <a href="mailto:${user.email || ''}" class="text-decoration-none">${user.email || 'Chưa cập nhật'}</a>
-                            </div>
-                            ${user.address ? `<div class="mb-1"><i class="fas fa-map-marker-alt me-2 text-${color}"></i>${user.address}</div>` : ''}
-                        </div>
-                    </div>`;
-                }
-
-                function fetchUserInfo(userId, type) {
-                    if (!userId) {
-                        $(type === 'staff' ? '#staff-preview' : '#customer-preview').html('');
-                        return;
                     }
-                    $.get('/AdminAppointment/GetUserInfo', { id: userId }, function(data) {
-                        var html = renderUserCard(data, type);
-                        $(type === 'staff' ? '#staff-preview' : '#customer-preview').html(html);
+                } catch (err) {
+                    console.error("Lỗi khi hiển thị modal:", err);
+                    // Phương án dự phòng với alert
+                    alert("Tạo lịch hẹn thành công! ID: " + window.newAppointmentId);
+                }
+            }, 500); // Đợi 500ms để đảm bảo trang đã tải xong
+        });
+    } else {
+        console.log("Không phát hiện ID lịch hẹn mới");
+    }
+    // Hàm load toàn bộ pet của customer và nạp vào select2-pet
+    function loadPetsForCustomer(customerId, selectedPetIds) {
+        if (!customerId) {
+            $('.select2-pet').empty().trigger('change');
+            return;
+        }
+        $.get('/AdminAppointment/SearchPets', { userId: customerId })
+            .done(function(data) {
+                var options = [];
+                if (data && data.results) {
+                    options = data.results.map(function(pet) {
+                        return new Option(pet.text, pet.id, false, selectedPetIds && selectedPetIds.includes(pet.id));
                     });
                 }
-                // Fix select2 width in Bootstrap card
-                $.fn.select2.defaults.set('width', 'resolve');
-                $('.select2-user').select2({
-                    placeholder: 'Tìm khách hàng theo tên, SĐT, email',
-                    allowClear: true,
-                    minimumInputLength: 0,
-                    ajax: {
-                        url: '/AdminAppointment/SearchCustomers',
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return { term: params.term };
-                        },
-                        processResults: function(data) {
-                            return { results: data.results };
-                        },
-                        cache: true
-                    }
-                }).on('select2:open', function() {
-                    if (!$('.select2-search__field').val()) {
-                        $('.select2-user').select2('open');
-                    }
-                });
-                $('.select2-staff').select2({
-                    placeholder: 'Tìm nhân viên theo tên, SĐT, email',
-                    allowClear: true,
-                    minimumInputLength: 0,
-                    ajax: {
-                        url: '/AdminAppointment/SearchStaffs',
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return { term: params.term };
-                        },
-                        processResults: function(data) {
-                            return { results: data.results };
-                        },
-                        cache: true
-                    }
-                }).on('select2:open', function() {
-                    if (!$('.select2-search__field').val()) {
-                        $('.select2-staff').select2('open');
-                    }
-                });
-                $('.select2-pet').select2({
-                    placeholder: 'Chọn/thêm thú cưng',
-                    allowClear: true,
-                    minimumInputLength: 0,
-                    ajax: {
-                        url: function() {
-                            var userId = $('[name="CustomerId"]').val(); // Đảm bảo đúng tên trường
-                            return '/AdminAppointment/SearchPets?userId=' + (userId || '');
-                        },
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return { term: params.term };
-                        },
-                        processResults: function(data) {
-                            return { results: data.results };
-                        },
-                        cache: true
-                    }
-                }).on('select2:open', function() {
-                    if (!$('.select2-search__field').val()) {
-                        $('.select2-pet').select2('open');
-                    }
-                });
-                $('.select2-service').select2({
-                    placeholder: 'Chọn/thêm dịch vụ',
-                    allowClear: true,
-                    minimumInputLength: 0,
-                    ajax: {
-                        url: '/AdminAppointment/SearchServices',
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return { term: params.term };
-                        },
-                        processResults: function(data) {
-                            return { results: data.results };
-                        },
-                        cache: true
-                    }
-                }).on('select2:open', function() {
-                    if (!$('.select2-search__field').val()) {
-                        $('.select2-service').select2('open');
-                    }
-                });
-                $('.select2-user').on('change', function() {
-                    var userId = $(this).val();
-                    fetchUserInfo(userId, 'customer');
-                    // Reset thú cưng khi đổi khách hàng và load lại danh sách pet
-                    loadPetsForCustomer(userId, []);
-                    // Tự động mở dropdown và load danh sách thú cưng
-                    setTimeout(function() {
-                        $('.select2-pet').select2('open');
-                    }, 200);
-                });
-                // Khi trang load lại do submit lỗi, nạp lại các pet đã chọn
-                var initCustomerId = $('[name="CustomerId"]').val();
-                var initSelectedPetIds = [];
-                try {
-                    initSelectedPetIds = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SelectedPetIds ?? new List<int>()));
-                } catch (e) {}
-                if (initCustomerId) {
-                    loadPetsForCustomer(initCustomerId, initSelectedPetIds);
-                }
-                $('.select2-staff').on('change', function() {
-                    var staffId = $(this).val();
-                    fetchUserInfo(staffId, 'staff');
-                });
-                // Hiển thị preview nếu đã có sẵn giá trị (khi submit lỗi)
-                var initUserId = $('[name="UserId"]').val();
-                if (initUserId) fetchUserInfo(initUserId, 'customer');
-                var initStaffId = $('[name="StaffId"]').val();
-                if (initStaffId) fetchUserInfo(initStaffId, 'staff');
+                $('.select2-pet').empty();
+                options.forEach(function(opt) { $('.select2-pet').append(opt); });
+                $('.select2-pet').trigger('change');
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                alert('Không thể tải danh sách thú cưng! Lỗi: ' + jqXHR.status + ' ' + errorThrown);
             });
+    }
+    $(document).ready(function() {
+        $('.select2-pet').on('change', function() {
+            var petOptions = getCurrentPetOptions();
+            var staffOptions = getCurrentStaffOptions();
+            var selectedPetIds = $('.select2-pet').val() || [];
+            Object.keys(petStaffAssignments).forEach(function(petId) {
+                if (!selectedPetIds.includes(petId)) delete petStaffAssignments[petId];
+            });
+            renderPetStaffAssignList(petOptions, staffOptions);
+        });
+        setTimeout(function() {
+            var petOptions = getCurrentPetOptions();
+            var staffOptions = getCurrentStaffOptions();
+            renderPetStaffAssignList(petOptions, staffOptions);
+        }, 500);
+        // Các select2 khác và preview user/staff
+        $.fn.select2.defaults.set('width', 'resolve');
+        $('.select2-user').select2({
+            placeholder: 'Tìm khách hàng theo tên, SĐT, email',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: '/AdminAppointment/SearchCustomers',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) { return { term: params.term }; },
+                processResults: function(data) { return { results: data.results }; },
+                cache: true
+            }
+        }).on('select2:open', function() {
+            if (!$('.select2-search__field').val()) {
+                $('.select2-user').select2('open');
+            }
+        });
+        $('.select2-staff').select2({
+            placeholder: 'Tìm nhân viên theo tên, SĐT, email',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: '/AdminAppointment/SearchStaffs',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) { return { term: params.term }; },
+                processResults: function(data) { return { results: data.results }; },
+                cache: true
+            }
+        }).on('select2:open', function() {
+            if (!$('.select2-search__field').val()) {
+                $('.select2-staff').select2('open');
+            }
+        });
+        $('.select2-pet').select2({
+            placeholder: 'Chọn/thêm thú cưng',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: function() {
+                    var userId = $('[name="CustomerId"]').val();
+                    return '/AdminAppointment/SearchPets?userId=' + (userId || '');
+                },
+                dataType: 'json',
+                delay: 250,
+                data: function(params) { return { term: params.term }; },
+                processResults: function(data) { return { results: data.results }; },
+                cache: true
+            }
+        }).on('select2:open', function() {
+            if (!$('.select2-search__field').val()) {
+                $('.select2-pet').select2('open');
+            }
+        });
+        $('.select2-service').select2({
+            placeholder: 'Chọn/thêm dịch vụ',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: '/AdminAppointment/SearchServices',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) { return { term: params.term }; },
+                processResults: function(data) { return { results: data.results }; },
+                cache: true
+            }
+        }).on('select2:open', function() {
+            if (!$('.select2-search__field').val()) {
+                $('.select2-service').select2('open');
+            }
+        });
+        $('.select2-user').on('change', function() {
+            var userId = $(this).val();
+            fetchUserInfo(userId, 'customer');
+            loadPetsForCustomer(userId, []);
+            setTimeout(function() {
+                $('.select2-pet').select2('open');
+            }, 200);
+        });
+        var initCustomerId = $('[name="CustomerId"]').val();
+        var initSelectedPetIds = [];
+        try {
+            initSelectedPetIds = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.SelectedPetIds ?? new List<int>()));
+        } catch (e) {}
+        if (initCustomerId) {
+            loadPetsForCustomer(initCustomerId, initSelectedPetIds);
+        }
+        $('.select2-staff').on('change', function() {
+            var staffId = $(this).val();
+            fetchUserInfo(staffId, 'staff');
+        });
+        var initUserId = $('[name="UserId"]').val();
+        if (initUserId) fetchUserInfo(initUserId, 'customer');
+        var initStaffId = $('[name="StaffId"]').val();
+        if (initStaffId) fetchUserInfo(initStaffId, 'staff');
+    });
+    function renderUserCard(user, type) {
+        if (!user) return '';
+        var color = type === 'staff' ? 'info' : 'primary';
+        return '<div class="card shadow-sm mb-2">' +
+            '<div class="card-header bg-white py-2">' +
+            '<h6 class="m-0 fw-bold">' + (type === 'staff' ? 'Nhân viên phụ trách' : 'Khách hàng') + '</h6>' +
+            '</div>' +
+            '<div class="card-body">' +
+            '<div class="d-flex mb-2">' +
+            '<div class="flex-shrink-0 me-3">' +
+            '<div class="bg-' + color + ' text-white rounded-circle text-center" style="width: 48px; height: 48px; line-height: 48px; font-size: 1.2rem;">' +
+            (user.fullName ? user.fullName.charAt(0) : '?') +
+            '</div></div></div>' +
+            '<div class="mb-1"><i class="fas fa-phone-alt me-2 text-' + color + '"></i>' +
+            '<a href="tel:' + (user.phone || '') + '" class="text-decoration-none">' + (user.phone || 'Chưa cập nhật') + '</a></div>' +
+            '<div class="mb-1"><i class="fas fa-envelope me-2 text-' + color + '"></i>' +
+            '<a href="mailto:' + (user.email || '') + '" class="text-decoration-none">' + (user.email || 'Chưa cập nhật') + '</a></div>' +
+            (user.address ? '<div class="mb-1"><i class="fas fa-map-marker-alt me-2 text-' + color + '"></i>' + user.address + '</div>' : '') +
+            '</div></div>';
+    }
+    function fetchUserInfo(userId, type) {
+        if (!userId) {
+            $(type === 'staff' ? '#staff-preview' : '#customer-preview').html('');
+            return;
+        }
+        $.get('/AdminAppointment/GetUserInfo', { id: userId }, function(data) {
+            var html = renderUserCard(data, type);
+            $(type === 'staff' ? '#staff-preview' : '#customer-preview').html(html);
+        });
+    }
     </script>
 }

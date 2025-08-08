@@ -53,6 +53,7 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, pet_spa_system1.Services.AppointmentService>();
 builder.Services.AddScoped<IAppointmentServiceRepository, AppointmentServiceRepository>();
 
+
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -74,7 +75,7 @@ builder.Services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
 builder.Services.AddScoped<IOrderStatusService, OrderStatusService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
+// builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
@@ -172,6 +173,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ======= ROUTING =======
+
+app.MapControllerRoute(
+    name: "AdminAppointment",
+    pattern: "AdminAppointment/{action}/{id?}",
+    defaults: new { controller = "AdminAppointment" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

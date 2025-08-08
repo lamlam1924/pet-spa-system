@@ -1,3 +1,18 @@
+/* Toast notification styles for AppointmentList */
+.simple-toast {
+    position: fixed; top: 30px; right: 30px; background: #333; color: #fff;
+    padding: 12px 24px; border-radius: 6px; z-index: 9999; opacity: 0.95;
+    font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    animation: fadeInToast 0.2s;
+}
+@keyframes fadeInToast {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 0.95; transform: translateY(0); }
+}
+.simple-toast.simple-toast-error { background: #d32f2f; }
+.simple-toast.simple-toast-success { background: #388e3c; }
+.simple-toast.simple-toast-info { background: #1976d2; }
+.simple-toast.simple-toast-warning { background: #fbc02d; color: #222; }
 /* ===== Badge số lượng trên tab duyệt lịch (tối giản, tinh tế) ===== */
 .tab-qty-badge {
     display: inline-block;

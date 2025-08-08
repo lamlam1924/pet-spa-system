@@ -12,6 +12,8 @@
         <PackageReference Include="Abp.Web.Common" Version="10.2.0" />
         <PackageReference Include="ClosedXML" Version="0.105.0" />
         <PackageReference Include="CloudinaryDotNet" Version="1.27.6" />
+        <PackageReference Include="Hangfire" Version="1.8.20" />
+        <PackageReference Include="Hangfire.MemoryStorage" Version="1.8.1.2" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.6" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.6" />

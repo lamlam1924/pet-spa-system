@@ -1,0 +1,21 @@
+// Thêm vào đầu file Program.cs
+using Hangfire;
+using Hangfire.MemoryStorage;
+
+// Trong phần cấu hình services (sau builder.Services.AddControllersWithViews();)
+builder.Services.AddHangfire(x => x.UseMemoryStorage());
+builder.Services.AddHangfireServer();
+
+// Sau khi app được build (sau var app = builder.Build();)
+app.UseHangfireDashboard();
+
+// Đăng ký job gửi mail nhắc lịch mỗi ngày lúc 8h sáng
+RecurringJob.AddOrUpdate<IAppointmentService>(
+    "send-appointment-reminders",
+    service => service.SendUpcomingAppointmentReminders(),
+    "0 8 * * *" // cron: 8h sáng mỗi ngày
+);
+
+// Truy cập dashboard: http://localhost:5000/hangfire
+
+// Lưu ý: Nếu deploy production, nên dùng storage thật (SQL Server, Redis...) thay vì MemoryStorage.

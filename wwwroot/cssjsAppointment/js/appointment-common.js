@@ -94,17 +94,17 @@ $(document).ready(function() {
             return false;
         }
         // Kiểm tra giờ hẹn
-        const timeVal = $('#AppointmentTime').val();
+        const timeVal = $('#StartTimeString').val();
         if (!timeVal) {
             showToast('Vui lòng chọn giờ hẹn', 'warning');
-            $('#AppointmentTime').focus();
+            $('#StartTimeString').focus();
             return false;
         }
         // Giờ phải từ 08:00 đến 20:00
         const [hour, minute] = timeVal.split(":").map(Number);
         if (hour < 8 || hour > 20 || (hour === 20 && minute > 0)) {
             showToast('Giờ hẹn chỉ được từ 8h sáng đến 8h tối (08:00 - 20:00)', 'warning');
-            $('#AppointmentTime').focus();
+            $('#StartTimeString').focus();
             return false;
         }
         return true;
@@ -196,9 +196,9 @@ $(document).ready(function() {
         }
         
         // Kiểm tra giờ hẹn
-        if (!$('#AppointmentTime').val()) {
+        if (!$('#StartTimeString').val()) {
             showToast('Vui lòng chọn giờ hẹn', 'warning');
-            $('#AppointmentTime').focus();
+            $('#StartTimeString').focus();
             return false;
         }
         
@@ -287,7 +287,7 @@ $(document).ready(function() {
         
         // Thông tin lịch hẹn
         $('#conf-date').text(formatDate($('#AppointmentDate').val()));
-        $('#conf-time').text($('#AppointmentTime').val());
+        $('#conf-time').text($('#StartTimeString').val());
         $('#conf-notes').text($('#Notes').val() || '(Không có ghi chú)');
         
         // Hiển thị thú cưng được chọn

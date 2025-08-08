@@ -141,7 +141,7 @@ namespace pet_spa_system1.Services
         {
             // Truy vấn resources và events đã được tách sang repo
             var resources = _userRepository.GetStaffResources();
-
+            
             // Lấy danh sách events và convert sang anonymous type
             var appointments = _appointmentRepository.GetAll()
                 .Where(a => new[] { 2, 3, 4, 6 }.Contains(a.StatusId)) // Lọc theo status yêu cầu
@@ -591,7 +591,7 @@ namespace pet_spa_system1.Services
         {
             return _appointmentRepository.GetAllServices();
         }
-
+        
 
         public List<User> GetAllCustomersAndStaffs()
         {
@@ -632,7 +632,7 @@ namespace pet_spa_system1.Services
                 // Ghi log thông tin debug
                 Console.WriteLine($"[UpdateAppointmentWithPetStaff] Cập nhật lịch hẹn ID: {vm.AppointmentId}");
                 Console.WriteLine($"[UpdateAppointmentWithPetStaff] Số lượng phân công: {vm.PetStaffAssignments?.Count ?? 0}");
-
+                
                 // Chuẩn hóa: mỗi pet gán 1 staff
                 if (vm.PetStaffAssignments != null && vm.PetStaffAssignments.Any())
                 {
@@ -692,12 +692,12 @@ namespace pet_spa_system1.Services
         }
 
         public (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId)
-        {
+        {   
             Console.WriteLine($"[SaveAppointment] Bắt đầu lưu lịch hẹn cho user {userId}");
             Console.WriteLine($"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
             Console.WriteLine($"[SaveAppointment] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
             Console.WriteLine($"[SaveAppointment] Ngày: {model.AppointmentDate}, Giờ bắt đầu: {model.StartTime}");
-
+            
             try
             {
                 // Tính toán EndTime trước khi lưu
@@ -719,7 +719,7 @@ namespace pet_spa_system1.Services
                 }
 
                 // Lấy danh sách petId
-
+               
                 // Kiểm tra trùng lịch
                 var conflicts = CheckPetAppointment(
                     model.SelectedPetIds,
@@ -793,15 +793,15 @@ namespace pet_spa_system1.Services
         {
             // Lấy tất cả lịch hẹn của user
             var appointments = _appointmentRepository.GetAppointments(new AppointmentFilter
-            {
-                Customer = string.Empty,
-                Pet = string.Empty,
-                Service = string.Empty,
-                StaffId = null,
-                Date = null,
-                Page = 1,
-                PageSize = 1000 // lấy hết
-            })
+                {
+                    Customer = string.Empty,
+                    Pet = string.Empty,
+                    Service = string.Empty,
+                    StaffId = null,
+                    Date = null,
+                    Page = 1,
+                    PageSize = 1000 // lấy hết
+                })
                 .Where(a => a.UserId == userId && (a.IsActive == null || a.IsActive == true))
                 .ToList();
 
@@ -1047,13 +1047,13 @@ namespace pet_spa_system1.Services
             };
         }
 
-
+        
         public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null)
         {
             Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra với DateTime");
             Console.WriteLine($"[CheckPetAppointment] StartDateTime: {startDateTime:dd/MM/yyyy HH:mm}");
             Console.WriteLine($"[CheckPetAppointment] EndDateTime: {endDateTime:dd/MM/yyyy HH:mm}");
-
+            
             if (petIds == null || !petIds.Any())
             {
                 Console.WriteLine("[CheckPetAppointment] Không có petIds để kiểm tra");
@@ -1064,7 +1064,7 @@ namespace pet_spa_system1.Services
 
             // Lấy tất cả lịch hẹn của các pet trong khoảng thời gian chỉ định
             var conflictingAppointments = _context.AppointmentPets
-                .Where(ap => petIds.Contains(ap.PetId) &&
+                .Where(ap => petIds.Contains(ap.PetId) && 
                             ap.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
                             ap.Appointment.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
                             ap.Appointment.StatusId != 5) // Loại trừ lịch đã từ chối (Rejected)
@@ -1127,22 +1127,22 @@ namespace pet_spa_system1.Services
             return conflicts;
         }
 
-
+        
         public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null)
         {
             Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra trùng lịch với EndTime");
             Console.WriteLine($"[CheckPetAppointment] PetIds: {string.Join(", ", petIds)}");
             Console.WriteLine($"[CheckPetAppointment] Ngày: {appointmentDate}, Giờ bắt đầu: {startTime}, Giờ kết thúc: {endTime}");
-
+            
             var startDateTime = appointmentDate.ToDateTime(startTime);
             var endDateTime = appointmentDate.ToDateTime(endTime);
-
+            
             Console.WriteLine($"[CheckPetAppointment] Thời gian kiểm tra: {startDateTime:dd/MM/yyyy HH:mm} - {endDateTime:HH:mm}");
-
+            
             return CheckPetAppointment(petIds, startDateTime, endDateTime, excludeAppointmentId);
         }
 
-
+        
         public List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null)
         {
             try
@@ -1237,7 +1237,7 @@ namespace pet_spa_system1.Services
             }
         }
 
-
+        
         public (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(int appointmentId)
         {
             try
