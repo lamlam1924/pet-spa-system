@@ -12,7 +12,47 @@ namespace pet_spa_system1.Repositories
         {
             _context = context;
         }
-        
+
+        public List<Appointment> GetAppointmentsByDateAndStatus(DateOnly date, int[] statusIds)
+        {
+            try
+            {
+                Console.WriteLine(
+                    $"[GetAppointmentsByDateAndStatus] Searching for date: {date}, statusIds: {string.Join(",", statusIds)}");
+                var query = _context.Appointments
+                    .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Pet)
+                    .Include(a => a.AppointmentServices)
+                    .ThenInclude(aps => aps.Service)
+                    .Where(a => a.AppointmentDate == date && statusIds.Contains(a.StatusId));
+
+                var result = query.ToList();
+                Console.WriteLine($"[GetAppointmentsByDateAndStatus] Found {result.Count} appointments");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetAppointmentsByDateAndStatus] Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        public List<AppointmentPet> GetAppointmentPetsByAppointmentIds(int[] appointmentIds)
+        {
+            return _context.AppointmentPets
+                .Include(ap => ap.Pet)
+                .Where(ap => appointmentIds.Contains(ap.AppointmentId))
+                .ToList();
+        }
+
+        public List<AppointmentService> GetAppointmentServicesByAppointmentIds(int[] appointmentIds)
+        {
+            return _context.AppointmentServices
+                .Include(aps => aps.Service)
+                .Where(aps => appointmentIds.Contains(aps.AppointmentId))
+                .ToList();
+        }
+
         public List<Appointment> GetAll()
         {
             return _context.Appointments
@@ -529,5 +569,94 @@ namespace pet_spa_system1.Repositories
             });
         }
 
+        public IQueryable<Appointment> GetActiveAppointmentsWithStaffAndStatus()
+        {
+            return _context.Appointments
+                .Where(a => a.IsActive == true && new[] { 2, 3, 4, 6 }.Contains(a.StatusId))
+                .Include(a => a.Employee) // Bao gồm nhân viên (User)
+                .Include(a => a.AppointmentPets)
+                .ThenInclude(ap => ap.Pet)
+                .ThenInclude(p => p.User);
+        }
+
+        public Appointment? GetAppointmentWithPetAssignments(int appointmentId)
+        {
+            var appointment = _context.Appointments
+                .FirstOrDefault(a => a.AppointmentId == appointmentId);
+
+            if (appointment == null) return null;
+
+            _context.Entry(appointment).Collection(a => a.AppointmentPets).Load();
+
+            foreach (var apptPet in appointment.AppointmentPets)
+            {
+                _context.Entry(apptPet).Reference(ap => ap.Pet).Load();
+                _context.Entry(apptPet.Pet).Reference(p => p.User).Load();
+            }
+
+            return appointment;
+        }
+
+
+        public bool IsStaffAvailableForPet(int staffId, DateOnly date, TimeOnly startTime, TimeOnly endTime,
+            int? excludeAppointmentPetId = null)
+        {
+            var appointments = _context.AppointmentPets
+                .Include(p => p.Appointment)
+                .Where(p =>
+                    p.StaffId == staffId &&
+                    p.Appointment.AppointmentDate == date &&
+                    p.Appointment.IsActive == true &&
+                    (excludeAppointmentPetId == null || p.AppointmentPetId != excludeAppointmentPetId)
+                )
+                .ToList();
+
+            foreach (var p in appointments)
+            {
+                var apptStart = p.Appointment.StartTime;
+                var apptEnd = p.Appointment.EndTime;
+                if (apptStart < endTime && apptEnd > startTime)
+                {
+                    Console.WriteLine(
+                        $"[IsStaffAvailableForPet] Trùng lịch với appointmentPetId={p.AppointmentPetId}, StaffId={staffId}");
+                    return false; // Có trùng => không khả dụng
+                }
+            }
+
+            Console.WriteLine($"[IsStaffAvailableForPet] Không trùng lịch cho nhân viên {staffId} ngày {date}");
+            return true;
+        }
+
+
+        public bool UpdateStaffForPet(int appointmentId, int petId, int newStaffId)
+        {
+            var petAssignment = _context.AppointmentPets
+                .FirstOrDefault(p => p.AppointmentId == appointmentId && p.PetId == petId);
+
+            if (petAssignment == null) return false;
+
+            var appointment = _context.Appointments
+                .FirstOrDefault(a => a.AppointmentId == appointmentId);
+
+            if (appointment == null) return false;
+
+            var isAvailable = IsStaffAvailableForPet(
+                newStaffId,
+                appointment.AppointmentDate,
+                appointment.StartTime,
+                appointment.EndTime,
+                petAssignment.AppointmentPetId // ✅ loại trừ đúng dòng đang xử lý
+            );
+
+            if (!isAvailable)
+            {
+                return false;
+            }
+
+            petAssignment.StaffId = newStaffId;
+            _context.SaveChanges();
+
+            return true;
+        }
     }
 }

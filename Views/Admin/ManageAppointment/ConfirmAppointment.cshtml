@@ -76,8 +76,16 @@
         </div>
     </div>
 
-    <form asp-action="Confirm" asp-controller="AdminAppointment" method="post" class="needs-validation" id="editAppointmentForm" novalidate>
+    @{
+        var action = Context.Request.Query["action"].ToString();
+        var statusId = action == "cancel" ? 5 : 2;
+        var buttonText = action == "cancel" ? "Xác nhận hủy lịch" : "Xác nhận lịch hẹn";
+    }
+    <form asp-action="Edit" asp-controller="AdminAppointment" method="post" class="needs-validation" id="editAppointmentForm" novalidate>
         <input type="hidden" name="AppointmentId" id="mainAppointmentId" value="@Model.AppointmentId" />
+        <input type="hidden" name="CustomerId" value="@Model.CustomerId" />
+        <input type="hidden" name="StatusId" value="@statusId" />
+        <input type="hidden" name="PetStaffAssignmentsJson" id="PetStaffAssignmentsJson" value="" />
         
         <div class="row g-4">
             <div class="col-lg-8">
@@ -169,8 +177,12 @@
                     </div>
                 </div>
 
-                <button class="btn btn-primary w-100 mt-2 btn-cancel">Hủy</button>
-                <button type="submit" class="btn btn-primary w-100 mt-2">Xác nhận lịch hẹn</button>
+                <a href="@Url.Action("ApproveAppointments", "AdminAppointment")" class="btn btn-outline-secondary w-100 mt-2">
+                    <i class="fas fa-times me-1"></i>Hủy
+                </a>
+                <button type="submit" class="btn @(statusId == 5 ? "btn-danger" : "btn-primary") w-100 mt-2">
+                    <i class="fas @(statusId == 5 ? "fa-times-circle" : "fa-check-circle") me-1"></i>@buttonText
+                </button>
                 <input type="hidden" name="PetStaffAssignmentsJson" id="PetStaffAssignmentsJson" />
             </div>
         </div>
@@ -191,80 +203,44 @@
 
             // Form submit handler - đảm bảo tất cả dữ liệu được thu thập trước khi submit
             $("#editAppointmentForm").on("submit", function(e) {
-                // Ngăn form tự động submit để có thời gian thu thập dữ liệu
                 e.preventDefault();
-
-                console.log("Đang chuẩn bị submit form - Thu thập dữ liệu...");
-
-                // Cố gắng thu thập tất cả dữ liệu nhân viên từ các dropdown
-                $('.select2-pet-staff').each(function() {
-                    var petId = $(this).data('pet-id');
-                    var staffId = $(this).val();
-                    if (petId) {
-                        // Lưu cả khi staffId rỗng, để có thể xoá phân công cũ
-                        petStaffAssignments[petId] = staffId || "0";
-                        console.log("Form submit: Phân công thú cưng #" + petId + " cho nhân viên #" + (staffId || "0"));
-                    }
-                });
-
-                // Nếu không có pet nào được chọn, cố gắng đọc từ các select2 elements
-                if (Object.keys(petStaffAssignments).length === 0) {
-                    console.warn("Không có dữ liệu pet-staff nào! Cố gắng đọc từ DOM...");
-                    // Lấy danh sách tất cả pet được chọn trong dropdown
-                    var selectedPetIds = $('.select2-pet').val();
-                    if (selectedPetIds && selectedPetIds.length) {
-                        console.log("Có " + selectedPetIds.length + " pet được chọn, thử lấy thông tin staff");
-                        selectedPetIds.forEach(function(petId) {
-                            var $staffSelect = $('.select2-pet-staff[data-pet-id="' + petId + '"]');
-                            var staffId = $staffSelect.val() || "0";
-                            petStaffAssignments[petId] = staffId;
-                            console.log("- Thu thập từ DOM: Pet #" + petId + " -> Staff #" + staffId);
-                        });
-                    }
+                
+                // Validate các trường bắt buộc
+                if (!$("[name='AppointmentDate']").val()) {
+                    alert("Vui lòng chọn ngày hẹn");
+                    return false;
+                }
+                
+                if (!$("[name='StartTime']").val()) {
+                    alert("Vui lòng chọn giờ hẹn");
+                    return false;
                 }
 
-                // Cập nhật input ẩn với dữ liệu mới nhất
-                updatePetStaffAssignmentsJson(true);  // Force update
+                // Kiểm tra có pet nào được chọn không
+                var selectedPets = $('.select2-pet').val();
+                if (!selectedPets || selectedPets.length === 0) {
+                    alert("Vui lòng chọn ít nhất một thú cưng");
+                    return false;
+                }
 
-                console.log("Form đang được gửi - AppointmentId:", $("#mainAppointmentId").val());
-                console.log("Form đang được gửi - Phân công nhân viên:", JSON.parse($('#PetStaffAssignmentsJson').val() || '[]'));
+                // Cập nhật dữ liệu phân công nhân viên
+                var assignmentCount = updatePetStaffAssignmentsJson();
 
-                // Tạm dừng một chút để đảm bảo dữ liệu được cập nhật vào DOM
-                setTimeout(function() {
-                    // Kiểm tra dữ liệu PetStaffAssignmentsJson cuối cùng
-                    var finalPetStaffJson = $('#PetStaffAssignmentsJson').val();
+                // Kiểm tra phân công nhân viên
+                if (assignmentCount === 0) {
+                    alert("Vui lòng phân công nhân viên cho các thú cưng");
+                    return false;
+                }
 
-                    if (!finalPetStaffJson || finalPetStaffJson === '[]') {
-                        console.error("CẢNH BÁO NGHIÊM TRỌNG: Dữ liệu phân công vẫn trống sau khi thử nhiều lần!");
-
-                        // Cố gắng cuối cùng: Tạo JSON trực tiếp từ petStaffAssignments
-                        if (Object.keys(petStaffAssignments).length > 0) {
-                            var directArr = [];
-                            Object.keys(petStaffAssignments).forEach(function(petId) {
-                                if (petId) {
-                                    directArr.push({
-                                        PetId: parseInt(petId),
-                                        StaffId: parseInt(petStaffAssignments[petId] || 0)
-                                    });
-                                }
-                            });
-
-                            var directJson = JSON.stringify(directArr);
-                            $('#PetStaffAssignmentsJson').val(directJson);
-                            console.log("Tạo JSON trực tiếp: " + directJson);
-                        }
-                    }
-
-                    console.log("=== FORM DATA CUỐI CÙNG ===");
-                    var formData = new FormData($("#editAppointmentForm")[0]);
-                    for (var pair of formData.entries()) {
-                        console.log(pair[0] + ': ' + pair[1]);
-                    }
-                    console.log("=== KẾT THÚC FORM DATA ===");
-
-                    // Submit form
-                    $("#editAppointmentForm")[0].submit();
-                }, 500);
+                // Log form data trước khi submit
+                console.log("=== FORM DATA TRƯỚC KHI SUBMIT ===");
+                console.log("AppointmentId:", $("#mainAppointmentId").val());
+                console.log("CustomerId:", $("[name='CustomerId']").val());
+                console.log("StatusId:", $("[name='StatusId']").val());
+                console.log("PetStaffAssignments:", JSON.parse($('#PetStaffAssignmentsJson').val()));
+                
+                // Submit form
+                this.submit();
             });
         });
         // --- Gán nhân viên cho từng thú cưng (giống Add) ---
@@ -504,82 +480,39 @@
         //     });
         //     updatePetStaffAssignmentsJson();
         // }
-        function updatePetStaffAssignmentsJson(force) {
+        function updatePetStaffAssignmentsJson() {
             console.log("==== BẮT ĐẦU CẬP NHẬT DỮ LIỆU PHÂN CÔNG ====");
 
-            // Thu thập dữ liệu từ các dropdown nếu force=true hoặc đang trống
-            if (force || Object.keys(petStaffAssignments).length === 0) {
-                console.log("FORCE UPDATE: Cố gắng thu thập dữ liệu trực tiếp từ DOM...");
+            // Reset assignments object
+            petStaffAssignments = {};
 
-                // Lấy danh sách tất cả pet được chọn
-                var selectedPetIds = $('.select2-pet').val() || [];
-                console.log("Pets được chọn: ", selectedPetIds);
+            // Thu thập dữ liệu từ tất cả các dropdown staff hiện có
+            $('.select2-pet-staff').each(function() {
+                var $select = $(this);
+                var petId = $select.data('pet-id');
+                var staffId = $select.val();
+                var staffText = $select.find('option:selected').text();
 
-                // Thu thập dữ liệu từ tất cả các dropdown staff
-                $('.select2-pet-staff').each(function() {
-                    var $select = $(this);
-                    var petId = $select.data('pet-id');
-                    var staffId = $select.val();
-                    var staffText = $select.find('option:selected').text();
-
-                    if (petId) {
-                        // Lưu mọi giá trị, kể cả rỗng để xóa phân công cũ
-                        petStaffAssignments[petId] = staffId || "0";
-                        console.log("Thu thập từ DOM: Pet #" + petId + " -> Staff #" + (staffId || "0") +
-                                    (staffId ? " (" + staffText + ")" : " (chưa chọn)"));
-                    }
-                });
-
-                // Nếu vẫn không có dữ liệu, thử lấy từ tất cả các pet được chọn
-                if (Object.keys(petStaffAssignments).length === 0 && selectedPetIds.length > 0) {
-                    console.log("Vẫn không có dữ liệu, thử lấy từ danh sách pet được chọn...");
-                    selectedPetIds.forEach(function(petId) {
-                        if (petId) {
-                            var $staffSelect = $('.select2-pet-staff[data-pet-id="' + petId + '"]');
-                            var staffId = $staffSelect.val() || "0";
-                            petStaffAssignments[petId] = staffId;
-                            console.log("Lấy từ pet được chọn: Pet #" + petId + " -> Staff #" + staffId);
-                        }
-                    });
-                }
-            } else {
-                // Đọc dữ liệu từ các dropdown để cập nhật giá trị đã có
-                $('.select2-pet-staff').each(function() {
-                    var petId = $(this).data('pet-id');
-                    var staffId = $(this).val();
-                    if (petId) {
-                        petStaffAssignments[petId] = staffId || "0";
-                        console.log("Đọc từ DOM: Pet #" + petId + " -> Staff #" + (staffId || "0"));
-                    }
-                });
-            }
-
-            // Tạo mảng dữ liệu từ tất cả các phân công
-            var arr = [];
-            Object.keys(petStaffAssignments).forEach(function(petId) {
-                // Chỉ thêm vào khi petId có giá trị hợp lệ
-                if (petId && !isNaN(parseInt(petId))) {
-                    // Luôn bao gồm StaffId, ngay cả khi = 0 (để xóa phân công cũ)
-                    var staffId = petStaffAssignments[petId] || "0";
-                    arr.push({
-                        PetId: parseInt(petId),
-                        StaffId: parseInt(staffId)
-                    });
-                    console.log("Thêm vào mảng JSON: Pet #" + petId + " -> Staff #" + staffId);
+                if (petId && staffId) {  // Chỉ lưu nếu có cả petId và staffId
+                    petStaffAssignments[petId] = staffId;
+                    console.log(`Đã thêm phân công: Pet #${petId} -> Staff #${staffId} (${staffText})`);
                 }
             });
 
-            // Cập nhật vào input ẩn
-            var json = JSON.stringify(arr);
-            $('#PetStaffAssignmentsJson').val(json);
-            console.log("PetStaffAssignmentsJson đã cập nhật:", json);
+            // Chuyển đổi thành mảng và cập nhật vào input ẩn
+            var assignments = Object.entries(petStaffAssignments).map(([petId, staffId]) => ({
+                PetId: parseInt(petId),
+                StaffId: parseInt(staffId)
+            }));
 
-            // Hiện thị thông tin debug
-            console.log("Assignments hiện tại:", petStaffAssignments);
+            var json = JSON.stringify(assignments);
+            $('#PetStaffAssignmentsJson').val(json);
+
+            console.log("Dữ liệu phân công cuối cùng:", assignments);
+            console.log("JSON đã cập nhật:", json);
             console.log("==== KẾT THÚC CẬP NHẬT DỮ LIỆU PHÂN CÔNG ====");
 
-            // Trả về số lượng phần tử để kiểm tra
-            return arr.length;
+            return assignments.length;  // Trả về số lượng phân công
         }
         function getCurrentPetOptions() {
             return $('.select2-pet option').map(function() {
