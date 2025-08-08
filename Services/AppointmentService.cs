@@ -991,19 +991,18 @@ namespace pet_spa_system1.Services
 
         public AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId)
         {
-            // Lấy lịch hẹn theo id và user
+            // Lấy lịch hẹn
             var appointment = _context.Appointments
                 .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
             if (appointment == null) return null;
 
-            // Lấy thú cưng trong lịch hẹn
+            // Lấy danh sách pet trong lịch hẹn
             var pets = _context.AppointmentPets
                 .Where(ap => ap.AppointmentId == appointmentId)
-                .Select(ap => ap.Pet)
+                .Select(ap => new { ap.PetId, ap.Pet.Name })
                 .ToList();
-            var petNames = pets.Select(p => p.Name).ToList();
 
-            // Lấy danh sách AppointmentService kèm service và status
+            // Lấy dịch vụ + ảnh
             var appointmentServices = _context.AppointmentServices
                 .Where(asv => asv.AppointmentId == appointmentId)
                 .Select(asv => new
@@ -1015,7 +1014,8 @@ namespace pet_spa_system1.Services
                     Images = asv.AppointmentServiceImages.Select(img => new
                     {
                         img.ImgUrl,
-                        img.PhotoType
+                        img.PhotoType,
+                        img.PetId
                     }).ToList()
                 })
                 .ToList();
@@ -1029,8 +1029,16 @@ namespace pet_spa_system1.Services
                 Duration = s.Service.DurationMinutes ?? 0,
                 StatusId = s.Status ?? 0,
                 StatusName = s.StatusName ?? "",
-                PetImagesBefore = s.Images.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
-                PetImagesAfter = s.Images.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
+                PetImages = s.Images
+                    .GroupBy(i => i.PetId)
+                    .Select(g => new PetImageGroup
+                    {
+                        PetId = g.Key,
+                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.Name ?? "Không rõ",
+                        Before = g.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
+                        After = g.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
+                    })
+                    .ToList()
             }).ToList();
 
             return new AppointmentHistoryItemViewModel
@@ -1041,13 +1049,14 @@ namespace pet_spa_system1.Services
                 EndTime = appointment.EndTime.ToTimeSpan(),
                 StatusId = appointment.StatusId,
                 StatusName = appointment.Status?.StatusName ?? string.Empty,
-                PetNames = petNames,
+                PetNames = pets.Select(p => p.Name).ToList(),
                 Notes = appointment.Notes,
                 Services = serviceHistory
             };
         }
 
-        
+
+
         public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null)
         {
             Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra với DateTime");
