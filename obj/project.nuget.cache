@@ -207,15 +207,5 @@
     "C:\\Users\\ADMIN\\.nuget\\packages\\system.xml.xpath.xmldocument\\4.7.0\\system.xml.xpath.xmldocument.4.7.0.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\timezoneconverter\\7.0.0\\timezoneconverter.7.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "message": "Problem reading the cache file D:\\PRN212\\PRJ_PET1\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
-      "projectPath": "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj",
-      "warningLevel": 1,
-      "filePath": "D:\\PRN212\\PRJ_PET1\\pet-spa-system1.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "logs": []
 }

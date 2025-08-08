@@ -13,7 +13,7 @@ namespace pet_spa_system1.Controllers
         private readonly IAdminStaffScheduleService _scheduleService;
 
         public StaffController(
-            IUserService userService, 
+            IUserService userService,
             IAppointmentService appointmentService,
             INotificationService notificationService,
             IAdminStaffScheduleService scheduleService)
@@ -57,13 +57,13 @@ namespace pet_spa_system1.Controllers
                 var displayName = Utils.ModelUtils.GetUserFullName(appointment.User);
                 Console.WriteLine($"ModelUtils result: '{displayName}'");
             }
-            
+
             var todayAppointments = appointments.Where(a => a.AppointmentDate.Date == now.Date).ToList();
-            var thisWeekAppointments = appointments.Where(a => 
-                a.AppointmentDate >= now.StartOfWeek() && 
+            var thisWeekAppointments = appointments.Where(a =>
+                a.AppointmentDate >= now.StartOfWeek() &&
                 a.AppointmentDate <= now.StartOfWeek().AddDays(7)).ToList();
-            var thisMonthAppointments = appointments.Where(a => 
-                a.AppointmentDate.Month == now.Month && 
+            var thisMonthAppointments = appointments.Where(a =>
+                a.AppointmentDate.Month == now.Month &&
                 a.AppointmentDate.Year == now.Year).ToList();
 
             // Lấy notifications
@@ -326,9 +326,11 @@ namespace pet_spa_system1.Controllers
                 return Json(new { success = false, message = "User not found" });
             }
 
-            return Json(new {
+            return Json(new
+            {
                 success = true,
-                data = new {
+                data = new
+                {
                     fullName = user.FullName,
                     username = user.Username,
                     email = user.Email,
