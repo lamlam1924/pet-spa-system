@@ -13,6 +13,11 @@ namespace pet_spa_system1.Repositories
             Console.WriteLine("[PetRepository] Repository initialized. Context: " + (_context != null ? "OK" : "NULL"));
         }
 
+        public Pet GetById(int id)
+        {
+            return _context.Pets.FirstOrDefault(p => p.PetId == id);
+        }
+
         public async Task<List<Pet>> GetAllPetsAsync(int page, int pageSize)
         {
             Console.WriteLine($"[PetRepository] GetAllPetsAsync called, page: {page}, pageSize: {pageSize}, Connection State: {_context.Database.CanConnect()}");

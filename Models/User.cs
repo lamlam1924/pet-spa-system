@@ -31,6 +31,8 @@ public partial class User
 
     public virtual ICollection<Appointment> AppointmentEmployees { get; set; } = new List<Appointment>();
 
+    public virtual ICollection<AppointmentPet> AppointmentPets { get; set; } = new List<AppointmentPet>();
+
     public virtual ICollection<Appointment> AppointmentUsers { get; set; } = new List<Appointment>();
 
     public virtual ICollection<Blog> BlogApprovedByNavigations { get; set; } = new List<Blog>();

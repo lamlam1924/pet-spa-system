@@ -5,6 +5,7 @@ namespace pet_spa_system1.Repositories
     public interface IPetRepository
     {
         Task<List<Pet>> GetAllPetsAsync(int page, int pageSize);
+        Pet GetById(int id);
         Task<Pet> GetPetByIdAsync(int id);
         Task<List<Species>> GetAllSpeciesAsync();
         Task<List<Pet>> GetActivePetsAsync(int page, int pageSize);

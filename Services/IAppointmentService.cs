@@ -1,104 +1,68 @@
 ﻿using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
-
+using System;
 
 namespace pet_spa_system1.Services
 {
+    public class ServiceResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
+
     public interface IAppointmentService
     {
-        /// <summary>
-        /// Gửi mail nhắc lịch cho các lịch hẹn sắp tới (trước 1 ngày)
-        /// </summary>
-        void SendUpcomingAppointmentReminders();
-
-        /// <summary>
-        /// Gửi mail thông báo cho khách hàng khi lịch hẹn được duyệt/gán hoặc bị từ chối/hủy
-        /// </summary>
-        /// <param name="appointmentId">Id lịch hẹn</param>
-        /// <param name="type">Kiểu thông báo: approved, rejected</param>
-        /// <param name="staffId">Id nhân viên được gán (nếu có)</param>
-        void SendAppointmentNotificationMail(int appointmentId, string type, int? staffId);
-
-        /// <summary>
-        /// Cập nhật trạng thái appointment bởi staff
-        /// </summary>
-        /// <param name="appointmentId">Id lịch hẹn</param>
-        /// <param name="statusId">Id trạng thái mới</param>
-        /// <param name="staffId">Id nhân viên thực hiện</param>
-        /// <returns>True nếu thành công</returns>
-        bool UpdateAppointmentStatus(int appointmentId, int statusId, int staffId);
-
-        /// <summary>
-        /// Lấy chi tiết appointment cho staff
-        /// </summary>
-        /// <param name="appointmentId">Id lịch hẹn</param>
-        /// <returns>Chi tiết appointment</returns>
-        object GetAppointmentDetail(int appointmentId);
-
-        int CalculateDurationMinutes(int appointmentId);
-        bool SaveAppointment(AppointmentViewModel vm, int userId);
-        AppointmentHistoryViewModel GetAppointmentHistory(int userId);
+        ServiceResult ApproveAndAssignStaff(int appointmentId, int staffId);
+        ServiceResult QuickUpdateStatus(int appointmentId, int statusId);
+        List<User> GetEmployees();
+        List<Pet> GetCustomerPets(int userId);
+        bool RequestCancelAppointment(int appointmentId, int userId);
         Appointment GetAppointmentById(int appointmentId);
-        List<string> GetPetNames(List<int> petIds);
-        List<string> GetServiceNames(List<int> serviceIds);
-
-        AppointmentDashboardViewModel GetDashboardData();
-        AppointmentDashboardViewModel GetDashboardStats();
+        AdminAppointmentDetailViewModel GetAdminAppointmentDetail(int id);
+        List<AdminAppointmentDetailViewModel> GetPendingApprovalAppointments();
         List<AdminAppointmentDetailViewModel> GetPendingAppointments();
         List<AdminAppointmentDetailViewModel> GetPendingCancelAppointments();
-
-        List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter);
-        int CountAppointments(ViewModel.AppointmentFilter filter);
-
-        List<StatusAppointment> GetAllStatuses();
-        List<User> GetEmployees();
-        List<User> GetCustomers();
-        List<User> GetAllCustomersAndStaffs();
-
-        AppointmentViewModel PrepareCreateViewModel();
-        bool CreateAppointment(AppointmentViewModel model, out int newAppointmentId);
-
-        AppointmentViewModel PrepareEditViewModel(int id);
-        bool UpdateAppointment(AppointmentViewModel model);
-
-        bool UpdateAppointmentStatus(int id, int statusId);
-        bool DeleteAppointment(int id);
-
-        List<Pet> GetCustomerPets(int userId);
-
-        /// <summary>
-        /// User gửi yêu cầu hủy lịch hẹn (chuyển trạng thái sang PendingCancel)
-        /// </summary>
-        /// <param name="appointmentId"></param>
-        /// <param name="userId"></param>
-        /// <returns>true nếu thành công, false nếu thất bại</returns>
-        bool RequestCancelAppointment(int appointmentId, int userId);
-
-        AdminAppointmentDetailViewModel GetAdminAppointmentDetail(int id);
-
-        /// <summary>
-        /// Lấy danh sách lịch hẹn cần duyệt (status 6 hoặc 7)
-        /// </summary>
-        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "",
-            string service = "", string status = "");
-        // Gửi mail khi duyệt lịch hoặc duyệt hủy
-        // bool UpdateAppointmentStatusAndSendMail(int id, int statusId);
-        // Thêm API lấy chi tiết lịch hẹn cho modal
-        AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
         List<AppointmentViewModel> GetAppointmentsByStaffAndDate(int staffId, DateTime date);
+        List<AppointmentViewModel> GetAppointments(AppointmentFilter filter);
+        int CountAppointments(AppointmentFilter filter);
         RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
-        bool TryUpdateAppointmentStaff(int appointmentId, int newStaffId);
-
-        bool ApproveAndAssignStaff(int appointmentId, int staffId);
-        ApproveAssignResult AdminApproveAndAssignStaff(ApproveAssignRequest request);
-
-        int? AutoAssignStaffForAppointment(Appointment appointment);
-
-        bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
-        AdminAppointmentDetailViewModel PrepareAdminEditViewModel(int id);
-        void UpdateAppointmentFromAdminDetail(AdminAppointmentDetailViewModel vm);
-        List<object> GetAppointmentsForCalendar(DateTime start, DateTime end);
+        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "");
+        AppointmentViewModel PrepareEditViewModel(int id);
+        T BuildAppointmentEmailModel<T>(Appointment appointment) where T : new();
+        AppointmentViewModel BuildAppointmentViewModel(Appointment appointment);
+        List<User> GetCustomers();
         List<Pet> GetAllPets();
         List<Service> GetAllServices();
+        List<User> GetAllCustomersAndStaffs();
+        Pet GetPetById(int petId);
+        AppointmentPet GetAppointmentPet(int appointmentId, int petId);
+        bool UpdateAppointmentWithPetStaff(AppointmentViewModel vm);
+        bool RestoreAppointment(int id);
+        void SendAppointmentNotificationMail(int appointmentId, string type, object? model = null);
+        (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId);
+        AppointmentHistoryViewModel GetAppointmentHistory(int userId);
+        bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
+        bool IsTimeConflict(DateOnly appointmentDate, TimeOnly startTime, int staffId, int durationMinutes);
+        AppointmentDashboardViewModel GetDashboardViewModel();
+        List<StatusAppointment> GetAllStatuses();
+        void DeleteAppointment(int id);
+        object GetCalendarData();
+        ViewModel.CalendarViewModel GetCalendarViewModel();
+        AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
+
+        // Kiểm tra số lượng nhân viên rảnh cho lịch hẹn
+        (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(int appointmentId);
+
+        List<int> listStaffAvailable(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime);
+
+
+        List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
+
+        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null);
+
+        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
+        bool AutoAssignStaff(int appointmentId);
+        bool ConfirmedAppointment(Appointment appointment);
+        List<User> getAllStaffFreeByAppointmentId(int appointmentId);
     }
 }

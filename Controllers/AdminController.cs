@@ -320,7 +320,7 @@ namespace pet_spa_system1.Controllers
             ViewBag.CurrentUserName = currentUser?.FullName ?? "Chưa đăng nhập";
             ViewBag.Users = new SelectList(users, "UserId", "FullName", currentUserId);
             ViewBag.Species = species;
-            return View(new PetDetailViewModel { Pet = new Pet { UserId = currentUserId }, SpeciesList = species });
+            return View(new PetDetailViewModel { Pet = new Pet { UserId = currentUserId ?? 0 }, SpeciesList = species });
         }
 
         [HttpPost]
@@ -366,7 +366,7 @@ namespace pet_spa_system1.Controllers
             }
 
             var pet = viewModel.Pet;
-            pet.UserId = pet.UserId ?? HttpContext.Session.GetInt32("CurrentUserId") ?? 1; // Mặc định session UserId
+            // pet.UserId = pet.UserId ?? HttpContext.Session.GetInt32("CurrentUserId") ?? 1; // Mặc định session UserId
             if (pet.SpeciesId == null)
             {
                 ModelState.AddModelError("Pet.SpeciesId", "Loài là trường bắt buộc.");

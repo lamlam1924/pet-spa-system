@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
+using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Repositories
 {
@@ -11,6 +12,56 @@ namespace pet_spa_system1.Repositories
         {
             _context = context;
         }
+
+        public List<Appointment> GetAll()
+        {
+            return _context.Appointments
+                .Include(a => a.User)
+                .Include(a => a.Status)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(s => s.Service)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(p => p.Pet)
+                .ToList();
+        }
+
+        public List<object> GetCalendarEvents()
+        {
+            return GetAppointments(new AppointmentFilter { })
+                .Where(a =>
+                {
+                    var cancelledStatus = _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "Cancelled");
+                    return cancelledStatus != null && a.StatusId != cancelledStatus.StatusId;
+                })
+                .Select(a => new
+                {
+                    id = a.AppointmentId,
+                    userFullName = a.User?.FullName,
+                    appointmentDate = a.AppointmentDate,
+                    startTime = a.StartTime,
+                    endTime = a.EndTime,
+                    staffIds = a.AppointmentPets?.Select(ap => ap.StaffId).ToList(),
+                    status = a.Status?.StatusName,
+                    phone = a.User?.Phone,
+                    serviceNames = a.AppointmentServices?.Select(s => s.Service?.Name),
+                    duration = a.AppointmentServices?.Sum(s => s.Service?.DurationMinutes ?? 0) ?? 0
+                })
+                .Where(a => a.appointmentDate.Year >= 1900)
+                .Select(a => new
+                {
+                    id = a.id,
+                    title = a.userFullName + " - " + string.Join(", ", a.serviceNames ?? new List<string>()),
+                    start = a.appointmentDate.ToDateTime(a.startTime).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    end = a.appointmentDate.ToDateTime(a.endTime).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    resourceIds = a.staffIds,
+                    customer = a.userFullName,
+                    phone = a.phone,
+                    services = (a.serviceNames ?? new List<string>()).ToList(),
+                    status = a.status
+                })
+                .Cast<object>().ToList();
+        }
+
 
         /// <summary>
         /// Cập nhật thông tin lịch hẹn (bao gồm trạng thái)
@@ -38,102 +89,11 @@ namespace pet_spa_system1.Repositories
             return appointment.AppointmentId;
         }
 
-        public void AddAppointmentPet(int appointmentId, int petId)
-        {
-            _context.AppointmentPets.Add(new AppointmentPet
-            {
-                AppointmentId = appointmentId,
-                PetId = petId
-            });
-        }
-
-        public void AddAppointmentService(int appointmentId, int serviceId)
-        {
-            var existingService = _context.Services.Find(serviceId);
-            if (existingService == null)
-            {
-                Console.WriteLine($"WARNING: Không tìm thấy dịch vụ ID {serviceId}");
-                return;
-            }
-
-            _context.AppointmentServices.Add(new AppointmentService
-            {
-                AppointmentId = appointmentId,
-                ServiceId = serviceId
-            });
-        }
-
-        public Appointment? GetById(int id)
-        {
-            return _context.Appointments
-                .Include(a => a.AppointmentServices).ThenInclude(s => s.Service)
-                .Include(a => a.AppointmentPets).ThenInclude(p => p.Pet)
-                .Include(a => a.Status)
-                .Include(a => a.User)
-                .SingleOrDefault(a => a.AppointmentId == id);
-        }
-
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
-
-        public List<Appointment> GetByUserIdWithDetail(int userId)
-        {
-            var result = _context.Appointments
-                .Where(a => a.UserId == userId)
-                .Include(a => a.AppointmentServices).ThenInclude(asv => asv.Service)
-                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
-                .Include(a => a.Status)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ToList();
-
-            foreach (var appointment in result)
-            {
-                Console.WriteLine($"AppointmentId: {appointment.AppointmentId}");
-                Console.WriteLine($"Services count: {appointment.AppointmentServices?.Count ?? 0}");
-                Console.WriteLine($"Pets count: {appointment.AppointmentPets?.Count ?? 0}");
-
-                if (appointment.AppointmentServices != null)
-                {
-                    foreach (var svc in appointment.AppointmentServices)
-                    {
-                        Console.WriteLine($"  Service Id: {svc.ServiceId}, Name: {svc.Service?.Name ?? "NULL"}");
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public List<StatusAppointment> GetAllStatuses()
-        {
-            return _context.StatusAppointments.ToList();
-        }
-
-        public List<string> GetPetNamesByIds(List<int> petIds)
-        {
-            if (petIds == null || petIds.Count == 0) return new List<string>();
-            return _context.Pets
-                .Where(p => petIds.Contains(p.PetId))
-                .Select(p => p.Name)
-                .ToList();
-        }
-
-        public List<string> GetServiceNamesByIds(List<int> serviceIds)
-        {
-            if (serviceIds == null || serviceIds.Count == 0) return new List<string>();
-            return _context.Services
-                .Where(s => serviceIds.Contains(s.ServiceId))
-                .Select(s => s.Name)
-                .ToList();
-        }
-
         public int CountAppointmentsByDate(DateTime date)
         {
             // Chỉ đếm các lịch đã xác nhận (StatusId == 2)
             return _context.Appointments
-                .Where(a => a.AppointmentDate.Date == date.Date && a.StatusId == 2)
+                .Where(a => a.AppointmentDate == DateOnly.FromDateTime(date) && a.StatusId == 2)
                 .Count();
         }
 
@@ -141,7 +101,7 @@ namespace pet_spa_system1.Repositories
         {
             // Chỉ đếm các lịch đã xác nhận (StatusId == 2) và ngày lớn hơn hôm nay
             return _context.Appointments
-                .Where(a => a.AppointmentDate.Date > fromDate.Date && a.StatusId == 2)
+                .Where(a => a.AppointmentDate > DateOnly.FromDateTime(fromDate) && a.StatusId == 2)
                 .Count();
         }
 
@@ -152,16 +112,14 @@ namespace pet_spa_system1.Repositories
                 .Count();
         }
 
-        public List<Appointment> GetAppointments(ViewModel.AppointmentFilter filter)
+        public List<Appointment> GetAppointments(AppointmentFilter filter)
         {
             var query = _context.Appointments
                 .Include(a => a.User)
                 .Include(a => a.Status)
-                .Include(a => a.Employee)
-                .Include(a => a.AppointmentPets)
-                .ThenInclude(ap => ap.Pet)
-                .Include(a => a.AppointmentServices)
-                .ThenInclude(asr => asr.Service)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Staff) // Nếu có navigation Staff
+                .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
                 .AsQueryable();
 
             query = ApplyFilters(query, filter);
@@ -173,39 +131,46 @@ namespace pet_spa_system1.Repositories
                 .ToList();
         }
 
-        public int CountAppointments(ViewModel.AppointmentFilter filter)
+        public int CountAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter)
         {
             var query = _context.Appointments.AsQueryable();
             query = ApplyFilters(query, filter);
             return query.Count();
         }
 
-        private IQueryable<Appointment> ApplyFilters(IQueryable<Appointment> query, ViewModel.AppointmentFilter filter)
+        private IQueryable<Appointment> ApplyFilters(IQueryable<Appointment> query,
+            pet_spa_system1.ViewModel.AppointmentFilter filter)
         {
             if (!string.IsNullOrEmpty(filter.Customer))
             {
-                query = query.Where(a => a.User != null && a.User.FullName.Contains(filter.Customer));
+                query = query.Where(a =>
+                    a.User != null && a.User.FullName != null && a.User.FullName.Contains(filter.Customer));
             }
+
             if (!string.IsNullOrEmpty(filter.Pet))
             {
-                query = query.Where(a => a.AppointmentPets.Any(ap => ap.Pet != null && ap.Pet.Name.Contains(filter.Pet)));
+                query =
+                    query.Where(a => a.AppointmentPets.Any(ap => ap.Pet != null && ap.Pet.Name.Contains(filter.Pet)));
             }
+
             if (!string.IsNullOrEmpty(filter.Service))
             {
-                query = query.Where(a => a.AppointmentServices.Any(asv => asv.Service != null && asv.Service.Name.Contains(filter.Service)));
+                query = query.Where(a =>
+                    a.AppointmentServices.Any(asv => asv.Service != null && asv.Service.Name.Contains(filter.Service)));
             }
-            if (filter.StatusIds != null && filter.StatusIds.Count > 0)
+
+            if (filter.StaffId.HasValue)
             {
-                query = query.Where(a => filter.StatusIds.Contains(a.StatusId));
+                query = query.Where(a => a.AppointmentPets.Any(ap => ap.StaffId == filter.StaffId.Value));
             }
+
             if (filter.Date.HasValue)
             {
-                query = query.Where(a => a.AppointmentDate.Date == filter.Date.Value.Date);
+                query = query.Where(a => a.AppointmentDate == DateOnly.FromDateTime(filter.Date.Value));
             }
-            if (filter.EmployeeId > 0)
-            {
-                query = query.Where(a => a.EmployeeId == filter.EmployeeId);
-            }
+
+            // Đã loại bỏ EmployeeId, chỉ lọc theo staff qua AppointmentPet nếu cần
+
             return query;
         }
 
@@ -218,7 +183,8 @@ namespace pet_spa_system1.Repositories
                 .ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices)
                 .ThenInclude(as_ => as_.Service)
-                .Where(a => a.AppointmentDate >= start && a.AppointmentDate <= end)
+                .Where(a => a.AppointmentDate >= DateOnly.FromDateTime(start) &&
+                            a.AppointmentDate <= DateOnly.FromDateTime(end))
                 .ToList();
         }
 
@@ -226,7 +192,6 @@ namespace pet_spa_system1.Repositories
         {
             return _context.Appointments
                 .Include(a => a.User)
-                .Include(a => a.Employee)
                 .Include(a => a.Status)
                 .Include(a => a.Promotion)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet).ThenInclude(p => p.Species)
@@ -245,7 +210,9 @@ namespace pet_spa_system1.Repositories
             var appointment = _context.Appointments.Find(id);
             if (appointment != null)
             {
-                _context.Appointments.Remove(appointment);
+                // Xóa mềm: chuyển trạng thái sang inactive
+                appointment.IsActive = false;
+                _context.Entry(appointment).State = EntityState.Modified;
             }
         }
 
@@ -253,14 +220,22 @@ namespace pet_spa_system1.Repositories
         {
             var appointmentPets = _context.AppointmentPets
                 .Where(ap => ap.AppointmentId == appointmentId);
-            _context.AppointmentPets.RemoveRange(appointmentPets);
+            foreach (var ap in appointmentPets)
+            {
+                ap.IsActive = false;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
         }
 
         public void DeleteAppointmentServices(int appointmentId)
         {
             var appointmentServices = _context.AppointmentServices
                 .Where(ap => ap.AppointmentId == appointmentId);
-            _context.AppointmentServices.RemoveRange(appointmentServices);
+            foreach (var ap in appointmentServices)
+            {
+                ap.IsActive = false;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
         }
 
         public List<MonthlyAppointmentStats> GetMonthlyStats(int year)
@@ -316,7 +291,9 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel || a.StatusId == 7)
+                .Where(a => a.StatusId == _context.StatusAppointments
+                                .FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId ||
+                            a.StatusId == 7)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -329,7 +306,9 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == 1 || a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel)
+                .Where(a => a.StatusId == 1 ||
+                            a.StatusId == _context.StatusAppointments
+                                .FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -342,7 +321,8 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.Employee)
                 .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
                 .Include(a => a.AppointmentServices).ThenInclude(asr => asr.Service)
-                .Where(a => a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel)
+                .Where(a => a.StatusId == _context.StatusAppointments
+                    .FirstOrDefault(s => s.StatusName == "PendingCancel").StatusId)
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToList();
         }
@@ -354,30 +334,39 @@ namespace pet_spa_system1.Repositories
 
         public int CountPendingCancelAppointments()
         {
-            return _context.Appointments.Count(a => a.StatusId == (int)pet_spa_system1.Services.AppointmentStatus.PendingCancel);
+            return _context.Appointments.Count(a =>
+                a.StatusId == _context.StatusAppointments.FirstOrDefault(s => s.StatusName == "PendingCancel")
+                    .StatusId);
         }
 
         // Repository trả entity hoặc entity list, không có EndTime
         public List<Appointment> GetAppointmentsByStaffAndDate(int staffId, DateTime date)
         {
+            // Lấy các lịch hẹn mà có ít nhất 1 AppointmentPet được gán staffId này
             return _context.Appointments
-                .Include(a => a.AppointmentServices)
-                .ThenInclude(s => s.Service)
-                .Where(a => a.EmployeeId == staffId && a.AppointmentDate.Date == date.Date)
+                .Include(a => a.AppointmentServices).ThenInclude(s => s.Service)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Staff) // Nếu có navigation Staff
+                .Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId) &&
+                            a.AppointmentDate == DateOnly.FromDateTime(date))
                 .ToList();
         }
 
         public bool HasTimeConflict(int staffId, DateTime newStart, DateTime newEnd, int? excludeAppointmentId = null)
         {
-            return _context.Appointments
-                .Where(a => a.EmployeeId == staffId)
-                .Where(a => excludeAppointmentId == null || a.AppointmentId != excludeAppointmentId)
-                .Any(a =>
-                    newStart < a.AppointmentDate.AddMinutes(a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
-                    && newEnd > a.AppointmentDate
+            // Kiểm tra trùng lịch cho từng pet-staff
+            return _context.AppointmentPets
+                .Where(ap =>
+                    ap.StaffId == staffId && (excludeAppointmentId == null || ap.AppointmentId != excludeAppointmentId))
+                .Join(_context.Appointments,
+                    ap => ap.AppointmentId,
+                    a => a.AppointmentId,
+                    (ap, a) => new { ap, a })
+                .Any(joined =>
+                    newStart < joined.a.AppointmentDate.ToDateTime(joined.a.StartTime)
+                        .AddMinutes(joined.a.AppointmentServices.Sum(s => s.Service.DurationMinutes ?? 0))
+                    && newEnd > joined.a.AppointmentDate.ToDateTime(joined.a.StartTime)
                 );
-
-
         }
 
         public List<Appointment> GetAppointmentsByStatus(int statusId)
@@ -391,6 +380,151 @@ namespace pet_spa_system1.Repositories
                 .ThenInclude(ap => ap.Pet)
                 .Where(a => a.StatusId == statusId)
                 .ToList();
+        }
+
+        public void RestoreAppointment(int id)
+        {
+            var appointment = _context.Appointments.Find(id);
+            if (appointment != null)
+            {
+                appointment.IsActive = true;
+                _context.Entry(appointment).State = EntityState.Modified;
+            }
+        }
+
+        public void RestoreAppointmentPets(int appointmentId)
+        {
+            var appointmentPets = _context.AppointmentPets
+                .Where(ap => ap.AppointmentId == appointmentId);
+            foreach (var ap in appointmentPets)
+            {
+                ap.IsActive = true;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
+        }
+
+        public void RestoreAppointmentServices(int appointmentId)
+        {
+            var appointmentServices = _context.AppointmentServices
+                .Where(ap => ap.AppointmentId == appointmentId);
+            foreach (var ap in appointmentServices)
+            {
+                ap.IsActive = true;
+                _context.Entry(ap).State = EntityState.Modified;
+            }
+        }
+
+        public List<int> GetAppointmentIdsByStaff(int staffId)
+        {
+            return _context.AppointmentPets.Where(ap => ap.StaffId == staffId).Select(ap => ap.AppointmentId).Distinct()
+                .ToList();
+        }
+
+        public List<Appointment> GetAppointmentsByIds(List<int> appointmentIds)
+        {
+            return _context.Appointments.Where(a => appointmentIds.Contains(a.AppointmentId)).ToList();
+        }
+
+        public AppointmentPet GetAppointmentPet(int appointmentId, int petId)
+        {
+            return _context.AppointmentPets.FirstOrDefault(ap =>
+                ap.AppointmentId == appointmentId && ap.PetId == petId) ?? new AppointmentPet();
+        }
+
+        public List<AppointmentPet> GetAppointmentPets(int appointmentId)
+        {
+            return _context.AppointmentPets
+                .Include(ap => ap.Pet)
+                .Include(ap => ap.Staff)
+                .Where(ap => ap.AppointmentId == appointmentId)
+                .ToList();
+        }
+
+        public void UpdateAppointmentPetStaff(int appointmentId, int petId, int staffId)
+        {
+            var ap = _context.AppointmentPets.FirstOrDefault(x => x.AppointmentId == appointmentId && x.PetId == petId);
+            if (ap != null)
+            {
+                ap.StaffId = staffId;
+                Console.WriteLine($"[UpdateAppointmentPetStaff] Cập nhật: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
+            }
+            else
+            {
+                // Nếu không tìm thấy AppointmentPet, tạo mới một record
+                var newAp = new AppointmentPet
+                {
+                    AppointmentId = appointmentId,
+                    PetId = petId,
+                    StaffId = staffId
+                };
+                _context.AppointmentPets.Add(newAp);
+                Console.WriteLine($"[UpdateAppointmentPetStaff] Tạo mới: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
+            }
+        }
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
+        }
+
+        public List<string> GetPetNamesByIds(List<int> petIds)
+        {
+            if (petIds == null || petIds.Count == 0) return new List<string>();
+            return _context.Pets
+                .Where(p => petIds.Contains(p.PetId))
+                .Select(p => p.Name)
+                .ToList();
+        }
+
+        public List<string> GetServiceNamesByIds(List<int> serviceIds)
+        {
+            if (serviceIds == null || serviceIds.Count == 0) return new List<string>();
+            return _context.Services
+                .Where(s => serviceIds.Contains(s.ServiceId))
+                .Select(s => s.Name)
+                .ToList();
+        }
+
+        public List<StatusAppointment> GetAllStatuses()
+        {
+            return _context.StatusAppointments.ToList();
+        }
+
+        public Appointment? GetById(int id)
+        {
+            return _context.Appointments
+                .Include(a => a.AppointmentServices).ThenInclude(s => s.Service)
+                .Include(a => a.AppointmentPets).ThenInclude(p => p.Pet)
+                .Include(a => a.AppointmentPets).ThenInclude(ap => ap.Staff)
+                .Include(a => a.Status)
+                .Include(a => a.User)
+                .SingleOrDefault(a => a.AppointmentId == id);
+        }
+
+        public void AddAppointmentPet(int appointmentId, int petId, int? staffId = null)
+        {
+            _context.AppointmentPets.Add(new AppointmentPet
+            {
+                AppointmentId = appointmentId,
+                PetId = petId,
+                StaffId = staffId
+            });
+        }
+
+        public void AddAppointmentService(int appointmentId, int serviceId)
+        {
+            var existingService = _context.Services.Find(serviceId);
+            if (existingService == null)
+            {
+                Console.WriteLine($"WARNING: Không tìm thấy dịch vụ ID {serviceId}");
+                return;
+            }
+
+            _context.AppointmentServices.Add(new AppointmentService
+            {
+                AppointmentId = appointmentId,
+                ServiceId = serviceId
+            });
         }
 
     }

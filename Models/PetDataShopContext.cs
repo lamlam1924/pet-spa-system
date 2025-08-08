@@ -129,7 +129,7 @@ public partial class PetDataShopContext : DbContext
 
         modelBuilder.Entity<AppointmentPet>(entity =>
         {
-            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64CA6DA51B6");
+            entity.HasKey(e => e.AppointmentPetId).HasName("PK__Appointm__C8A4B64CFAF72409");
 
             entity.HasIndex(e => new { e.AppointmentId, e.PetId }, "UQ_AppointmentPet").IsUnique();
 
@@ -147,6 +147,10 @@ public partial class PetDataShopContext : DbContext
                 .HasForeignKey(d => d.PetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Appointme__PetID__0B91BA14");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.AppointmentPets)
+                .HasForeignKey(d => d.StaffId)
+                .HasConstraintName("FK_AppointmentPet_Staff");
         });
 
         modelBuilder.Entity<AppointmentService>(entity =>
