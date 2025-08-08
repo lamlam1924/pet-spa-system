@@ -50,7 +50,16 @@ namespace pet_spa_system1.Services
 
         public async Task UpdateProductAsync(Product product)
         {
-            _context.Products.Update(product); // ✅ Cập nhật vào DbContext
+            if (product.Stock == 0)
+            {
+                product.IsActive = false;
+                _context.Products.Update(product); // ✅ Cập nhật vào DbContext
+
+            }
+            else
+            {
+                _context.Products.Update(product); // ✅ Cập nhật vào DbContext
+            }
             await _context.SaveChangesAsync(); // ✅ Lưu lại thay đổi
         }
 

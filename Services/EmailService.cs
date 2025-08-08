@@ -35,7 +35,32 @@ namespace pet_spa_system1.Services
         {
             string subject = $"[Pet Spa] Xác nhận đơn hàng #{viewModel.OrderId}";
             string body =
-                $"<h3>Xin chào {viewModel.CustomerName},</h3><p>Đơn hàng của bạn đã được xác nhận.</p><p>Mã đơn: {viewModel.OrderId}</p>";
+                $@"<div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px;background:#fff7f4;border-radius:12px;'>
+            <h2 style='color:#ff6f61;'>Cảm ơn bạn đã đặt hàng tại SPA Thú Cưng!</h2>
+            <p>Xin chào <b>{viewModel.CustomerName}</b>,</p>
+            <p>Đơn hàng <b>#{viewModel.OrderId}</b> của bạn đã được ghi nhận.</p>
+            <h3>Chi tiết đơn hàng:</h3>
+            <table style='width:100%;border-collapse:collapse;'>
+                <thead>
+                    <tr style='background:#ffe5e0;'>
+                        <th style='padding:8px;'>Sản phẩm</th>
+                        <th style='padding:8px;'>Số lượng</th>
+                        <th style='padding:8px;'>Đơn giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {string.Join("", viewModel.Items.Select(item =>
+                        $"<tr>" +
+                        $"<td style='padding:8px;'>{item.ProductName}</td>" +
+                        $"<td style='padding:8px;text-align:center;'>{item.Quantity}</td>" +
+                        $"<td style='padding:8px;'>{(item.UnitPrice.HasValue ? item.UnitPrice.Value.ToString("N0") : "0")} đ</td>" +
+                        $"</tr>"))}
+                </tbody>
+            </table>
+            <p style='margin-top:16px;'><b>Tổng tiền:</b> <span style='color:#43b581;font-size:1.2em;'>{viewModel.TotalAmount.ToString("N0")} đ</span></p>
+            <p>Địa chỉ nhận hàng: <b>{viewModel.ShippingAddress}</b></p>
+            <p style='color:#888;'>Nếu có thắc mắc, vui lòng liên hệ với chúng tôi.</p>
+        </div>";
             SendEmail(viewModel.Email, subject, body);
         }
 

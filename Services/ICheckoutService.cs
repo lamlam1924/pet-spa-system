@@ -20,5 +20,8 @@ namespace pet_spa_system1.Services
         Task UpdateOrderAsync(Order order);
         Task AddOrderItemsAsync(List<OrderItem> orderItems);
         Task UpdateUserAsync(User user);
+        //Task<bool> CheckStockForOrder(int orderId);
+        //Task ReduceStockForOrder(int orderId);
+
     }
 }
