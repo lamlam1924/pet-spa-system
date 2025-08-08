@@ -31,8 +31,8 @@ public interface IUserRepository
     Task<string> ResetStaffPasswordAsync(int staffId);
     List<pet_spa_system1.ViewModel.StaffViewModel> GetStaffList();
         List<object> GetStaffResources();
-        
-    }
+    List<User> GetUsersByIdsOrdered(List<int> userIds);
+
+}
 
 
-    

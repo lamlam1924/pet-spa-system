@@ -72,7 +72,31 @@ namespace pet_spa_system1.Controllers
 
             return View("~/Views/Admin/ManageAppointment/EditAppointment.cshtml", vm);
         }
+        [HttpGet]
+        [Route("ConfirmView")]
+        public IActionResult ConfirmView(int id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var vm = _appointmentService.PrepareEditViewModel(id); // Trả về AppointmentViewModel
+            if (vm == null) return NotFound();
+            // Bổ sung: load PetStaffAssignments từ các AppointmentPet
+            if (vm.PetStaffAssignments == null || vm.PetStaffAssignments.Count == 0)
+            {
+                vm.PetStaffAssignments = vm.SelectedPetIds?.Select(pid =>
+                {
+                    // var pet = _appointmentService.GetPetById(pid);
+                    var ap = _appointmentService.GetAppointmentPet(id, pid);
+                    return new PetStaffAssignViewModel
+                    {
+                        PetId = pid,
+                        StaffId = ap?.StaffId,
+                        StaffName = ap?.Staff?.FullName
+                    };
+                }).ToList() ?? new List<PetStaffAssignViewModel>();
+            }
 
+            return View("~/Views/Admin/ManageAppointment/ConfirmAppointment.cshtml", vm);
+        }
         [HttpPost]
         [Route("Edit")]
         [ValidateAntiForgeryToken]
@@ -358,9 +382,9 @@ namespace pet_spa_system1.Controllers
 
         [HttpGet]
         [Route("SearchStaffs")]
-        public JsonResult SearchStaffs(string term)
+        public JsonResult SearchStaffs(string term, int appointmentId)
         {
-            var staffs = _appointmentService.GetEmployees();
+            var staffs = _appointmentService.getAllStaffFreeByAppointmentId(appointmentId);
             var results = staffs
                 .Where(u => string.IsNullOrEmpty(term) ||
                             (u.FullName != null && u.FullName.Contains(term, StringComparison.OrdinalIgnoreCase)) ||

@@ -59,9 +59,9 @@ namespace pet_spa_system1.Repositories
                 .Include(a => a.User)
                 .Include(a => a.Status)
                 .Include(a => a.AppointmentServices)
-                .ThenInclude(s => s.Service)
+                    .ThenInclude(s => s.Service)
                 .Include(a => a.AppointmentPets)
-                .ThenInclude(p => p.Pet)
+                    .ThenInclude(p => p.Pet)
                 .ToList();
         }
 
@@ -171,7 +171,7 @@ namespace pet_spa_system1.Repositories
                 .ToList();
         }
 
-        public int CountAppointments(AppointmentFilter filter)
+        public int CountAppointments(pet_spa_system1.ViewModel.AppointmentFilter filter)
         {
             var query = _context.Appointments.AsQueryable();
             query = ApplyFilters(query, filter);
@@ -179,7 +179,7 @@ namespace pet_spa_system1.Repositories
         }
 
         private IQueryable<Appointment> ApplyFilters(IQueryable<Appointment> query,
-            AppointmentFilter filter)
+            pet_spa_system1.ViewModel.AppointmentFilter filter)
         {
             if (!string.IsNullOrEmpty(filter.Customer))
             {
@@ -486,8 +486,7 @@ namespace pet_spa_system1.Repositories
             if (ap != null)
             {
                 ap.StaffId = staffId;
-                Console.WriteLine(
-                    $"[UpdateAppointmentPetStaff] Cập nhật: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
+                Console.WriteLine($"[UpdateAppointmentPetStaff] Cập nhật: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
             }
             else
             {
@@ -499,8 +498,7 @@ namespace pet_spa_system1.Repositories
                     StaffId = staffId
                 };
                 _context.AppointmentPets.Add(newAp);
-                Console.WriteLine(
-                    $"[UpdateAppointmentPetStaff] Tạo mới: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
+                Console.WriteLine($"[UpdateAppointmentPetStaff] Tạo mới: AppointmentID={appointmentId}, PetID={petId}, StaffID={staffId}");
             }
         }
 
