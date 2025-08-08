@@ -1,12 +1,41 @@
 /* ===================== CSS Lịch sử đặt lịch (Appointment History) ===================== */
 
 /* ===================== Màu sắc trạng thái & filter badge ===================== */
-.status-pending, .filter-badge-pending { background-color: #fff3cd; color: #ff9800; border-color: #fff3cd; }
-.status-confirmed, .filter-badge-confirmed { background-color: #e3f0ff; color: #1565c0; border-color: #e3f0ff; }
-.status-inprogress, .filter-badge-inprogress { background-color: #e0f7fa; color: #00838f; border-color: #e0f7fa; }
-.status-completed, .filter-badge-completed { background-color: #d4edda; color: #218838; border-color: #d4edda; }
-.status-cancelled, .filter-badge-cancelled { background-color: #f8d7da; color: #c82333; border-color: #f8d7da; }
-.status-pendingcancel, .filter-badge-pendingcancel { background-color: #ffd6a0; color: #ff8800; border-color: #ffd6a0; }
+.status-pending, .filter-badge-pending {
+    background-color: #fff3cd;
+    color: #ff9800;
+    border-color: #fff3cd;
+}
+
+.status-confirmed, .filter-badge-confirmed {
+    background-color: #e3f0ff;
+    color: #1565c0;
+    border-color: #e3f0ff;
+}
+
+.status-inprogress, .filter-badge-inprogress {
+    background-color: #e0f7fa;
+    color: #00838f;
+    border-color: #e0f7fa;
+}
+
+.status-completed, .filter-badge-completed {
+    background-color: #d4edda;
+    color: #218838;
+    border-color: #d4edda;
+}
+
+.status-cancelled, .filter-badge-cancelled {
+    background-color: #f8d7da;
+    color: #c82333;
+    border-color: #f8d7da;
+}
+
+.status-pendingcancel, .filter-badge-pendingcancel {
+    background-color: #ffd6a0;
+    color: #ff8800;
+    border-color: #ffd6a0;
+}
 
 /* ===================== Badge trạng thái & filter badge khi active ===================== */
 .filter-badge-pending.active {
@@ -15,61 +44,100 @@
     color: #fff;
     box-shadow: none;
 }
+/* Tab chưa active: chữ mờ */
+.nav-tabs .nav-link {
+    color: #6c757d !important; /* Màu xám mờ */
+}
+
+.pet-image-list img {
+    width: 80px; /* Chiều rộng cố định */
+    height: 80px; /* Chiều cao cố định */
+    object-fit: cover; /* Cắt ảnh để vừa khung, không méo */
+    border-radius: 6px; /* Bo góc nhẹ cho đẹp */
+}
+
+.pet-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* Tab đang active: chữ đậm và rõ */
+.nav-tabs .nav-link.active {
+    color: #000 !important; /* Đen */
+    font-weight: bold;
+    background-color: #f8f9fa; /* Nền sáng nhẹ */
+    border-color: #dee2e6 #dee2e6 #fff; /* Giữ viền như mặc định */
+}
+
 .filter-badge-pending.active:hover, .filter-badge-pending.active:focus {
     background-color: #ff9800;
     border-color: #ff9800;
     color: #fff;
 }
+
 .filter-badge-confirmed.active {
     background-color: #007bff;
     border-color: #007bff;
     color: #fff;
     box-shadow: none;
 }
+
 .filter-badge-inprogress.active {
     background-color: #17a2b8;
     border-color: #17a2b8;
     color: #fff;
     box-shadow: none;
 }
+
 .filter-badge-completed.active {
     background-color: #28a745;
     border-color: #28a745;
     color: #fff;
     box-shadow: none;
 }
+
 .filter-badge-cancelled.active {
     background-color: #dc3545;
     border-color: #dc3545;
     color: #fff;
     box-shadow: none;
 }
+
 .filter-badge-pendingcancel.active {
     background-color: #ff7043;
     border-color: #ff7043;
     color: #fff;
     box-shadow: none;
 }
+
 .filter-badge-confirmed.active:hover, .filter-badge-confirmed.active:focus {
     background-color: #007bff;
     border-color: #007bff;
     color: #fff;
 }
+
 .filter-badge-inprogress.active:hover, .filter-badge-inprogress.active:focus {
     background-color: #17a2b8;
     border-color: #17a2b8;
     color: #fff;
 }
+
 .filter-badge-completed.active:hover, .filter-badge-completed.active:focus {
     background-color: #28a745;
     border-color: #28a745;
     color: #fff;
 }
+
 .filter-badge-cancelled.active:hover, .filter-badge-cancelled.active:focus {
     background-color: #dc3545;
     border-color: #dc3545;
     color: #fff;
 }
+
 .filter-badge-pendingcancel.active:hover, .filter-badge-pendingcancel.active:focus {
     background-color: #ff7043;
     border-color: #ff7043;
@@ -87,32 +155,32 @@
     position: relative;
 }
 
-.page-header h2 {
-    font-weight: 700;
-    color: #2d3142;
-    position: relative;
-    display: inline-block;
-    padding-bottom: 15px;
-}
+    .page-header h2 {
+        font-weight: 700;
+        color: #2d3142;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 15px;
+    }
 
-.page-header h2::after {
-    content: '';
-    position: absolute;
-    width: 70px;
-    height: 3px;
-    background-color: #f14437;
-    bottom: 0;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    border-radius: 2px;
-}
+        .page-header h2::after {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 3px;
+            background-color: #f14437;
+            bottom: 0;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
 
-.page-header p {
-    color: #6c757d;
-    max-width: 700px;
-    margin: 0 auto;
-}
+    .page-header p {
+        color: #6c757d;
+        max-width: 700px;
+        margin: 0 auto;
+    }
 
 /* ===================== Bộ lọc ===================== */
 .filter-section {
@@ -139,29 +207,29 @@
     width: 100%;
 }
 
-.search-box input {
-    width: 100%;
-    padding: 10px 15px 10px 40px;
-    border-radius: 30px;
-    border: 1px solid #e0e0e0;
-    font-size: 0.95rem;
-    transition: all 0.3s;
-}
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px 10px 40px;
+        border-radius: 30px;
+        border: 1px solid #e0e0e0;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
 
-.search-box input:focus {
-    border-color: #f14437;
-    box-shadow: 0 0 0 0.25rem rgba(241, 68, 55, 0.25);
-    outline: none;
-}
+        .search-box input:focus {
+            border-color: #f14437;
+            box-shadow: 0 0 0 0.25rem rgba(241, 68, 55, 0.25);
+            outline: none;
+        }
 
-.search-box i {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    -webkit-transform: translateY(-50%);
-    transform: translateY(-50%);
-    color: #6c757d;
-}
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
 
 .sort-options {
     display: flex;
@@ -191,17 +259,17 @@
     margin: 0 auto;
 }
 
-.history-timeline::before {
-    content: '';
-    position: absolute;
-    width: 3px;
-    background-color: #e9ecef;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 3px;
-}
+    .history-timeline::before {
+        content: '';
+        position: absolute;
+        width: 3px;
+        background-color: #e9ecef;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 3px;
+    }
 
 /* ===================== Thẻ lịch hẹn (Appointment Card) ===================== */
 .appointment-card {
@@ -298,9 +366,9 @@
     align-items: center;
 }
 
-.appointment-date-badge i {
-    margin-right: 5px;
-}
+    .appointment-date-badge i {
+        margin-right: 5px;
+    }
 
 .appointment-status {
     position: absolute;
@@ -321,13 +389,27 @@
     margin-bottom: 15px;
 }
 
-.appointment-services h5, .appointment-pets h5 {
-    color: #2d3142;
-    font-weight: 600;
-    font-size: 1rem;
-    .filter-badge-pending.active { background-color: #ffe066; border-color: #ffe066; color: #b08500; box-shadow: 0 2px 5px rgba(255,224,102,0.4); }
-    .filter-badge-pendingcancel.active { background-color: #ff8800; border-color: #ff8800; color: #fff; box-shadow: 0 2px 5px rgba(255,136,0,0.2); }
-    margin-bottom: 10px;
+    .appointment-services h5, .appointment-pets h5 {
+        color: #2d3142;
+        font-weight: 600;
+        font-size: 1rem;
+        .filter-badge-pending.active
+
+{
+    background-color: #ffe066;
+    border-color: #ffe066;
+    color: #b08500;
+    box-shadow: 0 2px 5px rgba(255,224,102,0.4);
+}
+
+.filter-badge-pendingcancel.active {
+    background-color: #ff8800;
+    border-color: #ff8800;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(255,136,0,0.2);
+}
+
+margin-bottom: 10px;
 }
 
 .service-tag, .pet-tag {
@@ -369,12 +451,13 @@
     box-shadow: 0 2px 8px rgba(241,68,55,0.07);
     transition: all 0.2s;
 }
-.btn-review:hover, .btn-review:focus {
-    background: #fff;
-    color: #f14437;
-    border-color: #f14437;
-    /* Không transform */
-}
+
+    .btn-review:hover, .btn-review:focus {
+        background: #fff;
+        color: #f14437;
+        border-color: #f14437;
+        /* Không transform */
+    }
 
 /* Nút yêu cầu hủy: nền trắng, chữ đỏ, hover thành nền đỏ chữ trắng */
 .btn-cancel-request {
@@ -391,12 +474,13 @@
     box-shadow: 0 2px 8px rgba(241,68,55,0.07);
     transition: all 0.2s;
 }
-.btn-cancel-request:hover, .btn-cancel-request:focus {
-    background: #f14437;
-    color: #fff;
-    border-color: #f14437;
-    /* Không transform */
-}
+
+    .btn-cancel-request:hover, .btn-cancel-request:focus {
+        background: #f14437;
+        color: #fff;
+        border-color: #f14437;
+        /* Không transform */
+    }
 
 /* ===================== Modal đánh giá lịch hẹn ===================== */
 .modal-review .modal-header {
@@ -405,18 +489,22 @@
     border-radius: 10px 10px 0 0;
     border-bottom: 1.5px solid #f14437;
 }
+
 .modal-review .modal-title {
     color: #fff;
     font-weight: 700;
 }
+
 .modal-review .modal-body {
     padding: 24px 20px 20px 20px;
     background: #f8f9fa;
 }
+
 .modal-review .form-label {
     color: #2d3142;
     font-weight: 600;
 }
+
 .modal-review .star-rating label {
     color: #e0e0e0;
     font-size: 2.1rem;
@@ -424,13 +512,16 @@
     cursor: pointer;
     transition: color 0.2s;
 }
+
 .modal-review .star-rating input:checked ~ label {
     color: #ffc107;
 }
+
 .modal-review .star-rating label:hover,
 .modal-review .star-rating label:hover ~ label {
     color: #ffed85;
 }
+
 .modal-review textarea.form-control {
     border-radius: 10px;
     border: 1.5px solid #e0e0e0;
@@ -439,6 +530,7 @@
     color: #495057;
     margin-bottom: 10px;
 }
+
 .modal-review .review-photo-upload {
     border: 2px dashed #f14437;
     background: #fff;
@@ -449,15 +541,18 @@
     margin-bottom: 18px;
     transition: border-color 0.2s;
 }
-.modal-review .review-photo-upload:hover {
-    border-color: #d93a2d;
-}
+
+    .modal-review .review-photo-upload:hover {
+        border-color: #d93a2d;
+    }
+
 .modal-review .review-photo-preview {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
 }
+
 .modal-review .photo-preview-item {
     width: 80px;
     height: 80px;
@@ -465,11 +560,13 @@
     overflow: hidden;
     position: relative;
 }
-.modal-review .photo-preview-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+
+    .modal-review .photo-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
 .modal-review .photo-remove {
     position: absolute;
     top: 3px;
@@ -493,26 +590,26 @@
     margin: 20px 0;
 }
 
-.star-rating input {
-    display: none;
-}
+    .star-rating input {
+        display: none;
+    }
 
-.star-rating label {
-    color: #ddd;
-    font-size: 2rem;
-    padding: 0 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
+    .star-rating label {
+        color: #ddd;
+        font-size: 2rem;
+        padding: 0 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
 
-.star-rating input:checked ~ label {
-    color: #ffd700;
-}
+    .star-rating input:checked ~ label {
+        color: #ffd700;
+    }
 
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-    color: #ffed85;
-}
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffed85;
+    }
 
 .review-photo-upload {
     border: 2px dashed #e9ecef;
@@ -524,10 +621,10 @@
     transition: all 0.3s;
 }
 
-.review-photo-upload:hover {
-    border-color: #007bff;
-    background-color: #f8f9fa;
-}
+    .review-photo-upload:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
 
 .review-photo-preview {
     display: flex;
@@ -544,11 +641,11 @@
     position: relative;
 }
 
-.photo-preview-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+    .photo-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
 .photo-remove {
     position: absolute;
@@ -703,31 +800,31 @@
     transition: all 0.3s;
 }
 
-.time-group-collapse:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-50%) scale(1.1);
-}
+    .time-group-collapse:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-50%) scale(1.1);
+    }
 
-.time-group-collapse i {
-    color: #495057;
-    transition: transform 0.3s;
-}
+    .time-group-collapse i {
+        color: #495057;
+        transition: transform 0.3s;
+    }
 
-.time-group-collapse.collapsed i {
-    transform: rotate(180deg);
-}
+    .time-group-collapse.collapsed i {
+        transform: rotate(180deg);
+    }
 
 .time-group-content {
     position: relative;
     transition: all 0.3s ease;
 }
 
-.time-group-content.collapsed {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    margin-top: -20px;
-}
+    .time-group-content.collapsed {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        margin-top: -20px;
+    }
 
 /* ===================== Badge lọc trạng thái ===================== */
 .filter-label {
@@ -754,15 +851,15 @@
     user-select: none;
 }
 
-.filter-badge i {
-    margin-right: 5px;
-}
+    .filter-badge i {
+        margin-right: 5px;
+    }
 
-.filter-badge:hover {
-    background-color: #e9ecef;
-    transform: translateY(-2px);
-    box-shadow: 0 3px 5px rgba(0,0,0,0.1);
-}
+    .filter-badge:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+    }
 
 
 /* Nổi bật filter 'Tất cả' khi active: nền xám đậm, chữ trắng */
@@ -779,22 +876,27 @@
     border-radius: 10px 10px 0 0;
     border-bottom: 1.5px solid #f14437;
 }
+
 #appointmentDetailModal .modal-title {
     color: #fff;
     font-weight: 700;
 }
+
 #appointmentDetailModal .modal-body {
     background: #f8f9fa;
 }
+
 #appointmentDetailContent .card {
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(241,68,55,0.07);
 }
+
 #appointmentDetailContent .badge {
     font-size: 0.95rem;
     padding: 6px 12px;
     border-radius: 20px;
 }
+
 #appointmentDetailContent img.img-thumbnail {
     border-radius: 8px;
     border: 1.5px solid #e0e0e0;
@@ -809,11 +911,13 @@
     padding: 30px 0 10px 0;
     max-width: 700px;
 }
+
 .service-timeline-item {
     position: relative;
     margin-bottom: 40px;
     padding-left: 50px;
 }
+
 .service-timeline-dot {
     position: absolute;
     left: 0;
@@ -831,15 +935,28 @@
     justify-content: center;
     font-size: 1.1em;
 }
-.service-timeline-dot i {
-    font-size: 1.1em;
-    line-height: 1;
-    color: #333;
-}
-.service-timeline-dot.status-completed i { color: #218838; }
-.service-timeline-dot.status-inprogress i { color: #1565c0; }
-.service-timeline-dot.status-cancelled i { color: #c82333; }
-.service-timeline-dot.status-pendingcancel i { color: #ff8800; }
+
+    .service-timeline-dot i {
+        font-size: 1.1em;
+        line-height: 1;
+        color: #333;
+    }
+
+    .service-timeline-dot.status-completed i {
+        color: #218838;
+    }
+
+    .service-timeline-dot.status-inprogress i {
+        color: #1565c0;
+    }
+
+    .service-timeline-dot.status-cancelled i {
+        color: #c82333;
+    }
+
+    .service-timeline-dot.status-pendingcancel i {
+        color: #ff8800;
+    }
 
 .service-timeline-connector {
     position: absolute;
@@ -851,6 +968,7 @@
     border-radius: 2px;
     z-index: 1;
 }
+
 .service-timeline-content {
     background: #fff;
     border-radius: 10px;
@@ -860,9 +978,11 @@
     position: relative;
     transition: box-shadow 0.2s;
 }
+
 .service-timeline-item:hover .service-timeline-content {
     box-shadow: 0 6px 18px rgba(241,68,55,0.13);
 }
+
 .staff-name {
     font-weight: 500;
     color: #1565c0;
@@ -871,26 +991,32 @@
     align-items: center;
     gap: 6px;
 }
-.staff-name .fa-user-tie {
-    color: #f14437;
-    font-size: 1.1em;
-}
+
+    .staff-name .fa-user-tie {
+        color: #f14437;
+        font-size: 1.1em;
+    }
+
 @media (max-width: 600px) {
     .service-timeline {
         padding-left: 0;
     }
+
     .service-timeline-item {
         padding-left: 35px;
     }
+
     .service-timeline-dot {
         width: 16px;
         height: 16px;
         left: -4px;
     }
+
     .service-timeline-connector {
         left: 4px;
         width: 2px;
     }
+
     .service-timeline-content {
         padding: 12px 10px 8px 10px;
     }
@@ -902,23 +1028,25 @@
     font-size: 0.97rem;
     margin-bottom: 2px;
 }
+
 .pet-image-list {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
     align-items: center;
 }
-.pet-image-list img.img-thumbnail {
-    border-radius: 7px;
-    border: 1.2px solid #e0e0e0;
-    max-width: 70px;
-    max-height: 70px;
-    object-fit: cover;
-}
+
+    .pet-image-list img.img-thumbnail {
+        border-radius: 7px;
+        border: 1.2px solid #e0e0e0;
+        max-width: 70px;
+        max-height: 70px;
+        object-fit: cover;
+    }
+
 @media (max-width: 600px) {
     .pet-image-list img.img-thumbnail {
         max-width: 48px;
         max-height: 48px;
     }
 }
-

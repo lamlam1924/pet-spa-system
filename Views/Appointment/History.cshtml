@@ -220,10 +220,10 @@
                                     </div>
                                     <div class="row g-2">
                                         <div class="col-md-3 col-6">
-                                            <img src="/images/service1_img1.jpg" class="img-fluid rounded shadow-sm" alt="Ảnh 1">
+                                            <img src="" class="img-fluid rounded shadow-sm" alt="Ảnh 1">
                                         </div>
                                         <div class="col-md-3 col-6">
-                                            <img src="/images/service1_img2.jpg" class="img-fluid rounded shadow-sm" alt="Ảnh 2">
+                                            <img src="" class="img-fluid rounded shadow-sm" alt="Ảnh 2">
                                         </div>
                                     </div>
                                 </div>
@@ -274,6 +274,12 @@
 <!-- Script -->
 <script src="~/cssjsAppointment/js/appointment-history.js"></script>
 <script>
+        // Khi modal đóng thì bỏ focus khỏi nút hoặc phần tử đang giữ focus
+        $('#appointmentDetailModal').on('hidden.bs.modal', function () {
+        document.activeElement.blur();
+    });
+
+
     // Truyền dữ liệu lịch hẹn sang JS
     window.appointmentData = @Html.Raw(Json.Serialize(Model.Appointments));
 </script>

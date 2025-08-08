@@ -4,9 +4,9 @@
 
 // ===================== JS Lịch sử đặt lịch (Appointment History) =====================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // ===== Sự kiện gửi yêu cầu hủy lịch =====
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('btn-cancel-request') || e.target.closest('.btn-cancel-request')) {
             const button = e.target.classList.contains('btn-cancel-request') ? e.target : e.target.closest('.btn-cancel-request');
 
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== Xử lý sự kiện tìm kiếm, sắp xếp, lọc =====
     // Xử lý sự kiện tìm kiếm
     if (searchInput) {
-        searchInput.addEventListener('input', function() {
+        searchInput.addEventListener('input', function () {
             currentPage = 1;
             renderAppointments();
         });
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Xử lý sự kiện sắp xếp
     if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
+        sortSelect.addEventListener('change', function () {
             currentPage = 1;
             renderAppointments();
         });
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Xử lý sự kiện lọc theo trạng thái
     if (statusFilters) {
         statusFilters.forEach(filter => {
-            filter.addEventListener('click', function() {
+            filter.addEventListener('click', function () {
                 // Bỏ active của tất cả các filter khác
                 statusFilters.forEach(f => f.classList.remove('active'));
                 // Thêm active cho filter hiện tại
@@ -227,13 +227,13 @@ document.addEventListener('DOMContentLoaded', function() {
         appointments.forEach((appointment, index) => {
             const position = index % 2 === 0 ? 'left' : 'right';
             const animateClass = position === 'left' ? 'animate-left' : 'animate-right';
-            const allowCancel = [1,2].includes(appointment.statusId) && !appointment.isPendingCancel;
+            const allowCancel = [1, 2].includes(appointment.statusId) && !appointment.isPendingCancel;
             let cancelBadge = '';
             if (appointment.isPendingCancel) {
                 cancelBadge = '<span class="badge bg-warning text-dark ms-2">Chờ duyệt hủy</span>';
             }
             html += `
-            <div class="appointment-card ${position} status-${appointment.statusId} ${animateClass}" data-status="${appointment.statusId}">
+            <div class="appointment-card ${position} status-${appointment.statusId} ${animateClass}" data-status="${appointment.statusId}" data-appointment-id="${appointment.appointmentId}">
     <div class="appointment-content">
         <span class="appointment-status ${getStatusClass(appointment.statusId)}">${appointment.statusName}</span>
         ${cancelBadge}
@@ -257,12 +257,12 @@ document.addEventListener('DOMContentLoaded', function() {
            
 
             ${appointment.statusId === 4 ?
-                `<button class="btn-review" data-id="${appointment.appointmentId}">
+                    `<button class="btn-review" data-id="${appointment.appointmentId}">
                     <i class="fas fa-star"></i> Đánh giá
                 </button>` : ''}
                 
             ${allowCancel ?
-                `<button class="btn btn-outline-danger btn-cancel-request" data-id="${appointment.appointmentId}">
+                    `<button class="btn btn-outline-danger btn-cancel-request" data-id="${appointment.appointmentId}">
                     <i class="fas fa-times-circle"></i> Yêu cầu hủy lịch
                 </button>` : ''}
         </div>
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const collapseButtons = document.querySelectorAll('.time-group-collapse');
 
         collapseButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const monthYear = this.getAttribute('data-month');
                 const content = document.querySelector(`.time-group-content[data-month="${monthYear}"]`);
 
@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initReviewModal() {
         // Lắng nghe sự kiện click nút đánh giá
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.classList.contains('btn-review') || e.target.closest('.btn-review')) {
                 const button = e.target.classList.contains('btn-review') ? e.target : e.target.closest('.btn-review');
                 const appointmentId = button.getAttribute('data-id');
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Xử lý sự kiện gửi đánh giá
         const reviewForm = document.getElementById('reviewForm');
         if (reviewForm) {
-            reviewForm.addEventListener('submit', function(e) {
+            reviewForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 const modal = document.getElementById('reviewModal');
@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.show();
 
         // Xóa toast khỏi DOM sau khi ẩn
-        toastElement.addEventListener('hidden.bs.toast', function() {
+        toastElement.addEventListener('hidden.bs.toast', function () {
             toastElement.remove();
         });
     }
@@ -448,15 +448,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== Khởi tạo Modal Chi tiết Lịch hẹn =====
     initAppointmentDetailModal();
     function initAppointmentDetailModal() {
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
+            console.log('Click target:', e.target);
             const card = e.target.closest('.appointment-card');
+            console.log('Found card:', card);
             if (card && !e.target.classList.contains('btn-review') && !e.target.classList.contains('btn-cancel-request')) {
                 const appointmentId = card.getAttribute('data-appointment-id') || card.querySelector('[data-id]')?.getAttribute('data-id');
+                console.log('Appointment ID:', appointmentId);
                 if (!appointmentId) return;
                 // Gọi API lấy chi tiết lịch hẹn
                 fetch(`/Appointment/Detail/${appointmentId}`)
                     .then(res => res.json())
                     .then(result => {
+                        console.log("API result:", result);
                         if (result.success && result.data) {
                             showAppointmentDetailModal(result.data);
                         } else {
@@ -467,61 +471,103 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+
     function showAppointmentDetailModal(appointment) {
         const modal = document.getElementById('appointmentDetailModal');
         const content = document.getElementById('appointmentDetailContent');
         if (!modal || !content) return;
-        // Hiển thị trạng thái tổng thể của lịch hẹn
-        let html = '';
-        // if (appointment.statusName) {
-        //     html += `<div class='mb-2'><span class='badge ${getStatusClass(appointment.statusId)}' style='font-size:1.05em;padding:8px 18px;'>${appointment.statusName}</span></div>`;
-        // }
-        // Hiển thị tên nhân viên phụ trách lịch hẹn (nếu có)
-        // if (appointment.staffName) {
-        //     html += `<div class='mb-3 staff-name'><i class="fas fa-user-tie me-1"></i> Nhân viên phụ trách: <b>${appointment.staffName}</b></div>`;
-        // }
-        html += `<div class='service-timeline'>`;
+
+        let html = `<div class='service-timeline'>`;
+
         if (appointment.services && appointment.services.length > 0) {
             appointment.services.forEach((service, idx) => {
-                // Chọn icon cho dot theo trạng thái
+                // Icon dot
                 let dotIcon = '';
-                if (service.statusId == 3) { // Hoàn thành
-                    dotIcon = '<i class="fas fa-check"></i>';
-                } else if (service.statusId == 2) { // Đang thực hiện
-                    dotIcon = '<i class="fas fa-clock"></i>';
-                } else if (service.statusId == 4) { // Đã hủy
-                    dotIcon = '<i class="fas fa-times"></i>';
-                } // Chờ xác nhận, mặc định không icon
+                if (service.statusId == 3) dotIcon = '<i class="fas fa-check"></i>';
+                else if (service.statusId == 2) dotIcon = '<i class="fas fa-clock"></i>';
+                else if (service.statusId == 4) dotIcon = '<i class="fas fa-times"></i>';
+
                 html += `
-                <div class='service-timeline-item'>
-                    <div class='service-timeline-dot ${getStatusClass(service.statusId)}'>${dotIcon}</div>
-                    <div class='service-timeline-content'>
-                        <div class='d-flex justify-content-between align-items-center'>
-                            <div>
-                                <b>${service.name}</b>
-                            </div>
-                        </div>
-                        <div class='mt-1 mb-2'>
-                            <span class='me-2 fw-semibold'>Trạng thái dịch vụ:</span>
-                            <span class='badge ${getStatusClass(service.statusId)}'>${service.statusName || ''}</span>
-                        </div>
-                        <div class='mt-2'>${service.description || ''}</div>
-                        <div class='row mt-2'>
-                            <div class='col-6'>
-                                <div class='pet-image-title mb-1'>Trước dịch vụ:</div>
-                                <div class='pet-image-list'>
-                                    ${service.petImagesBefore && service.petImagesBefore.length > 0 ? service.petImagesBefore.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('') : '<span class="text-muted">Chưa có</span>'}
-                                </div>
-                            </div>
-                            <div class='col-6'>
-                                <div class='pet-image-title mb-1'>Sau dịch vụ:</div>
-                                <div class='pet-image-list'>
-                                    ${service.petImagesAfter && service.petImagesAfter.length > 0 ? service.petImagesAfter.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('') : '<span class="text-muted">Chưa có</span>'}
-                                </div>
-                            </div>
-                        </div>
+            <div class='service-timeline-item'>
+                <div class='service-timeline-dot ${getStatusClass(service.statusId)}'>${dotIcon}</div>
+                <div class='service-timeline-content'>
+                    <div class='d-flex justify-content-between align-items-center'>
+                        <div><b>${service.name}</b></div>
                     </div>
-                </div>`;
+                   
+                    <div class='mt-2'>${service.description || ''}</div>
+            `;
+
+                // 🐾 Nếu có ảnh thú cưng -> nhóm theo petId
+                if (service.petImages && service.petImages.length > 0) {
+                    // Nhóm theo PetId
+                    const petsGrouped = {};
+                    service.petImages.forEach(pet => {
+                        if (!petsGrouped[pet.petId]) {
+                            petsGrouped[pet.petId] = {
+                                petName: pet.petName || 'Không rõ',
+                                before: pet.before || [],
+                                after: pet.after || []
+                            };
+                        }
+                    });
+
+                    const petIds = Object.keys(petsGrouped);
+
+                    // Tạo tab nav
+                    html += `<ul class="nav nav-tabs mt-3" role="tablist">`;
+                    petIds.forEach((petId, i) => {
+                        html += `
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${i === 0 ? 'active' : ''}" 
+                                id="pet-${petId}-tab-${idx}" 
+                                data-bs-toggle="tab" 
+                                data-bs-target="#pet-${petId}-content-${idx}" 
+                                type="button" role="tab">
+                                ${petsGrouped[petId].petName}
+                            </button>
+                        </li>
+                    `;
+                    });
+                    html += `</ul>`;
+
+                    // Tạo tab content
+                    html += `<div class="tab-content p-2 border border-top-0">`;
+                    petIds.forEach((petId, i) => {
+                        const pet = petsGrouped[petId];
+                        html += `
+                        <div class="tab-pane fade ${i === 0 ? 'show active' : ''}" 
+                             id="pet-${petId}-content-${idx}" 
+                             role="tabpanel">
+                            <div class='row'>
+                                <div class='col-6'>
+                                    <div class='pet-image-title mb-1'>Trước dịch vụ:</div>
+                                    <div class='pet-image-list'>
+                                        ${pet.before.length > 0
+                                ? pet.before.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('')
+                                : '<span class="text-muted">Chưa có</span>'}
+                                    </div>
+                                </div>
+                                <div class='col-6'>
+                                    <div class='pet-image-title mb-1'>Sau dịch vụ:</div>
+                                    <div class='pet-image-list'>
+                                        ${pet.after.length > 0
+                                ? pet.after.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('')
+                                : '<span class="text-muted">Chưa có</span>'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    });
+                    html += `</div>`;
+                } else {
+                    html += `<div class='text-muted mt-2'>Dịch vụ chưa cập nhật.</div>`;
+                }
+
+                html += `</div></div>`;
+
                 if (idx < appointment.services.length - 1) {
                     html += `<div class='service-timeline-connector'></div>`;
                 }
@@ -529,8 +575,12 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             html += `<div class='text-muted'>Không có dịch vụ nào.</div>`;
         }
+
         html += `</div>`;
         content.innerHTML = html;
         new bootstrap.Modal(modal).show();
     }
+
+
+
 });
