@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.Services;
+using pet_spa_system1.Utils;
 using pet_spa_system1.ViewModel;
 
 namespace pet_spa_system1.Controllers
@@ -15,10 +16,17 @@ namespace pet_spa_system1.Controllers
 
         public AdminAppointmentController(IAppointmentService appointmentService,
             IAppointmentRepository appointmentRepository)
-
         {
             _appointmentService = appointmentService;
             _appointmentRepository = appointmentRepository;
+        }
+
+        [HttpGet]
+        [Route("GetValidNextStatuses")]
+        public IActionResult GetValidNextStatuses(string currentStatus)
+        {
+            var validNextStatuses = _appointmentService.GetValidNextStatuses(currentStatus);
+            return Json(validNextStatuses);
         }
 
         [HttpGet]

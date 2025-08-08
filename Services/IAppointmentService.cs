@@ -48,6 +48,7 @@ namespace pet_spa_system1.Services
         AppointmentDashboardViewModel GetDashboardViewModel();
         List<StatusAppointment> GetAllStatuses();
         void DeleteAppointment(int id);
+        List<StatusAppointment> GetValidNextStatuses(string currentStatus);
         object GetCalendarData();
         CalendarViewModel GetCalendarViewModel();
         AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
