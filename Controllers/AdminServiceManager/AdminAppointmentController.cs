@@ -676,7 +676,7 @@ namespace pet_spa_system1.Controllers
         [HttpPost]
         [Route("ApproveAndAssignStaff")]
         [ValidateAntiForgeryToken]
-        public IActionResult ApproveAndAssignStaff([FromBody] ApproveRequestModel model)
+        public IActionResult ApproveAndAssignStaff(AppointmentViewModel model)
         {
             try
             {

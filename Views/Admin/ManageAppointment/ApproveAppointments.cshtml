@@ -92,12 +92,16 @@
                                                     <div class="mb-2 text-warning font-weight-bold">Yêu cầu hủy lịch
                                                         (chờ duyệt)
                                                     </div>
-                                                    <button class="btn btn-danger btn-approve-cancel"
-                                                            data-appointment-id="@appointment.AppointmentId">Duyệt hủy
-                                                    </button>
-                                                    <button class="btn btn-outline-secondary btn-reject-cancel"
-                                                            data-appointment-id="@appointment.AppointmentId">Từ chối hủy
-                                                    </button>
+                                                    <div class="mt-3 d-flex gap-2">
+                                                        <a href="/AdminAppointment/ConfirmView?id=@appointment.AppointmentId&action=cancel" 
+                                                           class="btn btn-danger flex-fill">
+                                                            <i class="fas fa-times-circle me-1"></i>Duyệt hủy
+                                                        </a>
+                                                        @* <button class="btn btn-outline-secondary btn-reject-cancel flex-fill"
+                                                                data-appointment-id="@appointment.AppointmentId">
+                                                            <i class="fas fa-ban me-1"></i>Từ chối hủy
+                                                        </button> *@
+                                                    </div>
                                                 }
                                                 else
                                                 {
