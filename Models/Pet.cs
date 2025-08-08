@@ -18,7 +18,6 @@ namespace pet_spa_system1.Models
         public bool? IsActive { get; set; }
         public DateTime? CreatedAt { get; set; }
 
-        // Quan hệ với AppointmentPets
         public virtual ICollection<AppointmentPet> AppointmentPets { get; set; } = new List<AppointmentPet>();
 
         // Quan hệ với Species
