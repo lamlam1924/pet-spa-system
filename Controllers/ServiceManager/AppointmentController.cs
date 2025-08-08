@@ -106,7 +106,6 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine($"[AppointmentController] Gọi SaveAppointment với userId: {userId.Value}");
                 Console.WriteLine($"[AppointmentController] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
                 Console.WriteLine($"[AppointmentController] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
-                
                 var result = _appointmentService.SaveAppointment(model, userId.Value);
                 if (result.Success)
                 {
@@ -137,7 +136,7 @@ namespace pet_spa_system1.Controllers
                     //ModelState.AddModelError("", "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
-                        return Json(new { success = false, message = "Pet(s) của bạn đã có lịch trùng thời gian này. Vui lòng kiểm tra lại." });
+                        return Json(new { success = false, message = result.message });
                     }
                 }
             }

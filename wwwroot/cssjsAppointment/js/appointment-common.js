@@ -102,8 +102,8 @@ $(document).ready(function() {
         }
         // Giờ phải từ 08:00 đến 20:00
         const [hour, minute] = timeVal.split(":").map(Number);
-        if (hour < 8 || hour > 20 || (hour === 20 && minute > 0)) {
-            showToast('Giờ hẹn chỉ được từ 8h sáng đến 8h tối (08:00 - 20:00)', 'warning');
+        if (hour < 8 || hour > 16 || (hour === 16 && minute > 00)) {
+            showToast('Giờ hẹn chỉ được từ 8h sáng đến  4h chiều(8am - 4pm)', 'warning');
             $('#StartTimeString').focus();
             return false;
         }

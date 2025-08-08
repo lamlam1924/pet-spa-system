@@ -658,5 +658,38 @@ namespace pet_spa_system1.Repositories
 
             return true;
         }
+        public IQueryable<AppointmentPet> GetActiveAppointmentsByPetIds(List<int> petIds)
+        {
+            return _context.AppointmentPets
+                .Where(ap => petIds.Contains(ap.PetId) &&
+                             ap.IsActive != false &&
+                             ap.Appointment.IsActive != false &&
+                             ap.Appointment.StatusId != 5);
+        }
+        public IQueryable<AppointmentPet> GetOverlappingAppointmentsByDateAndTime(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime)
+        {
+            return _context.AppointmentPets
+                .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
+                             ap.Appointment.IsActive == true &&
+                             ap.Appointment.StatusId != 5 &&
+                             ap.StaffId.HasValue &&
+                             (
+                                 (ap.Appointment.StartTime <= startTime && ap.Appointment.EndTime > startTime) ||
+                                 (ap.Appointment.StartTime < endTime && ap.Appointment.EndTime >= endTime) ||
+                                 (ap.Appointment.StartTime >= startTime && ap.Appointment.EndTime <= endTime)
+                             ));
+        }
+        public Dictionary<int, int> GetStaffAppointmentCountsByDate(DateOnly appointmentDate, List<int> availableStaffIds)
+        {
+            return _context.AppointmentPets
+                .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
+                             ap.Appointment.IsActive == true &&
+                             ap.Appointment.StatusId != 5 &&
+                             ap.StaffId.HasValue &&
+                             availableStaffIds.Contains(ap.StaffId.Value))
+                .GroupBy(ap => ap.StaffId.Value)
+                .Select(g => new { StaffId = g.Key, AppointmentCount = g.Count() })
+                .ToDictionary(x => x.StaffId, x => x.AppointmentCount);
+        }
     }
 }

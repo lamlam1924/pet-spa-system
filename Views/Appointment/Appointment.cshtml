@@ -289,8 +289,10 @@
                             <div class="col-md-6 mb-3">
                                 <label for="StartTimeString" class="form-label">Giờ hẹn</label>
                                 <input type="time" class="form-control" id="StartTimeString" name="StartTimeString"
-                                       value="@(Model.StartTimeString ?? Model.StartTime.ToString("HH:mm"))" required>
+                                       value="@(Model.StartTimeString ?? Model.StartTime.ToString("HH:mm"))"
+                                       min="08:00" max="16:00" required>
                             </div>
+
                             <div class="col-md-12 mb-3">
                                 <label for="Notes" class="form-label">Ghi chú</label>
                                 <textarea class="form-control" id="Notes" name="Notes" rows="3">@Model.Notes</textarea>

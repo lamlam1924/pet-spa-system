@@ -795,7 +795,7 @@ namespace pet_spa_system1.Services
             if (appointment == null) return;
         }
 
-        public (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId)
+        public (bool Success, int AppointmentId, string message) SaveAppointment(AppointmentViewModel model, int userId)
         {   
             Console.WriteLine($"[SaveAppointment] Bắt đầu lưu lịch hẹn cho user {userId}");
             Console.WriteLine($"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
@@ -823,7 +823,11 @@ namespace pet_spa_system1.Services
                 }
 
                 // Lấy danh sách petId
-               
+                TimeOnly targetTime = new TimeOnly(17, 0);
+                if (model.EndTime > targetTime)
+                {
+                    return(false, 0, "Thời gian kết thúc dịch vụ không được vượt quá 17:00");
+                }
                 // Kiểm tra trùng lịch
                 var conflicts = CheckPetAppointment(
                     model.SelectedPetIds,
@@ -839,7 +843,7 @@ namespace pet_spa_system1.Services
                         Console.WriteLine($"Pet: {c.PetName} | Lịch trùng: {c.ConflictingStartTime:dd/MM/yyyy HH:mm} - {c.ConflictingEndTime:HH:mm}");
                     }
                     // Có trùng lịch, không lưu và trả về false
-                    return (false, 0);
+                    return (false, 0, "Pet(s) của bạn đã có lịch trùng thời gian này. Vui lòng kiểm tra lại.");
                 }
 
                 // Tạo mới entity Appointment
@@ -884,12 +888,12 @@ namespace pet_spa_system1.Services
 
                 _appointmentRepository.SaveChanges();
                 Console.WriteLine($"[SaveAppointment] Đã lưu lịch hẹn thành công với ID: {appointmentId}");
-                return (true, appointmentId);
+                return (true, appointmentId, "thành công");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] SaveAppointment: {ex.Message}");
-                return (false, 0);
+                return (false, 0, ex.Message);
             }
         }
 
@@ -1105,8 +1109,7 @@ namespace pet_spa_system1.Services
         public AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId)
         {
             // Lấy lịch hẹn
-            var appointment = _context.Appointments
-                .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
+            var appointment = _appointmentRepository.GetById(appointmentId);
             if (appointment == null) return null;
 
             // Lấy danh sách pet trong lịch hẹn
@@ -1183,12 +1186,8 @@ namespace pet_spa_system1.Services
 
             var conflicts = new List<PetConflictInfo>();
 
-            // Lấy tất cả lịch hẹn của các pet trong khoảng thời gian chỉ định
-            var conflictingAppointments = _context.AppointmentPets
-                .Where(ap => petIds.Contains(ap.PetId) && 
-                            ap.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
-                            ap.Appointment.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
-                            ap.Appointment.StatusId != 5) // Loại trừ lịch đã từ chối (Rejected)
+            // Lấy tất cả lịch hẹn của các pet trong lịch hẹn
+            var conflictingAppointments = _appointmentRepository.GetActiveAppointmentsByPetIds(petIds)
                 .Select(ap => new
                 {
                     ap.PetId,
@@ -1268,14 +1267,9 @@ namespace pet_spa_system1.Services
         {
             try
             {
-                var query = _context.AppointmentPets
-                    .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
-                               ap.Appointment.IsActive == true &&
-                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
-                               ap.StaffId.HasValue && // Chỉ lấy những pet đã được phân công nhân viên
-                               ((ap.Appointment.StartTime <= startTime && ap.Appointment.EndTime > startTime) ||
-                                (ap.Appointment.StartTime < endTime && ap.Appointment.EndTime >= endTime) ||
-                                (ap.Appointment.StartTime >= startTime && ap.Appointment.EndTime <= endTime)));
+                // Lấy tất cả lịch hẹn trùng thời gian với ngày và giờ đã cho
+                var query = _appointmentRepository.GetOverlappingAppointmentsByDateAndTime(appointmentDate, startTime, endTime);
+                    
 
                 // Loại trừ lịch hẹn nếu có
                 if (excludeAppointmentId.HasValue)
@@ -1306,10 +1300,8 @@ namespace pet_spa_system1.Services
             try
             {
                 // Lấy tất cả nhân viên (RoleId == 3)
-                var allStaff = _context.Users
-                    .Where(u => u.RoleId == 3 && u.IsActive == true)
-                    .Select(u => u.UserId)
-                    .ToList();
+                var allStaff = _userRepository.GetActiveAllStaffUsers();
+                    
 
                 if (!allStaff.Any())
                 {
@@ -1327,16 +1319,8 @@ namespace pet_spa_system1.Services
                     return new List<int>();
                 }
 
-                // Đếm số lịch hẹn của mỗi nhân viên trong ngày
-                var staffAppointmentCounts = _context.AppointmentPets
-                    .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
-                               ap.Appointment.IsActive == true &&
-                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
-                               ap.StaffId.HasValue &&
-                               availableStaffIds.Contains(ap.StaffId.Value))
-                    .GroupBy(ap => ap.StaffId.Value)
-                    .Select(g => new { StaffId = g.Key, AppointmentCount = g.Count() })
-                    .ToDictionary(x => x.StaffId, x => x.AppointmentCount);
+                var staffAppointmentCounts = _appointmentRepository.GetStaffAppointmentCountsByDate(appointmentDate, availableStaffIds);
+
 
                 // Sắp xếp nhân viên rảnh theo số lịch hẹn từ ít đến nhiều
                 var sortedAvailableStaff = availableStaffIds
@@ -1380,9 +1364,8 @@ namespace pet_spa_system1.Services
                 }
 
                 // Lấy tất cả nhân viên (RoleId == 3)
-                var allStaff = _context.Users
-                    .Where(u => u.RoleId == 3 && u.IsActive == true)
-                    .ToList();
+                var allStaff = _userRepository.GetActiveAllStaffUsers();
+                    
 
                 if (!allStaff.Any())
                 {

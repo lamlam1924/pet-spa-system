@@ -207,4 +207,11 @@ public class UserRepository : IUserRepository
         // Giả sử dùng Entity Framework
         return _context.Users.FirstOrDefault(u => u.UserId == userId);
     }
+    public List<int> GetActiveAllStaffUsers()
+    {
+        return _context.Users
+            .Where(u => u.RoleId == 3 && u.IsActive == true)
+            .Select(u => u.UserId)
+            .ToList();
+    }
 }
