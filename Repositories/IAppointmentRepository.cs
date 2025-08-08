@@ -1,15 +1,16 @@
-
-
 using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
-using System;
-using System.Collections.Generic;
 
 namespace pet_spa_system1.Repositories
 {
     public interface IAppointmentRepository
     {
         List<Appointment> GetAll();
+
+        // Timeline management methods
+        List<Appointment> GetAppointmentsByDateAndStatus(DateOnly date, int[] statusIds);
+        List<AppointmentPet> GetAppointmentPetsByAppointmentIds(int[] appointmentIds);
+        List<AppointmentService> GetAppointmentServicesByAppointmentIds(int[] appointmentIds);
         List<object> GetCalendarEvents();
         List<Service> GetAllServices();
         List<Service> GetActiveServices();
@@ -48,17 +49,23 @@ namespace pet_spa_system1.Repositories
         void Delete(int id);
         void DeleteAppointmentPets(int appointmentId);
         void DeleteAppointmentServices(int appointmentId);
-}
+        IQueryable<Appointment> GetActiveAppointmentsWithStaffAndStatus();
 
+        Appointment? GetAppointmentWithPetAssignments(int appointmentId);
 
-public class MonthlyAppointmentStats
-{
-    public int Year { get; set; }
-    public int Month { get; set; }
-    public int TotalAppointments { get; set; }
-    public int CompletedAppointments { get; set; }
-    public int CancelledAppointments { get; set; }
-}
-        
+        bool IsStaffAvailableForPet(int staffId, DateOnly date, TimeOnly startTime, TimeOnly endTime,
+            int? excludeAppointmentPetId = null);
+
+        bool UpdateStaffForPet(int appointmentId, int petId, int newStaffId);
     }
 
+
+    public class MonthlyAppointmentStats
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int TotalAppointments { get; set; }
+        public int CompletedAppointments { get; set; }
+        public int CancelledAppointments { get; set; }
+    }
+}

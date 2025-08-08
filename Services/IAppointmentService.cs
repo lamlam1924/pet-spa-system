@@ -1,6 +1,5 @@
 ﻿using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
-using System;
 
 namespace pet_spa_system1.Services
 {
@@ -26,7 +25,10 @@ namespace pet_spa_system1.Services
         List<AppointmentViewModel> GetAppointments(AppointmentFilter filter);
         int CountAppointments(AppointmentFilter filter);
         RealtimeShiftViewModel GetManagementTimelineData(DateTime date);
-        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "", string service = "", string status = "");
+
+        ApproveAppointmentsViewModel GetPendingAppointmentsViewModel(string customer = "", string pet = "",
+            string service = "", string status = "");
+
         AppointmentViewModel PrepareEditViewModel(int id);
         T BuildAppointmentEmailModel<T>(Appointment appointment) where T : new();
         AppointmentViewModel BuildAppointmentViewModel(Appointment appointment);
@@ -47,21 +49,29 @@ namespace pet_spa_system1.Services
         List<StatusAppointment> GetAllStatuses();
         void DeleteAppointment(int id);
         object GetCalendarData();
-        ViewModel.CalendarViewModel GetCalendarViewModel();
+        CalendarViewModel GetCalendarViewModel();
         AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId);
-        
+
         // Kiểm tra số lượng nhân viên rảnh cho lịch hẹn
-        (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(int appointmentId);
-        
+        (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(
+            int appointmentId);
+
         List<int> listStaffAvailable(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime);
-        
-        
-        List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
-        
-        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null);
-        
-        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null);
+
+
+        List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime,
+            int? excludeAppointmentId = null);
+
+        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime,
+            int? excludeAppointmentId = null);
+
+        List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime,
+            TimeOnly endTime, int? excludeAppointmentId = null);
+
         bool AutoAssignStaff(int appointmentId);
         bool ConfirmedAppointment(Appointment appointment);
+
+        List<StaffShift> GetRealtimeShiftViewModel();
+        MoveResult AssignStaffToPet(int appointmentId, int petId, int newStaffId);
     }
 }
