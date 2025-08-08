@@ -213,11 +213,11 @@ namespace pet_spa_system1.Services
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null || user.RoleId != 3) return new { Count = 0 };
 
-            // Lấy tất cả appointments của staff
+            // Lấy tất cả appointments của staff từ AppointmentPet
             var allAppointments = await _userRepository.GetAppointmentsByStaffIdAsync(id);
             var now = DateTime.Now;
-            var monthCount = user.AppointmentEmployees.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
-            var dayCount = user.AppointmentEmployees.Count(a => a.AppointmentDate == DateOnly.FromDateTime(now));
+            var monthCount = allAppointments.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
+            var dayCount = allAppointments.Count(a => a.AppointmentDate == DateOnly.FromDateTime(now));
             return new { MonthCount = monthCount, DayCount = dayCount };
         }
 

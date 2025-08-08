@@ -88,6 +88,9 @@ builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 // Đăng ký ICloudinaryService
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
+// Đăng ký AppointmentServiceImageService
+builder.Services.AddScoped<IAppointmentServiceImageService, AppointmentServiceImageService>();
+
 // Cấu hình Session
 builder.Services.AddSession(options =>
 {

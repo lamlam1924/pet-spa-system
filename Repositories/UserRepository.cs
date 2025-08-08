@@ -144,7 +144,13 @@ public class UserRepository : IUserRepository
         return await _context.Appointments
             .Include(a => a.User)
             .Include(a => a.Status)
-            .Where(a => a.EmployeeId == staffId)
+            .Include(a => a.AppointmentPets)
+                .ThenInclude(ap => ap.Pet)
+            .Include(a => a.AppointmentPets)
+                .ThenInclude(ap => ap.Staff)
+            .Include(a => a.AppointmentServices)
+                .ThenInclude(aps => aps.Service)
+            .Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId))
             .ToListAsync();
     }
 

@@ -6,6 +6,57 @@
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
 }
 
+<style>
+    /* Image Gallery Styles */
+    .image-card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .image-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .image-preview {
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+
+    .image-preview.dragover {
+        border-color: #007bff;
+        background-color: #e3f2fd;
+    }
+
+    /* Photo type badges */
+    .badge.bg-light.text-warning {
+        background-color: #fff3cd !important;
+        border: 1px solid #ffeaa7;
+    }
+
+    .badge.bg-light.text-success {
+        background-color: #d1edff !important;
+        border: 1px solid #74b9ff;
+    }
+
+    /* Modal improvements */
+    .modal-lg {
+        max-width: 900px;
+    }
+
+    /* Button group spacing */
+    .btn-group-sm .btn {
+        margin-right: 2px;
+    }
+
+    /* Loading spinner */
+    .spinner-border {
+        color: #007bff;
+    }
+</style>
+
 @section Styles {
     <link rel="stylesheet" href="~/css/staff-dashboard.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -139,7 +190,9 @@
                                             <td>
                                                 @if (appointment.AppointmentPets?.Any() == true)
                                                 {
-                                                    @string.Join(", ", appointment.AppointmentPets.Select(ap => ap.Pet?.Name))
+                                                    var currentStaffId = Context.Session.GetInt32("CurrentUserId");
+                                                    var staffPets = appointment.AppointmentPets.Where(ap => ap.StaffId == currentStaffId).Select(ap => ap.Pet?.Name);
+                                                    @string.Join(", ", staffPets)
                                                 }
                                             </td>
                                             <td>
@@ -270,6 +323,102 @@
 
 
 
+<!-- Image Upload Modal -->
+<div class="modal fade" id="imageUploadModal" tabindex="-1" aria-labelledby="imageUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageUploadModalLabel">Upload ảnh dịch vụ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="imageUploadForm" enctype="multipart/form-data">
+                    <input type="hidden" id="uploadAppointmentServiceId" />
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Dịch vụ:</strong></label>
+                        <p id="uploadServiceNameDisplay" class="text-primary"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="photoType" class="form-label">Loại ảnh:</label>
+                        <select class="form-select" id="photoType" required>
+                            <option value="Before">Ảnh trước khi làm (Before)</option>
+                            <option value="After">Ảnh sau khi làm (After)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="imageFile" class="form-label">Chọn ảnh:</label>
+                        <input type="file" class="form-control" id="imageFile" accept="image/*" required>
+                        <div class="form-text">Chỉ chấp nhận file ảnh (JPG, PNG, GIF). Tối đa 5MB.</div>
+                    </div>
+
+                    <!-- Preview ảnh -->
+                    <div class="mb-3" id="imagePreview" style="display: none;">
+                        <label class="form-label">Xem trước:</label>
+                        <div class="text-center">
+                            <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 300px; max-height: 200px;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitImageUpload()">
+                    <i class="fas fa-upload me-1"></i>Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Gallery Modal -->
+<div class="modal fade" id="imageGalleryModal" tabindex="-1" aria-labelledby="imageGalleryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageGalleryModalLabel">Ảnh dịch vụ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="galleryAppointmentServiceId" />
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Dịch vụ:</strong></label>
+                    <p id="galleryServiceNameDisplay" class="text-primary"></p>
+                </div>
+
+                <!-- Loading spinner -->
+                <div id="galleryLoading" class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Images container -->
+                <div id="imagesContainer" style="display: none;">
+                    <div class="row" id="imagesList">
+                        <!-- Images will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- No images message -->
+                <div id="noImagesMessage" style="display: none;" class="text-center text-muted">
+                    <i class="fas fa-images fa-3x mb-3"></i>
+                    <p>Chưa có ảnh nào được upload cho dịch vụ này.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success" onclick="showImageUploadModalFromGallery()">
+                    <i class="fas fa-plus me-1"></i>Thêm ảnh
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Service Status Update Modal -->
 <div class="modal fade" id="serviceStatusModal" tabindex="-1" aria-labelledby="serviceStatusModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -292,8 +441,10 @@
                         <label for="serviceNewStatus" class="form-label">Trạng thái mới:</label>
                         <select class="form-select" id="serviceNewStatus" required>
                             <option value="">-- Chọn trạng thái --</option>
+                            <option value="1">Chờ xử lý</option>
                             <option value="2">Đang thực hiện</option>
                             <option value="3">Hoàn thành</option>
+                            <option value="4">Đã hủy</option>
                         </select>
                     </div>
 
@@ -368,6 +519,7 @@
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Lưu ý:</strong> Trạng thái lịch hẹn sẽ tự động cập nhật:
                     <ul class="mb-0 mt-2">
+                        <li>Khi có ít nhất 1 dịch vụ "Confirmed" → Lịch hẹn chuyển "Confirmed"</li>
                         <li>Khi có ít nhất 1 dịch vụ "Đang thực hiện" → Lịch hẹn chuyển "Đang thực hiện"</li>
                         <li>Khi tất cả dịch vụ "Hoàn thành" → Lịch hẹn chuyển "Hoàn thành"</li>
                     </ul>
@@ -437,7 +589,16 @@
             if (!appointmentPets || appointmentPets.length === 0) {
                 return 'Không có thông tin thú cưng';
             }
-            return appointmentPets.map(ap => ap.pet?.name || 'N/A').join(', ');
+
+            // Filter pets assigned to current staff
+            const currentStaffId = @(Context.Session.GetInt32("CurrentUserId") ?? 0);
+            const staffPets = appointmentPets.filter(ap => ap.staffId === currentStaffId);
+
+            if (staffPets.length === 0) {
+                return 'Không có thú cưng được phân công';
+            }
+
+            return staffPets.map(ap => ap.pet?.name || 'N/A').join(', ');
         }
 
         function getServiceNames(appointmentServices) {
@@ -457,13 +618,23 @@
                 const serviceStatus = getServiceStatusName(aps.status);
                 const statusColor = getServiceStatusColor(aps.status);
 
-                // Only show edit button for services that are not completed or cancelled
-                const canEdit = (aps.status !== 3 && aps.status !== 4);
+                // Buttons for different actions
+                const canEdit = (aps.status !== 3 && aps.status !== 4); // Không cho sửa khi đã hoàn thành hoặc đã hủy
                 const editButton = canEdit ?
-                    `<button class="btn btn-sm btn-outline-primary" onclick="updateServiceStatus(${appointmentId}, ${aps.appointmentServiceId}, '${serviceName}')">
+                    `<button class="btn btn-sm btn-outline-primary me-1" onclick="updateServiceStatus(${appointmentId}, ${aps.appointmentServiceId}, '${serviceName}')" title="Cập nhật trạng thái">
                         <i class="fas fa-edit"></i>
                     </button>` :
-                    `<small class="text-muted">Không thể sửa</small>`;
+                    `<small class="text-muted me-1">Không thể sửa</small>`;
+
+                // Upload image button (always available)
+                const uploadButton = `<button class="btn btn-sm btn-outline-success me-1" onclick="showImageUploadModal(${aps.appointmentServiceId}, '${serviceName}')" title="Upload ảnh">
+                    <i class="fas fa-camera"></i>
+                </button>`;
+
+                // View images button
+                const viewImagesButton = `<button class="btn btn-sm btn-outline-info" onclick="viewServiceImages(${aps.appointmentServiceId}, '${serviceName}')" title="Xem ảnh">
+                    <i class="fas fa-images"></i>
+                </button>`;
 
                 return `
                     <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
@@ -472,7 +643,11 @@
                             <br>
                             <span class="badge bg-${statusColor}">${serviceStatus}</span>
                         </div>
-                        ${editButton}
+                        <div class="btn-group-sm">
+                            ${editButton}
+                            ${uploadButton}
+                            ${viewImagesButton}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -480,21 +655,21 @@
 
         function getServiceStatusName(status) {
             switch(status) {
-                case 1: return 'Chờ xác nhận';
+                case 1: return 'Chờ xử lý';
                 case 2: return 'Đang thực hiện';
                 case 3: return 'Hoàn thành';
                 case 4: return 'Đã hủy';
-                default: return 'Chờ xác nhận';
+                default: return 'Chưa xác định';
             }
         }
 
         function getServiceStatusColor(status) {
             switch(status) {
-                case 1: return 'info';     // Chờ xác nhận - xanh nhạt
-                case 2: return 'warning';  // Đang thực hiện - vàng
-                case 3: return 'success';  // Hoàn thành - xanh lá
-                case 4: return 'danger';   // Đã hủy - đỏ
-                default: return 'info';
+                case 1: return 'warning';   // Chờ xử lý - vàng
+                case 2: return 'info';      // Đang thực hiện - xanh nhạt
+                case 3: return 'success';   // Hoàn thành - xanh lá
+                case 4: return 'danger';    // Đã hủy - đỏ
+                default: return 'secondary';
             }
         }
 
@@ -507,6 +682,24 @@
             $('#serviceNameDisplay').text(serviceName);
             $('#serviceNewStatus').val('');
             $('#serviceStatusNote').val('');
+
+            // Add event listener for status change
+            $('#serviceNewStatus').off('change').on('change', function() {
+                const selectedStatus = $(this).val();
+                const noteField = $('#serviceStatusNote');
+                const noteLabel = $('label[for="serviceStatusNote"]');
+
+                if (selectedStatus === '4') { // Cancelled
+                    noteLabel.html('Lý do hủy <span class="text-danger">*</span>:');
+                    noteField.attr('placeholder', 'Vui lòng nhập lý do hủy dịch vụ...');
+                    noteField.addClass('border-warning');
+                } else {
+                    noteLabel.html('Ghi chú (tùy chọn):');
+                    noteField.attr('placeholder', 'Nhập ghi chú về việc cập nhật trạng thái...');
+                    noteField.removeClass('border-warning');
+                }
+            });
+
             $('#serviceStatusModal').modal('show');
         }
 
@@ -518,6 +711,12 @@
 
             if (!newStatus) {
                 alert('Vui lòng chọn trạng thái mới');
+                return;
+            }
+
+            // Require note when cancelling
+            if (newStatus === '4' && !note.trim()) {
+                alert('Vui lòng nhập lý do hủy dịch vụ');
                 return;
             }
 
@@ -551,6 +750,224 @@
                 }
             });
         }
+
+        // =====================================================
+        // IMAGE UPLOAD/VIEW FUNCTIONS
+        // =====================================================
+
+        // Show image upload modal
+        function showImageUploadModal(appointmentServiceId, serviceName) {
+            $('#uploadAppointmentServiceId').val(appointmentServiceId);
+            $('#uploadServiceNameDisplay').text(serviceName);
+            $('#photoType').val('Before');
+            $('#imageFile').val('');
+            $('#imagePreview').hide();
+            $('#imageUploadModal').modal('show');
+        }
+
+        // Show image upload modal from gallery
+        function showImageUploadModalFromGallery() {
+            const appointmentServiceId = $('#galleryAppointmentServiceId').val();
+            const serviceName = $('#galleryServiceNameDisplay').text();
+            $('#imageGalleryModal').modal('hide');
+            showImageUploadModal(appointmentServiceId, serviceName);
+        }
+
+        // Preview image when file selected
+        $(document).on('change', '#imageFile', function() {
+            const file = this.files[0];
+            if (file) {
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+                    $(this).val('');
+                    $('#imagePreview').hide();
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Vui lòng chọn file ảnh!');
+                    $(this).val('');
+                    $('#imagePreview').hide();
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#previewImg').attr('src', e.target.result);
+                    $('#imagePreview').show();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                $('#imagePreview').hide();
+            }
+        });
+
+        // Submit image upload
+        function submitImageUpload() {
+            const appointmentServiceId = $('#uploadAppointmentServiceId').val();
+            const photoType = $('#photoType').val();
+            const fileInput = $('#imageFile')[0];
+
+            if (!fileInput.files[0]) {
+                alert('Vui lòng chọn file ảnh!');
+                return;
+            }
+
+            // Show loading
+            const uploadBtn = $('#imageUploadModal .btn-primary');
+            const originalText = uploadBtn.html();
+            uploadBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Đang upload...').prop('disabled', true);
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('appointmentServiceId', appointmentServiceId);
+            formData.append('imageFile', fileInput.files[0]);
+            formData.append('photoType', photoType);
+
+            $.ajax({
+                url: '/Staff/UploadServiceImage',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#imageUploadModal').modal('hide');
+                        showNotification('Upload ảnh thành công!', 'success');
+
+                        // Refresh gallery if it's open
+                        if ($('#imageGalleryModal').hasClass('show')) {
+                            loadServiceImages($('#galleryAppointmentServiceId').val());
+                        }
+                    } else {
+                        showNotification('Lỗi: ' + (response.message || 'Không thể upload ảnh'), 'error');
+                    }
+                },
+                error: function() {
+                    showNotification('Có lỗi xảy ra khi upload ảnh', 'error');
+                },
+                complete: function() {
+                    uploadBtn.html(originalText).prop('disabled', false);
+                }
+            });
+        }
+
+        // View service images
+        function viewServiceImages(appointmentServiceId, serviceName) {
+            $('#galleryAppointmentServiceId').val(appointmentServiceId);
+            $('#galleryServiceNameDisplay').text(serviceName);
+            $('#galleryLoading').show();
+            $('#imagesContainer').hide();
+            $('#noImagesMessage').hide();
+            $('#imageGalleryModal').modal('show');
+
+            loadServiceImages(appointmentServiceId);
+        }
+
+        // Load service images
+        function loadServiceImages(appointmentServiceId) {
+            $.ajax({
+                url: '/Staff/GetServiceImages',
+                type: 'GET',
+                data: { appointmentServiceId: appointmentServiceId },
+                success: function(response) {
+                    $('#galleryLoading').hide();
+
+                    if (response.success && response.images && response.images.length > 0) {
+                        displayImages(response.images);
+                        $('#imagesContainer').show();
+                    } else {
+                        $('#noImagesMessage').show();
+                    }
+                },
+                error: function() {
+                    $('#galleryLoading').hide();
+                    showNotification('Có lỗi xảy ra khi tải ảnh', 'error');
+                }
+            });
+        }
+
+        // Display images in gallery
+        function displayImages(images) {
+            const imagesList = $('#imagesList');
+            imagesList.empty();
+
+            images.forEach(function(img) {
+                const photoTypeClass = img.photoType === 'Before' ? 'text-warning' : 'text-success';
+                const photoTypeIcon = img.photoType === 'Before' ? 'fas fa-clock' : 'fas fa-check';
+
+                const imageCard = `
+                    <div class="col-md-6 mb-3">
+                        <div class="card image-card">
+                            <img src="${img.imageUrl}" class="card-img-top" alt="${img.photoType}" style="height: 200px; object-fit: cover; cursor: pointer;" onclick="viewImageFullSize('${img.imageUrl}')">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-light text-dark ${photoTypeClass}">
+                                            <i class="${photoTypeIcon} me-1"></i>${img.photoType}
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">${img.createdAt}</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewImageFullSize('${img.imageUrl}')" title="Xem full size">
+                                            <i class="fas fa-expand"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteServiceImage(${img.imageId})" title="Xóa ảnh">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                imagesList.append(imageCard);
+            });
+        }
+
+        // View image full size
+        function viewImageFullSize(imageUrl) {
+            window.open(imageUrl, '_blank');
+        }
+
+        // Delete service image
+        function deleteServiceImage(imageId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa ảnh này?')) {
+                return;
+            }
+
+            $.ajax({
+                url: '/Staff/DeleteServiceImage',
+                type: 'POST',
+                data: { imageId: imageId },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Xóa ảnh thành công!', 'success');
+                        // Reload images
+                        loadServiceImages($('#galleryAppointmentServiceId').val());
+                    } else {
+                        showNotification('Lỗi: ' + (response.message || 'Không thể xóa ảnh'), 'error');
+                    }
+                },
+                error: function() {
+                    showNotification('Có lỗi xảy ra khi xóa ảnh', 'error');
+                }
+            });
+        }
+
+        // Notification helper
+        function showNotification(message, type) {
+            // Simple alert for now, can be replaced with toast notifications
+            if (type === 'success') {
+                alert('✅ ' + message);
+            } else {
+                alert('❌ ' + message);
+            }
+        }
     </script>
 }
 
@@ -562,7 +979,7 @@
             // Đồng bộ với MySchedule và MyAppointments
             "Pending" or "Đang chờ xử lý" => "pending",        // #ffc107 - Vàng
             "Confirmed" or "Đã xác nhận" => "confirmed",       // #0d6efd - Xanh dương
-            "InProgress" or "Đang thực hiện" => "inprogress",  // #198754 - Xanh lá
+            "In Progress" or "InProgress" or "Đang thực hiện" => "inprogress",  // #198754 - Xanh lá
             "Completed" or "Hoàn thành" => "completed",        // #6c757d - Xám
             "Cancelled" or "Đã hủy" => "cancelled",            // #dc3545 - Đỏ
             null => "pending",

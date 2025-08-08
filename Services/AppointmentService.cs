@@ -1109,17 +1109,29 @@ namespace pet_spa_system1.Services
         public AppointmentHistoryItemViewModel GetAppointmentDetailWithPetImages(int appointmentId, int userId)
         {
             // Lấy lịch hẹn
-            var appointment = _appointmentRepository.GetById(appointmentId);
+            var appointment = _context.Appointments
+                .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
             if (appointment == null) return null;
 
-            // Lấy danh sách pet trong lịch hẹn
+            // Lấy danh sách pet trong lịch hẹn với thông tin staff
             var pets = _context.AppointmentPets
+                .Include(ap => ap.Pet)
+                .Include(ap => ap.Staff)
                 .Where(ap => ap.AppointmentId == appointmentId)
-                .Select(ap => new { ap.PetId, ap.Pet.Name })
+                .Select(ap => new {
+                    ap.PetId,
+                    PetName = ap.Pet.Name,
+                    StaffId = ap.StaffId,
+                    StaffName = ap.Staff != null ? ap.Staff.FullName : "Chưa phân công"
+                })
                 .ToList();
 
-            // Lấy dịch vụ + ảnh
+            // Lấy dịch vụ + ảnh với Include
             var appointmentServices = _context.AppointmentServices
+                .Include(asv => asv.Service)
+                    .ThenInclude(s => s.Category)
+                .Include(asv => asv.StatusNavigation)
+                .Include(asv => asv.AppointmentServiceImages)
                 .Where(asv => asv.AppointmentId == appointmentId)
                 .Select(asv => new
                 {
@@ -1136,6 +1148,16 @@ namespace pet_spa_system1.Services
                 })
                 .ToList();
 
+            Console.WriteLine($"[DEBUG] Found {appointmentServices.Count} appointment services");
+            foreach (var service in appointmentServices)
+            {
+                Console.WriteLine($"[DEBUG] Service: {service.Service?.Name}, Images: {service.Images.Count}");
+                foreach (var img in service.Images)
+                {
+                    Console.WriteLine($"[DEBUG] Image: {img.ImgUrl}, Type: {img.PhotoType}, PetId: {img.PetId}");
+                }
+            }
+
             var serviceHistory = appointmentServices.Select(s => new ServiceHistoryInfo
             {
                 ServiceId = s.Service.ServiceId,
@@ -1145,12 +1167,13 @@ namespace pet_spa_system1.Services
                 Duration = s.Service.DurationMinutes ?? 0,
                 StatusId = s.Status ?? 0,
                 StatusName = s.StatusName ?? "",
+                AppointmentServiceId = s.AppointmentServiceId, // Thêm appointmentServiceId
                 PetImages = s.Images
                     .GroupBy(i => i.PetId)
                     .Select(g => new PetImageGroup
                     {
                         PetId = g.Key,
-                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.Name ?? "Không rõ",
+                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.PetName ?? "Không rõ",
                         Before = g.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
                         After = g.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
                     })
@@ -1165,9 +1188,16 @@ namespace pet_spa_system1.Services
                 EndTime = appointment.EndTime.ToTimeSpan(),
                 StatusId = appointment.StatusId,
                 StatusName = appointment.Status?.StatusName ?? string.Empty,
-                PetNames = pets.Select(p => p.Name).ToList(),
+                PetNames = pets.Select(p => p.PetName).ToList(),
                 Notes = appointment.Notes,
-                Services = serviceHistory
+                Services = serviceHistory,
+                PetStaffAssignments = pets.Select(p => new PetStaffInfo
+                {
+                    PetId = p.PetId,
+                    PetName = p.PetName,
+                    StaffId = p.StaffId,
+                    StaffName = p.StaffName
+                }).ToList()
             };
         }
 
@@ -1657,6 +1687,8 @@ public List<StaffShift> GetRealtimeShiftViewModel()
                     .Include(a => a.Status)
                     .Include(a => a.AppointmentPets)
                         .ThenInclude(ap => ap.Pet)
+                    .Include(a => a.AppointmentPets)
+                        .ThenInclude(ap => ap.Staff)
                     .Include(a => a.AppointmentServices)
                         .ThenInclude(aps => aps.Service)
                     .FirstOrDefault(a => a.AppointmentId == appointmentId);
