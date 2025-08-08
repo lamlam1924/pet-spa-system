@@ -105,26 +105,31 @@
                                 <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
                                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
-            <div class="col-md-6">
-                <label for="StatusId" class="form-label">Trạng thái</label>
-                <select asp-for="StatusId" class="form-select">
-                    @if (Model.Statuses != null)
-                    {
-                        foreach (var status in Model.Statuses)
-                        {
-                            if (status.StatusId == Model.StatusId)
-                            {
-                                <option value="@status.StatusId" selected>@status.StatusName</option>
-                            }
-                            else
-                            {
-                                <option value="@status.StatusId">@status.StatusName</option>
-                            }
-                        }
-                    }
-                </select>
-                <span asp-validation-for="StatusId" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <label for="StatusId" class="form-label">Trạng thái</label>
+                                <select asp-for="StatusId" class="form-select">
+                                    @if (Model.Statuses != null)
+                                    {
+                                        var allowedStatuses = Model.Statuses
+                                        .Where(s => s.StatusId >= Model.StatusId) // chỉ lấy trạng thái >= trạng thái hiện tại
+                                        .ToList();
+
+                                        foreach (var status in allowedStatuses)
+                                        {
+                                            if (status.StatusId == Model.StatusId)
+                                            {
+                                                <option value="@status.StatusId" selected>@status.StatusName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@status.StatusId">@status.StatusName</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="StatusId" class="text-danger"></span>
                             </div>
+
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6">

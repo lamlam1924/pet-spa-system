@@ -10,11 +10,14 @@ namespace pet_spa_system1.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ICartService _cartService;
+        private readonly IProductRepository _productRepository;
 
-        public OrderService(IOrderRepository orderRepository, ICartService cartService)
+
+        public OrderService(IOrderRepository orderRepository, ICartService cartService, IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
             _cartService = cartService;
+            _productRepository = productRepository;
         }
         public List<OrderViewModel> GetOrdersByUserId(int? userId)
         {
@@ -108,11 +111,22 @@ namespace pet_spa_system1.Services
 
             order.StatusId = 5; // Đã hủy
             _orderRepository.UpdateOrder(order);
+         
 
-            // Thêm lại sản phẩm vào giỏ hàng
+            //thêmm lại sản phẩm vào giỏ hàng, và cộng lại stock
             foreach (var item in order.OrderItems)
             {
-                _cartService.AddToCartAsync(userId.Value, item.ProductId, item.Quantity).Wait();
+                var productTask = _productRepository.GetProductByIdAsync(item.ProductId);
+                productTask.Wait();
+                var product = productTask.Result;
+                if (product != null)
+                {
+                    product.Stock += item.Quantity; // cộng lại stock
+                    var updateTask = _productRepository.UpdateProductAsync(product);
+                    updateTask.Wait();
+                }
+                //var cartTask = _cartService.AddToCartAsync(userId.Value, item.ProductId, item.Quantity);
+                //cartTask.Wait();
             }
             return true;
         }

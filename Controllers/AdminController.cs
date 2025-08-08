@@ -88,10 +88,14 @@ namespace pet_spa_system1.Controllers
                     && o.PaymentDate.Value.Month == now.Month
                     && o.PaymentDate.Value.Year == now.Year)
                 .Sum(o => o.Amount);
+
             ViewBag.TotalRevenue = totalRevenueThisMonth;
 
-            int userCount = _context.Users.Count();
+            int userCount = _context.Users
+     .Count(u => u.RoleId == 3);
+
             ViewBag.UserCount = userCount;
+
 
             int pendingOrders = _context.Orders.Count(o => o.StatusId==1);
             ViewBag.PendingOrders = pendingOrders;
@@ -1568,20 +1572,16 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
         public IActionResult UpdateOrderStatus(int orderId, string newStatus)
         {
             Console.WriteLine("[AdminController] Accessing Index...");
-            // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
             var userId = HttpContext.Session.GetInt32("CurrentUserId");
             var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
 
             if (userId == null || roleId == null)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
             if (roleId != 1)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
 
@@ -1594,21 +1594,35 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
                     return RedirectToAction("OrderHistory");
                 }
 
-                // Kiểm tra trạng thái hiện tại
-                if (order.StatusId == 4) // Đã giao
+                // Chặn nếu đã giao
+                if (order.StatusId == 4)
                 {
                     TempData["ErrorMessage"] = "Không thể thay đổi trạng thái đơn hàng đã giao";
                     return RedirectToAction("OrderHistory");
                 }
 
-                if (order.StatusId == 5) // Đã hủy
+                // Chặn nếu đã hủy
+                if (order.StatusId == 5)
                 {
                     TempData["ErrorMessage"] = "Không thể thay đổi trạng thái đơn hàng đã hủy";
                     return RedirectToAction("OrderHistory");
                 }
 
-                // Cập nhật trạng thái
-                order.StatusId = MapStatusNameToId(newStatus);
+                // Cập nhật trạng thái mới
+                var newStatusId = MapStatusNameToId(newStatus);
+                order.StatusId = newStatusId;
+
+                // Nếu trạng thái mới là "Đã giao" => update thanh toán Cash
+                if (newStatusId == 4) // Đã giao
+                {
+                    var payment = _paymentService.GetPaymentByOrderId(orderId);
+                    if (payment != null && payment.PaymentMethodId == 3) // 3 = Cash
+                    {
+                        payment.PaymentStatusId = 2; // 2 = Đã thanh toán
+                        _paymentService.UpdatePayment(payment);
+                    }
+                }
+
                 _orderService.UpdateOrder(order);
 
                 TempData["SuccessMessage"] = "Cập nhật trạng thái đơn hàng thành công";
@@ -1620,6 +1634,7 @@ public IActionResult OrderHistory(string status = "All", int page = 1)
                 return RedirectToAction("OrderHistory");
             }
         }
+
 
         [HttpPost]
         public IActionResult DeleteOrder(int orderId)

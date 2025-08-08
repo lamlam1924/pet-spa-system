@@ -144,6 +144,15 @@ public CheckoutController(ICheckoutService checkoutService, IConfiguration confi
                 UnitPrice = cart.Product.Price
             }).ToList();
             await _checkoutService.AddOrderItemsAsync(orderItems);
+            foreach (var item in orderItems)
+            {
+                var product = await _productService.GetProductByIdAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.Stock -= item.Quantity;
+                    await _productService.UpdateProductAsync(product);
+                }
+            }
 
             var items = orderItems.Select(oi => new OrderItemDetail
             {
