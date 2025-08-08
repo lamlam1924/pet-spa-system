@@ -49,7 +49,7 @@
                 <div class="form-group">
                     <label>Ngày giờ hẹn</label>
                     <input id="appointmentDate" name="Appointment.AppointmentDate" class="form-control" required type="text"
-                           value="@(Model.Appointment?.AppointmentDate is DateTime dt ? dt.ToString("dd/MM/yyyy HH:mm") : Model.Appointment?.AppointmentDate)" />
+                           value="@(Model.Appointment != null ? Model.Appointment.AppointmentDate.ToString("dd/MM/yyyy") + " " + Model.Appointment.StartTime.ToString("HH:mm") : "")" />
                     <small class="form-text text-muted">Chọn ngày giờ theo định dạng: 25/07/2025 20:35</small>
                 </div>
                 <div class="form-group">

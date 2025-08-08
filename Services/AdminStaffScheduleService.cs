@@ -30,7 +30,7 @@ namespace pet_spa_system1.Services
             if (staffId.HasValue)
                 query = query.Where(a => a.EmployeeId == staffId);
             if (date.HasValue)
-                query = query.Where(a => a.AppointmentDate.Date == date.Value.Date);
+                query = query.Where(a => a.AppointmentDate == DateOnly.FromDateTime(date.Value));
             if (statusId.HasValue)
                 query = query.Where(a => a.StatusId == statusId);
             return await query.OrderByDescending(a => a.AppointmentDate).ToListAsync();
@@ -95,7 +95,7 @@ namespace pet_spa_system1.Services
             if (staffId.HasValue)
                 query = query.Where(a => a.EmployeeId == staffId);
             if (date.HasValue)
-                query = query.Where(a => a.AppointmentDate.Date == date.Value.Date);
+                query = query.Where(a => a.AppointmentDate == DateOnly.FromDateTime(date.Value));
             if (statusId.HasValue)
                 query = query.Where(a => a.StatusId == statusId);
             return await query.OrderByDescending(a => a.AppointmentDate).ToListAsync();

@@ -236,6 +236,7 @@ namespace pet_spa_system1.ViewModel
     {
         public int AppointmentId { get; set; }
         public DateTime AppointmentDate { get; set; }
+        public TimeOnly StartTime => TimeOnly.FromDateTime(AppointmentDate);
         public string? Notes { get; set; }
         public int StatusId { get; set; }
         public string StatusName { get; set; } = string.Empty;

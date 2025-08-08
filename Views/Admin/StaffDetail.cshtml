@@ -139,7 +139,7 @@
                                                 {
                                                     <tr>
                                                         <td>@appt.User?.FullName</td>
-                                                        <td>@appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                                        <td>@appt.AppointmentDate.ToString("dd/MM/yyyy") @appt.StartTime.ToString(@"HH\:mm")</td>
                                                         <td>
                                                             <span class="badge badge-light text-dark">
                                                                 @string.Join(", ", appt.AppointmentServices.Select(s => s.Service?.Name))

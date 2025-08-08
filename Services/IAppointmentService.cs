@@ -74,5 +74,9 @@ namespace pet_spa_system1.Services
         List<StaffShift> GetRealtimeShiftViewModel();
         MoveResult AssignStaffToPet(int appointmentId, int petId, int newStaffId);
         List<User> getAllStaffFreeByAppointmentId(int appointmentId);
+
+        // Staff methods
+        bool UpdateAppointmentStatus(int appointmentId, int statusId, int staffId);
+        Appointment GetAppointmentDetail(int appointmentId);
     }
 }

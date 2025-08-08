@@ -1589,5 +1589,50 @@ public List<StaffShift> GetRealtimeShiftViewModel()
                 return new List<User>();
             }
         }
+
+        // Staff methods implementation
+        public bool UpdateAppointmentStatus(int appointmentId, int statusId, int staffId)
+        {
+            try
+            {
+                var appointment = _context.Appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
+                if (appointment == null)
+                    return false;
+
+                // Check if staff is assigned to this appointment
+                if (appointment.EmployeeId != staffId)
+                    return false;
+
+                appointment.StatusId = statusId;
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating appointment status: {ex.Message}");
+                return false;
+            }
+        }
+
+        public Appointment GetAppointmentDetail(int appointmentId)
+        {
+            try
+            {
+                return _context.Appointments
+                    .Include(a => a.User)
+                    .Include(a => a.Employee)
+                    .Include(a => a.Status)
+                    .Include(a => a.AppointmentPets)
+                        .ThenInclude(ap => ap.Pet)
+                    .Include(a => a.AppointmentServices)
+                        .ThenInclude(aps => aps.Service)
+                    .FirstOrDefault(a => a.AppointmentId == appointmentId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting appointment detail: {ex.Message}");
+                return null;
+            }
+        }
     }
 }

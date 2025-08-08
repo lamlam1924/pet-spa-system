@@ -221,7 +221,7 @@ namespace pet_spa_system1.Controllers
         [Route("Admin/StaffDetail/{id}")]
         public async Task<IActionResult> StaffDetail(int id, [FromServices] IAdminStaffScheduleService scheduleService)
         {
-            Console.WriteLine("[AdminController] Accessing Index...");
+            Console.WriteLine("[AdminController] Accessing StaffDetail...");
             // Kiểm tra xem đã đăng nhập chưa (có UserId trong session không)
             var userId = HttpContext.Session.GetInt32("CurrentUserId");
             var roleId = HttpContext.Session.GetInt32("CurrentUserRoleId");
@@ -235,21 +235,26 @@ namespace pet_spa_system1.Controllers
             // Chỉ cho phép Admin (giả sử RoleId = 1 là Admin)
             if (roleId != 1)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine("[AdminController] User not authorized, redirecting to access denied.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             var staff = await _userService.GetStaffDetailAsync(id);
             if (staff == null) return NotFound();
+
             var appointments = await scheduleService.GetAppointmentsAsync(staffId: id);
             var now = DateTime.Now;
-            var todayCount = appointments.Count(a => a.AppointmentDate.Date == now.Date);
+            var today = DateOnly.FromDateTime(now);
+            var todayCount = appointments.Count(a => a.AppointmentDate == today);
             var monthCount = appointments.Count(a => a.AppointmentDate.Month == now.Month && a.AppointmentDate.Year == now.Year);
             var allAppointments = await _userService.GetAppointmentsByStaffIdAsync(id);
+
             // Tính hiệu suất làm việc
             int totalAppointments = allAppointments.Count;
             int completedAppointments = allAppointments.Count(a => a.Status?.StatusName == "Hoàn thành" || a.Status?.StatusName == "Completed");
             int cancelledAppointments = allAppointments.Count(a => a.Status?.StatusName == "Đã hủy" || a.Status?.StatusName == "Cancelled");
             int uniqueCustomers = allAppointments.Select(a => a.UserId).Distinct().Count();
+
             var vm = new StaffDetailViewModel
             {
                 UserId = staff.UserId,
@@ -274,32 +279,44 @@ namespace pet_spa_system1.Controllers
             };
             return View("~/Views/Admin/StaffDetail.cshtml", vm);
         }
-
         [HttpPost]
+        [Route("Admin/StaffDetail/{id}")]
         public async Task<IActionResult> StaffDetail(StaffDetailViewModel model, IFormFile imageFile, [FromServices] IAdminStaffScheduleService scheduleService)
         {
             var staff = await _userService.GetStaffDetailAsync(model.UserId);
             if (staff == null) return NotFound();
+
             // Upload ảnh nếu có
             if (imageFile != null && imageFile.Length > 0)
             {
-                var account = new Account(
-                    "dprp1jbd9", // cloud_name
-                    "584135338254938", // api_key
-                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
-                );
-                var cloudinary = new Cloudinary(account);
-                var uploadParams = new ImageUploadParams()
+                try
                 {
-                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream())
-                };
-                var uploadResult = await cloudinary.UploadAsync(uploadParams);
-                string imageUrl = uploadResult.SecureUrl.ToString();
-                if (staff.ProfilePictureUrl != imageUrl)
+                    // Tạo tên file unique
+                    var fileName = $"staff_{model.UserId}_{DateTime.Now:yyyyMMddHHmmss}{Path.GetExtension(imageFile.FileName)}";
+                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "staff");
+
+                    // Tạo thư mục nếu chưa có
+                    if (!Directory.Exists(uploadsPath))
+                        Directory.CreateDirectory(uploadsPath);
+
+                    var filePath = Path.Combine(uploadsPath, fileName);
+
+                    // Lưu file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(stream);
+                    }
+
+                    // Cập nhật URL
+                    staff.ProfilePictureUrl = $"/uploads/staff/{fileName}";
+                }
+                catch (Exception ex)
                 {
-                    staff.ProfilePictureUrl = imageUrl;
+                    Console.WriteLine($"Error uploading image: {ex.Message}");
+                    TempData["ErrorMessage"] = "Có lỗi khi upload ảnh";
                 }
             }
+
             // Cập nhật thông tin nếu có thay đổi
             if (staff.FullName != model.FullName)
                 staff.FullName = model.FullName;
@@ -309,7 +326,10 @@ namespace pet_spa_system1.Controllers
                 staff.Phone = model.Phone;
             if (staff.Address != model.Address)
                 staff.Address = model.Address;
+
             await _userService.EditUserAsync(staff);
+            TempData["SuccessMessage"] = "Cập nhật thông tin nhân viên thành công";
+
             // Sau khi lưu, redirect lại chính trang StaffDetail
             return RedirectToAction("StaffDetail", new { id = model.UserId });
         }

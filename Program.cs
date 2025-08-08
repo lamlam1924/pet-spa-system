@@ -75,7 +75,7 @@ builder.Services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
 builder.Services.AddScoped<IOrderStatusService, OrderStatusService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-// builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
+builder.Services.AddScoped<IAdminStaffScheduleService, AdminStaffScheduleService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();

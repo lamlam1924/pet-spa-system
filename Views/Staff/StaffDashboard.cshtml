@@ -134,7 +134,7 @@
                                     @foreach (var appointment in Model.TodayAppointments.OrderBy(a => a.AppointmentDate))
                                     {
                                         <tr>
-                                            <td>@appointment.AppointmentDate.ToString("HH:mm")</td>
+                                            <td>@appointment.StartTime.ToString("HH:mm")</td>
                                             <td>@(appointment.User?.FullName ?? appointment.User?.Username ?? "Không xác định")</td>
                                             <td>
                                                 @if (appointment.AppointmentPets?.Any() == true)
@@ -223,7 +223,7 @@
                         {
                             <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                                 <div>
-                                    <small class="text-muted">@appointment.AppointmentDate.ToString("dd/MM HH:mm")</small>
+                                    <small class="text-muted">@appointment.AppointmentDate.ToString("dd/MM") @appointment.StartTime.ToString("HH:mm")</small>
                                     <br>
                                     <strong>@(appointment.User?.FullName ?? appointment.User?.Username ?? "Không xác định")</strong>
                                 </div>
@@ -268,38 +268,44 @@
     </div>
 </div>
 
-<!-- Status Update Modal -->
-<div class="modal fade" id="statusUpdateModal" tabindex="-1" aria-labelledby="statusUpdateModalLabel" aria-hidden="true">
+
+
+<!-- Service Status Update Modal -->
+<div class="modal fade" id="serviceStatusModal" tabindex="-1" aria-labelledby="serviceStatusModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="statusUpdateModalLabel">Cập nhật trạng thái lịch hẹn</h5>
+                <h5 class="modal-title" id="serviceStatusModalLabel">Cập nhật trạng thái dịch vụ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="statusUpdateForm">
-                    <input type="hidden" id="updateAppointmentId" />
+                <form id="serviceStatusForm">
+                    <input type="hidden" id="serviceAppointmentId" />
+                    <input type="hidden" id="serviceAppointmentServiceId" />
+
                     <div class="mb-3">
-                        <label for="newStatus" class="form-label">Trạng thái mới</label>
-                        <select class="form-select" id="newStatus" required>
-                            <option value="">Chọn trạng thái...</option>
-                            <option value="Confirmed">Đã xác nhận</option>
-                            <option value="InProgress">Đang thực hiện</option>
-                            <option value="Completed">Hoàn thành</option>
-                            <option value="Cancelled">Đã hủy</option>
+                        <label class="form-label"><strong>Dịch vụ:</strong></label>
+                        <p id="serviceNameDisplay" class="text-primary"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="serviceNewStatus" class="form-label">Trạng thái mới:</label>
+                        <select class="form-select" id="serviceNewStatus" required>
+                            <option value="">-- Chọn trạng thái --</option>
+                            <option value="2">Đang thực hiện</option>
+                            <option value="3">Hoàn thành</option>
                         </select>
                     </div>
+
                     <div class="mb-3">
-                        <label for="statusNote" class="form-label">Ghi chú (tùy chọn)</label>
-                        <textarea class="form-control" id="statusNote" rows="3" placeholder="Nhập ghi chú về việc thay đổi trạng thái..."></textarea>
+                        <label for="serviceStatusNote" class="form-label">Ghi chú (tùy chọn):</label>
+                        <textarea class="form-control" id="serviceStatusNote" rows="3" placeholder="Nhập ghi chú về việc cập nhật trạng thái..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="updateAppointmentStatus()">
-                    <i class="fas fa-save me-1"></i>Cập nhật
-                </button>
+                <button type="button" class="btn btn-primary" onclick="submitServiceStatusUpdate()">Cập nhật</button>
             </div>
         </div>
     </div>
@@ -356,18 +362,17 @@
             const modalContent = createAppointmentDetailContent(appointment);
             $('#appointmentDetailContent').html(modalContent);
 
-            // Add action buttons
-            const statusName = appointment.status?.statusName;
-            console.log('Status name:', statusName);
-            const canUpdate = canUpdateStatus(statusName);
-            console.log('Can update:', canUpdate);
-
-            const actionButtons = canUpdate ?
-                `<button type="button" class="btn btn-primary" onclick="showStatusUpdateFromDetail(${appointment.appointmentId})">
-                    <i class="fas fa-edit me-1"></i>Cập nhật trạng thái
-                </button>` :
-                `<small class="text-muted">Trạng thái "${statusName}" không thể cập nhật</small>`;
-            $('#appointmentActions').html(actionButtons);
+            // Show info about automatic status update
+            $('#appointmentActions').html(`
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Lưu ý:</strong> Trạng thái lịch hẹn sẽ tự động cập nhật:
+                    <ul class="mb-0 mt-2">
+                        <li>Khi có ít nhất 1 dịch vụ "Đang thực hiện" → Lịch hẹn chuyển "Đang thực hiện"</li>
+                        <li>Khi tất cả dịch vụ "Hoàn thành" → Lịch hẹn chuyển "Hoàn thành"</li>
+                    </ul>
+                </div>
+            `);
 
             $('#appointmentDetailModal').modal('show');
         }
@@ -411,7 +416,7 @@
                             <i class="fas fa-spa me-2"></i>Dịch vụ
                         </h6>
                         <div class="border rounded p-2 bg-light">
-                            ${getServiceNames(appointment.appointmentServices)}
+                            ${getServiceList(appointment.appointmentServices, appointment.appointmentId)}
                         </div>
                     </div>
                 </div>
@@ -442,30 +447,74 @@
             return appointmentServices.map(aps => aps.service?.name || 'N/A').join(', ');
         }
 
-        function canUpdateStatus(statusName) {
-            const updatableStatuses = [
-                'Pending',      // Đang chờ xử lý
-                'Confirmed',    // Đã xác nhận
-                'InProgress',   // Đang thực hiện
-                'PendingCancel' // Chờ hủy
-            ];
-            return updatableStatuses.includes(statusName);
+        function getServiceList(appointmentServices, appointmentId) {
+            if (!appointmentServices || appointmentServices.length === 0) {
+                return 'Không có thông tin dịch vụ';
+            }
+
+            return appointmentServices.map(aps => {
+                const serviceName = aps.service?.name || 'N/A';
+                const serviceStatus = getServiceStatusName(aps.status);
+                const statusColor = getServiceStatusColor(aps.status);
+
+                // Only show edit button for services that are not completed or cancelled
+                const canEdit = (aps.status !== 3 && aps.status !== 4);
+                const editButton = canEdit ?
+                    `<button class="btn btn-sm btn-outline-primary" onclick="updateServiceStatus(${appointmentId}, ${aps.appointmentServiceId}, '${serviceName}')">
+                        <i class="fas fa-edit"></i>
+                    </button>` :
+                    `<small class="text-muted">Không thể sửa</small>`;
+
+                return `
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <div>
+                            <strong>${serviceName}</strong>
+                            <br>
+                            <span class="badge bg-${statusColor}">${serviceStatus}</span>
+                        </div>
+                        ${editButton}
+                    </div>
+                `;
+            }).join('');
         }
 
-        function showStatusUpdateFromDetail(appointmentId) {
-            $('#appointmentDetailModal').modal('hide');
-            setTimeout(() => {
-                $('#updateAppointmentId').val(appointmentId);
-                $('#newStatus').val('');
-                $('#statusNote').val('');
-                $('#statusUpdateModal').modal('show');
-            }, 300);
+        function getServiceStatusName(status) {
+            switch(status) {
+                case 1: return 'Chờ xác nhận';
+                case 2: return 'Đang thực hiện';
+                case 3: return 'Hoàn thành';
+                case 4: return 'Đã hủy';
+                default: return 'Chờ xác nhận';
+            }
         }
 
-        function updateAppointmentStatus() {
-            const appointmentId = $('#updateAppointmentId').val();
-            const newStatus = $('#newStatus').val();
-            const note = $('#statusNote').val();
+        function getServiceStatusColor(status) {
+            switch(status) {
+                case 1: return 'info';     // Chờ xác nhận - xanh nhạt
+                case 2: return 'warning';  // Đang thực hiện - vàng
+                case 3: return 'success';  // Hoàn thành - xanh lá
+                case 4: return 'danger';   // Đã hủy - đỏ
+                default: return 'info';
+            }
+        }
+
+
+
+        // Service status update functions
+        function updateServiceStatus(appointmentId, appointmentServiceId, serviceName) {
+            $('#serviceAppointmentId').val(appointmentId);
+            $('#serviceAppointmentServiceId').val(appointmentServiceId);
+            $('#serviceNameDisplay').text(serviceName);
+            $('#serviceNewStatus').val('');
+            $('#serviceStatusNote').val('');
+            $('#serviceStatusModal').modal('show');
+        }
+
+        function submitServiceStatusUpdate() {
+            const appointmentId = $('#serviceAppointmentId').val();
+            const appointmentServiceId = $('#serviceAppointmentServiceId').val();
+            const newStatus = $('#serviceNewStatus').val();
+            const note = $('#serviceStatusNote').val();
 
             if (!newStatus) {
                 alert('Vui lòng chọn trạng thái mới');
@@ -473,22 +522,22 @@
             }
 
             // Show loading
-            const updateBtn = $('#statusUpdateModal .btn-primary');
+            const updateBtn = $('#serviceStatusModal .btn-primary');
             const originalText = updateBtn.html();
             updateBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Đang cập nhật...').prop('disabled', true);
 
             $.ajax({
-                url: '/Staff/UpdateAppointmentStatusByName',
+                url: '/Staff/UpdateServiceStatus',
                 type: 'POST',
                 data: {
-                    appointmentId: appointmentId,
+                    appointmentServiceId: appointmentServiceId,
                     status: newStatus,
                     note: note
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#statusUpdateModal').modal('hide');
-                        alert('Cập nhật trạng thái thành công!');
+                        $('#serviceStatusModal').modal('hide');
+                        alert('Cập nhật trạng thái dịch vụ thành công!');
                         location.reload(); // Refresh to show updated data
                     } else {
                         alert('Lỗi: ' + (response.message || 'Không thể cập nhật trạng thái'));
