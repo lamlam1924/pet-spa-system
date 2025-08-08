@@ -23,12 +23,14 @@ namespace pet_spa_system1.Services
                 .Include(a => a.User)
                 .Include(a => a.AppointmentPets)
                     .ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Staff)
                 .Include(a => a.AppointmentServices)
                     .ThenInclude(aps => aps.Service)
                 .Where(a => a.IsActive == true)
                 .AsQueryable();
             if (staffId.HasValue)
-                query = query.Where(a => a.EmployeeId == staffId);
+                query = query.Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId));
             if (date.HasValue)
                 query = query.Where(a => a.AppointmentDate == DateOnly.FromDateTime(date.Value));
             if (statusId.HasValue)
@@ -41,6 +43,12 @@ namespace pet_spa_system1.Services
                 .Include(a => a.Employee)
                 .Include(a => a.Status)
                 .Include(a => a.User)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Staff)
+                .Include(a => a.AppointmentServices)
+                    .ThenInclude(aps => aps.Service)
                 .FirstOrDefaultAsync(a => a.AppointmentId == id);
         }
         public async Task<bool> CreateAppointmentAsync(Appointment appointment)
@@ -88,12 +96,14 @@ namespace pet_spa_system1.Services
                 .Include(a => a.User)
                 .Include(a => a.AppointmentPets)
                     .ThenInclude(ap => ap.Pet)
+                .Include(a => a.AppointmentPets)
+                    .ThenInclude(ap => ap.Staff)
                 .Include(a => a.AppointmentServices)
                     .ThenInclude(aps => aps.Service)
                 .Where(a => a.IsActive == false)
                 .AsQueryable();
             if (staffId.HasValue)
-                query = query.Where(a => a.EmployeeId == staffId);
+                query = query.Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId));
             if (date.HasValue)
                 query = query.Where(a => a.AppointmentDate == DateOnly.FromDateTime(date.Value));
             if (statusId.HasValue)

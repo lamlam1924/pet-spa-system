@@ -32,7 +32,7 @@ public interface IUserRepository
     List<pet_spa_system1.ViewModel.StaffViewModel> GetStaffList();
         List<object> GetStaffResources();
     List<User> GetUsersByIdsOrdered(List<int> userIds);
-
+    List<int> GetActiveAllStaffUsers();
 }
 
 

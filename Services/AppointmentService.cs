@@ -795,7 +795,7 @@ namespace pet_spa_system1.Services
             if (appointment == null) return;
         }
 
-        public (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId)
+        public (bool Success, int AppointmentId, string message) SaveAppointment(AppointmentViewModel model, int userId)
         {   
             Console.WriteLine($"[SaveAppointment] Bắt đầu lưu lịch hẹn cho user {userId}");
             Console.WriteLine($"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
@@ -823,7 +823,11 @@ namespace pet_spa_system1.Services
                 }
 
                 // Lấy danh sách petId
-               
+                TimeOnly targetTime = new TimeOnly(17, 0);
+                if (model.EndTime > targetTime)
+                {
+                    return(false, 0, "Thời gian kết thúc dịch vụ không được vượt quá 17:00");
+                }
                 // Kiểm tra trùng lịch
                 var conflicts = CheckPetAppointment(
                     model.SelectedPetIds,
@@ -839,7 +843,7 @@ namespace pet_spa_system1.Services
                         Console.WriteLine($"Pet: {c.PetName} | Lịch trùng: {c.ConflictingStartTime:dd/MM/yyyy HH:mm} - {c.ConflictingEndTime:HH:mm}");
                     }
                     // Có trùng lịch, không lưu và trả về false
-                    return (false, 0);
+                    return (false, 0, "Pet(s) của bạn đã có lịch trùng thời gian này. Vui lòng kiểm tra lại.");
                 }
 
                 // Tạo mới entity Appointment
@@ -884,12 +888,12 @@ namespace pet_spa_system1.Services
 
                 _appointmentRepository.SaveChanges();
                 Console.WriteLine($"[SaveAppointment] Đã lưu lịch hẹn thành công với ID: {appointmentId}");
-                return (true, appointmentId);
+                return (true, appointmentId, "thành công");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] SaveAppointment: {ex.Message}");
-                return (false, 0);
+                return (false, 0, ex.Message);
             }
         }
 
@@ -1109,14 +1113,25 @@ namespace pet_spa_system1.Services
                 .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
             if (appointment == null) return null;
 
-            // Lấy danh sách pet trong lịch hẹn
+            // Lấy danh sách pet trong lịch hẹn với thông tin staff
             var pets = _context.AppointmentPets
+                .Include(ap => ap.Pet)
+                .Include(ap => ap.Staff)
                 .Where(ap => ap.AppointmentId == appointmentId)
-                .Select(ap => new { ap.PetId, ap.Pet.Name })
+                .Select(ap => new {
+                    ap.PetId,
+                    PetName = ap.Pet.Name,
+                    StaffId = ap.StaffId,
+                    StaffName = ap.Staff != null ? ap.Staff.FullName : "Chưa phân công"
+                })
                 .ToList();
 
-            // Lấy dịch vụ + ảnh
+            // Lấy dịch vụ + ảnh với Include
             var appointmentServices = _context.AppointmentServices
+                .Include(asv => asv.Service)
+                    .ThenInclude(s => s.Category)
+                .Include(asv => asv.StatusNavigation)
+                .Include(asv => asv.AppointmentServiceImages)
                 .Where(asv => asv.AppointmentId == appointmentId)
                 .Select(asv => new
                 {
@@ -1133,6 +1148,16 @@ namespace pet_spa_system1.Services
                 })
                 .ToList();
 
+            Console.WriteLine($"[DEBUG] Found {appointmentServices.Count} appointment services");
+            foreach (var service in appointmentServices)
+            {
+                Console.WriteLine($"[DEBUG] Service: {service.Service?.Name}, Images: {service.Images.Count}");
+                foreach (var img in service.Images)
+                {
+                    Console.WriteLine($"[DEBUG] Image: {img.ImgUrl}, Type: {img.PhotoType}, PetId: {img.PetId}");
+                }
+            }
+
             var serviceHistory = appointmentServices.Select(s => new ServiceHistoryInfo
             {
                 ServiceId = s.Service.ServiceId,
@@ -1142,12 +1167,13 @@ namespace pet_spa_system1.Services
                 Duration = s.Service.DurationMinutes ?? 0,
                 StatusId = s.Status ?? 0,
                 StatusName = s.StatusName ?? "",
+                AppointmentServiceId = s.AppointmentServiceId, // Thêm appointmentServiceId
                 PetImages = s.Images
                     .GroupBy(i => i.PetId)
                     .Select(g => new PetImageGroup
                     {
                         PetId = g.Key,
-                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.Name ?? "Không rõ",
+                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.PetName ?? "Không rõ",
                         Before = g.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
                         After = g.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
                     })
@@ -1162,9 +1188,16 @@ namespace pet_spa_system1.Services
                 EndTime = appointment.EndTime.ToTimeSpan(),
                 StatusId = appointment.StatusId,
                 StatusName = appointment.Status?.StatusName ?? string.Empty,
-                PetNames = pets.Select(p => p.Name).ToList(),
+                PetNames = pets.Select(p => p.PetName).ToList(),
                 Notes = appointment.Notes,
-                Services = serviceHistory
+                Services = serviceHistory,
+                PetStaffAssignments = pets.Select(p => new PetStaffInfo
+                {
+                    PetId = p.PetId,
+                    PetName = p.PetName,
+                    StaffId = p.StaffId,
+                    StaffName = p.StaffName
+                }).ToList()
             };
         }
 
@@ -1183,12 +1216,8 @@ namespace pet_spa_system1.Services
 
             var conflicts = new List<PetConflictInfo>();
 
-            // Lấy tất cả lịch hẹn của các pet trong khoảng thời gian chỉ định
-            var conflictingAppointments = _context.AppointmentPets
-                .Where(ap => petIds.Contains(ap.PetId) && 
-                            ap.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
-                            ap.Appointment.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
-                            ap.Appointment.StatusId != 5) // Loại trừ lịch đã từ chối (Rejected)
+            // Lấy tất cả lịch hẹn của các pet trong lịch hẹn
+            var conflictingAppointments = _appointmentRepository.GetActiveAppointmentsByPetIds(petIds)
                 .Select(ap => new
                 {
                     ap.PetId,
@@ -1268,14 +1297,9 @@ namespace pet_spa_system1.Services
         {
             try
             {
-                var query = _context.AppointmentPets
-                    .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
-                               ap.Appointment.IsActive == true &&
-                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
-                               ap.StaffId.HasValue && // Chỉ lấy những pet đã được phân công nhân viên
-                               ((ap.Appointment.StartTime <= startTime && ap.Appointment.EndTime > startTime) ||
-                                (ap.Appointment.StartTime < endTime && ap.Appointment.EndTime >= endTime) ||
-                                (ap.Appointment.StartTime >= startTime && ap.Appointment.EndTime <= endTime)));
+                // Lấy tất cả lịch hẹn trùng thời gian với ngày và giờ đã cho
+                var query = _appointmentRepository.GetOverlappingAppointmentsByDateAndTime(appointmentDate, startTime, endTime);
+                    
 
                 // Loại trừ lịch hẹn nếu có
                 if (excludeAppointmentId.HasValue)
@@ -1306,10 +1330,8 @@ namespace pet_spa_system1.Services
             try
             {
                 // Lấy tất cả nhân viên (RoleId == 3)
-                var allStaff = _context.Users
-                    .Where(u => u.RoleId == 3 && u.IsActive == true)
-                    .Select(u => u.UserId)
-                    .ToList();
+                var allStaff = _userRepository.GetActiveAllStaffUsers();
+                    
 
                 if (!allStaff.Any())
                 {
@@ -1327,16 +1349,8 @@ namespace pet_spa_system1.Services
                     return new List<int>();
                 }
 
-                // Đếm số lịch hẹn của mỗi nhân viên trong ngày
-                var staffAppointmentCounts = _context.AppointmentPets
-                    .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
-                               ap.Appointment.IsActive == true &&
-                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
-                               ap.StaffId.HasValue &&
-                               availableStaffIds.Contains(ap.StaffId.Value))
-                    .GroupBy(ap => ap.StaffId.Value)
-                    .Select(g => new { StaffId = g.Key, AppointmentCount = g.Count() })
-                    .ToDictionary(x => x.StaffId, x => x.AppointmentCount);
+                var staffAppointmentCounts = _appointmentRepository.GetStaffAppointmentCountsByDate(appointmentDate, availableStaffIds);
+
 
                 // Sắp xếp nhân viên rảnh theo số lịch hẹn từ ít đến nhiều
                 var sortedAvailableStaff = availableStaffIds
@@ -1380,9 +1394,8 @@ namespace pet_spa_system1.Services
                 }
 
                 // Lấy tất cả nhân viên (RoleId == 3)
-                var allStaff = _context.Users
-                    .Where(u => u.RoleId == 3 && u.IsActive == true)
-                    .ToList();
+                var allStaff = _userRepository.GetActiveAllStaffUsers();
+                    
 
                 if (!allStaff.Any())
                 {
@@ -1674,6 +1687,8 @@ public List<StaffShift> GetRealtimeShiftViewModel()
                     .Include(a => a.Status)
                     .Include(a => a.AppointmentPets)
                         .ThenInclude(ap => ap.Pet)
+                    .Include(a => a.AppointmentPets)
+                        .ThenInclude(ap => ap.Staff)
                     .Include(a => a.AppointmentServices)
                         .ThenInclude(aps => aps.Service)
                     .FirstOrDefault(a => a.AppointmentId == appointmentId);

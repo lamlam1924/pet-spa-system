@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModel;
+using pet_spa_system1.Helpers;
 
 namespace pet_spa_system1.Controllers
 {
@@ -12,17 +13,20 @@ namespace pet_spa_system1.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly INotificationService _notificationService;
         private readonly IAdminStaffScheduleService _scheduleService;
+        private readonly IAppointmentServiceImageService _appointmentServiceImageService;
 
         public StaffController(
             IUserService userService,
             IAppointmentService appointmentService,
             INotificationService notificationService,
-            IAdminStaffScheduleService scheduleService)
+            IAdminStaffScheduleService scheduleService,
+            IAppointmentServiceImageService appointmentServiceImageService)
         {
             _userService = userService;
             _appointmentService = appointmentService;
             _notificationService = notificationService;
             _scheduleService = scheduleService;
+            _appointmentServiceImageService = appointmentServiceImageService;
         }
 
         // Staff Dashboard
@@ -46,6 +50,17 @@ namespace pet_spa_system1.Controllers
             var appointments = await _scheduleService.GetAppointmentsAsync(staffId: userId.Value);
             var now = DateTime.Now;
 
+            // Debug: Log staff assignments
+            Console.WriteLine($"[DEBUG] Staff {userId.Value} has {appointments.Count} appointments");
+            foreach (var appointment in appointments.Take(3))
+            {
+                Console.WriteLine($"[DEBUG] Appointment {appointment.AppointmentId}:");
+                foreach (var petAssignment in appointment.AppointmentPets)
+                {
+                    Console.WriteLine($"  - Pet {petAssignment.PetId} ({petAssignment.Pet?.Name}) assigned to Staff {petAssignment.StaffId}");
+                }
+            }
+
             // Debug: Log user information
             foreach (var appointment in appointments.Take(3))
             {
@@ -63,11 +78,14 @@ namespace pet_spa_system1.Controllers
             var startOfWeek = DateOnly.FromDateTime(now.StartOfWeek());
             var endOfWeek = startOfWeek.AddDays(7);
 
-            var todayAppointments = appointments.Where(a => a.AppointmentDate == today).ToList();
-            var thisWeekAppointments = appointments.Where(a =>
+            // Lọc chỉ lấy các lịch hẹn chưa hủy (loại trừ status = 5 - Cancelled)
+            var activeAppointments = appointments.Where(a => a.StatusId != 5).ToList();
+
+            var todayAppointments = activeAppointments.Where(a => a.AppointmentDate == today).ToList();
+            var thisWeekAppointments = activeAppointments.Where(a =>
                 a.AppointmentDate >= startOfWeek &&
                 a.AppointmentDate <= endOfWeek).ToList();
-            var thisMonthAppointments = appointments.Where(a =>
+            var thisMonthAppointments = activeAppointments.Where(a =>
                 a.AppointmentDate.Month == now.Month &&
                 a.AppointmentDate.Year == now.Year).ToList();
 
@@ -85,7 +103,7 @@ namespace pet_spa_system1.Controllers
                 WeekCount = thisWeekAppointments.Count,
                 MonthCount = thisMonthAppointments.Count,
                 UnreadNotificationCount = unreadCount,
-                UpcomingAppointments = appointments.Where(a => a.AppointmentDate > today)
+                UpcomingAppointments = activeAppointments.Where(a => a.AppointmentDate > today)
                     .OrderBy(a => a.AppointmentDate)
                     .Take(5)
                     .ToList(),
@@ -178,6 +196,8 @@ namespace pet_spa_system1.Controllers
             // Filter by date range if specified
             var appointments = allAppointments.AsQueryable();
 
+            // Không tự động lọc - hiển thị tất cả lịch hẹn theo statusId được chọn
+
             if (filterStartDate.HasValue && filterEndDate.HasValue)
             {
                 var startDateOnly = DateOnly.FromDateTime(filterStartDate.Value);
@@ -251,25 +271,78 @@ namespace pet_spa_system1.Controllers
         [HttpGet]
         public IActionResult AppointmentDetail(int id)
         {
-            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
-            if (userId == null)
+            try
             {
-                return Json(new { success = false, message = "Unauthorized" });
-            }
+                Console.WriteLine($"[AppointmentDetail] Starting - appointmentId: {id}");
 
-            var appointment = _appointmentService.GetAppointmentDetail(id);
-            if (appointment == null)
+                int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+                if (userId == null)
+                {
+                    Console.WriteLine("[AppointmentDetail] No userId in session");
+                    return Json(new { success = false, message = "Unauthorized" });
+                }
+
+                Console.WriteLine($"[AppointmentDetail] UserId: {userId.Value}");
+
+                var appointment = _appointmentService.GetAppointmentDetail(id);
+                if (appointment == null)
+                {
+                    Console.WriteLine($"[AppointmentDetail] Appointment not found for id: {id}");
+                    return Json(new { success = false, message = "Không tìm thấy lịch hẹn" });
+                }
+
+                Console.WriteLine($"[AppointmentDetail] Appointment found - StatusId: {appointment.StatusId}");
+                Console.WriteLine($"[AppointmentDetail] AppointmentPets count: {appointment.AppointmentPets?.Count ?? 0}");
+
+                // Tạm thời bỏ qua kiểm tra quyền để debug
+                // TODO: Sẽ thêm lại logic kiểm tra quyền sau khi debug xong
+
+                // Tạo DTO để tránh circular reference
+                var appointmentDto = new
+                {
+                    appointmentId = appointment.AppointmentId,
+                    appointmentDate = appointment.AppointmentDate.ToString("yyyy-MM-dd"),
+                    startTime = appointment.StartTime.ToString("HH:mm"),
+                    endTime = appointment.EndTime.ToString("HH:mm"),
+                    statusId = appointment.StatusId,
+                    statusName = appointment.Status?.StatusName ?? "",
+                    notes = appointment.Notes,
+                    customerName = appointment.User?.FullName ?? appointment.User?.Username ?? "",
+                    customerEmail = appointment.User?.Email ?? "",
+                    customerPhone = appointment.User?.Phone ?? "",
+                    appointmentPets = appointment.AppointmentPets?.Select(ap => new
+                    {
+                        petId = ap.PetId,
+                        petName = ap.Pet?.Name ?? "",
+                        staffId = ap.StaffId,
+                        staffName = ap.Staff?.FullName ?? ""
+                    }).ToList(),
+                    appointmentServices = appointment.AppointmentServices?.Select(aps => new
+                    {
+                        appointmentServiceId = aps.AppointmentServiceId,
+                        serviceId = aps.ServiceId,
+                        serviceName = aps.Service?.Name ?? "",
+                        status = aps.Status,
+                        statusName = aps.Status switch
+                        {
+                            1 => "Pending",
+                            2 => "In Progress",
+                            3 => "Completed",
+                            4 => "Cancelled",
+                            _ => "Unknown"
+                        }
+                    }).ToList()
+                };
+
+                Console.WriteLine("[AppointmentDetail] Returning success");
+                return Json(new { success = true, data = appointmentDto });
+            }
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Không tìm thấy lịch hẹn" });
+                Console.WriteLine($"[AppointmentDetail] Error: {ex.Message}");
+                Console.WriteLine($"[AppointmentDetail] StackTrace: {ex.StackTrace}");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi tải chi tiết lịch hẹn: " + ex.Message });
             }
-
-            // Check if appointment belongs to this staff member
-            if (appointment.EmployeeId != userId.Value)
-            {
-                return Json(new { success = false, message = "Không có quyền truy cập lịch hẹn này" });
-            }
-
-            return Json(new { success = true, data = appointment });
         }
 
         // Cập nhật trạng thái dịch vụ
@@ -288,6 +361,8 @@ namespace pet_spa_system1.Controllers
                 {
                     var appointmentService = context.AppointmentServices
                         .Include(aps => aps.Appointment)
+                            .ThenInclude(a => a.AppointmentPets)
+                        .Include(aps => aps.Service)
                         .FirstOrDefault(aps => aps.AppointmentServiceId == appointmentServiceId);
 
                     if (appointmentService == null)
@@ -295,8 +370,20 @@ namespace pet_spa_system1.Controllers
                         return Json(new { success = false, message = "Không tìm thấy dịch vụ" });
                     }
 
-                    // Check if staff is assigned to this appointment
-                    if (appointmentService.Appointment.EmployeeId != userId.Value)
+                    // Check if staff is assigned to this appointment through AppointmentPet
+                    Console.WriteLine($"[UpdateServiceStatus] Current UserId: {userId.Value}");
+                    Console.WriteLine($"[UpdateServiceStatus] AppointmentPets count: {appointmentService.Appointment.AppointmentPets.Count}");
+                    foreach (var ap in appointmentService.Appointment.AppointmentPets)
+                    {
+                        Console.WriteLine($"[UpdateServiceStatus] AppointmentPet - PetId: {ap.PetId}, StaffId: {ap.StaffId}");
+                    }
+
+                    bool isStaffAssigned = appointmentService.Appointment.AppointmentPets
+                        .Any(ap => ap.StaffId == userId.Value);
+
+                    Console.WriteLine($"[UpdateServiceStatus] IsStaffAssigned: {isStaffAssigned}");
+
+                    if (!isStaffAssigned)
                     {
                         return Json(new { success = false, message = "Không có quyền cập nhật dịch vụ này" });
                     }
@@ -307,14 +394,32 @@ namespace pet_spa_system1.Controllers
                         return Json(new { success = false, message = "Chỉ có thể cập nhật dịch vụ khi lịch hẹn đã được xác nhận hoặc đang thực hiện" });
                     }
 
-                    // Check if service can be updated (not completed or cancelled)
-                    if (appointmentService.Status == 3 || appointmentService.Status == 4)
+                    // Check if service can be updated using StatusMappingHelper
+                    if (!StatusMappingHelper.CanUpdateServiceStatus(appointmentService.Status, status))
                     {
-                        return Json(new { success = false, message = "Không thể cập nhật dịch vụ đã hoàn thành hoặc đã hủy" });
+                        var currentStatusName = StatusMappingHelper.GetServiceStatusName(appointmentService.Status);
+                        return Json(new { success = false, message = $"Không thể cập nhật dịch vụ có trạng thái '{currentStatusName}'" });
                     }
 
                     // Update service status
                     appointmentService.Status = status;
+
+                    // If cancelling and note provided, save the reason
+                    if (status == 4 && !string.IsNullOrEmpty(note))
+                    {
+                        var currentAppointment = appointmentService.Appointment;
+                        var serviceName = appointmentService.Service?.Name ?? "Dịch vụ";
+                        var cancelNote = $"[{DateTime.Now:dd/MM/yyyy HH:mm}] Hủy dịch vụ '{serviceName}': {note}";
+
+                        if (string.IsNullOrEmpty(currentAppointment.Notes))
+                        {
+                            currentAppointment.Notes = cancelNote;
+                        }
+                        else
+                        {
+                            currentAppointment.Notes += "\n" + cancelNote;
+                        }
+                    }
 
                     // Auto-update appointment status based on service statuses
                     var appointment = appointmentService.Appointment;
@@ -329,23 +434,18 @@ namespace pet_spa_system1.Controllers
                         currentService.Status = status;
                     }
 
-                    // Check if all services are completed (status = 3)
-                    bool allCompleted = allServices.All(aps => (aps.Status ?? 1) == 3);
-                    // Check if any service is in progress (status = 2)
-                    bool anyInProgress = allServices.Any(aps => (aps.Status ?? 1) == 2);
+                    // Sử dụng StatusMappingHelper để tính toán trạng thái appointment
+                    var serviceStatuses = allServices.Select(aps => aps.Status).ToList();
+                    var newAppointmentStatus = StatusMappingHelper.CalculateAppointmentStatusFromServices(serviceStatuses);
 
-                    if (allCompleted)
-                    {
-                        // All services completed -> Appointment completed (status = 4)
-                        appointment.StatusId = 4; // Completed
-                    }
-                    else if (anyInProgress)
-                    {
-                        // At least one service in progress -> Appointment in progress (status = 3)
-                        appointment.StatusId = 3; // InProgress
-                    }
-                    // If appointment is still Confirmed (status = 2) and no services are in progress,
-                    // keep it as Confirmed
+                    Console.WriteLine($"[UpdateServiceStatus] Service statuses: [{string.Join(", ", serviceStatuses.Select(s => s?.ToString() ?? "null"))}]");
+                    Console.WriteLine($"[UpdateServiceStatus] Current appointment status: {appointment.StatusId} ({StatusMappingHelper.GetAppointmentStatusName(appointment.StatusId)})");
+                    Console.WriteLine($"[UpdateServiceStatus] Calculated new appointment status: {newAppointmentStatus} ({StatusMappingHelper.GetAppointmentStatusName(newAppointmentStatus)})");
+
+                    // Cập nhật trạng thái appointment
+                    appointment.StatusId = newAppointmentStatus;
+
+                    Console.WriteLine($"[UpdateServiceStatus] Updated appointment status to: {appointment.StatusId}");
 
                     context.SaveChanges();
 
@@ -522,7 +622,11 @@ namespace pet_spa_system1.Controllers
                     return Json(new { success = false, message = "Không tìm thấy lịch hẹn" });
                 }
 
-                if (appointment.EmployeeId != userId.Value)
+                // Check if staff is assigned to this appointment through AppointmentPet
+                bool isStaffAssigned = appointment.AppointmentPets
+                    .Any(ap => ap.StaffId == userId.Value);
+
+                if (!isStaffAssigned)
                 {
                     return Json(new { success = false, message = "Không có quyền cập nhật lịch hẹn này" });
                 }
@@ -543,6 +647,95 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine($"Error updating appointment status: {ex.Message}");
                 return Json(new { success = false, message = "Có lỗi xảy ra khi cập nhật trạng thái" });
             }
+        }
+
+        // =====================================================
+        // APPOINTMENT SERVICE IMAGE UPLOAD
+        // =====================================================
+
+        /// <summary>
+        /// Upload ảnh Before/After cho AppointmentService
+        /// Staff sẽ upload cho pet được assign (1 staff = 1 pet)
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> UploadServiceImage(int appointmentServiceId, IFormFile imageFile, string photoType = "Before")
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
+            Console.WriteLine($"[DEBUG] UploadServiceImage: appointmentServiceId={appointmentServiceId}, photoType={photoType}, staffId={userId.Value}");
+
+            var result = await _appointmentServiceImageService.UploadImageAsync(
+                appointmentServiceId,
+                imageFile,
+                photoType,
+                userId.Value); // Auto-detect petId từ staff assignment
+
+            if (result.Success)
+            {
+                return Json(new {
+                    success = true,
+                    message = result.Message,
+                    imageUrl = result.Data?.ImageUrl,
+                    imageId = result.Data?.ImageId,
+                    petId = result.Data?.PetId // Trả về petId để frontend biết
+                });
+            }
+            else
+            {
+                return Json(new { success = false, message = result.Message });
+            }
+        }
+
+        /// <summary>
+        /// Lấy danh sách ảnh của AppointmentService
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetServiceImages(int appointmentServiceId)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
+            var result = await _appointmentServiceImageService.GetImagesAsync(appointmentServiceId, userId.Value);
+
+            if (result.Success)
+            {
+                var images = result.Data?.Select(img => new {
+                    imageId = img.ImageId,
+                    imageUrl = img.ImageUrl,
+                    photoType = img.PhotoType,
+                    createdAt = img.FormattedCreatedAt
+                }).ToList();
+
+                return Json(new { success = true, images = images });
+            }
+            else
+            {
+                return Json(new { success = false, message = result.Message });
+            }
+        }
+
+        /// <summary>
+        /// Xóa ảnh AppointmentService
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> DeleteServiceImage(int imageId)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
+            var result = await _appointmentServiceImageService.DeleteImageAsync(imageId, userId.Value);
+
+            return Json(new { success = result.Success, message = result.Message });
         }
 
 

@@ -24,6 +24,9 @@ namespace pet_spa_system1.ViewModel
         public int StatusId { get; set; }
         public string StatusName { get; set; } = string.Empty;
 
+        // Thêm AppointmentServiceId để load ảnh
+        public int AppointmentServiceId { get; set; }
+
         // Danh sách ảnh chia theo từng thú cưng
         public List<PetImageGroup> PetImages { get; set; } = new();
     }
@@ -216,6 +219,17 @@ namespace pet_spa_system1.ViewModel
         public List<string> PetNames { get; set; } = new();
         public string Notes { get; set; } = string.Empty;
         public List<ServiceHistoryInfo> Services { get; set; } = new();
+
+        // Thêm thông tin Pet-Staff mapping
+        public List<PetStaffInfo> PetStaffAssignments { get; set; } = new();
+    }
+
+    public class PetStaffInfo
+    {
+        public int PetId { get; set; }
+        public string PetName { get; set; } = string.Empty;
+        public int? StaffId { get; set; }
+        public string StaffName { get; set; } = string.Empty;
     }
 
     public class AppointmentHistoryViewModel

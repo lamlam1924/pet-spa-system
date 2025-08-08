@@ -144,7 +144,13 @@ public class UserRepository : IUserRepository
         return await _context.Appointments
             .Include(a => a.User)
             .Include(a => a.Status)
-            .Where(a => a.EmployeeId == staffId)
+            .Include(a => a.AppointmentPets)
+                .ThenInclude(ap => ap.Pet)
+            .Include(a => a.AppointmentPets)
+                .ThenInclude(ap => ap.Staff)
+            .Include(a => a.AppointmentServices)
+                .ThenInclude(aps => aps.Service)
+            .Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staffId))
             .ToListAsync();
     }
 
@@ -206,5 +212,12 @@ public class UserRepository : IUserRepository
     {
         // Giả sử dùng Entity Framework
         return _context.Users.FirstOrDefault(u => u.UserId == userId);
+    }
+    public List<int> GetActiveAllStaffUsers()
+    {
+        return _context.Users
+            .Where(u => u.RoleId == 3 && u.IsActive == true)
+            .Select(u => u.UserId)
+            .ToList();
     }
 }

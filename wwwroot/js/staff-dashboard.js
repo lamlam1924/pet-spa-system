@@ -123,8 +123,8 @@ function createAppointmentRow(appointment) {
                         data-appointment-id="${appointment.appointmentId}">
                     <i class="fas fa-eye"></i>
                 </button>
-                ${appointment.status?.statusName === 'Đã xác nhận' ? 
-                    `<button class="btn btn-sm btn-success btn-complete-appointment" 
+                ${(appointment.status?.statusName === 'Confirmed' || appointment.status?.statusName === 'Đã xác nhận') ?
+                    `<button class="btn btn-sm btn-success btn-complete-appointment"
                              data-appointment-id="${appointment.appointmentId}">
                         <i class="fas fa-check"></i>
                     </button>` : ''
@@ -146,9 +146,15 @@ function getServiceNames(appointmentServices) {
 
 function getStatusColor(status) {
     switch (status) {
+        case 'Pending':
         case 'Đang chờ xử lý': return 'warning';
+        case 'Confirmed':
         case 'Đã xác nhận': return 'info';
+        case 'In Progress':
+        case 'Đang thực hiện': return 'primary';
+        case 'Completed':
         case 'Hoàn thành': return 'success';
+        case 'Cancelled':
         case 'Đã hủy': return 'danger';
         default: return 'secondary';
     }
@@ -158,14 +164,33 @@ function completeAppointment(appointmentId) {
     if (!confirm('Xác nhận hoàn thành lịch hẹn này?')) {
         return;
     }
-    
+
+    updateAppointmentStatus(appointmentId, 4);
+}
+
+function updateAppointmentStatus(appointmentId, statusId) {
+    let confirmMessage = '';
+    switch(statusId) {
+        case 3: confirmMessage = 'Xác nhận bắt đầu thực hiện lịch hẹn này?'; break;
+        case 4: confirmMessage = 'Xác nhận hoàn thành lịch hẹn này?'; break;
+        case 5: confirmMessage = 'Xác nhận hủy lịch hẹn này?'; break;
+        default: confirmMessage = 'Xác nhận cập nhật trạng thái?'; break;
+    }
+
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+
     $.post('/Staff/UpdateAppointmentStatus', {
         appointmentId: appointmentId,
-        statusId: 4 // Assuming 4 is "Hoàn thành"
+        statusId: statusId
     }, function(response) {
         if (response.success) {
-            showNotification('Đã hoàn thành lịch hẹn', 'success');
-            refreshAppointments();
+            showNotification('Cập nhật trạng thái thành công', 'success');
+            // Reload trang để cập nhật toàn bộ dữ liệu
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
         } else {
             showNotification(response.message || 'Có lỗi xảy ra', 'error');
         }
@@ -234,9 +259,12 @@ function createAppointmentDetailModal(appointment) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        ${appointment.status?.statusName === 'Đã xác nhận' ? 
-                            `<button type="button" class="btn btn-success" onclick="completeAppointment(${appointment.appointmentId}); $('#appointmentDetailModal').modal('hide');">
-                                Hoàn thành
+                        ${(appointment.status?.statusName === 'Confirmed' || appointment.status?.statusName === 'Đã xác nhận') ?
+                            `<button type="button" class="btn btn-primary me-2" onclick="updateAppointmentStatus(${appointment.appointmentId}, 3); $('#appointmentDetailModal').modal('hide');">
+                                <i class="fas fa-play me-1"></i>Bắt đầu thực hiện
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="updateAppointmentStatus(${appointment.appointmentId}, 5); $('#appointmentDetailModal').modal('hide');">
+                                <i class="fas fa-times me-1"></i>Hủy lịch
                             </button>` : ''
                         }
                     </div>

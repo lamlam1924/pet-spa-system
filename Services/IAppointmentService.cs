@@ -41,7 +41,7 @@ namespace pet_spa_system1.Services
         bool UpdateAppointmentWithPetStaff(AppointmentViewModel vm);
         bool RestoreAppointment(int id);
         void SendAppointmentNotificationMail(int appointmentId, string type, object? model = null);
-        (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId);
+        (bool Success, int AppointmentId, string message) SaveAppointment(AppointmentViewModel model, int userId);
         AppointmentHistoryViewModel GetAppointmentHistory(int userId);
         bool IsTimeConflict(DateTime appointmentDate, int staffId, int durationMinutes);
         bool IsTimeConflict(DateOnly appointmentDate, TimeOnly startTime, int staffId, int durationMinutes);

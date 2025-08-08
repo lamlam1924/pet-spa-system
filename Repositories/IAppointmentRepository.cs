@@ -61,6 +61,9 @@ namespace pet_spa_system1.Repositories
             int? excludeAppointmentPetId = null);
 
         bool UpdateStaffForPet(int appointmentId, int petId, int newStaffId);
+        IQueryable<AppointmentPet> GetActiveAppointmentsByPetIds(List<int> petIds);
+        IQueryable<AppointmentPet> GetOverlappingAppointmentsByDateAndTime(DateOnly appointmentDate,TimeOnly startTime,TimeOnly endTime);
+        Dictionary<int, int> GetStaffAppointmentCountsByDate(DateOnly appointmentDate, List<int> availableStaffIds);
     }
 
 

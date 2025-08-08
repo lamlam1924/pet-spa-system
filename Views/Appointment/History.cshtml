@@ -14,6 +14,174 @@
     .modal-content {
         top: 75px;
     }
+
+    /* Appointment Detail Modal Styles */
+    .appointment-detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: white;
+        border-radius: 0;
+    }
+
+    .appointment-info-card {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .pet-service-section {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .pet-header {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+    }
+
+    .service-timeline {
+        padding: 20px;
+    }
+
+    .service-item {
+        border-left: 3px solid #dee2e6;
+        padding-left: 20px;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .service-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #dee2e6;
+    }
+
+    .service-item.completed::before {
+        background: #28a745;
+    }
+
+    .service-item.in-progress::before {
+        background: #ffc107;
+    }
+
+    .service-item.pending::before {
+        background: #6c757d;
+    }
+
+    .service-item.cancelled::before {
+        background: #dc3545;
+    }
+
+    .service-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .service-name {
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .service-status {
+        font-size: 0.85em;
+    }
+
+    .service-meta {
+        color: #6c757d;
+        font-size: 0.9em;
+        margin-bottom: 15px;
+    }
+
+    .image-gallery {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .image-section {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .image-section h6 {
+        color: #495057;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+    }
+
+    .service-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .service-image:hover {
+        transform: scale(1.05);
+        border-color: #007bff;
+        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    }
+
+    .no-images {
+        color: #adb5bd;
+        font-style: italic;
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 2px dashed #dee2e6;
+    }
+
+    .staff-info {
+        background: #e3f2fd;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+
+    .price-info {
+        background: #fff3e0;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        color: #e65100;
+        font-weight: 600;
+    }
+
+    /* Status badges */
+    .status-completed { background-color: #d4edda !important; color: #155724 !important; }
+    .status-in-progress { background-color: #fff3cd !important; color: #856404 !important; }
+    .status-pending { background-color: #e2e3e5 !important; color: #383d41 !important; }
+    .status-cancelled { background-color: #f8d7da !important; color: #721c24 !important; }
+
+    /* Responsive */
+  
 </style>
 <section class="history-section">
     <div class="container">
@@ -195,76 +363,18 @@
     </div>
 </div> *@
 <div class="modal fade" id="appointmentDetailModal" tabindex="-1" aria-labelledby="appointmentDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="appointmentDetailModalLabel">Chi tiết dịch vụ theo tiến trình</h5>
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title" id="appointmentDetailModalLabel">
+                    <i class="fas fa-calendar-check me-2"></i>Chi tiết lịch hẹn
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-0">
                 <div id="appointmentDetailContent">
-                    <!-- Timeline sẽ render ở đây -->
-                    <div class="timeline">
-                        <!-- Item timeline mẫu -->
-                        <div class="timeline-item mb-4">
-                            <div class="d-flex">
-                                <div class="timeline-dot bg-success me-3"></div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="mb-0">1. Tắm gội</h6>
-                                        <span class="badge bg-success">Hoàn thành</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        Nhân viên thực hiện: <strong>Nguyễn Văn B</strong><br>
-                                        Ghi chú: Dùng sữa tắm trị ve
-                                    </div>
-                                    <div class="row g-2">
-                                        <div class="col-md-3 col-6">
-                                            <img src="" class="img-fluid rounded shadow-sm" alt="Ảnh 1">
-                                        </div>
-                                        <div class="col-md-3 col-6">
-                                            <img src="" class="img-fluid rounded shadow-sm" alt="Ảnh 2">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Thêm các item dịch vụ khác tương tự -->
-                        <div class="timeline-item mb-4">
-                            <div class="d-flex">
-                                <div class="timeline-dot bg-warning me-3"></div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="mb-0">2. Cắt móng</h6>
-                                        <span class="badge bg-warning text-dark">Đang thực hiện</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        Nhân viên thực hiện: <strong>Lê Thị A</strong><br>
-                                        Ghi chú: Móng chân bị xước nhẹ
-                                    </div>
-                                    <!-- Không có ảnh -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Dịch vụ chưa thực hiện -->
-                        <div class="timeline-item mb-4">
-                            <div class="d-flex">
-                                <div class="timeline-dot bg-secondary me-3"></div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="mb-0">3. Sấy lông</h6>
-                                        <span class="badge bg-secondary">Chưa thực hiện</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        Nhân viên thực hiện: <em>Chưa phân công</em>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ... -->
-                    </div>
+                    <!-- Content will be loaded here -->
+                    <!-- Content will be dynamically loaded -->
                 </div>
             </div>
         </div>

@@ -6,12 +6,38 @@ let currentAppointments = [];
 // Utility functions
 function getPetNames(appointmentPets) {
     if (!appointmentPets || appointmentPets.length === 0) return 'N/A';
-    return appointmentPets.map(ap => ap.pet?.name || 'N/A').join(', ');
+    return appointmentPets.map(ap => ap.pet?.name || 'Không rõ tên').join(', ');
 }
 
 function getServiceNames(appointmentServices) {
     if (!appointmentServices || appointmentServices.length === 0) return 'N/A';
-    return appointmentServices.map(as => as.service?.serviceName || 'N/A').join(', ');
+    return appointmentServices.map(as => {
+        const statusName = getServiceStatusName(as.status);
+        const statusBadge = `<span class="badge bg-${getServiceStatusColor(statusName)} ms-2">${statusName}</span>`;
+        return `${as.service?.name || 'Không rõ dịch vụ'} ${statusBadge}`;
+    }).join('<br>');
+}
+
+function getServiceStatusName(statusId) {
+    switch (statusId) {
+        case 1: return 'Đang chờ xử lý';
+        case 2: return 'Đã xác nhận';
+        case 3: return 'Đang thực hiện';
+        case 4: return 'Đã hủy';
+        case 5: return 'Hoàn thành';
+        default: return 'Không rõ';
+    }
+}
+
+function translateStatus(englishStatus) {
+    switch (englishStatus) {
+        case 'Pending': return 'Đang chờ xử lý';
+        case 'Confirmed': return 'Đã xác nhận';
+        case 'InProgress': return 'Đang thực hiện';
+        case 'Completed': return 'Hoàn thành';
+        case 'Cancelled': return 'Đã hủy';
+        default: return englishStatus;
+    }
 }
 
 function getStatusColor(status) {
@@ -21,6 +47,16 @@ function getStatusColor(status) {
         case 'Đang thực hiện': return 'primary';
         case 'Hoàn thành': return 'success';
         case 'Đã hủy': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+function getServiceStatusColor(status) {
+    switch (status) {
+        case 'Pending': return 'warning';
+        case 'In Progress': return 'primary';
+        case 'Completed': return 'success';
+        case 'Cancelled': return 'danger';
         default: return 'secondary';
     }
 }
@@ -38,25 +74,36 @@ function formatDateTime(dateString) {
 
 // Appointment detail functions
 function viewAppointmentDetail(appointmentId) {
-    $.get('/Staff/AppointmentDetail', { id: appointmentId }, function(response) {
-        if (response.success) {
-            showAppointmentDetailModal(response.data);
+    console.log('viewAppointmentDetail called with ID:', appointmentId);
+    $.get('/Staff/GetMyAppointments', function(response) {
+        console.log('Response received:', response);
+        if (response.success && response.data) {
+            const appointment = response.data.find(a => a.appointmentId === appointmentId);
+            console.log('Appointment found:', appointment);
+            if (appointment) {
+                showAppointmentDetailModal(appointment);
+            } else {
+                showNotification('Không tìm thấy lịch hẹn', 'error');
+            }
         } else {
             showNotification(response.message || 'Không thể tải chi tiết lịch hẹn', 'error');
         }
-    }).fail(function() {
+    }).fail(function(xhr, status, error) {
+        console.error('AJAX failed:', status, error);
         showNotification('Không thể tải chi tiết lịch hẹn', 'error');
     });
 }
 
 function showAppointmentDetailModal(appointment) {
+    console.log('showAppointmentDetailModal called with:', appointment);
+
     const modalContent = createAppointmentDetailContent(appointment);
     $('#appointmentDetailContent').html(modalContent);
-    
+
     // Add action buttons
     const actions = createAppointmentActions(appointment);
     $('#appointmentActions').html(actions);
-    
+
     $('#appointmentDetailModal').modal('show');
 }
 
@@ -81,8 +128,8 @@ function createAppointmentDetailContent(appointment) {
                         <td>${appointment.user?.phone || 'N/A'}</td>
                     </tr>
                     <tr>
-                        <td><strong>Địa chỉ:</strong></td>
-                        <td>${appointment.user?.address || 'N/A'}</td>
+                        <td><strong>Mã lịch hẹn:</strong></td>
+                        <td>#${appointment.appointmentId}</td>
                     </tr>
                 </table>
             </div>
@@ -93,20 +140,22 @@ function createAppointmentDetailContent(appointment) {
                 <table class="table table-sm">
                     <tr>
                         <td><strong>Ngày giờ:</strong></td>
-                        <td>${formatDateTime(appointment.appointmentDate)}</td>
+                        <td>${formatDate(appointment.appointmentDate)} ${appointment.startTime} - ${appointment.endTime}</td>
                     </tr>
                     <tr>
                         <td><strong>Trạng thái:</strong></td>
                         <td>
-                            <span class="badge bg-${getStatusColor(appointment.status?.statusName)}">
-                                ${appointment.status?.statusName || 'N/A'}
+                            <span class="badge bg-${getStatusColor(translateStatus(appointment.status?.statusName))}">
+                                ${translateStatus(appointment.status?.statusName) || 'N/A'}
                             </span>
                         </td>
                     </tr>
+                    ${appointment.notes ? `
                     <tr>
-                        <td><strong>Mã lịch hẹn:</strong></td>
-                        <td>#${appointment.appointmentId}</td>
+                        <td><strong>Ghi chú:</strong></td>
+                        <td class="text-danger">${appointment.notes}</td>
                     </tr>
+                    ` : ''}
                 </table>
             </div>
         </div>
@@ -142,7 +191,7 @@ function createAppointmentDetailContent(appointment) {
 }
 
 function createAppointmentActions(appointment) {
-    const status = appointment.status?.statusName;
+    const status = translateStatus(appointment.status?.statusName);
     let actions = '';
     
     if (status === 'Đã xác nhận') {
@@ -150,8 +199,8 @@ function createAppointmentActions(appointment) {
             <button type="button" class="btn btn-primary me-2" onclick="quickUpdateStatus(${appointment.appointmentId}, 3)">
                 <i class="fas fa-play me-1"></i>Bắt đầu thực hiện
             </button>
-            <button type="button" class="btn btn-success me-2" onclick="quickUpdateStatus(${appointment.appointmentId}, 4)">
-                <i class="fas fa-check me-1"></i>Hoàn thành
+            <button type="button" class="btn btn-warning me-2" onclick="quickUpdateStatus(${appointment.appointmentId}, 5)">
+                <i class="fas fa-times me-1"></i>Hủy lịch
             </button>
         `;
     } else if (status === 'Đang thực hiện') {
@@ -161,10 +210,10 @@ function createAppointmentActions(appointment) {
             </button>
         `;
     }
-    
-    if (['Đã xác nhận', 'Đang thực hiện'].includes(status)) {
+
+    if (['Confirmed', 'In Progress'].includes(status)) {
         actions += `
-            <button type="button" class="btn btn-warning" onclick="showStatusUpdateModal(${appointment.appointmentId})">
+            <button type="button" class="btn btn-outline-secondary" onclick="showStatusUpdateModal(${appointment.appointmentId})">
                 <i class="fas fa-edit me-1"></i>Cập nhật trạng thái
             </button>
         `;

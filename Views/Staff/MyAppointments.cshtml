@@ -196,7 +196,7 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
-    <script src="~/js/staff-appointments.js"></script>
+    <script src="~/js/staff-appointments.js?v=@DateTime.Now.Ticks"></script>
     <script>
         $(document).ready(function() {
             initializeAppointmentsPage();

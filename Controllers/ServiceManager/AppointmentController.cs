@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.ViewModel;
 using pet_spa_system1.Services;
@@ -10,22 +11,24 @@ namespace pet_spa_system1.Controllers
         private readonly IAppointmentService _appointmentService;
         private readonly IPetService _petService;
         private readonly IServiceService _serviceService;
-
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
+        private readonly IAppointmentServiceImageService _appointmentServiceImageService;
 
         public AppointmentController(
             IAppointmentService appointmentService,
             IPetService petService,
             IServiceService serviceService,
             IUserService userService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IAppointmentServiceImageService appointmentServiceImageService)
         {
             _appointmentService = appointmentService;
             _petService = petService;
             _serviceService = serviceService;
             _userService = userService;
             _notificationService = notificationService;
+            _appointmentServiceImageService = appointmentServiceImageService;
         }
 
         // GET: /Appointment
@@ -106,7 +109,6 @@ namespace pet_spa_system1.Controllers
                 Console.WriteLine($"[AppointmentController] Gọi SaveAppointment với userId: {userId.Value}");
                 Console.WriteLine($"[AppointmentController] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
                 Console.WriteLine($"[AppointmentController] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
-                
                 var result = _appointmentService.SaveAppointment(model, userId.Value);
                 if (result.Success)
                 {
@@ -137,7 +139,7 @@ namespace pet_spa_system1.Controllers
                     //ModelState.AddModelError("", "Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
-                        return Json(new { success = false, message = "Pet(s) của bạn đã có lịch trùng thời gian này. Vui lòng kiểm tra lại." });
+                        return Json(new { success = false, message = result.message });
                     }
                 }
             }
@@ -235,6 +237,48 @@ namespace pet_spa_system1.Controllers
         public IActionResult AppointmentDetail()
         {
             return View();
+        }
+
+        /// <summary>
+        /// Get service images for customer view
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetServiceImages(int appointmentServiceId)
+        {
+            int? userId = HttpContext.Session.GetInt32("CurrentUserId");
+            if (userId == null)
+            {
+                Console.WriteLine($"[DEBUG] GetServiceImages: No user session");
+                return Json(new { success = false, message = "Unauthorized" });
+            }
+
+            Console.WriteLine($"[DEBUG] GetServiceImages: appointmentServiceId={appointmentServiceId}, userId={userId.Value}");
+
+            var result = await _appointmentServiceImageService.GetImagesForCustomerAsync(
+                appointmentServiceId,
+                userId.Value);
+
+            Console.WriteLine($"[DEBUG] GetServiceImages: Service result - Success={result.Success}, Message={result.Message}");
+            Console.WriteLine($"[DEBUG] GetServiceImages: Images count={result.Data?.Count ?? 0}");
+
+            if (result.Success)
+            {
+                var images = result.Data?.Select(img => new {
+                    imageId = img.ImageId,
+                    imageUrl = img.ImageUrl,
+                    photoType = img.PhotoType,
+                    petId = img.PetId, // Thêm petId để group ảnh theo pet
+                    createdAt = img.FormattedCreatedAt
+                }).ToList();
+
+                Console.WriteLine($"[DEBUG] GetServiceImages: Returning {images?.Count ?? 0} images");
+                return Json(new { success = true, images = images });
+            }
+            else
+            {
+                Console.WriteLine($"[DEBUG] GetServiceImages: Error - {result.Message}");
+                return Json(new { success = false, message = result.Message });
+            }
         }
 
         public async Task<IActionResult> AddPetPartial()
