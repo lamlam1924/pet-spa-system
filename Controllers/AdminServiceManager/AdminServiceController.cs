@@ -1,12 +1,8 @@
+using System.Net;
 using ClosedXML.Excel;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-       
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using pet_spa_system1.Models;
 using pet_spa_system1.Services;
 using pet_spa_system1.ViewModel;
@@ -16,11 +12,16 @@ namespace pet_spa_system1.Controllers
     public class AdminServiceController : Controller
     {
         private readonly IServiceService _serviceService;
+        private readonly INotificationService _notificationService;
+        private readonly IAppointmentService _appointmentService;
         private readonly ILogger<AdminServiceController> _logger;
 
-        public AdminServiceController(IServiceService serviceService, ILogger<AdminServiceController> logger)
+        public AdminServiceController(IServiceService serviceService, INotificationService notificationService,
+            IAppointmentService appointmentService, ILogger<AdminServiceController> logger)
         {
             _serviceService = serviceService;
+            _notificationService = notificationService;
+            _appointmentService = appointmentService;
             _logger = logger;
         }
 
@@ -29,21 +30,23 @@ namespace pet_spa_system1.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 // ✅ Pass page parameter to service
                 var viewModel = _serviceService.GetServiceListViewModel(filter, page);
-                
+
                 return View("~/Views/Admin/ManageService/ServiceList.cshtml", viewModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi tải danh sách dịch vụ");
                 TempData["ErrorMessage"] = "Có lỗi xảy ra khi tải danh sách dịch vụ.";
-                
+
                 var emptyModel = new ServiceListViewModel
                 {
                     Services = new List<ServiceListItem>(),
@@ -52,7 +55,7 @@ namespace pet_spa_system1.Controllers
                     Pagination = new PaginationModel { CurrentPage = page, PageSize = 10, TotalItems = 0 },
                     Summary = new ServiceSummaryStats()
                 };
-                
+
                 return View("~/Views/Admin/ManageService/ServiceList.cshtml", emptyModel);
             }
         }
@@ -62,9 +65,11 @@ namespace pet_spa_system1.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var dashboardModel = _serviceService.GetServiceDashboardViewModel();
@@ -85,9 +90,11 @@ namespace pet_spa_system1.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var viewModel = _serviceService.GetServiceDetailViewModel(id);
@@ -113,9 +120,11 @@ namespace pet_spa_system1.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var service = _serviceService.GetServiceById(id);
@@ -162,22 +171,26 @@ namespace pet_spa_system1.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             _logger.LogInformation("EditService POST: ModelState.IsValid = {IsValid}", ModelState.IsValid);
-            _logger.LogInformation("EditService POST: ServiceId = {Id}, Name = {Name}, Price = {Price}", 
+            _logger.LogInformation("EditService POST: ServiceId = {Id}, Name = {Name}, Price = {Price}",
                 model.Input.ServiceId, model.Input.Name, model.Input.Price);
 
 
             // Nếu dịch vụ chưa có ảnh và không upload ảnh mới, báo lỗi
             var input = model.Input;
             var existingService = _serviceService.GetServiceById(input.ServiceId ?? 0);
-            if (!ModelState.IsValid || (string.IsNullOrEmpty(existingService?.ImageUrl) && (ImageFile == null || ImageFile.Length == 0)))
+            if (!ModelState.IsValid || (string.IsNullOrEmpty(existingService?.ImageUrl) &&
+                                        (ImageFile == null || ImageFile.Length == 0)))
             {
                 if (!User.Identity?.IsAuthenticated ?? true)
                 {
-                    Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                    Console.WriteLine(
+                        "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                     return RedirectToAction("AccessDenied", "Account");
                 }
 
@@ -185,11 +198,14 @@ namespace pet_spa_system1.Controllers
                 {
                     ModelState.AddModelError("ImageFile", "Vui lòng chọn ảnh cho dịch vụ.");
                 }
+
                 _logger.LogWarning("EditService POST: Model validation failed");
                 foreach (var error in ModelState)
                 {
-                    _logger.LogWarning("Model error in {Key}: {Errors}", error.Key, string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage)));
+                    _logger.LogWarning("Model error in {Key}: {Errors}", error.Key,
+                        string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage)));
                 }
+
                 try
                 {
                     model.Categories = _serviceService.GetAllCategories();
@@ -215,19 +231,19 @@ namespace pet_spa_system1.Controllers
                 // Xử lý upload ảnh nếu có file mới
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
-                    var account = new CloudinaryDotNet.Account(
+                    var account = new Account(
                         "dprp1jbd9", // cloud_name
                         "584135338254938", // api_key
                         "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
                     );
-                    var cloudinary = new CloudinaryDotNet.Cloudinary(account);
-                    var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
+                    var cloudinary = new Cloudinary(account);
+                    var uploadParams = new ImageUploadParams()
                     {
                         File = new FileDescription(ImageFile.FileName, ImageFile.OpenReadStream()),
                         Folder = "pet-spa/services"
                     };
                     var uploadResult = await cloudinary.UploadAsync(uploadParams);
-                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    if (uploadResult.StatusCode == HttpStatusCode.OK)
                     {
                         existingService.ImageUrl = uploadResult.SecureUrl.ToString();
                     }
@@ -280,9 +296,11 @@ namespace pet_spa_system1.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var viewModel = new ServiceFormViewModel
@@ -291,7 +309,7 @@ namespace pet_spa_system1.Controllers
                     Categories = _serviceService.GetAllCategories(),
                     CategoryName = "Chọn danh mục"
                 };
-                
+
                 return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
             }
             catch (Exception ex)
@@ -304,91 +322,117 @@ namespace pet_spa_system1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFormFile ImageFile)
-{
+        public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFormFile ImageFile)
+        {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             var input = viewModel.Input;
-    if (!ModelState.IsValid)
-    {
-        viewModel.Categories = _serviceService.GetAllCategories();
-        return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
-    }
-
-    string? imageUrl = null;
-    if (ImageFile != null && ImageFile.Length > 0)
-    {
-        var account = new CloudinaryDotNet.Account(
-            "dprp1jbd9", // cloud_name
-            "584135338254938", // api_key
-            "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
-        );
-        var cloudinary = new CloudinaryDotNet.Cloudinary(account);
-        var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
-        {
-            File = new FileDescription(ImageFile.FileName, ImageFile.OpenReadStream()),
-            Folder = "pet-spa/services"
-        };
-        var uploadResult = await cloudinary.UploadAsync(uploadParams);
-        if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-        {
-            imageUrl = uploadResult.SecureUrl.ToString();
-        }
-    }
-
-    // Map sang entity Service
-    var service = new Service
-    {
-        Name = input.Name?.Trim() ?? string.Empty,
-        Price = input.Price ?? 0,
-        CategoryId = input.CategoryId ?? 0,
-        Description = input.Description?.Trim() ?? string.Empty,
-        DurationMinutes = input.DurationMinutes ?? 0,
-        IsActive = input.IsActive ?? true,
-        CreatedAt = input.CreatedAt ?? DateTime.Now,
-        ImageUrl = imageUrl
-    };
-
-    _serviceService.AddService(service);
-    _serviceService.Save();
-    TempData["SuccessMessage"] = "Thêm dịch vụ thành công!";
-    return RedirectToAction("ServiceList");
-}
-
-
-
-            // ===== SOFT DELETE SERVICE =====
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public IActionResult SoftDeleteService(int serviceId)
+            if (!ModelState.IsValid)
             {
+                viewModel.Categories = _serviceService.GetAllCategories();
+                return View("~/Views/Admin/ManageService/AddService.cshtml", viewModel);
+            }
+
+            string? imageUrl = null;
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var account = new Account(
+                    "dprp1jbd9", // cloud_name
+                    "584135338254938", // api_key
+                    "QbUYngPIdZcXEn_mipYn8RE5dlo" // api_secret
+                );
+                var cloudinary = new Cloudinary(account);
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(ImageFile.FileName, ImageFile.OpenReadStream()),
+                    Folder = "pet-spa/services"
+                };
+                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == HttpStatusCode.OK)
+                {
+                    imageUrl = uploadResult.SecureUrl.ToString();
+                }
+            }
+
+            // Map sang entity Service
+            var service = new Service
+            {
+                Name = input.Name?.Trim() ?? string.Empty,
+                Price = input.Price ?? 0,
+                CategoryId = input.CategoryId ?? 0,
+                Description = input.Description?.Trim() ?? string.Empty,
+                DurationMinutes = input.DurationMinutes ?? 0,
+                IsActive = input.IsActive ?? true,
+                CreatedAt = input.CreatedAt ?? DateTime.Now,
+                ImageUrl = imageUrl
+            };
+
+            _serviceService.AddService(service);
+            _serviceService.Save();
+            TempData["SuccessMessage"] = "Thêm dịch vụ thành công!";
+            return RedirectToAction("ServiceList");
+        }
+
+
+        // ===== SOFT DELETE SERVICE =====
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SoftDeleteService(int serviceId)
+        {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
+            {
+                var service = _serviceService.GetServiceById(serviceId);
+                if (service == null)
                 {
-                    var service = _serviceService.GetServiceById(serviceId);
-                    if (service == null)
-                    {
-                        TempData["ErrorMessage"] = "Không tìm thấy dịch vụ để tạm ngưng.";
-                        return RedirectToAction("ServiceList");
-                    }
-                    service.IsActive = false;
-                    _serviceService.UpdateService(service);
-                    _serviceService.Save();
-                    TempData["SuccessMessage"] = "Đã tạm ngưng dịch vụ thành công!";
+                    TempData["ErrorMessage"] = "Không tìm thấy dịch vụ để tạm ngưng.";
+                    return RedirectToAction("ServiceList");
                 }
-                catch (Exception ex)
+
+                // Kiểm tra các lịch hẹn đang sử dụng dịch vụ này
+                var activeAppointments = _appointmentService.GetActiveAppointmentsByService(serviceId);
+
+                // Kiểm tra xem có lịch hẹn nào không thuộc các trạng thái cho phép
+                var invalidAppointments = activeAppointments.Where(a =>
+                        a.StatusId != 4 && // Completed
+                        a.StatusId != 5 && // Cancelled
+                        a.StatusId != 6 // PendingCancel
+                ).ToList();
+
+                if (invalidAppointments.Any())
                 {
-                    TempData["ErrorMessage"] = "Lỗi khi tạm ngưng dịch vụ: " + ex.Message;
+                    var message = "Không thể tạm ngưng dịch vụ vì còn lịch hẹn đang hoạt động." +
+                                  $"\nSố lịch hẹn cần xử lý: {invalidAppointments.Count}" +
+                                  "\nVui lòng chờ các lịch hẹn hoàn thành hoặc được hủy trước khi tạm ngưng dịch vụ.";
+
+                    TempData["ErrorMessage"] = message;
+                    return RedirectToAction("ServiceList");
                 }
-                return RedirectToAction("ServiceList");
+
+                // Cập nhật trạng thái dịch vụ
+                service.IsActive = false;
+                _serviceService.UpdateService(service);
+                _serviceService.Save();
+
+                TempData["SuccessMessage"] = "Đã tạm ngưng dịch vụ thành công!";
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tạm ngưng dịch vụ: {ServiceId}", serviceId);
+                TempData["ErrorMessage"] = "Lỗi khi tạm ngưng dịch vụ: " + ex.Message;
+            }
+
+            return RedirectToAction("ServiceList");
+        }
 
         // ===== RESTORE SERVICE =====
         [HttpPost]
@@ -397,9 +441,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var service = _serviceService.GetServiceById(serviceId);
@@ -408,6 +454,7 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
                     TempData["ErrorMessage"] = "Không tìm thấy dịch vụ để kích hoạt lại.";
                     return RedirectToAction("ServiceList");
                 }
+
                 service.IsActive = true;
                 _serviceService.UpdateService(service);
                 _serviceService.Save();
@@ -417,6 +464,7 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
             {
                 TempData["ErrorMessage"] = "Lỗi khi kích hoạt lại dịch vụ: " + ex.Message;
             }
+
             return RedirectToAction("ServiceList");
         }
 
@@ -425,9 +473,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var dashboardData = _serviceService.GetServiceDashboardViewModel();
@@ -446,9 +496,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             try
             {
                 var viewModel = new ServiceCategoryViewModel
@@ -456,14 +508,14 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
                     Categories = _serviceService.GetAllCategories(),
                     ServiceCountsByCategory = _serviceService.GetServiceCountsByCategory()
                 };
-                
+
                 return View("~/Views/Admin/ManageService/ServiceCategory.cshtml", viewModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi tải trang danh mục");
                 TempData["ErrorMessage"] = "Có lỗi xảy ra khi tải danh mục.";
-                
+
                 var emptyModel = new ServiceCategoryViewModel();
                 return View("~/Views/Admin/ManageService/ServiceCategory.cshtml", emptyModel);
             }
@@ -475,9 +527,11 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             if (ModelState.IsValid)
             {
                 try
@@ -490,19 +544,21 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
                     TempData["ErrorMessage"] = "Lỗi khi thêm danh mục: " + ex.Message;
                 }
             }
-            
+
             return RedirectToAction("ServiceCategory");
         }
 
-         [HttpPost]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ExportToExcel()
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                Console.WriteLine("[AdminController] User not authenticated, redirecting or allowing anonymous access.");
+                Console.WriteLine(
+                    "[AdminController] User not authenticated, redirecting or allowing anonymous access.");
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             var allServices = _serviceService.GetAllServicesViewModel();
             if (allServices == null || !allServices.Any())
             {
@@ -529,14 +585,16 @@ public async Task<IActionResult> AddService(ServiceFormViewModel viewModel, IFor
                     worksheet.Cell(row, 5).Value = (s.IsActive == true) ? "Hoạt động" : "Tạm ngưng";
                     row++;
                 }
+
                 worksheet.Columns().AdjustToContents();
 
-                using (var stream = new System.IO.MemoryStream())
+                using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    stream.Seek(0, System.IO.SeekOrigin.Begin);
+                    stream.Seek(0, SeekOrigin.Begin);
                     var fileName = $"DanhSachDichVu_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName);
                 }
             }
         }

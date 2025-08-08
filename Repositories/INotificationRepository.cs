@@ -8,5 +8,6 @@ namespace pet_spa_system1.Repositories
         Task AddNotificationAsync(Notification notification);
         Task MarkAllAsReadAsync(int userId);
         Task DeleteAllAsync(int userId);
+        
     }
 }
