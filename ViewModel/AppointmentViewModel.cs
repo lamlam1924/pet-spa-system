@@ -9,6 +9,7 @@ namespace pet_spa_system1.ViewModel
         public string PetName { get; set; } = string.Empty;
         public int? StaffId { get; set; }
         public string? StaffName { get; set; }
+        public string? OwnerName  { get; set; }
     }
 
     public class ServiceHistoryInfo
@@ -67,6 +68,8 @@ namespace pet_spa_system1.ViewModel
         // Đảm bảo property CustomerId để binding đúng với select2 và controller
         // --- Properties for user booking form (Views/Appointment/Appointment.cshtml) ---
         public List<Pet> Pets { get; set; } = new();
+        public int? PetId { get; set; }
+        public string PetName { get; set; } = string.Empty;
         public List<Service> Services { get; set; } = new();
 
         public List<SerCate> Categories { get; set; } = new();
@@ -132,6 +135,12 @@ namespace pet_spa_system1.ViewModel
         public string Name { get; set; } = string.Empty;
         public string Breed { get; set; } = string.Empty;
         public string? StaffName { get; set; } // Thêm property để hiển thị nhân viên phụ trách từng pet
+        public int AppointmentId { get; set; }
+        public DateOnly AppointmentDate { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public int StatusId { get; set; }
+        public int StaffId { get; set; }
     }
 
     public class AppointmentServiceInfo
@@ -164,8 +173,8 @@ namespace pet_spa_system1.ViewModel
         public int AppointmentId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public List<ServiceViewModel> Services { get; set; } = new();
-        public int DurationMinutes { get; set; }
-        public DateTime EndTime { get; set; }
+        // public int DurationMinutes { get; set; }
+        // public DateTime EndTime { get; set; }
         public string CustomerName { get; set; } = string.Empty;
         public string? CustomerPhone { get; set; }
         public int StatusId { get; set; }

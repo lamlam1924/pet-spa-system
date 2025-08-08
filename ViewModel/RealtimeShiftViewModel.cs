@@ -1,11 +1,10 @@
-
-
 namespace pet_spa_system1.ViewModel
 {
     public class RealtimeShiftViewModel
     {
         public List<int> Hours { get; set; } = new();
         public List<StaffShift> StaffShifts { get; set; } = new();
+        public DateTime SelectedDate { get; set; }
     }
 
     public class StaffShift
@@ -16,7 +15,6 @@ namespace pet_spa_system1.ViewModel
         public string AvatarUrl { get; set; } = string.Empty;
         public Dictionary<int, ShiftStatus> HourStatus { get; set; } = new();
         public List<AppointmentViewModel> Appointments { get; set; } = new();
-
     }
 
     public class ShiftStatus
@@ -25,35 +23,19 @@ namespace pet_spa_system1.ViewModel
         public string ColorClass { get; set; } = string.Empty;
         public string TimeRange { get; set; } = string.Empty;
         public int AppointmentId { get; set; }
-
-
     }
 
-
-
-    public class AppointmentDragViewModel
+    public class MoveAppointmentRequest
     {
         public int AppointmentId { get; set; }
-        public DateTime AppointmentDate { get; set; }
-        public DateTime EndTime { get; set; }
-    }
-
-    public class UpdateStaffRequest
-    {
-        public int AppointmentId { get; set; }
+        public int PetId { get; set; }
         public int NewStaffId { get; set; }
+        public bool CheckOnly { get; set; }
     }
-    public class ShiftUpdateRequest
-    {
-        public int AppointmentId { get; set; }
-        public int NewStaffId { get; set; }
-        public int NewHour { get; set; }
-    }
-    public class UpdateAppointmentCalendarRequest
-{
-    public int AppointmentId { get; set; }
-    public int NewEmployeeId { get; set; }
-    public DateTime NewStart { get; set; }
-}
 
+    public class MoveResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = "";
+    }
 }

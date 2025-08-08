@@ -1,3 +1,5 @@
+using System.Collections;
+using Microsoft.EntityFrameworkCore;
 using pet_spa_system1.Models;
 using pet_spa_system1.Repositories;
 using pet_spa_system1.ViewModel;
@@ -5,9 +7,18 @@ using pet_spa_system1.ViewModel;
 namespace pet_spa_system1.Services
 {
     public class AppointmentService : IAppointmentService
-
-
     {
+        public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
+        {
+            // Get all statuses from database
+            var allStatuses = GetAllStatuses();
+            
+            // Get valid next status names from StatusAppointmentUtils
+            var validNextStatusNames = Utils.StatusAppointmentUtils.GetValidNextStatuses(currentStatus);
+            
+            // Filter statuses that are valid transitions
+            return allStatuses.Where(s => validNextStatusNames.Contains(s.StatusName)).ToList();
+        }
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPetRepository _petRepository;
@@ -43,16 +54,19 @@ namespace pet_spa_system1.Services
 
         public bool RequestCancelAppointment(int appointmentId, int userId)
         {
-            // Logic gửi yêu cầu hủy lịch hẹn
-            // Ví dụ: cập nhật trạng thái appointment sang PendingCancel
             var appointment = _appointmentRepository.GetById(appointmentId);
             if (appointment == null) return false;
-            // Chỉ cho phép yêu cầu hủy nếu trạng thái chưa phải PendingCancel
-            // Sử dụng model StatusAppointment thay vì enum
-            var pendingCancelStatus = _appointmentRepository.GetAllStatuses()
-                .FirstOrDefault(s => s.StatusName == "PendingCancel");
-            if (pendingCancelStatus == null) return false;
-            if (appointment.StatusId == pendingCancelStatus.StatusId) return false;
+
+            var allStatuses = _appointmentRepository.GetAllStatuses();
+            var currentStatus = allStatuses.FirstOrDefault(s => s.StatusId == appointment.StatusId);
+            var pendingCancelStatus = allStatuses.FirstOrDefault(s => s.StatusName == "PendingCancel");
+
+            if (currentStatus == null || pendingCancelStatus == null) return false;
+
+            // Kiểm tra xem có thể chuyển sang trạng thái PendingCancel không
+            if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, "PendingCancel"))
+                return false;
+
             appointment.StatusId = pendingCancelStatus.StatusId;
             _appointmentRepository.SaveChanges();
             return true;
@@ -161,7 +175,7 @@ namespace pet_spa_system1.Services
 
         public ViewModel.CalendarViewModel GetCalendarViewModel()
         {
-            var calendarViewModel = new ViewModel.CalendarViewModel
+            var calendarViewModel = new CalendarViewModel
             {
                 Resources = new List<StaffResourceViewModel>(),
                 Events = new List<CalendarEventViewModel>()
@@ -225,7 +239,7 @@ namespace pet_spa_system1.Services
                     string resourceId = string.Empty;
                     if (evtDict.ContainsKey("resourceIds") && evtDict["resourceIds"] != null)
                     {
-                        if (evtDict["resourceIds"] is System.Collections.IEnumerable resourceIds)
+                        if (evtDict["resourceIds"] is IEnumerable resourceIds)
                         {
                             // Convert each item to string
                             foreach (var id in resourceIds)
@@ -246,7 +260,7 @@ namespace pet_spa_system1.Services
                     var servicesList = new List<string>();
                     if (evtDict.ContainsKey("services") && evtDict["services"] != null)
                     {
-                        if (evtDict["services"] is System.Collections.IEnumerable services)
+                        if (evtDict["services"] is IEnumerable services)
                         {
                             foreach (var service in services)
                             {
@@ -365,12 +379,81 @@ namespace pet_spa_system1.Services
         {
             try
             {
-                var hours = Enumerable.Range(8, 13).ToList(); // 8h đến 20h
+                Console.WriteLine($"[GetManagementTimelineData] Starting for date: {date}");
+
+                // Khởi tạo ViewModel với giờ làm việc từ 8h đến 20h
                 var viewModel = new RealtimeShiftViewModel
                 {
-                    Hours = hours,
+                    Hours = Enumerable.Range(8, 13).ToList(),
                     StaffShifts = new List<StaffShift>()
                 };
+
+                Console.WriteLine(
+                    $"[GetManagementTimelineData] Initialized hours: {string.Join(",", viewModel.Hours)}");
+
+                // Lấy danh sách nhân viên
+                var staffs = _userRepository.GetStaffList();
+                Console.WriteLine($"[GetManagementTimelineData] Found {staffs.Count} staff members");
+
+                if (staffs == null || staffs.Count == 0)
+                {
+                    Console.WriteLine(
+                        "[GetManagementTimelineData] No staff members found. Check if RoleId is correct in database.");
+                    return viewModel;
+                }
+
+                // Lấy tất cả cuộc hẹn trong ngày
+                var dateOnly = DateOnly.FromDateTime(date);
+                var appointments = _appointmentRepository.GetAppointmentsByDateAndStatus(
+                    dateOnly,
+                    new[] { 2, 3, 4, 6 } // Approved, InProgress, Completed, PendingCancel
+                );
+                Console.WriteLine(
+                    $"[GetManagementTimelineData] Found {appointments.Count} appointments for date {dateOnly}");
+
+                foreach (var staff in staffs)
+                {
+                    var staffShift = new StaffShift
+                    {
+                        UserId = staff.UserId,
+                        StaffId = staff.UserId,
+                        StaffName = staff.FullName ?? "Unknown",
+                        AvatarUrl = staff.ProfilePictureUrl ?? "",
+                        HourStatus = new Dictionary<int, ShiftStatus>(),
+                        Appointments = new List<AppointmentViewModel>()
+                    };
+
+                    // Lấy các cuộc hẹn của nhân viên này
+                    var staffAppointments = appointments
+                        .Where(a => a.AppointmentPets.Any(ap => ap.StaffId == staff.UserId))
+                        .ToList();
+
+                    foreach (var appointment in staffAppointments)
+                    {
+                        var appointmentVm = new AppointmentViewModel
+                        {
+                            AppointmentId = appointment.AppointmentId,
+                            AppointmentDate = appointment.AppointmentDate,
+                            StartTime = appointment.StartTime,
+                            EndTime = appointment.EndTime,
+                            StatusId = appointment.StatusId,
+                            PetStaffAssignments = appointment.AppointmentPets
+                                .Where(ap => ap.StaffId == staff.UserId)
+                                .Select(ap => new PetStaffAssignViewModel
+                                {
+                                    PetId = ap.PetId,
+                                    PetName = ap.Pet?.Name ?? "(Chưa đặt tên)",
+                                    StaffId = ap.StaffId,
+                                    OwnerName = ap.Pet.User?.FullName ?? "(Chưa xác định)",
+                                }).ToList()
+                        };
+
+                        staffShift.Appointments.Add(appointmentVm);
+                    }
+
+                    viewModel.StaffShifts.Add(staffShift);
+                }
+
                 return viewModel;
             }
             catch (Exception ex)
@@ -619,6 +702,27 @@ namespace pet_spa_system1.Services
                 {
                     Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không tìm thấy lịch hẹn với ID: {vm.AppointmentId}");
                     return false;
+                }
+
+                // Validate status change
+                if (appointment.StatusId != vm.StatusId)
+                {
+                    var allStatuses = _appointmentRepository.GetAllStatuses();
+                    var currentStatus = allStatuses.FirstOrDefault(s => s.StatusId == appointment.StatusId);
+                    var newStatus = allStatuses.FirstOrDefault(s => s.StatusId == vm.StatusId);
+
+                    if (currentStatus == null || newStatus == null)
+                    {
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Trạng thái không hợp lệ!");
+                        return false;
+                    }
+
+                    // Kiểm tra xem việc chuyển trạng thái có hợp lệ không
+                    if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, newStatus.StatusName))
+                    {
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!");
+                        return false;
+                    }
                 }
 
                 // Cập nhật thông tin cơ bản
@@ -981,9 +1085,18 @@ namespace pet_spa_system1.Services
             if (appointment == null)
                 return new ServiceResult { Success = false, Message = "Không tìm thấy lịch hẹn!" };
 
+            var allStatuses = _appointmentRepository.GetAllStatuses();
+            var currentStatus = allStatuses.FirstOrDefault(s => s.StatusId == appointment.StatusId);
+            var newStatus = allStatuses.FirstOrDefault(s => s.StatusId == statusId);
+
+            if (currentStatus == null || newStatus == null)
+                return new ServiceResult { Success = false, Message = "Trạng thái không hợp lệ!" };
+
+            // Kiểm tra xem việc chuyển trạng thái có hợp lệ không
+            if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, newStatus.StatusName))
+                return new ServiceResult { Success = false, Message = $"Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!" };
+
             appointment.StatusId = statusId;
-            // Không cần gọi Update riêng vì entity đã được theo dõi bởi DbContext
-            // và sẽ được cập nhật khi gọi SaveChanges()
             _appointmentRepository.SaveChanges();
 
             return new ServiceResult { Success = true, Message = "Cập nhật trạng thái thành công!" };
@@ -1409,6 +1522,84 @@ namespace pet_spa_system1.Services
             }
         }
 
+public List<StaffShift> GetRealtimeShiftViewModel()
+        {
+            var appointments = _appointmentRepository.GetActiveAppointmentsWithStaffAndStatus()
+                .Include(a => a.Employee)
+                .Include(a => a.AppointmentPets) // bảng ánh xạ appointment-pet
+                .ToList()
+                .Where(a => a.IsActive == true && new[] { 2, 3, 4, 6 }.Contains(a.StatusId))
+                .ToList();
+
+            var staffGroups = appointments
+                .GroupBy(a => new
+                {
+                    StaffId = a.EmployeeId ?? 0,
+                    UserId = a.Employee?.UserId ?? 0,
+                    FullName = a.Employee?.FullName ?? "(Không xác định)",
+                    AvatarUrl = a.Employee?.ProfilePictureUrl ?? ""
+                })
+                .Select(g => new StaffShift
+                {
+                    StaffId = g.Key.StaffId,
+                    UserId = g.Key.UserId,
+                    StaffName = g.Key.FullName,
+                    AvatarUrl = g.Key.AvatarUrl,
+                    Appointments = g.Select(a => new AppointmentViewModel
+                    {
+                        AppointmentId = a.AppointmentId,
+                        AppointmentDate = a.AppointmentDate,
+                        StartTime = a.StartTime,
+                        EndTime = a.EndTime,
+                        StatusId = a.StatusId,
+                        Notes = a.Notes ?? "",
+                        // Build danh sách pet-staff assignments cho mỗi appointment
+                        PetStaffAssignments = a.AppointmentPets.Select(ap => new PetStaffAssignViewModel
+                        {
+                            PetId = ap.PetId,
+                            StaffId = a.EmployeeId ?? 0 // hoặc lấy đúng nhân viên cho pet nếu có gán khác
+                        }).ToList()
+                    }).ToList()
+                })
+                .ToList();
+
+            return staffGroups;
+        }
+
+
+        public MoveResult AssignStaffToPet(int appointmentId, int petId, int newStaffId)
+        {
+            var appointment = _appointmentRepository.GetAppointmentWithPetAssignments(appointmentId);
+
+            if (appointment == null)
+                return new MoveResult { Success = false, Message = "Không tìm thấy lịch hẹn." };
+
+            if (appointment.StatusId != 2)
+                return new MoveResult { Success = false, Message = "Chỉ đổi nhân viên khi lịch đã được xác nhận." };
+
+            var petAssignment = appointment.AppointmentPets.FirstOrDefault(p => p.PetId == petId);
+
+            if (petAssignment == null)
+                return new MoveResult { Success = false, Message = "Không tìm thấy pet trong lịch hẹn." };
+
+            var isAvailable = _appointmentRepository.IsStaffAvailableForPet(
+                newStaffId,
+                appointment.AppointmentDate,
+                appointment.StartTime,
+                appointment.EndTime,
+                appointmentId
+            );
+
+            if (!isAvailable)
+                return new MoveResult { Success = false, Message = "Nhân viên mới bị trùng lịch." };
+
+            var updated = _appointmentRepository.UpdateStaffForPet(appointmentId, petId, newStaffId);
+
+            return updated
+                ? new MoveResult { Success = true }
+                : new MoveResult { Success = false, Message = "Cập nhật thất bại." };
+        }
+        
         public List<User> getAllStaffFreeByAppointmentId(int appointmentId)
         {
             try
@@ -1449,6 +1640,5 @@ namespace pet_spa_system1.Services
                 return new List<User>();
             }
         }
-
     }
 }
