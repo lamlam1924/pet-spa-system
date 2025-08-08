@@ -7,9 +7,18 @@ using pet_spa_system1.ViewModel;
 namespace pet_spa_system1.Services
 {
     public class AppointmentService : IAppointmentService
-
-
     {
+        public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
+        {
+            // Get all statuses from database
+            var allStatuses = GetAllStatuses();
+            
+            // Get valid next status names from StatusAppointmentUtils
+            var validNextStatusNames = Utils.StatusAppointmentUtils.GetValidNextStatuses(currentStatus);
+            
+            // Filter statuses that are valid transitions
+            return allStatuses.Where(s => validNextStatusNames.Contains(s.StatusName)).ToList();
+        }
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPetRepository _petRepository;
@@ -45,16 +54,19 @@ namespace pet_spa_system1.Services
 
         public bool RequestCancelAppointment(int appointmentId, int userId)
         {
-            // Logic gửi yêu cầu hủy lịch hẹn
-            // Ví dụ: cập nhật trạng thái appointment sang PendingCancel
             var appointment = _appointmentRepository.GetById(appointmentId);
             if (appointment == null) return false;
-            // Chỉ cho phép yêu cầu hủy nếu trạng thái chưa phải PendingCancel
-            // Sử dụng model StatusAppointment thay vì enum
-            var pendingCancelStatus = _appointmentRepository.GetAllStatuses()
-                .FirstOrDefault(s => s.StatusName == "PendingCancel");
-            if (pendingCancelStatus == null) return false;
-            if (appointment.StatusId == pendingCancelStatus.StatusId) return false;
+
+            var allStatuses = _appointmentRepository.GetAllStatuses();
+            var currentStatus = allStatuses.FirstOrDefault(s => s.StatusId == appointment.StatusId);
+            var pendingCancelStatus = allStatuses.FirstOrDefault(s => s.StatusName == "PendingCancel");
+
+            if (currentStatus == null || pendingCancelStatus == null) return false;
+
+            // Kiểm tra xem có thể chuyển sang trạng thái PendingCancel không
+            if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, "PendingCancel"))
+                return false;
+
             appointment.StatusId = pendingCancelStatus.StatusId;
             _appointmentRepository.SaveChanges();
             return true;
@@ -692,6 +704,27 @@ namespace pet_spa_system1.Services
                     return false;
                 }
 
+                // Validate status change
+                if (appointment.StatusId != vm.StatusId)
+                {
+                    var allStatuses = _appointmentRepository.GetAllStatuses();
+                    var currentStatus = allStatuses.FirstOrDefault(s => s.StatusId == appointment.StatusId);
+                    var newStatus = allStatuses.FirstOrDefault(s => s.StatusId == vm.StatusId);
+
+                    if (currentStatus == null || newStatus == null)
+                    {
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Trạng thái không hợp lệ!");
+                        return false;
+                    }
+
+                    // Kiểm tra xem việc chuyển trạng thái có hợp lệ không
+                    if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, newStatus.StatusName))
+                    {
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!");
+                        return false;
+                    }
+                }
+
                 // Cập nhật thông tin cơ bản
                 appointment.AppointmentDate = vm.AppointmentDate;
                 appointment.StartTime = vm.StartTime;
@@ -1052,9 +1085,18 @@ namespace pet_spa_system1.Services
             if (appointment == null)
                 return new ServiceResult { Success = false, Message = "Không tìm thấy lịch hẹn!" };
 
+            var allStatuses = _appointmentRepository.GetAllStatuses();
+            var currentStatus = allStatuses.FirstOrDefault(s => s.StatusId == appointment.StatusId);
+            var newStatus = allStatuses.FirstOrDefault(s => s.StatusId == statusId);
+
+            if (currentStatus == null || newStatus == null)
+                return new ServiceResult { Success = false, Message = "Trạng thái không hợp lệ!" };
+
+            // Kiểm tra xem việc chuyển trạng thái có hợp lệ không
+            if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, newStatus.StatusName))
+                return new ServiceResult { Success = false, Message = $"Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!" };
+
             appointment.StatusId = statusId;
-            // Không cần gọi Update riêng vì entity đã được theo dõi bởi DbContext
-            // và sẽ được cập nhật khi gọi SaveChanges()
             _appointmentRepository.SaveChanges();
 
             return new ServiceResult { Success = true, Message = "Cập nhật trạng thái thành công!" };
