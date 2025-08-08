@@ -75,12 +75,19 @@
                                 <option value="today">Hôm nay</option>
                                 <option value="tomorrow">Ngày mai</option>
                                 <option value="week">Tuần này</option>
+                                <option value="lastweek">Tuần trước</option>
                                 <option value="month">Tháng này</option>
+                                <option value="lastmonth">Tháng trước</option>
+                                <option value="3months">3 tháng gần đây</option>
+                                <option value="6months">6 tháng gần đây</option>
                             </select>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <button class="btn btn-outline-primary w-100" onclick="applyFilters()">
+                        <div class="col-md-3 d-flex align-items-end gap-2">
+                            <button class="btn btn-outline-primary flex-fill" onclick="applyFilters()">
                                 <i class="fas fa-filter me-2"></i>Lọc
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="clearFilters()" title="Xóa bộ lọc">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -221,6 +228,18 @@
 
             // Set up event handlers
             $('#statusFilter, #timeFilter').on('change', applyFilters);
+            $('#dateFilter').on('change', function() {
+                if ($(this).val()) {
+                    $('#timeFilter').val(''); // Clear time filter when date is selected
+                }
+                applyFilters();
+            });
+            $('#timeFilter').on('change', function() {
+                if ($(this).val()) {
+                    $('#dateFilter').val(''); // Clear date filter when time filter is selected
+                }
+                applyFilters();
+            });
             $('#newStatus').on('change', function() {
                 if ($(this).val() === '5') {
                     $('#cancelReasonGroup').show();
@@ -246,29 +265,21 @@
 
         function getFilters() {
             const filters = {};
-            
+
             const date = $('#dateFilter').val();
-            if (date) filters.date = date;
-            
             const statusId = $('#statusFilter').val();
-            if (statusId) filters.statusId = statusId;
-            
             const timeFilter = $('#timeFilter').val();
+
+            if (statusId) filters.statusId = statusId;
+
             if (timeFilter) {
-                const today = new Date();
-                switch (timeFilter) {
-                    case 'today':
-                        filters.date = today.toISOString().split('T')[0];
-                        break;
-                    case 'tomorrow':
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(tomorrow.getDate() + 1);
-                        filters.date = tomorrow.toISOString().split('T')[0];
-                        break;
-                    // Add more time filter logic as needed
-                }
+                filters.timeFilter = timeFilter;
+                // Clear date filter when using time filter
+                $('#dateFilter').val('');
+            } else if (date) {
+                filters.date = date;
             }
-            
+
             return filters;
         }
 
@@ -277,6 +288,13 @@
         }
 
         function refreshAppointments() {
+            loadAppointments();
+        }
+
+        function clearFilters() {
+            $('#dateFilter').val('');
+            $('#statusFilter').val('');
+            $('#timeFilter').val('');
             loadAppointments();
         }
 
