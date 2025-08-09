@@ -33,7 +33,7 @@ namespace pet_spa_system1.Services
             _context = context;
         }
 
-public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
+        public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
         {
             // Get all statuses from database
             var allStatuses = GetAllStatuses();
@@ -159,7 +159,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
         {
             // Truy vấn resources và events đã được tách sang repo
             var resources = _userRepository.GetStaffResources();
-
+            
             // Lấy danh sách events và convert sang anonymous type
             var appointments = _appointmentRepository.GetAll()
                 .Where(a => new[] { 2, 3, 4, 6 }.Contains(a.StatusId)) // Lọc theo status yêu cầu
@@ -169,8 +169,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                     resourceId = a.AppointmentPets?.FirstOrDefault()?.StaffId,
                     start = $"{a.AppointmentDate:yyyy-MM-dd}T{a.StartTime:HH:mm:ss}",
                     end = $"{a.AppointmentDate:yyyy-MM-dd}T{a.EndTime:HH:mm:ss}",
-                    title =
-                        $"{a.User?.FullName ?? "Khách hàng"} - {string.Join(", ", a.AppointmentServices?.Select(s => s.Service?.Name) ?? Array.Empty<string>())}",
+                    title = $"{a.User?.FullName ?? "Khách hàng"} - {string.Join(", ", a.AppointmentServices?.Select(s => s.Service?.Name) ?? Array.Empty<string>())}",
                     statusId = a.StatusId // Thêm statusId vào event
                 })
                 .ToList();
@@ -583,7 +582,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 }).ToList() ?? new List<AppointmentServiceInfo>(),
                 AllPets = _petRepository.GetPetsByUserId(appointment.UserId)
                     .Select(p => new PetInfo { PetId = p.PetId, Name = p.Name }).ToList(),
-                AllServices = _serviceService.GetActiveServices().ToList(),
+                AllServices = _appointmentRepository.GetAllServices(),
                 Statuses = _appointmentRepository.GetAllStatuses(),
             };
             return model;
@@ -679,7 +678,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
         {
             return _appointmentRepository.GetAllServices();
         }
-
+        
 
         public List<User> GetAllCustomersAndStaffs()
         {
@@ -705,8 +704,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 var appointment = _appointmentRepository.GetById(vm.AppointmentId);
                 if (appointment == null)
                 {
-                    Console.WriteLine(
-                        $"[UpdateAppointmentWithPetStaff] Không tìm thấy lịch hẹn với ID: {vm.AppointmentId}");
+                    Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không tìm thấy lịch hẹn với ID: {vm.AppointmentId}");
                     return false;
                 }
 
@@ -724,11 +722,9 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                     }
 
                     // Kiểm tra xem việc chuyển trạng thái có hợp lệ không
-                    if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName,
-                            newStatus.StatusName))
+                    if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, newStatus.StatusName))
                     {
-                        Console.WriteLine(
-                            $"[UpdateAppointmentWithPetStaff] Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!");
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!");
                         return false;
                     }
                 }
@@ -743,9 +739,8 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
                 // Ghi log thông tin debug
                 Console.WriteLine($"[UpdateAppointmentWithPetStaff] Cập nhật lịch hẹn ID: {vm.AppointmentId}");
-                Console.WriteLine(
-                    $"[UpdateAppointmentWithPetStaff] Số lượng phân công: {vm.PetStaffAssignments?.Count ?? 0}");
-
+                Console.WriteLine($"[UpdateAppointmentWithPetStaff] Số lượng phân công: {vm.PetStaffAssignments?.Count ?? 0}");
+                
                 // Chuẩn hóa: mỗi pet gán 1 staff
                 if (vm.PetStaffAssignments != null && vm.PetStaffAssignments.Any())
                 {
@@ -753,16 +748,13 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                     {
                         if (assign.PetId <= 0)
                         {
-                            Console.WriteLine(
-                                $"[UpdateAppointmentWithPetStaff] Bỏ qua phân công có PetId không hợp lệ: {assign.PetId}");
+                            Console.WriteLine($"[UpdateAppointmentWithPetStaff] Bỏ qua phân công có PetId không hợp lệ: {assign.PetId}");
                             continue;
                         }
 
                         int staffIdToAssign = assign.StaffId ?? 0;
-                        Console.WriteLine(
-                            $"[UpdateAppointmentWithPetStaff] Đang cập nhật: AppointmentID={vm.AppointmentId}, PetID={assign.PetId}, StaffID={staffIdToAssign}");
-                        _appointmentRepository.UpdateAppointmentPetStaff(vm.AppointmentId, assign.PetId,
-                            staffIdToAssign);
+                        Console.WriteLine($"[UpdateAppointmentWithPetStaff] Đang cập nhật: AppointmentID={vm.AppointmentId}, PetID={assign.PetId}, StaffID={staffIdToAssign}");
+                        _appointmentRepository.UpdateAppointmentPetStaff(vm.AppointmentId, assign.PetId, staffIdToAssign);
                     }
                 }
                 else
@@ -808,14 +800,12 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
         }
 
         public (bool Success, int AppointmentId) SaveAppointment(AppointmentViewModel model, int userId)
-        {
+        {   
             Console.WriteLine($"[SaveAppointment] Bắt đầu lưu lịch hẹn cho user {userId}");
-            Console.WriteLine(
-                $"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
-            Console.WriteLine(
-                $"[SaveAppointment] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
+            Console.WriteLine($"[SaveAppointment] PetIds: {string.Join(", ", model.SelectedPetIds ?? new List<int>())}");
+            Console.WriteLine($"[SaveAppointment] ServiceIds: {string.Join(", ", model.SelectedServiceIds ?? new List<int>())}");
             Console.WriteLine($"[SaveAppointment] Ngày: {model.AppointmentDate}, Giờ bắt đầu: {model.StartTime}");
-
+            
             try
             {
                 // Tính toán EndTime trước khi lưu
@@ -837,7 +827,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 }
 
                 // Lấy danh sách petId
-
+               
                 // Kiểm tra trùng lịch
                 var conflicts = CheckPetAppointment(
                     model.SelectedPetIds,
@@ -850,10 +840,8 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                     Console.WriteLine($"[CheckPetAppointment] Có {conflicts.Count} lịch trùng!");
                     foreach (var c in conflicts)
                     {
-                        Console.WriteLine(
-                            $"Pet: {c.PetName} | Lịch trùng: {c.ConflictingStartTime:dd/MM/yyyy HH:mm} - {c.ConflictingEndTime:HH:mm}");
+                        Console.WriteLine($"Pet: {c.PetName} | Lịch trùng: {c.ConflictingStartTime:dd/MM/yyyy HH:mm} - {c.ConflictingEndTime:HH:mm}");
                     }
-
                     // Có trùng lịch, không lưu và trả về false
                     return (false, 0);
                 }
@@ -1110,12 +1098,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
             // Kiểm tra xem việc chuyển trạng thái có hợp lệ không
             if (!Utils.StatusAppointmentUtils.IsValidStatusTransition(currentStatus.StatusName, newStatus.StatusName))
-                return new ServiceResult
-                {
-                    Success = false,
-                    Message =
-                        $"Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!"
-                };
+                return new ServiceResult { Success = false, Message = $"Không thể thay đổi trạng thái từ '{currentStatus.StatusName}' sang '{newStatus.StatusName}'!" };
 
             appointment.StatusId = statusId;
             _appointmentRepository.SaveChanges();
@@ -1188,7 +1171,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
             Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra với DateTime");
             Console.WriteLine($"[CheckPetAppointment] StartDateTime: {startDateTime:dd/MM/yyyy HH:mm}");
             Console.WriteLine($"[CheckPetAppointment] EndDateTime: {endDateTime:dd/MM/yyyy HH:mm}");
-
+            
             if (petIds == null || !petIds.Any())
             {
                 Console.WriteLine("[CheckPetAppointment] Không có petIds để kiểm tra");
@@ -1199,10 +1182,10 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
             // Lấy tất cả lịch hẹn của các pet trong khoảng thời gian chỉ định
             var conflictingAppointments = _context.AppointmentPets
-                .Where(ap => petIds.Contains(ap.PetId) &&
-                             ap.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
-                             ap.Appointment.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
-                             ap.Appointment.StatusId != 5) // Loại trừ lịch đã từ chối (Rejected)
+                .Where(ap => petIds.Contains(ap.PetId) && 
+                            ap.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
+                            ap.Appointment.IsActive != false && // Chỉ lấy lịch hẹn còn hoạt động
+                            ap.Appointment.StatusId != 5) // Loại trừ lịch đã từ chối (Rejected)
                 .Select(ap => new
                 {
                     ap.PetId,
@@ -1225,8 +1208,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 conflictingAppointments = conflictingAppointments
                     .Where(ca => ca.AppointmentId != excludeAppointmentId.Value)
                     .ToList();
-                Console.WriteLine(
-                    $"[CheckPetAppointment] Sau khi loại trừ appointment {excludeAppointmentId.Value}, còn {conflictingAppointments.Count} lịch hẹn");
+                Console.WriteLine($"[CheckPetAppointment] Sau khi loại trừ appointment {excludeAppointmentId.Value}, còn {conflictingAppointments.Count} lịch hẹn");
             }
 
             // Kiểm tra từng lịch hẹn có trùng thời gian không
@@ -1235,8 +1217,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 var appointmentStart = appointment.AppointmentDate.ToDateTime(appointment.StartTime);
                 var appointmentEnd = appointment.AppointmentDate.ToDateTime(appointment.EndTime);
 
-                Console.WriteLine(
-                    $"[CheckPetAppointment] Kiểm tra lịch {appointment.AppointmentId}: {appointmentStart:dd/MM/yyyy HH:mm} - {appointmentEnd:HH:mm}");
+                Console.WriteLine($"[CheckPetAppointment] Kiểm tra lịch {appointment.AppointmentId}: {appointmentStart:dd/MM/yyyy HH:mm} - {appointmentEnd:HH:mm}");
 
                 // Kiểm tra xem có trùng thời gian không
                 if (startDateTime < appointmentEnd && endDateTime > appointmentStart)
@@ -1264,38 +1245,34 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
             return conflicts;
         }
 
-
-        public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime,
-            TimeOnly endTime, int? excludeAppointmentId = null)
+        
+        public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null)
         {
             Console.WriteLine($"[CheckPetAppointment] Bắt đầu kiểm tra trùng lịch với EndTime");
             Console.WriteLine($"[CheckPetAppointment] PetIds: {string.Join(", ", petIds)}");
-            Console.WriteLine(
-                $"[CheckPetAppointment] Ngày: {appointmentDate}, Giờ bắt đầu: {startTime}, Giờ kết thúc: {endTime}");
-
+            Console.WriteLine($"[CheckPetAppointment] Ngày: {appointmentDate}, Giờ bắt đầu: {startTime}, Giờ kết thúc: {endTime}");
+            
             var startDateTime = appointmentDate.ToDateTime(startTime);
             var endDateTime = appointmentDate.ToDateTime(endTime);
-
-            Console.WriteLine(
-                $"[CheckPetAppointment] Thời gian kiểm tra: {startDateTime:dd/MM/yyyy HH:mm} - {endDateTime:HH:mm}");
-
+            
+            Console.WriteLine($"[CheckPetAppointment] Thời gian kiểm tra: {startDateTime:dd/MM/yyyy HH:mm} - {endDateTime:HH:mm}");
+            
             return CheckPetAppointment(petIds, startDateTime, endDateTime, excludeAppointmentId);
         }
 
-
-        public List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime,
-            int? excludeAppointmentId = null)
+        
+        public List<int> getBusyStaffIds(DateOnly appointmentDate, TimeOnly startTime, TimeOnly endTime, int? excludeAppointmentId = null)
         {
             try
             {
                 var query = _context.AppointmentPets
                     .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
-                                 ap.Appointment.IsActive == true &&
-                                 ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
-                                 ap.StaffId.HasValue && // Chỉ lấy những pet đã được phân công nhân viên
-                                 ((ap.Appointment.StartTime <= startTime && ap.Appointment.EndTime > startTime) ||
-                                  (ap.Appointment.StartTime < endTime && ap.Appointment.EndTime >= endTime) ||
-                                  (ap.Appointment.StartTime >= startTime && ap.Appointment.EndTime <= endTime)));
+                               ap.Appointment.IsActive == true &&
+                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
+                               ap.StaffId.HasValue && // Chỉ lấy những pet đã được phân công nhân viên
+                               ((ap.Appointment.StartTime <= startTime && ap.Appointment.EndTime > startTime) ||
+                                (ap.Appointment.StartTime < endTime && ap.Appointment.EndTime >= endTime) ||
+                                (ap.Appointment.StartTime >= startTime && ap.Appointment.EndTime <= endTime)));
 
                 // Loại trừ lịch hẹn nếu có
                 if (excludeAppointmentId.HasValue)
@@ -1350,26 +1327,24 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 // Đếm số lịch hẹn của mỗi nhân viên trong ngày
                 var staffAppointmentCounts = _context.AppointmentPets
                     .Where(ap => ap.Appointment.AppointmentDate == appointmentDate &&
-                                 ap.Appointment.IsActive == true &&
-                                 ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
-                                 ap.StaffId.HasValue &&
-                                 availableStaffIds.Contains(ap.StaffId.Value))
+                               ap.Appointment.IsActive == true &&
+                               ap.Appointment.StatusId != 5 && // Loại trừ lịch đã từ chối
+                               ap.StaffId.HasValue &&
+                               availableStaffIds.Contains(ap.StaffId.Value))
                     .GroupBy(ap => ap.StaffId.Value)
                     .Select(g => new { StaffId = g.Key, AppointmentCount = g.Count() })
                     .ToDictionary(x => x.StaffId, x => x.AppointmentCount);
 
                 // Sắp xếp nhân viên rảnh theo số lịch hẹn từ ít đến nhiều
                 var sortedAvailableStaff = availableStaffIds
-                    .OrderBy(staffId =>
-                        staffAppointmentCounts.ContainsKey(staffId) ? staffAppointmentCounts[staffId] : 0)
+                    .OrderBy(staffId => staffAppointmentCounts.ContainsKey(staffId) ? staffAppointmentCounts[staffId] : 0)
                     .ToList();
 
                 Console.WriteLine($"[listStaffAvailable] Ngày: {appointmentDate}, Giờ: {startTime} - {endTime}");
                 Console.WriteLine($"[listStaffAvailable] - Tổng số nhân viên: {allStaff.Count}");
                 Console.WriteLine($"[listStaffAvailable] - Số nhân viên bận: {busyStaffIds.Count}");
                 Console.WriteLine($"[listStaffAvailable] - Số nhân viên rảnh: {availableStaffIds.Count}");
-                Console.WriteLine(
-                    $"[listStaffAvailable] - Danh sách nhân viên rảnh (sắp xếp theo số lịch): {string.Join(", ", sortedAvailableStaff)}");
+                Console.WriteLine($"[listStaffAvailable] - Danh sách nhân viên rảnh (sắp xếp theo số lịch): {string.Join(", ", sortedAvailableStaff)}");
 
                 return sortedAvailableStaff;
             }
@@ -1380,9 +1355,8 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
             }
         }
 
-
-        public (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(
-            int appointmentId)
+        
+        public (bool IsEnoughStaff, int AvailableStaffCount, int RequiredStaffCount) checkNumStaffForAppointment(int appointmentId)
         {
             try
             {
@@ -1413,8 +1387,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 }
 
                 // Sử dụng hàm helper để lấy nhân viên bận
-                var busyStaffIds = getBusyStaffIds(appointment.AppointmentDate, appointment.StartTime,
-                    appointment.EndTime, appointmentId);
+                var busyStaffIds = getBusyStaffIds(appointment.AppointmentDate, appointment.StartTime, appointment.EndTime, appointmentId);
 
                 // Tính số nhân viên rảnh
                 int availableStaffCount = allStaff.Count - busyStaffIds.Count;
@@ -1425,8 +1398,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 Console.WriteLine($"[checkNumStaffForAppointment] Appointment {appointmentId}:");
                 Console.WriteLine($"[checkNumStaffForAppointment] - Số pet cần phục vụ: {requiredStaffCount}");
                 Console.WriteLine($"[checkNumStaffForAppointment] - Tổng số nhân viên: {allStaff.Count}");
-                Console.WriteLine(
-                    $"[checkNumStaffForAppointment] - Số nhân viên bận (từ StaffId): {busyStaffIds.Count}");
+                Console.WriteLine($"[checkNumStaffForAppointment] - Số nhân viên bận (từ StaffId): {busyStaffIds.Count}");
                 Console.WriteLine($"[checkNumStaffForAppointment] - Số nhân viên rảnh: {availableStaffCount}");
                 Console.WriteLine($"[checkNumStaffForAppointment] - Có đủ nhân viên: {isEnoughStaff}");
 
@@ -1456,8 +1428,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
                 if (appointment.IsActive != true || appointment.StatusId == 5)
                 {
-                    Console.WriteLine(
-                        $"[AutoAssignStaff] ❌ Lịch hẹn không hợp lệ hoặc đã bị từ chối (IsActive: {appointment.IsActive}, StatusId: {appointment.StatusId})");
+                    Console.WriteLine($"[AutoAssignStaff] ❌ Lịch hẹn không hợp lệ hoặc đã bị từ chối (IsActive: {appointment.IsActive}, StatusId: {appointment.StatusId})");
                     return false;
                 }
 
@@ -1467,8 +1438,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                     .Where(p => p.StaffId == null && p.IsActive == true)
                     .ToList();
 
-                Console.WriteLine(
-                    $"[AutoAssignStaff] 🔍 Số lượng AppointmentPet chưa gán Staff: {appointmentPets.Count}");
+                Console.WriteLine($"[AutoAssignStaff] 🔍 Số lượng AppointmentPet chưa gán Staff: {appointmentPets.Count}");
 
                 if (!appointmentPets.Any())
                 {
@@ -1483,8 +1453,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                     appointment.EndTime
                 );
 
-                Console.WriteLine(
-                    $"[AutoAssignStaff] 👥 Danh sách nhân viên rảnh: {string.Join(", ", availableStaff)}");
+                Console.WriteLine($"[AutoAssignStaff] 👥 Danh sách nhân viên rảnh: {string.Join(", ", availableStaff)}");
 
                 bool assigned = false;
                 int staffIndex = 0;
@@ -1506,8 +1475,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
                 if (assigned)
                 {
-                    Console.WriteLine(
-                        $"[AutoAssignStaff] ✅ Gán thành công ít nhất 1 nhân viên. Đang cập nhật trạng thái...");
+                    Console.WriteLine($"[AutoAssignStaff] ✅ Gán thành công ít nhất 1 nhân viên. Đang cập nhật trạng thái...");
                     ConfirmedAppointment(appointment); // Xác nhận trạng thái nếu cần
                     _appointmentRepository.SaveChanges(); // hoặc _unitOfWork.SaveChanges()
                     Console.WriteLine("[AutoAssignStaff] 💾 Đã lưu thay đổi vào database.");
@@ -1551,7 +1519,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
             }
         }
 
-        public List<StaffShift> GetRealtimeShiftViewModel()
+public List<StaffShift> GetRealtimeShiftViewModel()
         {
             var appointments = _appointmentRepository.GetActiveAppointmentsWithStaffAndStatus()
                 .Include(a => a.Employee)
@@ -1628,7 +1596,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
                 ? new MoveResult { Success = true }
                 : new MoveResult { Success = false, Message = "Cập nhật thất bại." };
         }
-
+        
         public List<User> getAllStaffFreeByAppointmentId(int appointmentId)
         {
             try
@@ -1638,8 +1606,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
                 if (appointment == null || appointment.IsActive == false) // Fix: Explicitly compare nullable bool
                 {
-                    Console.WriteLine(
-                        $"[getAllStaffFreeByAppointmentId] ❌ Không tìm thấy lịch hẹn hoặc đã bị vô hiệu hóa (ID: {appointmentId})");
+                    Console.WriteLine($"[getAllStaffFreeByAppointmentId] ❌ Không tìm thấy lịch hẹn hoặc đã bị vô hiệu hóa (ID: {appointmentId})");
                     return new List<User>();
                 }
 
@@ -1653,8 +1620,7 @@ public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
 
                 if (!availableStaffIds.Any())
                 {
-                    Console.WriteLine(
-                        $"[getAllStaffFreeByAppointmentId] ⚠️ Không có nhân viên rảnh cho lịch hẹn #{appointmentId}");
+                    Console.WriteLine($"[getAllStaffFreeByAppointmentId] ⚠️ Không có nhân viên rảnh cho lịch hẹn #{appointmentId}");
                     return new List<User>();
                 }
 

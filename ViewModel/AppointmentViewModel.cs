@@ -19,12 +19,22 @@ namespace pet_spa_system1.ViewModel
         public string Category { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Duration { get; set; }
-        public List<string> PetImages { get; set; } = new(); // Thêm property này
-        public int StatusId { get; set; } // trạng thái từng dịch vụ
-        public string StatusName { get; set; } = string.Empty; // tên trạng thái từng dịch vụ
-        public List<string> PetImagesBefore { get; set; } = new();
-        public List<string> PetImagesAfter { get; set; } = new();
+
+        // Thông tin trạng thái dịch vụ
+        public int StatusId { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+
+        // Danh sách ảnh chia theo từng thú cưng
+        public List<PetImageGroup> PetImages { get; set; } = new();
     }
+    public class PetImageGroup
+    {
+        public int? PetId { get; set; }          // nullable
+        public string PetName { get; set; } = string.Empty;
+        public List<string> Before { get; set; } = new();
+        public List<string> After { get; set; } = new();
+    }
+
 
     public class AppointmentBaseViewModel
     {

@@ -15,6 +15,33 @@
     color: #fff;
     box-shadow: none;
 }
+/* Tab chưa active: chữ mờ */
+.nav-tabs .nav-link {
+    color: #6c757d !important; /* Màu xám mờ */
+}
+.pet-image-list img {
+    width: 80px; /* Chiều rộng cố định */
+    height: 80px; /* Chiều cao cố định */
+    object-fit: cover; /* Cắt ảnh để vừa khung, không méo */
+    border-radius: 6px; /* Bo góc nhẹ cho đẹp */
+}
+.pet-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+    /* Tab đang active: chữ đậm và rõ */
+    .nav-tabs .nav-link.active {
+        color: #000 !important; /* Đen */
+        font-weight: bold;
+        background-color: #f8f9fa; /* Nền sáng nhẹ */
+        border-color: #dee2e6 #dee2e6 #fff; /* Giữ viền như mặc định */
+    }
+
 .filter-badge-pending.active:hover, .filter-badge-pending.active:focus {
     background-color: #ff9800;
     border-color: #ff9800;
