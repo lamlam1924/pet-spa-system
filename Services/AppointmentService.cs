@@ -8,7 +8,32 @@ namespace pet_spa_system1.Services
 {
     public class AppointmentService : IAppointmentService
     {
-        public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
+        
+
+        private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IPetRepository _petRepository;
+        private readonly IEmailService _emailService;
+        private readonly PetDataShopContext _context;
+        private readonly IServiceService _serviceService;
+
+        public AppointmentService(
+            IAppointmentRepository appointmentRepository,
+            IUserRepository userRepository,
+            IPetRepository petRepository,
+            IEmailService emailService,
+            PetDataShopContext context,
+            IServiceService serviceService)
+        {
+            _appointmentRepository = appointmentRepository;
+            _userRepository = userRepository;
+            _petRepository = petRepository;
+            _emailService = emailService;
+            _serviceService = serviceService;
+            _context = context;
+        }
+
+public List<StatusAppointment> GetValidNextStatuses(string currentStatus)
         {
             // Get all statuses from database
             var allStatuses = GetAllStatuses();
@@ -19,28 +44,6 @@ namespace pet_spa_system1.Services
             // Filter statuses that are valid transitions
             return allStatuses.Where(s => validNextStatusNames.Contains(s.StatusName)).ToList();
         }
-
-        private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IPetRepository _petRepository;
-        private readonly IEmailService _emailService;
-        private readonly PetDataShopContext _context;
-
-        public AppointmentService(
-            IAppointmentRepository appointmentRepository,
-            IUserRepository userRepository,
-            IPetRepository petRepository,
-            IEmailService emailService,
-            PetDataShopContext context)
-        {
-            _appointmentRepository = appointmentRepository;
-            _userRepository = userRepository;
-            _petRepository = petRepository;
-            _emailService = emailService;
-            _context = context;
-        }
-
-
         public List<User> GetEmployees()
         {
             // Stub: Trả về danh sách nhân viên
@@ -580,7 +583,7 @@ namespace pet_spa_system1.Services
                 }).ToList() ?? new List<AppointmentServiceInfo>(),
                 AllPets = _petRepository.GetPetsByUserId(appointment.UserId)
                     .Select(p => new PetInfo { PetId = p.PetId, Name = p.Name }).ToList(),
-                AllServices = _appointmentRepository.GetAllServices(),
+                AllServices = _serviceService.GetActiveServices().ToList(),
                 Statuses = _appointmentRepository.GetAllStatuses(),
             };
             return model;
@@ -1681,6 +1684,11 @@ namespace pet_spa_system1.Services
                         a.StatusId != 5 // Cancelled
                 )
                 .ToList();
+        }
+        public string GetStatusName(int statusId)
+        {
+            var status = GetAllStatuses().FirstOrDefault(s => s.StatusId == statusId);
+            return status?.StatusName ?? "Unknown";
         }
     }
 }

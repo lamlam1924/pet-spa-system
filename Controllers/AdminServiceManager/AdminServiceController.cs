@@ -401,21 +401,43 @@ namespace pet_spa_system1.Controllers
                 // Kiểm tra các lịch hẹn đang sử dụng dịch vụ này
                 var activeAppointments = _appointmentService.GetActiveAppointmentsByService(serviceId);
 
-                // Kiểm tra xem có lịch hẹn nào không thuộc các trạng thái cho phép
-                var invalidAppointments = activeAppointments.Where(a =>
-                        a.StatusId != 4 && // Completed
-                        a.StatusId != 5 && // Cancelled
-                        a.StatusId != 6 // PendingCancel
-                ).ToList();
+                // Kiểm tra từng trạng thái
+                var confirmedAppointments = activeAppointments.Where(a => a.StatusId == 2).ToList();
+                var inProgressAppointments = activeAppointments.Where(a => a.StatusId == 3).ToList();
 
-                if (invalidAppointments.Any())
+                if (confirmedAppointments.Any() || inProgressAppointments.Any())
                 {
-                    var message = "Không thể tạm ngưng dịch vụ vì còn lịch hẹn đang hoạt động." +
-                                  $"\nSố lịch hẹn cần xử lý: {invalidAppointments.Count}" +
-                                  "\nVui lòng chờ các lịch hẹn hoàn thành hoặc được hủy trước khi tạm ngưng dịch vụ.";
+                    string message = "Không thể tạm ngưng dịch vụ vì:";
+                    if (confirmedAppointments.Any())
+                    {
+                        message += $"\n- Có {confirmedAppointments.Count} lịch hẹn đã xác nhận";
+                    }
+
+                    if (inProgressAppointments.Any())
+                    {
+                        message += $"\n- Có {inProgressAppointments.Count} lịch hẹn đang thực hiện";
+                    }
+
+                    message += "\nVui lòng chờ các lịch hẹn này hoàn thành trước khi tạm ngưng dịch vụ.";
 
                     TempData["ErrorMessage"] = message;
                     return RedirectToAction("ServiceList");
+                }
+
+                // Xử lý các lịch hẹn pending
+                var pendingAppointments = activeAppointments.Where(a => a.StatusId == 1).ToList();
+                if (pendingAppointments.Any())
+                {
+                    foreach (var appointment in pendingAppointments)
+                    {
+                         
+                        // Gửi thông báo cho khách hàng
+                        _notificationService.SendServiceCancelNotification(
+                            appointment.AppointmentId,
+                            serviceId,
+                            "Dịch vụ đã tạm ngưng hoạt động"
+                        );
+                    }
                 }
 
                 // Cập nhật trạng thái dịch vụ
@@ -423,7 +445,14 @@ namespace pet_spa_system1.Controllers
                 _serviceService.UpdateService(service);
                 _serviceService.Save();
 
-                TempData["SuccessMessage"] = "Đã tạm ngưng dịch vụ thành công!";
+                string successMessage = "Đã tạm ngưng dịch vụ thành công!";
+                if (pendingAppointments.Any())
+                {
+                    successMessage +=
+                        $"\nĐã gửi thông báo đến {pendingAppointments.Count} khách hàng có lịch hẹn chờ xác nhận.";
+                }
+
+                TempData["SuccessMessage"] = successMessage;
             }
             catch (Exception ex)
             {

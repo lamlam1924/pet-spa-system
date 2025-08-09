@@ -10,6 +10,9 @@ namespace pet_spa_system1.Services
         Task AddAsync(Notification notification);
         Task MarkAllAsReadAsync(int userId);
         Task DeleteAllAsync(int userId);
-        // void SendServiceCancelNotification(int appointmentId, int serviceId, string reason = "");
+        void SendServiceCancelNotification(int appointmentId, int serviceId, string reason = "");
+        void SendAppointmentNotification(int appointmentId, string title, string message);
+        void SendAppointmentConfirmNotification(int appointmentId);
+        void SendAppointmentCancelNotification(int appointmentId, string reason = "");
     }
 }

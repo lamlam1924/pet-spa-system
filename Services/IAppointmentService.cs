@@ -76,5 +76,6 @@ namespace pet_spa_system1.Services
         MoveResult AssignStaffToPet(int appointmentId, int petId, int newStaffId);
         List<User> getAllStaffFreeByAppointmentId(int appointmentId);
         List<Appointment> GetActiveAppointmentsByService(int serviceId);
+        string GetStatusName(int statusId);
     }
 }

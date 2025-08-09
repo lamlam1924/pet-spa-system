@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Chỉnh sửa lịch hẹn AP-" + Model.AppointmentId;
     Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    var isPending = Model.StatusId == 1;
+    var isCancelled = Model.StatusId == 5;
 }
 
 @section Styles {
