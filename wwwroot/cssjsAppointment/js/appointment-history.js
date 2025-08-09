@@ -471,144 +471,105 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
+    
 
     function showAppointmentDetailModal(appointment) {
         const modal = document.getElementById('appointmentDetailModal');
         const content = document.getElementById('appointmentDetailContent');
         if (!modal || !content) return;
 
-        // Generate appointment header info
-        const appointmentDate = new Date(appointment.appointmentDate);
-        const startTime = formatTimeSpan(appointment.startTime);
-        const endTime = formatTimeSpan(appointment.endTime);
+        let html = `<div class='service-timeline'>`;
 
-        const appointmentInfo = `
-            <div class="appointment-detail-header">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h4 class="mb-2">
-                                <i class="fas fa-calendar-check me-2"></i>
-                                Lịch hẹn #${appointment.appointmentId}
-                            </h4>
-                            <div class="d-flex flex-wrap gap-3">
-                                <span><i class="fas fa-clock me-1"></i> ${formatDate(appointmentDate)} | ${startTime} - ${endTime}</span>
-                                <span><i class="fas fa-paw me-1"></i> ${appointment.petNames.join(', ')}</span>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <span class="badge badge-lg bg-${getServiceStatusColor(appointment.statusId)} fs-6">
-                                ${appointment.statusName}
-                            </span>
-                        </div>
+        if (appointment.services && appointment.services.length > 0) {
+            appointment.services.forEach((service, idx) => {
+                // Icon dot
+                let dotIcon = '';
+                if (service.statusId == 3) dotIcon = '<i class="fas fa-check"></i>';
+                else if (service.statusId == 2) dotIcon = '<i class="fas fa-clock"></i>';
+                else if (service.statusId == 4) dotIcon = '<i class="fas fa-times"></i>';
+
+                html += `
+            <div class='service-timeline-item'>
+                <div class='service-timeline-dot ${getStatusClass(service.statusId)}'>${dotIcon}</div>
+                <div class='service-timeline-content'>
+                    <div class='d-flex justify-content-between align-items-center'>
+                        <div><b>${service.name}</b></div>
                     </div>
-                </div>
-            </div>
-        `;
+                   
+                    <div class='mt-2'>${service.description || ''}</div>
+            `;
 
-        // Group services by pet using Pet-Staff assignments
-        const petServiceMap = {};
-
-        if (appointment.petStaffAssignments && appointment.services) {
-            // Initialize pets from petStaffAssignments
-            appointment.petStaffAssignments.forEach(petStaff => {
-                petServiceMap[petStaff.petId] = {
-                    petName: petStaff.petName,
-                    staffName: petStaff.staffName || 'Chưa phân công',
-                    services: []
-                };
-            });
-
-            // Add all services to all pets (since services apply to all pets in appointment)
-            appointment.services.forEach(service => {
-                Object.keys(petServiceMap).forEach(petId => {
-                    // Find images for this specific pet
-                    const petImages = service.petImages?.find(img => img.petId == petId) || { before: [], after: [] };
-
-                    petServiceMap[petId].services.push({
-                        appointmentServiceId: service.appointmentServiceId, // Use actual appointmentServiceId from API
-                        serviceName: service.name,
-                        status: service.statusId,
-                        petImages: petImages
+                // 🐾 Nếu có ảnh thú cưng -> nhóm theo petId
+                if (service.petImages && service.petImages.length > 0) {
+                    // Nhóm theo PetId
+                    const petsGrouped = {};
+                    service.petImages.forEach(pet => {
+                        if (!petsGrouped[pet.petId]) {
+                            petsGrouped[pet.petId] = {
+                                petName: pet.petName || 'Không rõ',
+                                before: pet.before || [],
+                                after: pet.after || []
+                            };
+                        }
                     });
-                });
-            });
-        }
 
-        let petSectionsHtml = '';
+                    const petIds = Object.keys(petsGrouped);
 
-        if (Object.keys(petServiceMap).length > 0) {
-            Object.entries(petServiceMap).forEach(([petId, petData]) => {
-                petSectionsHtml += `
-                    <div class="pet-service-section">
-                        <div class="pet-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-paw me-2"></i>
-                                    <strong>${petData.petName}</strong>
-                                </div>
-                                <div class="text-end">
-                                    <small>Nhân viên phụ trách: <strong>${petData.staffName}</strong></small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="service-timeline">
-                `;
+                    // Tạo tab nav
+                    html += `<ul class="nav nav-tabs mt-3" role="tablist">`;
+                    petIds.forEach((petId, i) => {
+                        html += `
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link ${i === 0 ? 'active' : ''}" 
+                                id="pet-${petId}-tab-${idx}" 
+                                data-bs-toggle="tab" 
+                                data-bs-target="#pet-${petId}-content-${idx}" 
+                                type="button" role="tab">
+                                ${petsGrouped[petId].petName}
+                            </button>
+                        </li>
+                    `;
+                    });
+                    html += `</ul>`;
 
-                if (petData.services && petData.services.length > 0) {
-                    petData.services.forEach((service, idx) => {
-                        const statusClass = getServiceStatusClass(service.status);
-                        const statusName = getServiceStatusName(service.status);
-
-                        petSectionsHtml += `
-                            <div class="service-item ${statusClass}">
-                                <div class="service-header">
-                                    <h5 class="service-name">${service.serviceName}</h5>
-                                    <span class="badge status-${statusClass} service-status">${statusName}</span>
-                                </div>
-
-                                <div class="service-meta">
-                                    <div class="staff-info">
-                                        <i class="fas fa-user-tie me-1"></i>
-                                        Nhân viên thực hiện: <strong>${petData.staffName}</strong>
+                    // Tạo tab content
+                    html += `<div class="tab-content p-2 border border-top-0">`;
+                    petIds.forEach((petId, i) => {
+                        const pet = petsGrouped[petId];
+                        html += `
+                        <div class="tab-pane fade ${i === 0 ? 'show active' : ''}" 
+                             id="pet-${petId}-content-${idx}" 
+                             role="tabpanel">
+                            <div class='row'>
+                                <div class='col-6'>
+                                    <div class='pet-image-title mb-1'>Trước dịch vụ:</div>
+                                    <div class='pet-image-list'>
+                                        ${pet.before.length > 0
+                                ? pet.before.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('')
+                                : '<span class="text-muted">Chưa có</span>'}
                                     </div>
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="image-section">
-                                            <h6><i class="fas fa-camera me-1"></i> Ảnh trước khi làm</h6>
-                                            <div class="image-grid" id="before-images-${service.appointmentServiceId}">
-                                                <div class="no-images">
-                                                    <i class="fas fa-image fa-2x mb-2"></i>
-                                                    <div>Chưa có ảnh</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="image-section">
-                                            <h6><i class="fas fa-camera me-1"></i> Ảnh sau khi làm</h6>
-                                            <div class="image-grid" id="after-images-${service.appointmentServiceId}">
-                                                <div class="no-images">
-                                                    <i class="fas fa-image fa-2x mb-2"></i>
-                                                    <div>Chưa có ảnh</div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class='col-6'>
+                                    <div class='pet-image-title mb-1'>Sau dịch vụ:</div>
+                                    <div class='pet-image-list'>
+                                        ${pet.after.length > 0
+                                ? pet.after.map(img => `<img src='${img}' class='img-thumbnail me-2 mb-2' style='max-width:70px;max-height:70px;'/>`).join('')
+                                : '<span class="text-muted">Chưa có</span>'}
                                     </div>
                                 </div>
                             </div>
-                        `;
-                    });
-                } else {
-                    petSectionsHtml += `
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-info-circle fa-2x mb-2"></i>
-                            <div>Chưa có dịch vụ nào được đặt cho thú cưng này</div>
                         </div>
                     `;
+                    });
+                    html += `</div>`;
+                } else {
+                    html += `<div class='text-muted mt-2'>Dịch vụ chưa cập nhật.</div>`;
+                }
+
+                html += `</div></div>`;
+
+                if (idx < appointment.services.length - 1) {
+                    html += `<div class='service-timeline-connector'></div>`;
                 }
 
                 petSectionsHtml += `
@@ -665,169 +626,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        html += `</div>`;
+        content.innerHTML = html;
         new bootstrap.Modal(modal).show();
     }
 
-    // Function to load images for a specific service in modal
-    function loadServiceImagesForModal(appointmentServiceId) {
-        console.log('🔍 [DEBUG] Loading images for appointmentServiceId:', appointmentServiceId);
 
-        // Try customer endpoint first, then staff endpoint as fallback
-        fetch(`/Appointment/GetServiceImages?appointmentServiceId=${appointmentServiceId}`)
-            .then(response => response.json())
-            .then(result => {
-                console.log('🔍 [DEBUG] API response:', result);
-
-                if (result.success && result.images && result.images.length > 0) {
-                    console.log('🔍 [DEBUG] Raw images from API:', result.images);
-
-                    // Group images by petId, handle null/empty petId
-                    const imagesByPet = {};
-                    result.images.forEach(img => {
-                        // Use 'default' for null/empty petId
-                        const petKey = img.petId || 'default';
-
-                        if (!imagesByPet[petKey]) {
-                            imagesByPet[petKey] = { before: [], after: [] };
-                        }
-
-                        if (img.photoType === 'Before') {
-                            imagesByPet[petKey].before.push(img);
-                        } else if (img.photoType === 'After') {
-                            imagesByPet[petKey].after.push(img);
-                        }
-                    });
-
-                    console.log('🔍 [DEBUG] Images grouped by pet:', imagesByPet);
-
-                    // Display images for each pet - try all possible container IDs
-                    Object.keys(imagesByPet).forEach(petKey => {
-                        const petImages = imagesByPet[petKey];
-
-                        // Try multiple container ID formats
-                        const possibleServiceIds = [
-                            `${appointmentServiceId}`, // Simple format: before-images-56
-                            `${appointmentServiceId}_${petKey}`,
-                            `${appointmentServiceId}_0`,
-                            `${appointmentServiceId}_default`
-                        ];
-
-                        // Also try to find containers for all pets in this appointment
-                        const allContainers = document.querySelectorAll(`[id^="before-images-${appointmentServiceId}_"], [id^="after-images-${appointmentServiceId}_"]`);
-                        console.log('🔍 [DEBUG] Found containers with prefix:', allContainers.length);
-
-                        let foundContainer = false;
-
-                        // Try each possible service ID
-                        possibleServiceIds.forEach(serviceId => {
-                            console.log('🔍 [DEBUG] Trying serviceId:', serviceId);
-                            const beforeContainer = document.getElementById(`before-images-${serviceId}`);
-                            const afterContainer = document.getElementById(`after-images-${serviceId}`);
-
-                            if (beforeContainer && afterContainer) {
-                                console.log('🔍 [DEBUG] Found containers for serviceId:', serviceId);
-                                foundContainer = true;
-
-                                // Render before images
-                                if (petImages.before.length > 0) {
-                                    beforeContainer.innerHTML = petImages.before.map(img =>
-                                        `<img src="${img.imageUrl}" class="service-image" alt="Before" onclick="viewImageFullSize('${img.imageUrl}')" title="Xem ảnh lớn">`
-                                    ).join('');
-                                }
-
-                                // Render after images
-                                if (petImages.after.length > 0) {
-                                    afterContainer.innerHTML = petImages.after.map(img =>
-                                        `<img src="${img.imageUrl}" class="service-image" alt="After" onclick="viewImageFullSize('${img.imageUrl}')" title="Xem ảnh lớn">`
-                                    ).join('');
-                                }
-                            }
-                        });
-
-                        if (!foundContainer) {
-                            console.log('🔍 [DEBUG] No containers found for petKey:', petKey, 'appointmentServiceId:', appointmentServiceId);
-                        }
-                    });
-                } else {
-                    console.log('🔍 [DEBUG] No images returned from API');
-                }
-            })
-            .catch(error => {
-                console.log('🔍 [DEBUG] Error loading images:', error);
-            });
-    }
-
-    // Function to view image in full size
-    function viewImageFullSize(imageUrl) {
-        window.open(imageUrl, '_blank');
-    }
-
-    // Function to display images in modal containers
-    function displayImagesInModal(serviceId, beforeImages, afterImages) {
-        const beforeContainer = document.getElementById(`before-images-${serviceId}`);
-        const afterContainer = document.getElementById(`after-images-${serviceId}`);
-
-        if (beforeContainer && beforeImages && beforeImages.length > 0) {
-            beforeContainer.innerHTML = beforeImages.map(imageUrl =>
-                `<img src="${imageUrl}" class="service-image" alt="Before" onclick="viewImageFullSize('${imageUrl}')" title="Xem ảnh lớn">`
-            ).join('');
-        }
-
-        if (afterContainer && afterImages && afterImages.length > 0) {
-            afterContainer.innerHTML = afterImages.map(imageUrl =>
-                `<img src="${imageUrl}" class="service-image" alt="After" onclick="viewImageFullSize('${imageUrl}')" title="Xem ảnh lớn">`
-            ).join('');
-        }
-    }
-
-    // Make function global so it can be called from HTML
-    window.viewImageFullSize = viewImageFullSize;
-
-    // Helper function to get service status class
-    function getServiceStatusClass(status) {
-        switch(status) {
-            case 1: return 'pending';
-            case 2: return 'in-progress';
-            case 3: return 'completed';
-            case 4: return 'cancelled';
-            default: return 'pending';
-        }
-    }
-
-    // Helper function to get service status name
-    function getServiceStatusName(status) {
-        switch(status) {
-            case 1: return 'Chờ thực hiện';
-            case 2: return 'Đang thực hiện';
-            case 3: return 'Hoàn thành';
-            case 4: return 'Đã hủy';
-            default: return 'Không xác định';
-        }
-    }
-
-    // Helper function to format TimeSpan to HH:mm
-    function formatTimeSpan(timeSpan) {
-        if (!timeSpan) return '00:00';
-
-        // TimeSpan format: "HH:mm:ss" or "H:mm:ss"
-        const parts = timeSpan.toString().split(':');
-        if (parts.length >= 2) {
-            const hours = parts[0].padStart(2, '0');
-            const minutes = parts[1].padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
-        return timeSpan;
-    }
-
-    // Helper function to get service status color (reuse existing function)
-    function getServiceStatusColor(statusId) {
-        switch(statusId) {
-            case 1: return 'secondary'; // Pending
-            case 2: return 'warning';   // In Progress
-            case 3: return 'success';   // Completed
-            case 4: return 'danger';    // Cancelled
-            default: return 'secondary';
-        }
-    }
 
 });

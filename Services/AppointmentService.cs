@@ -1113,20 +1113,15 @@ namespace pet_spa_system1.Services
                 .FirstOrDefault(a => a.AppointmentId == appointmentId && a.UserId == userId);
             if (appointment == null) return null;
 
-            // Lấy danh sách pet trong lịch hẹn với thông tin staff
+            // Lấy danh sách pet trong lịch hẹn
             var pets = _context.AppointmentPets
                 .Include(ap => ap.Pet)
                 .Include(ap => ap.Staff)
                 .Where(ap => ap.AppointmentId == appointmentId)
-                .Select(ap => new {
-                    ap.PetId,
-                    PetName = ap.Pet.Name,
-                    StaffId = ap.StaffId,
-                    StaffName = ap.Staff != null ? ap.Staff.FullName : "Chưa phân công"
-                })
+                .Select(ap => new { ap.PetId, ap.Pet.Name })
                 .ToList();
 
-            // Lấy dịch vụ + ảnh với Include
+            // Lấy dịch vụ + ảnh
             var appointmentServices = _context.AppointmentServices
                 .Include(asv => asv.Service)
                     .ThenInclude(s => s.Category)
@@ -1167,13 +1162,12 @@ namespace pet_spa_system1.Services
                 Duration = s.Service.DurationMinutes ?? 0,
                 StatusId = s.Status ?? 0,
                 StatusName = s.StatusName ?? "",
-                AppointmentServiceId = s.AppointmentServiceId, // Thêm appointmentServiceId
                 PetImages = s.Images
                     .GroupBy(i => i.PetId)
                     .Select(g => new PetImageGroup
                     {
                         PetId = g.Key,
-                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.PetName ?? "Không rõ",
+                        PetName = pets.FirstOrDefault(p => p.PetId == g.Key)?.Name ?? "Không rõ",
                         Before = g.Where(i => i.PhotoType == "Before").Select(i => i.ImgUrl).ToList(),
                         After = g.Where(i => i.PhotoType == "After").Select(i => i.ImgUrl).ToList()
                     })
@@ -1188,7 +1182,7 @@ namespace pet_spa_system1.Services
                 EndTime = appointment.EndTime.ToTimeSpan(),
                 StatusId = appointment.StatusId,
                 StatusName = appointment.Status?.StatusName ?? string.Empty,
-                PetNames = pets.Select(p => p.PetName).ToList(),
+                PetNames = pets.Select(p => p.Name).ToList(),
                 Notes = appointment.Notes,
                 Services = serviceHistory,
                 PetStaffAssignments = pets.Select(p => new PetStaffInfo
@@ -1200,6 +1194,7 @@ namespace pet_spa_system1.Services
                 }).ToList()
             };
         }
+
 
 
         public List<PetConflictInfo> CheckPetAppointment(List<int> petIds, DateTime startDateTime, DateTime endDateTime, int? excludeAppointmentId = null)
