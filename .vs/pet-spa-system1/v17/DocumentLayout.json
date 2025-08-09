@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\PRN212\\PRJ_PET1\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\prn212\\prj_pet1\\viewmodel\\appointmentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:viewmodel\\appointmentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|d:\\prn212\\prj_pet1\\services\\appointmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C830C29C-D361-4DB9-B077-53185F024AEA}|pet-spa-system1.csproj|solutionrelative:services\\appointmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 55,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,6 +55,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:1328755460:0:{83107a3e-496a-485e-b455-16ddb978e55e}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AppointmentViewModel.cs",
+              "DocumentMoniker": "D:\\PRN212\\PRJ_PET1\\ViewModel\\AppointmentViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\AppointmentViewModel.cs",
+              "ToolTip": "D:\\PRN212\\PRJ_PET1\\ViewModel\\AppointmentViewModel.cs",
+              "RelativeToolTip": "ViewModel\\AppointmentViewModel.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAADwvxUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-09T01:33:07.399Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppointmentService.cs",
+              "DocumentMoniker": "D:\\PRN212\\PRJ_PET1\\Services\\AppointmentService.cs",
+              "RelativeDocumentMoniker": "Services\\AppointmentService.cs",
+              "ToolTip": "D:\\PRN212\\PRJ_PET1\\Services\\AppointmentService.cs",
+              "RelativeToolTip": "Services\\AppointmentService.cs",
+              "ViewState": "AgIAAH4EAAAAAAAAAAAqwIgEAABXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-09T01:29:53.852Z",
+              "EditorCaption": ""
             }
           ]
         },
